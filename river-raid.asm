@@ -945,14 +945,39 @@ L5C78:
   DEFB $A8,$10,$4B,$F4,$09,$C4,$15,$53
   DEFB $81,$0F,$C4,$15,$52,$F4,$09,$C4
   DEFB $15,$50,$80,$00,$01,$5C,$1A,$EA
-  DEFB $0D,$80,$21,$B0,$6B,$22,$83,$92
-  DEFB $21,$36,$61,$22,$08,$8B,$3E,$C3
-  DEFB $32,$FE,$FE,$21,$DB,$6B,$22,$FF
-  DEFB $FE,$21,$00,$FC,$06,$00,$36,$FE
-  DEFB $23,$10,$FB,$36,$FE,$3E,$FC,$ED
-  DEFB $47,$ED,$73,$83,$5F,$ED,$5E,$FB
-  DEFB $21,$82,$81,$22,$7E,$5F,$3E,$3F
-  DEFB $ED,$47,$ED,$56,$FB,$CD,$04,$78
+  DEFB $0D,$80
+
+; The entry point invoked from the BASIC loader
+start:
+  LD HL,L6BB0
+  LD (L9283),HL
+  LD HL,L6136
+  LD ($8B08),HL
+  LD A,$C3
+  LD ($FEFE),A
+  LD HL,L6BDB
+  LD ($FEFF),HL
+  LD HL,$FC00
+  LD B,$00
+start_0:
+  LD (HL),$FE
+  INC HL
+  DJNZ start_0
+  LD (HL),$FE
+  LD A,$FC
+  LD I,A
+  LD ($5F83),SP
+  IM 2
+  EI
+  LD HL,$8182
+  LD ($5F7E),HL
+; This entry point is used by the routine at L6D17.
+start_1:
+  LD A,$3F
+  LD I,A
+  IM 1
+  EI
+  CALL L7800_0
 
 ; Routine at 5D10
 L5D10:
@@ -960,7 +985,7 @@ L5D10:
   LD I,A
   IM 2
   EI
-  LD A,($7800)
+  LD A,(L7800)
   LD ($5F67),A
   LD A,($7801)
   CP $01
@@ -3227,7 +3252,7 @@ L6D17_0:
   LD A,($5EF0)
   SUB B
   CP $05
-  JP Z,$5D06
+  JP Z,start_1
   CALL L8A1B
   CALL L60A5
   LD HL,$5EEF
@@ -4830,9 +4855,30 @@ L7787:
   DEFB $00,$00,$00,$00,$00,$00,$00,$00
   DEFB $00,$00,$00,$00,$00,$00,$00,$00
   DEFB $00,$00,$00,$00,$00,$00,$00,$00
-  DEFB $00,$00,$00,$00,$00,$ED,$73,$10
-  DEFB $78,$16,$07,$CD,$0A,$94,$C3,$B9
-  DEFB $7A,$00,$00,$10,$02,$16,$00,$08
+  DEFB $00
+
+; Main code file
+L7800:
+  NOP
+  NOP
+  NOP
+  NOP
+; This entry point is used by the routine at start.
+L7800_0:
+  LD ($7810),SP
+  LD D,$07
+  CALL L940A
+  JP L7AB9
+  NOP
+  NOP
+
+; Keyboard configuration; INK 2
+L7812:
+  DEFB $10,$02
+
+; AT 0,8
+L7814:
+  DEFB $16,$00,$08
 
 ; Message at 7817
 L7817:
@@ -4878,7 +4924,7 @@ L786F:
 L7872:
   DEFM "           row"
 
-; Data block at 7880
+; Game controls
 L7880:
   DEFB $10,$07,$16,$0B,$07
 
@@ -5078,42 +5124,47 @@ L7AA3:
 L7AA6:
   DEFM "4. CURSOR INTERFACE"
 
-; Data block at 7AB9
+; Print control choice dialog
+;
+; Used by the routine at L7800.
 L7AB9:
-  DEFB $11,$2E,$7A,$01,$8B,$00,$CD
-
-; Message at 7AC0
-L7AC0:
-  DEFM "< !"
-
-; Data block at 7AC3
-L7AC3:
-  DEFB $FF,$FF,$22,$02,$78,$3E,$0D,$32
-  DEFB $08,$5C,$2A,$02
-
-; Message at 7ACF
-L7ACF:
-  DEFM "x+\""
-
-; Data block at 7AD2
-L7AD2:
-  DEFB $02,$78,$7C,$B5,$CA,$57,$7B,$3A
-  DEFB $08,$5C,$CD,$BF,$02,$FB,$D6,$31
-  DEFB $32,$00,$78,$E6,$FC,$FE,$00,$20
-  DEFB $E2,$3E,$FF,$06,$00,$10,$FE,$3D
-  DEFB $20,$F9,$16,$07,$CD,$0A,$94,$11
-  DEFB $2A,$79,$01,$04,$01,$CD
-
-; Message at 7B00
-L7B00:
-  DEFM "< >"
-
-; Data block at 7B03
-L7B03:
-  DEFB $0D,$32,$08,$5C
-
-; Routine at 7B07
-L7B07:
+  LD DE,L7A2E
+  LD BC,$008B
+  CALL PR_STRING
+  LD HL,$FFFF
+  LD ($7802),HL
+  LD A,$0D
+  LD (LAST_K),A
+L7AB9_0:
+  LD HL,($7802)
+  DEC HL
+  LD ($7802),HL
+  LD A,H
+  OR L
+  JP Z,L7B57
+  LD A,(LAST_K)
+  CALL KEYBOARD
+  EI
+  SUB $31
+  LD (L7800),A
+  AND $FC
+  CP $00
+  JR NZ,L7AB9_0
+  LD A,$FF
+L7AB9_1:
+  LD B,$00
+L7AB9_2:
+  DJNZ L7AB9_2
+  DEC A
+  JR NZ,L7AB9_1
+  LD D,$07
+  CALL L940A
+  LD DE,L792A             ; Print game mode dialog
+  LD BC,$0104
+  CALL PR_STRING
+  LD A,$0D
+  LD (LAST_K),A
+L7AB9_3:
   LD A,(LAST_K)
   CALL KEYBOARD
   EI
@@ -5121,34 +5172,36 @@ L7B07:
   LD (L923A),A
   AND $F8
   CP $00
-  JP NZ,L7B07
+  JP NZ,L7AB9_3
   LD D,$07
   CALL L940A
-  LD A,($7800)
+  LD A,(L7800)
   CP $00
-  JP NZ,L7B07_0
-  LD DE,$7812
+  JP NZ,L7AB9_4
+  LD DE,L7812             ; Print game controls
   LD BC,$0070
   CALL PR_STRING
-L7B07_0:
+L7AB9_4:
   LD DE,$7882
   LD BC,$00A8
   CALL PR_STRING
   LD A,$20
   LD (LAST_K),A
-L7B07_1:
+L7AB9_5:
   LD A,(LAST_K)
   CALL KEYBOARD
   EI
   LD A,(LAST_K)
   CP $0D
-  JP NZ,L7B07_1
+  JP NZ,L7AB9_5
   LD A,$00
   LD ($7801),A
   LD SP,($7810)
   RET
 
 ; Data block at 7B57
+;
+; Used by the routine at L7AB9.
 L7B57:
   DEFB $3E,$01,$32,$01,$78,$ED,$7B,$10
   DEFB $78,$C9,$C3,$90,$EA,$00,$00,$00
@@ -6741,7 +6794,7 @@ L93A1:
 
 ; Routine at 940A
 ;
-; Used by the routines at L5DA6, L6D17 and L7B07.
+; Used by the routines at L5DA6, L6D17, L7800 and L7AB9.
 L940A:
   LD HL,screen_pixels
   LD C,$18

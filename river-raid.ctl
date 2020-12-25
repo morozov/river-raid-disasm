@@ -15,6 +15,8 @@ b $5B00
 t $5B12
 b $5B20
 @ $5C78 label=L5C78
+@ $5CD2 label=start
+c $5CD2 The entry point invoked from the BASIC loader
 @ $5CD8 nowarn
 @ $5CE3 nowarn
 c $5D10
@@ -169,6 +171,9 @@ t $7770
 b $7773
 t $7784
 b $7787
+c $7800 Main code file
+b $7812 Keyboard configuration; INK 2
+b $7814 AT 0,8
 t $7817
 b $7824
 t $7829
@@ -180,7 +185,7 @@ b $785A
 t $785F
 b $786F
 t $7872
-b $7880
+b $7880 Game controls
 t $7885
 b $7895
 t $7898
@@ -230,14 +235,10 @@ b $7A8B
 t $7A8E
 b $7AA3
 t $7AA6
-b $7AB9
-t $7AC0
-b $7AC3
-t $7ACF
-b $7AD2
-t $7B00
-b $7B03
-c $7B07
+c $7AB9 Print control choice dialog
+  $7AF9,3 Print game mode dialog
+  $7B27,3 Print keyboard configuration
+  $7B27,3 Print game controls
 b $7B57
 t $8007
 b $8011

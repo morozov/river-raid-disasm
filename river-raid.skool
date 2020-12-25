@@ -941,15 +941,39 @@ b$5B20 DEFB $5F,$40,$5F,$41,$5F,$42,$5F,$43
  $5CB8 DEFB $A8,$10,$4B,$F4,$09,$C4,$15,$53
  $5CC0 DEFB $81,$0F,$C4,$15,$52,$F4,$09,$C4
  $5CC8 DEFB $15,$50,$80,$00,$01,$5C,$1A,$EA
- $5CD0 DEFB $0D,$80,$21,$B0,$6B,$22,$83,$92
+ $5CD0 DEFB $0D,$80
+
+; The entry point invoked from the BASIC loader
+@label=start
+c$5CD2 LD HL,$6BB0   ;
+ $5CD5 LD ($9283),HL ;
 @nowarn
- $5CD8 DEFB $21,$36,$61,$22,$08,$8B,$3E,$C3
- $5CE0 DEFB $32,$FE,$FE,$21,$DB,$6B,$22,$FF
- $5CE8 DEFB $FE,$21,$00,$FC,$06,$00,$36,$FE
- $5CF0 DEFB $23,$10,$FB,$36,$FE,$3E,$FC,$ED
- $5CF8 DEFB $47,$ED,$73,$83,$5F,$ED,$5E,$FB
- $5D00 DEFB $21,$82,$81,$22,$7E,$5F,$3E,$3F
- $5D08 DEFB $ED,$47,$ED,$56,$FB,$CD,$04,$78
+ $5CD8 LD HL,$6136   ;
+ $5CDB LD ($8B08),HL ;
+ $5CDE LD A,$C3      ;
+ $5CE0 LD ($FEFE),A  ;
+@nowarn
+ $5CE3 LD HL,$6BDB   ;
+ $5CE6 LD ($FEFF),HL ;
+ $5CE9 LD HL,$FC00   ;
+ $5CEC LD B,$00      ;
+*$5CEE LD (HL),$FE   ;
+ $5CF0 INC HL        ;
+ $5CF1 DJNZ $5CEE    ;
+ $5CF3 LD (HL),$FE   ;
+ $5CF5 LD A,$FC      ;
+ $5CF7 LD I,A        ;
+ $5CF9 LD ($5F83),SP ;
+ $5CFD IM 2          ;
+ $5CFF EI            ;
+ $5D00 LD HL,$8182   ;
+ $5D03 LD ($5F7E),HL ;
+; This entry point is used by the routine at #R$6D17.
+*$5D06 LD A,$3F      ;
+ $5D08 LD I,A        ;
+ $5D0A IM 1          ;
+ $5D0C EI            ;
+ $5D0D CALL $7804    ;
 
 ; Routine at 5D10
 c$5D10 LD A,$FC      ;
@@ -4573,9 +4597,26 @@ b$7787 DEFB $0E,$00,$00,$60,$EA,$00,$0D,$00
  $77E7 DEFB $00,$00,$00,$00,$00,$00,$00,$00
  $77EF DEFB $00,$00,$00,$00,$00,$00,$00,$00
  $77F7 DEFB $00,$00,$00,$00,$00,$00,$00,$00
- $77FF DEFB $00,$00,$00,$00,$00,$ED,$73,$10
- $7807 DEFB $78,$16,$07,$CD,$0A,$94,$C3,$B9
- $780F DEFB $7A,$00,$00,$10,$02,$16,$00,$08
+ $77FF DEFB $00
+
+; Main code file
+c$7800 NOP           ;
+ $7801 NOP           ;
+ $7802 NOP           ;
+ $7803 NOP           ;
+; This entry point is used by the routine at #R$5CD2.
+*$7804 LD ($7810),SP ;
+ $7808 LD D,$07      ;
+ $780A CALL $940A    ;
+ $780D JP $7AB9      ;
+ $7810 NOP           ;
+ $7811 NOP           ;
+
+; Keyboard configuration; INK 2
+b$7812 DEFB $10,$02
+
+; AT 0,8
+b$7814 DEFB $16,$00,$08
 
 ; Message at 7817
 t$7817 DEFM "LEFT........O"
@@ -4610,7 +4651,7 @@ b$786F DEFB $16,$09,$08
 ; Message at 7872
 t$7872 DEFM "           row"
 
-; Data block at 7880
+; Game controls
 b$7880 DEFB $10,$07,$16,$0B,$07
 
 ; Message at 7885
@@ -4760,35 +4801,43 @@ b$7AA3 DEFB $16,$0E,$06
 ; Message at 7AA6
 t$7AA6 DEFM "4. CURSOR INTERFACE"
 
-; Data block at 7AB9
-b$7AB9 DEFB $11,$2E,$7A,$01,$8B,$00,$CD
-
-; Message at 7AC0
-t$7AC0 DEFM "< !"
-
-; Data block at 7AC3
-b$7AC3 DEFB $FF,$FF,$22,$02,$78,$3E,$0D,$32
- $7ACB DEFB $08,$5C,$2A,$02
-
-; Message at 7ACF
-t$7ACF DEFM "x+\""
-
-; Data block at 7AD2
-b$7AD2 DEFB $02,$78,$7C,$B5,$CA,$57,$7B,$3A
- $7ADA DEFB $08,$5C,$CD,$BF,$02,$FB,$D6,$31
- $7AE2 DEFB $32,$00,$78,$E6,$FC,$FE,$00,$20
- $7AEA DEFB $E2,$3E,$FF,$06,$00,$10,$FE,$3D
- $7AF2 DEFB $20,$F9,$16,$07,$CD,$0A,$94,$11
- $7AFA DEFB $2A,$79,$01,$04,$01,$CD
-
-; Message at 7B00
-t$7B00 DEFM "< >"
-
-; Data block at 7B03
-b$7B03 DEFB $0D,$32,$08,$5C
-
-; Routine at 7B07
-c$7B07 LD A,($5C08)  ;
+; Print control choice dialog
+;
+; Used by the routine at #R$7800.
+c$7AB9 LD DE,$7A2E   ;
+ $7ABC LD BC,$008B   ;
+ $7ABF CALL $203C    ;
+ $7AC2 LD HL,$FFFF   ;
+ $7AC5 LD ($7802),HL ;
+ $7AC8 LD A,$0D      ;
+ $7ACA LD ($5C08),A  ;
+*$7ACD LD HL,($7802) ;
+ $7AD0 DEC HL        ;
+ $7AD1 LD ($7802),HL ;
+ $7AD4 LD A,H        ;
+ $7AD5 OR L          ;
+ $7AD6 JP Z,$7B57    ;
+ $7AD9 LD A,($5C08)  ;
+ $7ADC CALL $02BF    ;
+ $7ADF EI            ;
+ $7AE0 SUB $31       ;
+ $7AE2 LD ($7800),A  ;
+ $7AE5 AND $FC       ;
+ $7AE7 CP $00        ;
+ $7AE9 JR NZ,$7ACD   ;
+ $7AEB LD A,$FF      ;
+*$7AED LD B,$00      ;
+*$7AEF DJNZ $7AEF    ;
+ $7AF1 DEC A         ;
+ $7AF2 JR NZ,$7AED   ;
+ $7AF4 LD D,$07      ;
+ $7AF6 CALL $940A    ;
+ $7AF9 LD DE,$792A   ; Print game mode dialog
+ $7AFC LD BC,$0104   ;
+ $7AFF CALL $203C    ;
+ $7B02 LD A,$0D      ;
+ $7B04 LD ($5C08),A  ;
+*$7B07 LD A,($5C08)  ;
  $7B0A CALL $02BF    ;
  $7B0D EI            ;
  $7B0E SUB $31       ;
@@ -4801,7 +4850,7 @@ c$7B07 LD A,($5C08)  ;
  $7B1F LD A,($7800)  ;
  $7B22 CP $00        ;
  $7B24 JP NZ,$7B30   ;
- $7B27 LD DE,$7812   ;
+ $7B27 LD DE,$7812   ; Print game controls
  $7B2A LD BC,$0070   ;
  $7B2D CALL $203C    ;
 *$7B30 LD DE,$7882   ;
@@ -4821,6 +4870,8 @@ c$7B07 LD A,($5C08)  ;
  $7B56 RET           ;
 
 ; Data block at 7B57
+;
+; Used by the routine at #R$7AB9.
 b$7B57 DEFB $3E,$01,$32,$01,$78,$ED,$7B,$10
  $7B5F DEFB $78,$C9,$C3,$90,$EA,$00,$00,$00
  $7B67 DEFB $00,$00,$00,$00,$00,$00,$00,$00
@@ -6300,7 +6351,7 @@ b$93A1 DEFB $0E,$06,$7E,$47,$1A,$90,$FA,$B8
 
 ; Routine at 940A
 ;
-; Used by the routines at #R$5DA6, #R$6D17 and #R$7B07.
+; Used by the routines at #R$5DA6, #R$6D17, #R$7800 and #R$7AB9.
 c$940A LD HL,$4000   ;
  $940D LD C,$18      ;
 *$940F LD B,$00      ;
