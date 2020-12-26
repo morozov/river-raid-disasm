@@ -1061,14 +1061,14 @@ L5DA6:
   LD D,$0C
   CALL L940A
   CALL L8A33
-  LD DE,$8000
-  LD BC,$0031
+  LD DE,status_line_1
+  LD BC,status_line_2 - status_line_1
   CALL PR_STRING
   LD A,$01
   LD ($5EEF),A
   CALL CHAN_OPEN
-  LD DE,$8031
-  LD BC,$001E
+  LD DE,status_line_2
+  LD BC,status_line_3 - status_line_2
   CALL PR_STRING
   LD A,$02
   CALL CHAN_OPEN
@@ -1112,8 +1112,8 @@ L5DA6:
   CALL PR_STRING
   LD A,$02
   CALL CHAN_OPEN
-  LD DE,L805A
-  LD BC,$0005
+  LD DE,status_line_4
+  LD BC,end_status_line_4 - status_line_4
   CALL PR_STRING
   LD A,(L923A)
   ADD A,$31
@@ -1899,8 +1899,8 @@ L64BC:
   RST $10
   LD A,$06
   RST $10
-  LD DE,L804F
-  LD BC,$000B
+  LD DE,status_line_3
+  LD BC,status_line_4 - status_line_3
   CALL PR_STRING
   LD A,($5F6A)
   SUB $0A
@@ -1915,8 +1915,8 @@ L64BC_0:
   RST $10
   LD A,$05
   RST $10
-  LD DE,L804F
-  LD BC,$000B
+  LD DE,status_line_3
+  LD BC,status_line_4 - status_line_3
 ; This entry point is used by the routine at L6587.
 L64BC_1:
   CALL PR_STRING
@@ -3221,8 +3221,8 @@ L6D17:
   LD D,$0C
   CALL L940A
   CALL L8A33
-  LD DE,$8000
-  LD BC,$0031
+  LD DE,status_line_1
+  LD BC,status_line_2 - status_line_1
   CALL PR_STRING
   CALL L64BC
   CALL L6587
@@ -3230,8 +3230,8 @@ L6D17:
   CALL L68E9
   LD A,$04
   LD (L5EEE),A
-  LD DE,L805A
-  LD BC,$0005
+  LD DE,status_line_4
+  LD BC,end_status_line_4 - status_line_4
   CALL PR_STRING
   LD A,(L923A)
   ADD A,$31
@@ -5352,74 +5352,61 @@ L7B57:
   DEFB $00,$00,$00,$00,$00,$00,$00,$00
   DEFB $00,$00,$00,$00,$00,$00,$00,$00
   DEFB $00,$00,$00,$00,$00,$00,$00,$00
-  DEFB $00,$11,$00,$10,$07,$16,$13,$02
-
-; Message at 8007
-L8007:
+  DEFB $00
+status_line_1:
+  DEFM $11,$00            ; PAPER 0
+  DEFM $10,$07            ; INK 7
+  DEFM $16,$13,$02        ; AT 19,2
   DEFM "GAME  E   "
-
-; Data block at 8011
-L8011:
-  DEFB $93
-
-; Message at 8012
-L8012:
+  DEFB $93                ; One half UDG
   DEFM "   F"
-
-; Data block at 8016
-L8016:
-  DEFB $16,$14,$08,$91,$90,$90,$90,$91
-  DEFB $90,$90,$90,$92,$16,$15,$08,$10
-  DEFB $03,$8F,$8F,$8F,$8F,$8F,$8F,$8F
-  DEFB $8F,$10,$06,$16,$01,$02,$10,$06
-
-; Message at 8036
-L8036:
+  DEFM $16,$14,$08        ; AT 20,8
+  DEFB $91,$90,$90,$90,$91,$90,$90,$90 ; Fuel gauge scale UDG
+  DEFB $92                             ;
+  DEFM $16,$15,$08        ; AT 21,8
+  DEFM $10,$03            ; INK 3
+  DEFB $8F,$8F,$8F,$8F,$8F,$8F,$8F,$8F ; Fuel gauge reading UDG
+  DEFM $10,$06            ; INK 6
+status_line_2:
+  DEFM $16,$01,$02        ; AT 1,2
+  DEFM $10,$06            ; INK 6
   DEFM "P1 0000000"
-
-; Data block at 8040
-L8040:
-  DEFB $10,$07,$16,$01,$12
-
-; Message at 8045
-L8045:
+  DEFM $10,$07            ; INK 7
+  DEFM $16,$01,$12        ; AT 1,18
   DEFM "HI 0000000"
-
-; Data block at 804F
-L804F:
-  DEFB $16,$13,$12
-
-; Message at 8052
-L8052:
+status_line_3:
+  DEFM $16,$13,$12        ; AT 19,18
   DEFM "BRIDGE  "
+status_line_4:
+  DEFM $16,$14,$04        ; AT 20,4
+  DEFM $10,$07            ; INK 7
 
-; Data block at 805A
-L805A:
-  DEFB $16,$14,$04,$10,$07,$01,$05,$0A
-  DEFB $0F,$02,$04,$04,$06,$08,$08,$0A
-  DEFB $0A,$0C,$0A,$0A,$08,$06,$04,$02
-  DEFB $00,$80,$80,$80,$80,$80,$80,$80
-  DEFB $80,$E0,$E0,$E0,$E0,$E0,$E0,$E0
-  DEFB $E0,$C0,$C0,$C0,$C0,$C0,$C0,$C0
-  DEFB $F0,$F0,$C0,$C0,$C0,$C0,$C0,$C0
-  DEFB $C0,$E0,$E0,$E0,$E0,$E0,$E0,$E0
-  DEFB $E0,$80,$80,$80,$80,$80,$80,$80
-  DEFB $80,$00,$00,$02,$02,$04,$04,$06
-  DEFB $06,$08,$08,$06,$06,$04,$04,$06
-  DEFB $06,$06,$06,$06,$06,$04,$04,$04
-  DEFB $04,$02,$02,$02,$02,$00,$00,$00
-  DEFB $00,$00,$00,$02,$02,$04,$04,$06
-  DEFB $06,$08,$08,$0A,$0A,$0C,$0C,$0E
-  DEFB $0E,$0E,$0E,$0C,$0A,$0A,$08,$08
-  DEFB $06,$06,$08,$08,$06,$04,$02,$02
-  DEFB $00,$00,$00,$02,$04,$04,$06,$08
-  DEFB $08,$0A,$0C,$0E,$0E,$10,$12,$14
-  DEFB $16,$16,$16,$14,$12,$10,$10,$0E
-  DEFB $0C,$0A,$08,$0A,$0A,$08,$06,$04
-  DEFB $02,$02,$02,$04,$04,$06,$06,$04
-  DEFB $04,$02,$02,$00,$00,$02,$02,$02
-  DEFB $02,$00,$02,$04,$06,$0A,$0C,$10
-  DEFB $12,$16,$18,$1C,$1E
+; Data block at 805F
+end_status_line_4:
+  DEFB $01,$05,$0A,$0F,$02,$04,$04,$06
+  DEFB $08,$08,$0A,$0A,$0C,$0A,$0A,$08
+  DEFB $06,$04,$02,$00,$80,$80,$80,$80
+  DEFB $80,$80,$80,$80,$E0,$E0,$E0,$E0
+  DEFB $E0,$E0,$E0,$E0,$C0,$C0,$C0,$C0
+  DEFB $C0,$C0,$C0,$F0,$F0,$C0,$C0,$C0
+  DEFB $C0,$C0,$C0,$C0,$E0,$E0,$E0,$E0
+  DEFB $E0,$E0,$E0,$E0,$80,$80,$80,$80
+  DEFB $80,$80,$80,$80,$00,$00,$02,$02
+  DEFB $04,$04,$06,$06,$08,$08,$06,$06
+  DEFB $04,$04,$06,$06,$06,$06,$06,$06
+  DEFB $04,$04,$04,$04,$02,$02,$02,$02
+  DEFB $00,$00,$00,$00,$00,$00,$02,$02
+  DEFB $04,$04,$06,$06,$08,$08,$0A,$0A
+  DEFB $0C,$0C,$0E,$0E,$0E,$0E,$0C,$0A
+  DEFB $0A,$08,$08,$06,$06,$08,$08,$06
+  DEFB $04,$02,$02,$00,$00,$00,$02,$04
+  DEFB $04,$06,$08,$08,$0A,$0C,$0E,$0E
+  DEFB $10,$12,$14,$16,$16,$16,$14,$12
+  DEFB $10,$10,$0E,$0C,$0A,$08,$0A,$0A
+  DEFB $08,$06,$04,$02,$02,$02,$04,$04
+  DEFB $06,$06,$04,$04,$02,$02,$00,$00
+  DEFB $02,$02,$02,$02,$00,$02,$04,$06
+  DEFB $0A,$0C,$10,$12,$16,$18,$1C,$1E
 
 ; Message at 811F
 L811F:

@@ -24,6 +24,9 @@ b $5D35
 c $5D44
 c $5D9F
 c $5DA6
+@ $5DBF isub=LD BC,status_line_2 - status_line_1
+@ $5DD0 isub=LD BC,status_line_3 - status_line_2
+@ $5E40 isub=LD BC,end_status_line_4 - status_line_4
 b $5EEE
 t $5F00
 b $5F5F
@@ -42,6 +45,8 @@ c $62E0
 c $62E8
 b $64B4
 c $64BC
+@ $64CD isub=LD BC,status_line_4 - status_line_3
+@ $64EE isub=LD BC,status_line_4 - status_line_3
 c $6506
 c $650A
 c $6587
@@ -95,6 +100,8 @@ c $6CB8
 c $6CD6
 c $6CF4
 c $6D17
+@ $6D2E isub=LD BC,status_line_2 - status_line_1
+@ $6D48 isub=LD BC,end_status_line_4 - status_line_4
 c $6DEB
 c $6DFF
 c $6E40
@@ -240,16 +247,34 @@ c $7AB9 Print control choice dialog
   $7B27,3 Print keyboard configuration
   $7B27,3 Print game controls
 b $7B57
-t $8007
-b $8011
-t $8012
-b $8016
-t $8036
-b $8040
-t $8045
-b $804F
-t $8052
-b $805A
+@ $8000 label=status_line_1
+T $8000 PAPER 0
+T $8002 INK 7
+T $8004 AT 19,2
+T $8007
+B $8011 One half UDG
+T $8012
+T $8016 AT 20,8
+B $8019 Fuel gauge scale UDG
+T $8022 AT 21,8
+T $8025 INK 3
+B $8027 Fuel gauge reading UDG
+T $802F INK 6
+@ $8031 label=status_line_2
+T $8031 AT 1,2
+T $8034 INK 6
+T $8036
+T $8040 INK 7
+T $8042 AT 1,18
+T $8045
+@ $804F label=status_line_3
+T $804F AT 19,18
+T $8052
+@ $805A label=status_line_4
+T $805A AT 20,4
+T $805D INK 7
+@ $805F label=end_status_line_4
+b $805F
 t $811F
 b $8127
 t $8153

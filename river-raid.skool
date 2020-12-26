@@ -1052,12 +1052,14 @@ c$5DA6 LD A,$10      ;
  $5DB6 CALL $940A    ;
  $5DB9 CALL $8A33    ;
  $5DBC LD DE,$8000   ;
+@isub=LD BC,status_line_2 - status_line_1
  $5DBF LD BC,$0031   ;
  $5DC2 CALL $203C    ;
  $5DC5 LD A,$01      ;
  $5DC7 LD ($5EEF),A  ;
  $5DCA CALL $1601    ;
  $5DCD LD DE,$8031   ;
+@isub=LD BC,status_line_3 - status_line_2
  $5DD0 LD BC,$001E   ;
  $5DD3 CALL $203C    ;
  $5DD6 LD A,$02      ;
@@ -1103,6 +1105,7 @@ c$5DA6 LD A,$10      ;
  $5E38 LD A,$02      ;
  $5E3A CALL $1601    ;
  $5E3D LD DE,$805A   ;
+@isub=LD BC,end_status_line_4 - status_line_4
  $5E40 LD BC,$0005   ;
  $5E43 CALL $203C    ;
  $5E46 LD A,($923A)  ;
@@ -1849,6 +1852,7 @@ c$64BC LD A,($923D)  ;
  $64C7 LD A,$06      ;
  $64C9 RST $10       ;
  $64CA LD DE,$804F   ;
+@isub=LD BC,status_line_4 - status_line_3
  $64CD LD BC,$000B   ;
  $64D0 CALL $203C    ;
  $64D3 LD A,($5F6A)  ;
@@ -1864,6 +1868,7 @@ c$64BC LD A,($923D)  ;
  $64E8 LD A,$05      ;
  $64EA RST $10       ;
  $64EB LD DE,$804F   ;
+@isub=LD BC,status_line_4 - status_line_3
  $64EE LD BC,$000B   ;
 ; This entry point is used by the routine at #R$6587.
 *$64F1 CALL $203C    ;
@@ -3060,6 +3065,7 @@ c$6D17 LD BC,$0010   ;
  $6D25 CALL $940A    ;
  $6D28 CALL $8A33    ;
  $6D2B LD DE,$8000   ;
+@isub=LD BC,status_line_2 - status_line_1
  $6D2E LD BC,$0031   ;
  $6D31 CALL $203C    ;
  $6D34 CALL $64BC    ;
@@ -3069,6 +3075,7 @@ c$6D17 LD BC,$0010   ;
  $6D40 LD A,$04      ;
  $6D42 LD ($5EEE),A  ;
  $6D45 LD DE,$805A   ;
+@isub=LD BC,end_status_line_4 - status_line_4
  $6D48 LD BC,$0005   ;
  $6D4B CALL $203C    ;
  $6D4E LD A,($923A)  ;
@@ -5021,64 +5028,61 @@ b$7B57 DEFB $3E,$01,$32,$01,$78,$ED,$7B,$10
  $7FE7 DEFB $00,$00,$00,$00,$00,$00,$00,$00
  $7FEF DEFB $00,$00,$00,$00,$00,$00,$00,$00
  $7FF7 DEFB $00,$00,$00,$00,$00,$00,$00,$00
- $7FFF DEFB $00,$11,$00,$10,$07,$16,$13,$02
+ $7FFF DEFB $00
+@label=status_line_1
+ $8000 DEFM $11,$00                         ; PAPER 0
+ $8002 DEFM $10,$07                         ; INK 7
+ $8004 DEFM $16,$13,$02                     ; AT 19,2
+ $8007 DEFM "GAME  E   "
+ $8011 DEFB $93                             ; One half UDG
+ $8012 DEFM "   F"
+ $8016 DEFM $16,$14,$08                     ; AT 20,8
+ $8019 DEFB $91,$90,$90,$90,$91,$90,$90,$90 ; {Fuel gauge scale UDG
+ $8021 DEFB $92                             ; }
+ $8022 DEFM $16,$15,$08                     ; AT 21,8
+ $8025 DEFM $10,$03                         ; INK 3
+ $8027 DEFB $8F,$8F,$8F,$8F,$8F,$8F,$8F,$8F ; Fuel gauge reading UDG
+ $802F DEFM $10,$06                         ; INK 6
+@label=status_line_2
+ $8031 DEFM $16,$01,$02                     ; AT 1,2
+ $8034 DEFM $10,$06                         ; INK 6
+ $8036 DEFM "P1 0000000"
+ $8040 DEFM $10,$07                         ; INK 7
+ $8042 DEFM $16,$01,$12                     ; AT 1,18
+ $8045 DEFM "HI 0000000"
+@label=status_line_3
+ $804F DEFM $16,$13,$12                     ; AT 19,18
+ $8052 DEFM "BRIDGE  "
+@label=status_line_4
+ $805A DEFM $16,$14,$04                     ; AT 20,4
+ $805D DEFM $10,$07                         ; INK 7
 
-; Message at 8007
-t$8007 DEFM "GAME  E   "
-
-; Data block at 8011
-b$8011 DEFB $93
-
-; Message at 8012
-t$8012 DEFM "   F"
-
-; Data block at 8016
-b$8016 DEFB $16,$14,$08,$91,$90,$90,$90,$91
- $801E DEFB $90,$90,$90,$92,$16,$15,$08,$10
- $8026 DEFB $03,$8F,$8F,$8F,$8F,$8F,$8F,$8F
- $802E DEFB $8F,$10,$06,$16,$01,$02,$10,$06
-
-; Message at 8036
-t$8036 DEFM "P1 0000000"
-
-; Data block at 8040
-b$8040 DEFB $10,$07,$16,$01,$12
-
-; Message at 8045
-t$8045 DEFM "HI 0000000"
-
-; Data block at 804F
-b$804F DEFB $16,$13,$12
-
-; Message at 8052
-t$8052 DEFM "BRIDGE  "
-
-; Data block at 805A
-b$805A DEFB $16,$14,$04,$10,$07,$01,$05,$0A
- $8062 DEFB $0F,$02,$04,$04,$06,$08,$08,$0A
- $806A DEFB $0A,$0C,$0A,$0A,$08,$06,$04,$02
- $8072 DEFB $00,$80,$80,$80,$80,$80,$80,$80
- $807A DEFB $80,$E0,$E0,$E0,$E0,$E0,$E0,$E0
- $8082 DEFB $E0,$C0,$C0,$C0,$C0,$C0,$C0,$C0
- $808A DEFB $F0,$F0,$C0,$C0,$C0,$C0,$C0,$C0
- $8092 DEFB $C0,$E0,$E0,$E0,$E0,$E0,$E0,$E0
- $809A DEFB $E0,$80,$80,$80,$80,$80,$80,$80
- $80A2 DEFB $80,$00,$00,$02,$02,$04,$04,$06
- $80AA DEFB $06,$08,$08,$06,$06,$04,$04,$06
- $80B2 DEFB $06,$06,$06,$06,$06,$04,$04,$04
- $80BA DEFB $04,$02,$02,$02,$02,$00,$00,$00
- $80C2 DEFB $00,$00,$00,$02,$02,$04,$04,$06
- $80CA DEFB $06,$08,$08,$0A,$0A,$0C,$0C,$0E
- $80D2 DEFB $0E,$0E,$0E,$0C,$0A,$0A,$08,$08
- $80DA DEFB $06,$06,$08,$08,$06,$04,$02,$02
- $80E2 DEFB $00,$00,$00,$02,$04,$04,$06,$08
- $80EA DEFB $08,$0A,$0C,$0E,$0E,$10,$12,$14
- $80F2 DEFB $16,$16,$16,$14,$12,$10,$10,$0E
- $80FA DEFB $0C,$0A,$08,$0A,$0A,$08,$06,$04
- $8102 DEFB $02,$02,$02,$04,$04,$06,$06,$04
- $810A DEFB $04,$02,$02,$00,$00,$02,$02,$02
- $8112 DEFB $02,$00,$02,$04,$06,$0A,$0C,$10
- $811A DEFB $12,$16,$18,$1C,$1E
+; Data block at 805F
+@label=end_status_line_4
+b$805F DEFB $01,$05,$0A,$0F,$02,$04,$04,$06
+ $8067 DEFB $08,$08,$0A,$0A,$0C,$0A,$0A,$08
+ $806F DEFB $06,$04,$02,$00,$80,$80,$80,$80
+ $8077 DEFB $80,$80,$80,$80,$E0,$E0,$E0,$E0
+ $807F DEFB $E0,$E0,$E0,$E0,$C0,$C0,$C0,$C0
+ $8087 DEFB $C0,$C0,$C0,$F0,$F0,$C0,$C0,$C0
+ $808F DEFB $C0,$C0,$C0,$C0,$E0,$E0,$E0,$E0
+ $8097 DEFB $E0,$E0,$E0,$E0,$80,$80,$80,$80
+ $809F DEFB $80,$80,$80,$80,$00,$00,$02,$02
+ $80A7 DEFB $04,$04,$06,$06,$08,$08,$06,$06
+ $80AF DEFB $04,$04,$06,$06,$06,$06,$06,$06
+ $80B7 DEFB $04,$04,$04,$04,$02,$02,$02,$02
+ $80BF DEFB $00,$00,$00,$00,$00,$00,$02,$02
+ $80C7 DEFB $04,$04,$06,$06,$08,$08,$0A,$0A
+ $80CF DEFB $0C,$0C,$0E,$0E,$0E,$0E,$0C,$0A
+ $80D7 DEFB $0A,$08,$08,$06,$06,$08,$08,$06
+ $80DF DEFB $04,$02,$02,$00,$00,$00,$02,$04
+ $80E7 DEFB $04,$06,$08,$08,$0A,$0C,$0E,$0E
+ $80EF DEFB $10,$12,$14,$16,$16,$16,$14,$12
+ $80F7 DEFB $10,$10,$0E,$0C,$0A,$08,$0A,$0A
+ $80FF DEFB $08,$06,$04,$02,$02,$02,$04,$04
+ $8107 DEFB $06,$06,$04,$04,$02,$02,$00,$00
+ $810F DEFB $02,$02,$02,$02,$00,$02,$04,$06
+ $8117 DEFB $0A,$0C,$10,$12,$16,$18,$1C,$1E
 
 ; Message at 811F
 t$811F DEFM "\"$&((&$\""
