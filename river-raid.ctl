@@ -29,22 +29,112 @@ c $5DA6
 @ $5DBF isub=LD BC,status_line_2 - status_line_1
 @ $5DD0 isub=LD BC,status_line_3 - status_line_2
 @ $5E40 isub=LD BC,end_status_line_4 - status_line_4
+@ $5EEE label=L5EEE
 b $5EEE
+@ $5EEF label=L5EEF
+b $5EEF
+@ $5EF0 label=L5EF0
+b $5EF0
+@ $5EF1 label=state_input_readings
+g $5EF1 Contains the current readings of the input port (Sinclair, Kempston, Cursor, etc.).
+@ $5EF2 label=L5EF2
+b $5EF2
+@ $5EF3 label=L5EF3
+w $5EF3
+@ $5EF5 label=L5EF5
+b $5EF5
+@ $5EF6 label=L5EF6
+b $5EF6
+@ $5EF7 label=L5EF7
+w $5EF7
+@ $5EF9 label=L5EF9
+b $5EF9
+@ $5EFA label=L5EFA
+b $5EFA
+@ $5EFB label=L5EFB
+b $5EFB
+@ $5EFC label=L5EFC
+b $5EFC
+@ $5EFD label=L5EFD
+b $5EFD
+u $5EFE
+@ $5F00 label=L5F00
 t $5F00
+@ $5F5F label=L5F5F
 b $5F5F
+@ $5F60 label=L5F60
+w $5F60
+@ $5F62 label=L5F62
+w $5F62
 @ $5F64 label=state_speed
 g $5F64 Current speed
+@ $5F65 label=L5F65
+b $5F65
+@ $5F66 label=L5F66
+b $5F66
+@ $5F67 label=state_control_type
+g $5F67 Control type ($00 - Keyboard, $01 - Sinclair, $02 - Kempston, Other - Cursor)
+@ $5F68 label=L5F68
+b $5F68
+@ $5F69 label=L5F69
+b $5F69
+@ $5F6A label=L5F6A
+w $5F6A
+@ $5F6C label=L5F6C
+b $5F6C
+@ $5F6D label=L5F6D
+b $5F6D
 @ $5F72 label=state_x
 g $5F72 Current X coordinate
-b $5F73
-c $5F91
-c $5F91 Scan Enter
-c $6068 Scan "O" (LEFT)
-c $6071 Scan "P" (RIGHT)
-c $607A Scan "2" (UP)
-c $6083 Scan "W" (DOWN)
-c $608C Scan X
-c $6097 Scan Y
+@ $5F73 label=L5F73
+g $5F73
+@ $5F75 label=L5F75
+b $5F75
+@ $5F76 label=L5F76
+b $5F76
+@ $5F77 label=L5F77
+b $5F77
+@ $5F78 label=L5F78
+w $5F78
+@ $5F7A label=L5F7A
+b $5F7A
+@ $5F7B label=L5F7B
+w $5F7B
+@ $5F7D label=L5F7D
+b $5F7D
+@ $5F7E label=L5F7E
+w $5F7E
+u $5F80
+@ $5F81 label=L5F81
+b $5F81
+u $5F82
+@ $5F83 label=stack
+w $5F83
+@ $5F85 label=L5F85
+w $5F85
+@ $5F87 label=L5F87
+w $5F87
+@ $5F89 label=L5F89
+w $5F89
+@ $5F8B label=L5F8B
+w $5F8B
+@ $5F8D label=L5F8D
+w $5F8D
+@ $5F8F label=L5F8F
+w $5F8F
+@ $5F91 label=main_loop
+c $5F91 Main loop
+C $5F91,9 Scan Enter
+@ $5FDA label=scan_cursor
+@ $600A label=scan_kempston
+@ $6039 label=scan_sinclair
+@ $6068 label=scan_keyboard
+C $6068 Scan "O" (LEFT)
+C $6071 Scan "P" (RIGHT)
+C $607A Scan "2" (UP)
+C $6083 Scan "W" (DOWN)
+C $608C Scan lower row right (FIRE)
+C $6097 Scan lower row left (FIRE)
 c $60A5
 c $6124
 c $6136
@@ -110,6 +200,7 @@ c $6BB1
 c $6BBF Handle the Enter key pressed
 C $6BBF Scan Caps Shift
 C $6BC8 Scan Symbol Shift
+@ $6BD2 label=select_controls
 c $6BDB
 b $6C2B
 c $6C31
@@ -315,6 +406,8 @@ t $8290
 b $8295
 t $8298
 b $829D
+@ $82F5 label=L82F5
+b $82F5
 t $8371
 b $837F
 t $8383
@@ -359,8 +452,24 @@ b $8A86
 @ $8AC8 label=L8AC8
 t $8AEA
 b $8AED
-t $8B12
-s $8B1A
+@ $8B0A label=L8B0A
+w $8B0A
+@ $8B0C label=L8B0C
+w $8B0C
+@ $8B0E label=L8B0E
+w $8B0E
+@ $8B10 label=L8B10
+w $8B10
+@ $8B12 label=L8B12
+w $8B12
+@ $8B14 label=L8B14
+w $8B14
+@ $8B16 label=L8B16
+w $8B16
+t $8B18
+@ $8B1A label=L8B1A
+b $8B1A
+s $8B1B
 c $8B1E
 c $8B70
 c $8C0B

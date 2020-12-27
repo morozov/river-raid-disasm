@@ -1185,39 +1185,204 @@ c$5DA6 LD A,$10      ;
  $5EEB JP $5F91      ;
 
 ; Data block at 5EEE
-b$5EEE DEFB $00,$00,$00,$00,$00,$00,$00,$00
- $5EF6 DEFB $00,$00,$00,$00,$00,$00,$00,$10
- $5EFE DEFB $FF,$FF
+@label=L5EEE
+b$5EEE DEFB $00
+
+; Data block at 5EEF
+@label=L5EEF
+b$5EEF DEFB $00
+
+; Data block at 5EF0
+@label=L5EF0
+b$5EF0 DEFB $00
+
+; Contains the current readings of the input port (Sinclair, Kempston, Cursor,
+; etc.).
+@label=state_input_readings
+g$5EF1 DEFB $00
+
+; Data block at 5EF2
+@label=L5EF2
+b$5EF2 DEFB $00
+
+; Data block at 5EF3
+@label=L5EF3
+w$5EF3 DEFW $0000
+
+; Data block at 5EF5
+@label=L5EF5
+b$5EF5 DEFB $00
+
+; Data block at 5EF6
+@label=L5EF6
+b$5EF6 DEFB $00
+
+; Data block at 5EF7
+@label=L5EF7
+w$5EF7 DEFW $0000
+
+; Data block at 5EF9
+@label=L5EF9
+b$5EF9 DEFB $00
+
+; Data block at 5EFA
+@label=L5EFA
+b$5EFA DEFB $00
+
+; Data block at 5EFB
+@label=L5EFB
+b$5EFB DEFB $00
+
+; Data block at 5EFC
+@label=L5EFC
+b$5EFC DEFB $00
+
+; Data block at 5EFD
+@label=L5EFD
+b$5EFD DEFB $10
+
+; Unused
+u$5EFE DEFB $FF,$FF
 
 ; Message at 5F00
+@label=L5F00
 t$5F00 DEFM "                                                                 "
  $5F41 DEFM "                              "
 
 ; Data block at 5F5F
-b$5F5F DEFB $04,$00,$00,$00,$00
+@label=L5F5F
+b$5F5F DEFB $04
+
+; Data block at 5F60
+@label=L5F60
+w$5F60 DEFW $0000
+
+; Data block at 5F62
+@label=L5F62
+w$5F62 DEFW $0000
 
 ; Current speed
 @label=state_speed
-g$5F64 DEFB $02,$00,$00,$00,$00,$00,$01,$01
- $5F6C DEFB $00,$00,$00,$00,$00,$00
+g$5F64 DEFB $02
+
+; Data block at 5F65
+@label=L5F65
+b$5F65 DEFB $00
+
+; Data block at 5F66
+@label=L5F66
+b$5F66 DEFB $00
+
+; Control type ($00 - Keyboard, $01 - Sinclair, $02 - Kempston, Other - Cursor)
+@label=state_control_type
+g$5F67 DEFB $00
+
+; Data block at 5F68
+@label=L5F68
+b$5F68 DEFB $00
+
+; Data block at 5F69
+@label=L5F69
+b$5F69 DEFB $00
+
+; Data block at 5F6A
+@label=L5F6A
+w$5F6A DEFW $0101
+
+; Data block at 5F6C
+@label=L5F6C
+b$5F6C DEFB $00
+
+; Data block at 5F6D
+@label=L5F6D
+b$5F6D DEFB $00,$00,$00,$00,$00
 
 ; Current X coordinate
 @label=state_x
 g$5F72 DEFB $00
 
-; Data block at 5F73
-b$5F73 DEFB $00,$00,$00,$00,$00,$00,$00,$00
- $5F7B DEFB $00,$00,$01,$00,$00,$00,$00,$00
- $5F83 DEFB $00,$00,$00,$00,$00,$00,$00,$00
- $5F8B DEFB $00,$00,$00,$00,$00,$00
+; Game status buffer entry at 5F73
+@label=L5F73
+g$5F73 DEFB $00,$00
 
-; Scan Enter
+; Data block at 5F75
+@label=L5F75
+b$5F75 DEFB $00
+
+; Data block at 5F76
+@label=L5F76
+b$5F76 DEFB $00
+
+; Data block at 5F77
+@label=L5F77
+b$5F77 DEFB $00
+
+; Data block at 5F78
+@label=L5F78
+w$5F78 DEFW $0000
+
+; Data block at 5F7A
+@label=L5F7A
+b$5F7A DEFB $00
+
+; Data block at 5F7B
+@label=L5F7B
+w$5F7B DEFW $0000
+
+; Data block at 5F7D
+@label=L5F7D
+b$5F7D DEFB $01
+
+; Data block at 5F7E
+@label=L5F7E
+w$5F7E DEFW $0000
+
+; Unused
+u$5F80 DEFB $00
+
+; Data block at 5F81
+@label=L5F81
+b$5F81 DEFB $00
+
+; Unused
+u$5F82 DEFB $00
+
+; Data block at 5F83
+@label=stack
+w$5F83 DEFW $0000
+
+; Data block at 5F85
+@label=L5F85
+w$5F85 DEFW $0000
+
+; Data block at 5F87
+@label=L5F87
+w$5F87 DEFW $0000
+
+; Data block at 5F89
+@label=L5F89
+w$5F89 DEFW $0000
+
+; Data block at 5F8B
+@label=L5F8B
+w$5F8B DEFW $0000
+
+; Data block at 5F8D
+@label=L5F8D
+w$5F8D DEFW $0000
+
+; Data block at 5F8F
+@label=L5F8F
+w$5F8F DEFW $0000
+
+; Main loop
 ;
-; Used by the routines at #R$5DA6 and #R$6097.
-c$5F91 LD A,$BF      ;
+; Used by the routine at #R$5DA6.
+@label=main_loop
+c$5F91 LD A,$BF      ; {Scan Enter
  $5F93 IN A,($FE)    ;
  $5F95 BIT 0,A       ;
- $5F97 CALL Z,$6BBF  ;
+ $5F97 CALL Z,$6BBF  ; }
  $5F9A LD HL,$5EEF   ;
  $5F9D INC (HL)      ;
  $5F9E CALL $6EC8    ;
@@ -1242,6 +1407,7 @@ c$5F91 LD A,$BF      ;
  $5FD2 JP Z,$6039    ;
  $5FD5 CP $00        ;
  $5FD7 JP Z,$6068    ;
+@label=scan_cursor
  $5FDA LD A,$EF      ;
  $5FDC IN A,($FE)    ;
  $5FDE LD ($5EF1),A  ;
@@ -1261,6 +1427,7 @@ c$5F91 LD A,$BF      ;
  $6002 BIT 4,A       ;
  $6004 CALL Z,$6717  ;
  $6007 JP $5F91      ;
+@label=scan_kempston
 *$600A LD A,$FE      ;
  $600C IN A,($1F)    ;
  $600E LD ($5EF1),A  ;
@@ -1279,6 +1446,7 @@ c$5F91 LD A,$BF      ;
  $6031 BIT 4,A       ;
  $6033 CALL NZ,$6724 ;
  $6036 JP $5F91      ;
+@label=scan_sinclair
 *$6039 LD A,$EF      ;
  $603B IN A,($FE)    ;
  $603D LD ($5EF1),A  ;
@@ -1297,47 +1465,34 @@ c$5F91 LD A,$BF      ;
  $6060 BIT 4,A       ;
  $6062 CALL Z,$6642  ;
  $6065 JP $5F91      ;
-
-; Scan "O" (LEFT)
-;
-; Used by the routine at #R$5F91.
-c$6068 LD A,$DF      ;
+@label=scan_keyboard
+*$6068 LD A,$DF      ; {Scan "O" (LEFT)
  $606A IN A,($FE)    ;
  $606C BIT 0,A       ;
- $606E CALL Z,$65F3  ;
-
-; Scan "P" (RIGHT)
-c$6071 LD A,$DF      ;
+ $606E CALL Z,$65F3  ; }
+ $6071 LD A,$DF      ; {Scan "P" (RIGHT)
  $6073 IN A,($FE)    ;
  $6075 BIT 1,A       ;
- $6077 CALL Z,$6642  ;
-
-; Scan "2" (UP)
-c$607A LD A,$F7      ;
+ $6077 CALL Z,$6642  ; }
+ $607A LD A,$F7      ; {Scan "2" (UP)
  $607C IN A,($FE)    ;
  $607E BIT 1,A       ;
- $6080 CALL Z,$670A  ;
-
-; Scan "W" (DOWN)
-c$6083 LD A,$FB      ;
+ $6080 CALL Z,$670A  ; }
+ $6083 LD A,$FB      ; {Scan "W" (DOWN)
  $6085 IN A,($FE)    ;
  $6087 BIT 1,A       ;
- $6089 CALL Z,$6717  ;
-
-; Scan X
-c$608C LD A,$7F      ;
+ $6089 CALL Z,$6717  ; }
+ $608C LD A,$7F      ; {Scan lower row right (FIRE)
  $608E IN A,($FE)    ;
  $6090 AND $1F       ;
  $6092 CP $1F        ;
- $6094 CALL NZ,$6724 ;
-
-; Scan Y
-c$6097 LD A,$FE      ;
+ $6094 CALL NZ,$6724 ; }
+ $6097 LD A,$FE      ; {Scan lower row left (FIRE)
  $6099 IN A,($FE)    ;
  $609B AND $1F       ;
  $609D CP $1F        ;
  $609F CALL NZ,$6724 ;
- $60A2 JP $5F91      ;
+ $60A2 JP $5F91      ; }
 
 ; Routine at 60A5
 ;
@@ -2041,7 +2196,7 @@ c$65CB LD A,($923C)  ;
 
 ; Routine at 65F3
 ;
-; Used by the routines at #R$5F91 and #R$6068.
+; Used by the routine at #R$5F91.
 @label=handle_right
 c$65F3 LD A,($5F72)  ;
  $65F6 LD HL,($5EF3) ;
@@ -2079,7 +2234,7 @@ c$65F3 LD A,($5F72)  ;
 
 ; Routine at 6642
 ;
-; Used by the routines at #R$5F91 and #R$6071.
+; Used by the routine at #R$5F91.
 @label=handle_left
 c$6642 LD A,($5F72)  ;
  $6645 LD HL,($5EF3) ;
@@ -2184,7 +2339,7 @@ c$66EE LD A,($5F6E)  ;
 c$6704 LD A,$00      ;
  $6706 LD ($5F6D),A  ;
  $6709 RET           ;
-; This entry point is used by the routines at #R$5F91 and #R$607A.
+; This entry point is used by the routine at #R$5F91.
 @label=handle_up
 *$670A LD A,$04      ;
  $670C LD ($5F64),A  ;
@@ -2192,7 +2347,7 @@ c$6704 LD A,$00      ;
  $6712 SET 2,(HL)    ;
  $6714 RES 1,(HL)    ;
  $6716 RET           ;
-; This entry point is used by the routines at #R$5F91 and #R$6083.
+; This entry point is used by the routine at #R$5F91.
 @label=handle_down
 *$6717 LD A,$01      ;
  $6719 LD ($5F64),A  ;
@@ -2200,7 +2355,7 @@ c$6704 LD A,$00      ;
  $671F SET 2,(HL)    ;
  $6721 SET 1,(HL)    ;
  $6723 RET           ;
-; This entry point is used by the routines at #R$5F91, #R$608C and #R$6097.
+; This entry point is used by the routine at #R$5F91.
 @label=handle_fire
 *$6724 LD A,($5EF3)  ;
  $6727 CP $00        ;
@@ -2896,6 +3051,7 @@ c$6BBF LD A,$FE      ; {Scan Caps Shift
  $6BCC BIT 1,A       ;
  $6BCE JP Z,$6BD2    ;
  $6BD1 RET           ;
+@label=select_controls
 *$6BD2 LD HL,$8182   ;
  $6BD5 LD ($5F7E),HL ;
  $6BD8 JP $5D06      ; }
@@ -5207,7 +5363,10 @@ b$829D DEFB $00,$1F,$30,$61,$C9,$89,$08,$09
  $82DD DEFB $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
  $82E5 DEFB $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
  $82ED DEFB $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
- $82F5 DEFB $00,$00,$00,$00,$00,$00,$00,$00
+
+; Data block at 82F5
+@label=L82F5
+b$82F5 DEFB $00,$00,$00,$00,$00,$00,$00,$00
  $82FD DEFB $00,$00,$00,$00,$00,$00,$00,$00
  $8305 DEFB $00,$00,$00,$00,$00,$00,$00,$00
  $830D DEFB $00,$00,$00,$00,$00,$00,$00,$00
@@ -5612,14 +5771,45 @@ t$8AEA DEFM "888"
 b$8AED DEFB $00,$00,$00,$00,$10,$38,$7C,$38
  $8AF5 DEFB $10,$00,$00,$10,$38,$7C,$FE,$7C
  $8AFD DEFB $38,$10,$00,$18,$3C,$7E,$FF,$FF
- $8B05 DEFB $7E,$3C,$18,$00,$00,$00,$00,$00
- $8B0D DEFB $00,$00,$00,$00,$00
+ $8B05 DEFB $7E,$3C,$18,$00,$00
 
-; Message at 8B12
-t$8B12 DEFM "        "
+; Data block at 8B0A
+@label=L8B0A
+w$8B0A DEFW $0000
+
+; Data block at 8B0C
+@label=L8B0C
+w$8B0C DEFW $0000
+
+; Data block at 8B0E
+@label=L8B0E
+w$8B0E DEFW $0000
+
+; Data block at 8B10
+@label=L8B10
+w$8B10 DEFW $0000
+
+; Data block at 8B12
+@label=L8B12
+w$8B12 DEFW $2020
+
+; Data block at 8B14
+@label=L8B14
+w$8B14 DEFW $2020
+
+; Data block at 8B16
+@label=L8B16
+w$8B16 DEFW $2020
+
+; Message at 8B18
+t$8B18 DEFM "  "
+
+; Data block at 8B1A
+@label=L8B1A
+b$8B1A DEFB $00
 
 ; Unused
-s$8B1A DEFS $04
+s$8B1B DEFS $03
 
 ; Routine at 8B1E
 ;

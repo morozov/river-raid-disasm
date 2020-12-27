@@ -966,11 +966,11 @@ start_0:
   LD (HL),$FE
   LD A,$FC
   LD I,A
-  LD ($5F83),SP
+  LD (stack),SP
   IM 2
   EI
   LD HL,$8182
-  LD ($5F7E),HL
+  LD (L5F7E),HL
 ; This entry point is used by the routines at handle_enter and L6D17.
 start_1:
   LD A,$3F
@@ -986,7 +986,7 @@ L5D10:
   IM 2
   EI
   LD A,(L7800)
-  LD ($5F67),A
+  LD (state_control_type),A
   LD A,($7801)
   CP $01
   JP Z,L5D10_0
@@ -994,7 +994,7 @@ L5D10:
   JP L5DA6
 ; This entry point is used by the routine at L650A.
 L5D10_0:
-  LD SP,($5F83)
+  LD SP,(stack)
   CALL L5D44
   JP L6D17
 
@@ -1002,7 +1002,7 @@ L5D10_0:
 ;
 ; Used by the routine at handle_enter.
 restart:
-  LD SP,($5F83)
+  LD SP,(stack)
   CALL L5D44
   JP L5DA6
 
@@ -1018,21 +1018,21 @@ L5D44:
   LD (state_x),A
   CALL L6DEB
   LD HL,L5F00
-  LD ($5F60),HL
+  LD (L5F60),HL
   LD (HL),$FF
   LD A,$1F
   LD (L5F5F),A
   LD A,$00
   OUT ($FE),A
-  LD ($5EF2),A
+  LD (L5EF2),A
   LD (L6BB0),A
   LD BC,$4C83
-  LD ($5F78),BC
+  LD (L5F78),BC
   LD A,$02
-  LD ($5F77),A
-  LD ($5F68),A
+  LD (L5F77),A
+  LD (L5F68),A
   LD (state_speed),A
-  LD ($5F6D),A
+  LD (L5F6D),A
   LD HL,$3030
   LD (L90BC),HL
   LD ($90BE),HL
@@ -1041,8 +1041,8 @@ L5D44:
   LD ($90C4),HL
   LD ($90C6),HL
   LD A,$01
-  LD ($5F76),A
-  LD ($5F7D),A
+  LD (L5F76),A
+  LD (L5F7D),A
   LD HL,$0404
   LD ($923B),HL
   LD ($923D),A
@@ -1061,10 +1061,10 @@ L5D9F:
 ; Used by the routines at L5D10, restart, L650A and L6D17.
 L5DA6:
   LD A,$10
-  LD ($5EFD),A
+  LD (L5EFD),A
   LD A,$1F
   LD (L5F5F),A
-  LD SP,($5F83)
+  LD SP,(stack)
   LD D,$0C
   CALL L940A
   CALL L8A33
@@ -1072,7 +1072,7 @@ L5DA6:
   LD BC,status_line_2 - status_line_1
   CALL PR_STRING
   LD A,$01
-  LD ($5EEF),A
+  LD (L5EEF),A
   CALL CHAN_OPEN
   LD DE,status_line_2
   LD BC,status_line_3 - status_line_2
@@ -1083,22 +1083,22 @@ L5DA6:
   LD A,$04
   LD (L5EEE),A
   LD A,$00
-  LD ($5F6C),A
+  LD (L5F6C),A
   LD ($5F6F),A
-  LD ($5F7D),A
-  LD ($5F69),A
+  LD (L5F7D),A
+  LD (L5F69),A
   LD A,$FF
-  LD ($5F66),A
+  LD (L5F66),A
   LD BC,$0010
   LD ($5F70),BC
   CALL L68E9
   LD A,$78
   LD (state_x),A
   LD HL,L5F00
-  LD ($5F60),HL
+  LD (L5F60),HL
   LD (HL),$FF
   LD HL,$5F2E
-  LD ($5F62),HL
+  LD (L5F62),HL
   LD (HL),$FF
   LD BC,$0000
   CALL L923E
@@ -1128,29 +1128,29 @@ L5DA6:
   LD A,$01
   CALL CHAN_OPEN
   LD A,$FF
-  LD ($5F7D),A
+  LD (L5F7D),A
   LD A,$02
-  LD ($5F77),A
+  LD (L5F77),A
   CALL CHAN_OPEN
   LD A,$01
-  LD ($5F76),A
-  LD ($5F68),A
-  LD ($5F6D),A
+  LD (L5F76),A
+  LD (L5F68),A
+  LD (L5F6D),A
   LD A,$68
   LD (LAST_K),A
   LD A,$00
   LD (L6BB0),A
-  LD ($5EF2),A
+  LD (L5EF2),A
   LD A,$04
   LD (state_speed),A
   LD BC,$4C83
-  LD ($5F78),BC
+  LD (L5F78),BC
   CALL L91E8
   CALL L68E9
   LD B,$28
 L5DA6_0:
   PUSH BC
-  LD HL,$5EEF
+  LD HL,L5EEF
   INC (HL)
   CALL L60A5
   CALL L708E
@@ -1161,7 +1161,7 @@ L5DA6_0:
   DJNZ L5DA6_0
   LD A,$00
   LD (L6BB0),A
-  LD ($5F68),A
+  LD (L5F68),A
   CALL L6682
   LD A,$0D
   LD (LAST_K),A
@@ -1179,7 +1179,7 @@ L5DA6_2:
   LD A,(LAST_K)
   CP $0D
   JR NZ,L5DA6_3
-  LD A,($5F67)
+  LD A,(state_control_type)
   CP $02
   JP NZ,L5DA6_2
   LD A,$FE
@@ -1188,17 +1188,72 @@ L5DA6_2:
   JP Z,L5DA6_2
 L5DA6_3:
   LD A,$00
-  LD ($5F6D),A
+  LD (L5F6D),A
   LD ($5F6E),A
   LD A,$02
   LD (state_speed),A
-  LD ($5EEF),A
-  JP L5F91
+  LD (L5EEF),A
+  JP main_loop
 
 ; Data block at 5EEE
 L5EEE:
-  DEFB $00,$00,$00,$00,$00,$00,$00,$00
-  DEFB $00,$00,$00,$00,$00,$00,$00,$10
+  DEFB $00
+
+; Data block at 5EEF
+L5EEF:
+  DEFB $00
+
+; Data block at 5EF0
+L5EF0:
+  DEFB $00
+
+; Contains the current readings of the input port (Sinclair, Kempston, Cursor,
+; etc.).
+state_input_readings:
+  DEFB $00
+
+; Data block at 5EF2
+L5EF2:
+  DEFB $00
+
+; Data block at 5EF3
+L5EF3:
+  DEFW $0000
+
+; Data block at 5EF5
+L5EF5:
+  DEFB $00
+
+; Data block at 5EF6
+L5EF6:
+  DEFB $00
+
+; Data block at 5EF7
+L5EF7:
+  DEFW $0000
+
+; Data block at 5EF9
+L5EF9:
+  DEFB $00
+
+; Data block at 5EFA
+L5EFA:
+  DEFB $00
+
+; Data block at 5EFB
+L5EFB:
+  DEFB $00
+
+; Data block at 5EFC
+L5EFC:
+  DEFB $00
+
+; Data block at 5EFD
+L5EFD:
+  DEFB $10
+
+; Unused
+L5EFE:
   DEFB $FF,$FF
 
 ; Message at 5F00
@@ -1208,33 +1263,141 @@ L5F00:
 
 ; Data block at 5F5F
 L5F5F:
-  DEFB $04,$00,$00,$00,$00
+  DEFB $04
+
+; Data block at 5F60
+L5F60:
+  DEFW $0000
+
+; Data block at 5F62
+L5F62:
+  DEFW $0000
 
 ; Current speed
 state_speed:
-  DEFB $02,$00,$00,$00,$00,$00,$01,$01
-  DEFB $00,$00,$00,$00,$00,$00
+  DEFB $02
+
+; Data block at 5F65
+L5F65:
+  DEFB $00
+
+; Data block at 5F66
+L5F66:
+  DEFB $00
+
+; Control type ($00 - Keyboard, $01 - Sinclair, $02 - Kempston, Other - Cursor)
+state_control_type:
+  DEFB $00
+
+; Data block at 5F68
+L5F68:
+  DEFB $00
+
+; Data block at 5F69
+L5F69:
+  DEFB $00
+
+; Data block at 5F6A
+L5F6A:
+  DEFW $0101
+
+; Data block at 5F6C
+L5F6C:
+  DEFB $00
+
+; Data block at 5F6D
+L5F6D:
+  DEFB $00,$00,$00,$00,$00
 
 ; Current X coordinate
 state_x:
   DEFB $00
 
-; Data block at 5F73
+; Game status buffer entry at 5F73
 L5F73:
-  DEFB $00,$00,$00,$00,$00,$00,$00,$00
-  DEFB $00,$00,$01,$00,$00,$00,$00,$00
-  DEFB $00,$00,$00,$00,$00,$00,$00,$00
-  DEFB $00,$00,$00,$00,$00,$00
+  DEFB $00,$00
 
-; Scan Enter
+; Data block at 5F75
+L5F75:
+  DEFB $00
+
+; Data block at 5F76
+L5F76:
+  DEFB $00
+
+; Data block at 5F77
+L5F77:
+  DEFB $00
+
+; Data block at 5F78
+L5F78:
+  DEFW $0000
+
+; Data block at 5F7A
+L5F7A:
+  DEFB $00
+
+; Data block at 5F7B
+L5F7B:
+  DEFW $0000
+
+; Data block at 5F7D
+L5F7D:
+  DEFB $01
+
+; Data block at 5F7E
+L5F7E:
+  DEFW $0000
+
+; Unused
+L5F80:
+  DEFB $00
+
+; Data block at 5F81
+L5F81:
+  DEFB $00
+
+; Unused
+L5F82:
+  DEFB $00
+
+; Data block at 5F83
+stack:
+  DEFW $0000
+
+; Data block at 5F85
+L5F85:
+  DEFW $0000
+
+; Data block at 5F87
+L5F87:
+  DEFW $0000
+
+; Data block at 5F89
+L5F89:
+  DEFW $0000
+
+; Data block at 5F8B
+L5F8B:
+  DEFW $0000
+
+; Data block at 5F8D
+L5F8D:
+  DEFW $0000
+
+; Data block at 5F8F
+L5F8F:
+  DEFW $0000
+
+; Main loop
 ;
-; Used by the routines at L5DA6 and L6097.
-L5F91:
-  LD A,$BF
-  IN A,($FE)
-  BIT 0,A
-  CALL Z,handle_enter
-  LD HL,$5EEF
+; Used by the routine at L5DA6.
+main_loop:
+  LD A,$BF                ; Scan Enter
+  IN A,($FE)              ;
+  BIT 0,A                 ;
+  CALL Z,handle_enter     ;
+  LD HL,L5EEF
   INC (HL)
   CALL L6EC8
   CALL L60A5
@@ -1250,128 +1413,110 @@ L5F91:
   CALL L66D0
   CALL L6DFF
   LD A,$00
-  LD ($5F69),A
-  LD A,($5F67)
+  LD (L5F69),A
+  LD A,(state_control_type)
   CP $02
-  JP Z,L5F91_0
+  JP Z,scan_kempston
   CP $01
-  JP Z,L5F91_1
+  JP Z,scan_sinclair
   CP $00
-  JP Z,L6068
+  JP Z,scan_keyboard
+scan_cursor:
   LD A,$EF
   IN A,($FE)
-  LD ($5EF1),A
+  LD (state_input_readings),A
   BIT 2,A
   CALL Z,handle_right
   LD A,$F7
   IN A,($FE)
   BIT 4,A
   CALL Z,handle_left
-  LD A,($5EF1)
+  LD A,(state_input_readings)
   BIT 0,A
   CALL Z,handle_fire
-  LD A,($5EF1)
+  LD A,(state_input_readings)
   BIT 3,A
   CALL Z,handle_up
-  LD A,($5EF1)
+  LD A,(state_input_readings)
   BIT 4,A
   CALL Z,handle_down
-  JP L5F91
-L5F91_0:
+  JP main_loop
+scan_kempston:
   LD A,$FE
   IN A,($1F)
-  LD ($5EF1),A
+  LD (state_input_readings),A
   BIT 0,A
   CALL NZ,handle_right
-  LD A,($5EF1)
+  LD A,(state_input_readings)
   BIT 1,A
   CALL NZ,handle_left
-  LD A,($5EF1)
+  LD A,(state_input_readings)
   BIT 2,A
   CALL NZ,handle_down
-  LD A,($5EF1)
+  LD A,(state_input_readings)
   BIT 3,A
   CALL NZ,handle_up
-  LD A,($5EF1)
+  LD A,(state_input_readings)
   BIT 4,A
   CALL NZ,handle_fire
-  JP L5F91
-L5F91_1:
+  JP main_loop
+scan_sinclair:
   LD A,$EF
   IN A,($FE)
-  LD ($5EF1),A
+  LD (state_input_readings),A
   BIT 0,A
   CALL Z,handle_fire
-  LD A,($5EF1)
+  LD A,(state_input_readings)
   BIT 1,A
   CALL Z,handle_up
-  LD A,($5EF1)
+  LD A,(state_input_readings)
   BIT 2,A
   CALL Z,handle_down
-  LD A,($5EF1)
+  LD A,(state_input_readings)
   BIT 3,A
   CALL Z,handle_right
-  LD A,($5EF1)
+  LD A,(state_input_readings)
   BIT 4,A
   CALL Z,handle_left
-  JP L5F91
-
-; Scan "O" (LEFT)
-;
-; Used by the routine at L5F91.
-L6068:
-  LD A,$DF
-  IN A,($FE)
-  BIT 0,A
-  CALL Z,handle_right
-
-; Scan "P" (RIGHT)
-L6071:
-  LD A,$DF
-  IN A,($FE)
-  BIT 1,A
-  CALL Z,handle_left
-
-; Scan "2" (UP)
-L607A:
-  LD A,$F7
-  IN A,($FE)
-  BIT 1,A
-  CALL Z,handle_up
-
-; Scan "W" (DOWN)
-L6083:
-  LD A,$FB
-  IN A,($FE)
-  BIT 1,A
-  CALL Z,handle_down
-
-; Scan X
-L608C:
-  LD A,$7F
-  IN A,($FE)
-  AND $1F
-  CP $1F
-  CALL NZ,handle_fire
-
-; Scan Y
-L6097:
-  LD A,$FE
-  IN A,($FE)
-  AND $1F
-  CP $1F
-  CALL NZ,handle_fire
-  JP L5F91
+  JP main_loop
+scan_keyboard:
+  LD A,$DF                ; Scan "O" (LEFT)
+  IN A,($FE)              ;
+  BIT 0,A                 ;
+  CALL Z,handle_right     ;
+  LD A,$DF                ; Scan "P" (RIGHT)
+  IN A,($FE)              ;
+  BIT 1,A                 ;
+  CALL Z,handle_left      ;
+  LD A,$F7                ; Scan "2" (UP)
+  IN A,($FE)              ;
+  BIT 1,A                 ;
+  CALL Z,handle_up        ;
+  LD A,$FB                ; Scan "W" (DOWN)
+  IN A,($FE)              ;
+  BIT 1,A                 ;
+  CALL Z,handle_down      ;
+  LD A,$7F                ; Scan lower row right (FIRE)
+  IN A,($FE)              ;
+  AND $1F                 ;
+  CP $1F                  ;
+  CALL NZ,handle_fire     ;
+  LD A,$FE                ; Scan lower row left (FIRE)
+  IN A,($FE)              ;
+  AND $1F                 ;
+  CP $1F                  ;
+  CALL NZ,handle_fire     ;
+  JP main_loop            ;
 
 ; Routine at 60A5
 ;
-; Used by the routines at L5DA6, L5F91 and L6D17.
+; Used by the routines at L5DA6, main_loop and L6D17.
 L60A5:
-  LD A,($5F68)
+  LD A,(L5F68)
   CP $00
   JP NZ,L60A5_0
   LD A,$00
-  LD ($5EF5),A
+  LD (L5EF5),A
   LD A,(state_x)
   LD C,A
   LD A,(state_speed)
@@ -1381,19 +1526,19 @@ L60A5:
   LD D,$00
   LD E,A
   SLA E
-  LD HL,($5EF7)
+  LD HL,(L5EF7)
   ADD HL,DE
-  LD ($8B0E),HL
+  LD (L8B0E),HL
   ADD A,$80
   LD B,A
   LD A,(state_speed)
   LD D,A
-  LD ($8B0A),BC
-  LD ($8B0C),BC
+  LD (L8B0A),BC
+  LD (L8B0C),BC
   LD E,$00
   LD BC,$0010
   LD A,$02
-  LD HL,$82F5
+  LD HL,L82F5
   CALL L8B1E_1
 L60A5_0:
   CALL L683B
@@ -1406,7 +1551,7 @@ L60A5_1:
   ADD HL,DE
   DEC A
   JR NZ,L60A5_1
-  LD ($5F7B),HL
+  LD (L5F7B),HL
   LD A,(state_speed)
   LD B,A
   LD A,(L5EEE)
@@ -1420,10 +1565,10 @@ L60A5_2:
   CALL Z,L68B7
   CALL L6A4F_2
   LD DE,$0100
-  LD HL,($5F7B)
+  LD HL,(L5F7B)
   OR A
   SBC HL,DE
-  LD ($5F7B),HL
+  LD (L5F7B),HL
   POP BC
   DJNZ L60A5_2
   LD A,C
@@ -1449,10 +1594,10 @@ L6124:
 ; Routine at 6136
 L6136:
   POP HL
-  LD ($5F85),HL
-  LD ($5F87),DE
-  LD ($5F89),BC
-  LD A,($5EF5)
+  LD (L5F85),HL
+  LD (L5F87),DE
+  LD (L5F89),BC
+  LD A,(L5EF5)
   CP $00
   JP Z,L8C1B_1
   CP $01
@@ -1464,8 +1609,8 @@ L6136:
   CP $04
   JP Z,L7415
 L6136_0:
-  LD BC,($5EF3)
-  LD DE,($8B0C)
+  LD BC,(L5EF3)
+  LD DE,(L8B0C)
   LD A,B
   ADD A,$06
   SUB D
@@ -1483,7 +1628,7 @@ L6136_0:
   SBC HL,BC
   JP M,L62E8_3
   LD H,$00
-  LD BC,($5EF3)
+  LD BC,(L5EF3)
   LD A,C
   INC A
   LD L,A
@@ -1496,8 +1641,8 @@ L6136_0:
   POP DE
   POP DE
   LD A,D
-  LD ($5EF6),A
-  LD HL,($5F60)
+  LD (L5EF6),A
+  LD HL,(L5F60)
   DEC HL
   DEC HL
   LD B,(HL)
@@ -1518,7 +1663,7 @@ L6136_0:
   JP L6794
 ; This entry point is used by the routine at L6256.
 L6136_1:
-  LD BC,($5EF3)
+  LD BC,(L5EF3)
   LD A,($5F6E)
   CP $00
   JP Z,L62E8
@@ -1538,7 +1683,7 @@ L6136_1:
   POP DE
   POP BC
   LD A,D
-  LD ($5EF6),A
+  LD (L5EF6),A
   LD A,($5F6E)
   SUB $04
   LD B,A
@@ -1559,24 +1704,24 @@ L6136_1:
   CALL L6E9C
   LD C,$80
   CALL L6E9C
-  LD A,($5F6C)
+  LD A,(L5F6C)
   CP $02
   LD HL,screen_pixels
   CALL Z,L6B7B_1
-  LD A,($5F6C)
+  LD A,(L5F6C)
   CP $02
   LD HL,$4100
   CALL Z,L6B7B_1
   LD A,$00
   LD ($5F6E),A
   LD A,$01
-  LD ($5F6D),A
-  LD BC,($5F8D)
-  LD ($5EF3),BC
+  LD (L5F6D),A
+  LD BC,(L5F8D)
+  LD (L5EF3),BC
   LD A,($923D)
   CP $02
   JP Z,L6136_2
-  LD HL,$5F6A
+  LD HL,L5F6A
   INC (HL)
   CALL L64BC
   JP L6794
@@ -1595,31 +1740,31 @@ L6253:
 ; Used by the routine at L6136.
 L6256:
   LD A,$06
-  LD ($5F68),A
+  LD (L5F68),A
   LD B,$80
   LD A,(state_x)
   LD C,A
-  LD ($5EF3),BC
+  LD (L5EF3),BC
   JP L6136_1
 
 ; Routine at 6268
 ;
 ; Used by the routine at L62E8.
 L6268:
-  LD HL,($5F62)
+  LD HL,(L5F62)
   LD C,(HL)
   INC HL
   LD B,(HL)
   INC HL
   INC HL
-  LD ($5F62),HL
+  LD (L5F62),HL
   LD A,C
   CP $00
   JP Z,L6268
   CP $FF
   JP Z,L6268_0
   CALL L62DA
-  LD DE,($5EF3)
+  LD DE,(L5EF3)
   LD A,D
   ADD A,$08
   LD H,$00
@@ -1638,7 +1783,7 @@ L6268:
   OR A
   SBC HL,DE
   JP M,L6268
-  LD DE,($5EF3)
+  LD DE,(L5EF3)
   LD H,$00
   LD A,E
   ADD A,$08
@@ -1650,7 +1795,7 @@ L6268:
   JP M,L6268
   LD A,C
   ADD A,$10
-  LD DE,($5EF3)
+  LD DE,(L5EF3)
   LD H,$00
   LD L,A
   OR A
@@ -1658,11 +1803,11 @@ L6268:
   SBC HL,DE
   JP M,L6268
   LD A,$02
-  LD ($5F8B),A
+  LD (L5F8B),A
   RET
 L6268_0:
   LD A,$00
-  LD ($5F8B),A
+  LD (L5F8B),A
   RET
 
 ; Routine at 62D4
@@ -1704,22 +1849,22 @@ L62E0:
 ;
 ; Used by the routine at L6136.
 L62E8:
-  LD HL,($5F60)
+  LD HL,(L5F60)
   LD C,(HL)
   INC HL
   LD B,(HL)
   INC HL
   INC HL
-  LD ($5F60),HL
+  LD (L5F60),HL
   LD A,C
   CP $00
   JP Z,L62E8
   CP $FF
   JP Z,L62E8_0
-  LD A,($5F68)
+  LD A,(L5F68)
   CP $06
   CALL Z,L62DA
-  LD DE,($5EF3)
+  LD DE,(L5EF3)
   LD A,D
   ADD A,$09
   LD H,$00
@@ -1733,7 +1878,7 @@ L62E8:
   ADD A,$08
   LD D,A
   LD E,$00
-  LD HL,($5F60)
+  LD HL,(L5F60)
   DEC HL
   LD A,(HL)
   AND $07
@@ -1743,7 +1888,7 @@ L62E8:
   CALL Z,L62D7
   LD A,D
   ADD A,E
-  LD DE,($5EF3)
+  LD DE,(L5EF3)
   LD H,$00
   LD L,A
   LD E,D
@@ -1751,7 +1896,7 @@ L62E8:
   OR A
   SBC HL,DE
   JP M,L62E8
-  LD DE,($5EF3)
+  LD DE,(L5EF3)
   LD A,E
   ADD A,$08
   LD E,A
@@ -1766,7 +1911,7 @@ L62E8:
   ADD A,$0A
   LD D,A
   LD E,$00
-  LD HL,($5F60)
+  LD HL,(L5F60)
   DEC HL
   LD A,(HL)
   AND $07
@@ -1774,19 +1919,19 @@ L62E8:
   CALL Z,L62D4
   LD A,D
   ADD A,E
-  LD DE,($5EF3)
-  LD ($5F8B),BC
+  LD DE,(L5EF3)
+  LD (L5F8B),BC
   LD H,$00
   LD L,A
   OR A
   LD D,$00
   SBC HL,DE
   JP M,L62E8
-  LD A,($5F68)
+  LD A,(L5F68)
   CP $06
   CALL Z,L62E0
-  LD ($5F8B),BC
-  LD HL,($5F60)
+  LD (L5F8B),BC
+  LD HL,(L5F60)
   DEC HL
   LD A,(HL)
   AND $07
@@ -1811,14 +1956,14 @@ L62E8:
 L62E8_0:
   CALL L6268
   LD HL,L5F00
-  LD ($5F60),HL
+  LD (L5F60),HL
   LD HL,$5F2E
-  LD ($5F62),HL
-  LD A,($5F8B)
+  LD (L5F62),HL
+  LD A,(L5F8B)
   CP $02
   JP Z,L62E8_2
   LD BC,($7385)
-  LD DE,($8B0C)
+  LD DE,(L8B0C)
   LD A,B
   CP D
   JP Z,L62E8_2
@@ -1828,35 +1973,35 @@ L62E8_1:
   POP DE
   POP BC
   LD A,D
-  LD ($5EF6),A
+  LD (L5EF6),A
   LD HL,$5F2E
-  LD ($5F62),HL
+  LD (L5F62),HL
   LD HL,L5F00
-  LD ($5F60),HL
-  LD BC,($5F8D)
-  LD ($5EF3),BC
+  LD (L5F60),HL
+  LD BC,(L5F8D)
+  LD (L5EF3),BC
   JP L6794
 L62E8_2:
   LD A,$00
-  LD ($5F68),A
+  LD (L5F68),A
 ; This entry point is used by the routine at L6136.
 L62E8_3:
   LD A,$00
-  LD ($5EF5),A
-  LD HL,($5F85)
-  LD DE,($5F87)
-  LD BC,($5F89)
+  LD (L5EF5),A
+  LD HL,(L5F85)
+  LD DE,(L5F87)
+  LD BC,(L5F89)
   JP L8C1B_1
 L62E8_4:
   LD A,$06
   CALL L90E0
-  LD BC,($5F8B)
+  LD BC,(L5F8B)
   CALL L6E9C
   JP L62E8_1
 L62E8_5:
   LD A,$03
   CALL L90E0
-  LD BC,($5F8B)
+  LD BC,(L5F8B)
   CALL L6E9C
   LD A,C
   ADD A,$08
@@ -1873,19 +2018,19 @@ L62E8_5:
 L62E8_6:
   LD A,$15
   CALL L90E0
-  LD BC,($5F8B)
+  LD BC,(L5F8B)
   CALL L6E9C
   JP L62E8_1
 L62E8_7:
   LD A,$10
   CALL L90E0
-  LD BC,($5F8B)
+  LD BC,(L5F8B)
   CALL L6E9C
   JP L62E8_1
 L62E8_8:
   LD A,$06
   CALL L90E0
-  LD BC,($5F8B)
+  LD BC,(L5F8B)
   CALL L6E9C
   LD A,B
   ADD A,$08
@@ -1893,12 +2038,12 @@ L62E8_8:
   CALL L6E9C
   JP L62E8_1
 L62E8_9:
-  LD A,($5F68)
+  LD A,(L5F68)
   CP $06
   JP Z,L62E8_10
   LD A,$08
   CALL L90E0
-  LD BC,($5F8B)
+  LD BC,(L5F8B)
   CALL L6E9C
   LD A,B
   ADD A,$08
@@ -1914,9 +2059,9 @@ L62E8_9:
 L62E8_10:
   LD (HL),C
   LD HL,L5F00
-  LD ($5F60),HL
+  LD (L5F60),HL
   LD HL,$5F2E
-  LD ($5F62),HL
+  LD (L5F62),HL
   CALL L6E40
   JP L62E8_2
 
@@ -1938,10 +2083,10 @@ L64BC:
   LD DE,status_line_3
   LD BC,status_line_4 - status_line_3
   CALL PR_STRING
-  LD A,($5F6A)
+  LD A,(L5F6A)
   SUB $0A
   CALL M,L6506
-  LD A,($5F6A)
+  LD A,(L5F6A)
   LD B,$00
   LD C,A
   CALL OUT_NUM_1
@@ -1983,7 +2128,7 @@ L650A:
   LD B,$7F
   LD A,$00
   LD (state_speed),A
-  LD ($5EF3),A
+  LD (L5EF3),A
   LD ($5EF4),A
   LD D,$00
   CALL L6E9C
@@ -2027,7 +2172,7 @@ L650A_3:
   JP NZ,L65BB
 ; This entry point is used by the routines at L65AB, L65BB and L65CB.
 L650A_4:
-  LD SP,($5F83)
+  LD SP,(stack)
   JP L5DA6
 L650A_5:
   LD A,(L923A)
@@ -2036,9 +2181,9 @@ L650A_5:
 ; This entry point is used by the routines at L65AB and L65CB.
 L650A_6:
   LD HL,L8153
-  LD ($5F7E),HL
+  LD (L5F7E),HL
   CALL $93BE
-  LD SP,($5F83)
+  LD SP,(stack)
   JP L5D10_0
 
 ; Routine at 6587
@@ -2110,25 +2255,25 @@ L65CB_1:
 
 ; Routine at 65F3
 ;
-; Used by the routines at L5F91 and L6068.
+; Used by the routine at main_loop.
 handle_right:
   LD A,(state_x)
-  LD HL,($5EF3)
-  LD ($5F8F),HL
+  LD HL,(L5EF3)
+  LD (L5F8F),HL
   INC A
   INC A
   LD (state_x),A
   LD C,A
   LD B,$80
   LD A,$01
-  LD ($5EF5),A
-  LD ($8B0C),BC
+  LD (L5EF5),A
+  LD (L8B0C),BC
   DEC C
   DEC C
-  LD ($8B0A),BC
+  LD (L8B0A),BC
   LD BC,$0010
-  LD HL,($5EF7)
-  LD ($8B0E),HL
+  LD HL,(L5EF7)
+  LD (L8B0E),HL
   LD E,$0E
   LD A,($923D)
   CP $02
@@ -2139,35 +2284,35 @@ handle_right:
   CALL L8B1E_1
 ; This entry point is used by the routines at handle_left and L6682.
 handle_right_0:
-  LD HL,($5F8F)
-  LD ($5EF3),HL
-  LD HL,($8B16)
-  LD ($5EF7),HL
+  LD HL,(L5F8F)
+  LD (L5EF3),HL
+  LD HL,(L8B16)
+  LD (L5EF7),HL
   LD A,$04
-  LD ($5F69),A
+  LD (L5F69),A
   RET
 
 ; Routine at 6642
 ;
-; Used by the routines at L5F91 and L6071.
+; Used by the routine at main_loop.
 handle_left:
   LD A,(state_x)
-  LD HL,($5EF3)
-  LD ($5F8F),HL
+  LD HL,(L5EF3)
+  LD (L5F8F),HL
   DEC A
   DEC A
   LD (state_x),A
   LD C,A
   LD B,$80
   LD A,$01
-  LD ($5EF5),A
-  LD ($8B0C),BC
+  LD (L5EF5),A
+  LD (L8B0C),BC
   INC C
   INC C
-  LD ($8B0A),BC
+  LD (L8B0A),BC
   LD BC,$0010
-  LD HL,($5EF7)
-  LD ($8B0E),HL
+  LD HL,(L5EF7)
+  LD (L8B0E),HL
   LD E,$0E
   LD A,($923D)
   CP $02
@@ -2182,29 +2327,29 @@ handle_left:
 ;
 ; Used by the routines at L5DA6 and L683B.
 L6682:
-  LD A,($5F68)
+  LD A,(L5F68)
   CP $00
   RET NZ
   LD A,(state_x)
-  LD HL,($5EF3)
-  LD ($5F8F),HL
+  LD HL,(L5EF3)
+  LD (L5F8F),HL
   LD C,A
   LD B,$80
   LD A,$01
-  LD ($5EF5),A
-  LD ($8B0C),BC
+  LD (L5EF5),A
+  LD (L8B0C),BC
   CALL L62DA
-  LD ($8B0A),BC
+  LD (L8B0A),BC
   LD BC,$0010
-  LD HL,($5EF7)
-  LD ($8B0E),HL
+  LD HL,(L5EF7)
+  LD (L8B0E),HL
   LD E,$0E
   LD A,($923D)
   CP $02
   CALL Z,L7038
   LD D,$08
   LD HL,L83B1
-  LD A,($5F69)
+  LD A,(L5F69)
   CP $04
   CALL Z,L66CC
   LD A,$02
@@ -2220,7 +2365,7 @@ L66CC:
 
 ; Routine at 66D0
 ;
-; Used by the routines at L5DA6, L5F91 and L6D17.
+; Used by the routines at L5DA6, main_loop and L6D17.
 L66D0:
   LD BC,($5F70)
   LD H,$00
@@ -2257,9 +2402,9 @@ L66EE:
 ; Used by the routine at L66EE.
 L6704:
   LD A,$00
-  LD ($5F6D),A
+  LD (L5F6D),A
   RET
-; This entry point is used by the routines at L5F91 and L607A.
+; This entry point is used by the routine at main_loop.
 handle_up:
   LD A,$04
   LD (state_speed),A
@@ -2267,7 +2412,7 @@ handle_up:
   SET 2,(HL)
   RES 1,(HL)
   RET
-; This entry point is used by the routines at L5F91 and L6083.
+; This entry point is used by the routine at main_loop.
 handle_down:
   LD A,$01
   LD (state_speed),A
@@ -2275,16 +2420,16 @@ handle_down:
   SET 2,(HL)
   SET 1,(HL)
   RET
-; This entry point is used by the routines at L5F91, L608C and L6097.
+; This entry point is used by the routine at main_loop.
 handle_fire:
-  LD A,($5EF3)
+  LD A,(L5EF3)
   CP $00
   RET NZ
   LD A,(state_x)
   ADD A,$04
   LD B,$7E
   LD C,A
-  LD ($5EF3),BC
+  LD (L5EF3),BC
   LD HL,L6BB0
   SET 0,(HL)
   RET
@@ -2295,18 +2440,18 @@ L673C:
 
 ; Routine at 673D
 ;
-; Used by the routine at L5F91.
+; Used by the routine at main_loop.
 L673D:
-  LD A,($5EF3)
+  LD A,(L5EF3)
   CP $00
   RET Z
-  LD BC,($5EF3)
-  LD ($5F8D),BC
+  LD BC,(L5EF3)
+  LD (L5F8D),BC
   LD A,(L673C)
   CP $01
   CALL Z,L62DA
-  LD ($8B0A),BC
-  LD BC,($5EF3)
+  LD (L8B0A),BC
+  LD BC,(L5EF3)
   LD A,(state_x)
   ADD A,$04
   LD C,A
@@ -2316,13 +2461,13 @@ L673D:
   AND $F8
   CP $00
   JP Z,L6794
-  LD ($5EF3),BC
+  LD (L5EF3),BC
   LD A,$70
   SUB B
   CALL P,L678E
-  LD ($8B0C),BC
+  LD (L8B0C),BC
   LD A,$02
-  LD ($5EF5),A
+  LD (L5EF5),A
   LD DE,$080C
   LD HL,L8431
   LD BC,$0008
@@ -2342,13 +2487,13 @@ L678E:
 ;
 ; Used by the routines at L6136, L62E8 and L673D.
 L6794:
-  LD BC,($5EF3)
+  LD BC,(L5EF3)
   CALL L72EF
-  LD A,($5F68)
+  LD A,(L5F68)
   CP $06
   JP Z,L650A
   LD A,$00
-  LD ($5EF5),A
+  LD (L5EF5),A
   LD A,$01
   LD HL,$8451
   LD DE,$0008
@@ -2365,19 +2510,19 @@ L6794_0:
   LD A,(L673C)
   CP $01
   CALL Z,L62DA
-  LD ($8B0E),HL
-  LD ($8B0C),BC
-  LD ($8B0A),BC
+  LD (L8B0E),HL
+  LD (L8B0C),BC
+  LD (L8B0A),BC
   LD A,$01
   LD BC,$0008
   LD DE,$080C
-  LD HL,$82F5
+  LD HL,L82F5
   CALL L8B1E_1
   LD HL,L6BB0
   RES 1,(HL)
-  LD BC,($5EF3)
+  LD BC,(L5EF3)
   LD HL,$0000
-  LD ($5EF3),HL
+  LD (L5EF3),HL
   LD A,B
   SUB $06
   LD B,A
@@ -2398,7 +2543,7 @@ L6794_1:
   ADD HL,DE
   DEC A
   JR NZ,L6794_1
-  LD A,($5EF6)
+  LD A,(L5EF6)
   LD D,A
   LD A,$08
   SUB D
@@ -2407,10 +2552,10 @@ L6794_1:
   LD D,A
   LD E,$0C
   LD A,$01
-  LD ($8B0E),HL
-  LD HL,$82F5
-  LD ($8B0C),BC
-  LD ($8B0A),BC
+  LD (L8B0E),HL
+  LD HL,L82F5
+  LD (L8B0C),BC
+  LD (L8B0A),BC
   LD BC,$0000
   CALL L8B1E_1
   RET
@@ -2437,7 +2582,7 @@ L6836:
 L683B:
   LD A,$8F
 L683B_0:
-  LD ($5EF9),A
+  LD (L5EF9),A
   AND $3F
   LD HL,L5B00
   LD C,A
@@ -2448,7 +2593,7 @@ L683B_0:
   INC HL
   LD D,(HL)
   EX DE,HL
-  LD A,($5EF9)
+  LD A,(L5EF9)
   BIT 7,A
   CALL NZ,L6836
   BIT 6,A
@@ -2457,7 +2602,7 @@ L683B_0:
   LD HL,L5B00
   LD A,(state_speed)
   LD B,A
-  LD A,($5EF9)
+  LD A,(L5EF9)
   SUB B
   AND $3F
   LD B,$00
@@ -2470,7 +2615,7 @@ L683B_0:
   EX DE,HL
   LD A,(state_speed)
   LD D,A
-  LD A,($5EF9)
+  LD A,(L5EF9)
   SUB D
   BIT 7,A
   CALL NZ,L6836
@@ -2479,13 +2624,13 @@ L683B_0:
   POP DE
   LD BC,$0020
   LDDR
-  LD A,($5EF9)
+  LD A,(L5EF9)
   DEC A
   CP $00
   JP Z,L683B_1
   CP $7F
   CALL Z,L6682
-  LD A,($5EF9)
+  LD A,(L5EF9)
   DEC A
   JP L683B_0
 L683B_1:
@@ -2518,7 +2663,7 @@ L68C5:
   LD DE,$5820
   LD BC,$0020
   LDIR
-  LD A,($5F6C)
+  LD A,(L5F6C)
   CP $01
   JP Z,L6927
   CP $02
@@ -2547,7 +2692,7 @@ L68E9_0:
   DJNZ L68E9_0
   CALL L7441_2
   LD (L5F73),HL
-  LD A,($5F6A)
+  LD A,(L5F6A)
   LD B,A
   LD A,($923D)
   CP $02
@@ -2571,7 +2716,7 @@ L68E9_2:
   ADD HL,DE
   LD A,L
   INC A
-  LD ($5EF0),A
+  LD (L5EF0),A
   JP L68C5_0
 
 ; Routine at 6927
@@ -2583,7 +2728,7 @@ L6927:
   LD BC,$0020
   LDIR
   LD A,$00
-  LD ($5F6C),A
+  LD (L5F6C),A
   CALL L6F80
   RET
 
@@ -2606,7 +2751,7 @@ L693C:
 ; Used by the routine at L6A4F.
 L6947:
   LD A,$00
-  LD ($5F6D),A
+  LD (L5F6D),A
   RET
 
 ; Routine at 694D
@@ -2615,16 +2760,16 @@ L6947:
 L694D:
   LD DE,$0000
   LD ($5F70),DE
-  LD A,($5EF0)
+  LD A,(L5EF0)
   INC A
-  LD ($5EF0),A
+  LD (L5EF0),A
   CP $31
   JP Z,L694D_0
   LD A,$00
   RET
 L694D_0:
   LD A,$01
-  LD ($5EF0),A
+  LD (L5EF0),A
   LD A,$00
   RET
 
@@ -2642,24 +2787,24 @@ L696B:
   DEC A
   JR NZ,$6977
   LD A,(HL)
-  LD ($5EFA),A
+  LD (L5EFA),A
   INC HL
   LD A,(HL)
-  LD ($5EFB),A
+  LD (L5EFB),A
   INC HL
   LD A,(HL)
-  LD ($5EFC),A
+  LD (L5EFC),A
   LD A,$00
-  LD ($5EFD),A
+  LD (L5EFD),A
   RET
 
 ; Routine at 6990
 ;
 ; Used by the routine at L6A4F.
 L6990:
-  LD HL,$5EFD
+  LD HL,L5EFD
   INC (HL)
-  LD A,($5EFA)
+  LD A,(L5EFA)
   LD HL,$8063
   LD DE,$0010
   OR A
@@ -2668,12 +2813,12 @@ L6990_0:
   ADD HL,DE
   DEC A
   JR NZ,L6990_0
-  LD A,($5F7D)
+  LD A,(L5F7D)
   AND $0F
   LD D,$00
   LD E,A
   ADD HL,DE
-  LD A,($5EFB)
+  LD A,(L5EFB)
   ADD A,(HL)
   PUSH AF
   LD B,$00
@@ -2689,7 +2834,7 @@ L6990_0:
   ADD HL,BC
   EX DE,HL
   LD C,A
-  LD HL,($5F7B)
+  LD HL,(L5F7B)
   LD B,$00
   SRL C
   SRL C
@@ -2718,12 +2863,12 @@ L6990_2:
   LD B,$00
   LD D,A
   LD C,$3C
-  LD A,($5EFB)
+  LD A,(L5EFB)
   LD B,A
-  LD A,($5EFC)
+  LD A,(L5EFC)
   CP $01
   JP Z,L6990_5
-  LD A,($5EFC)
+  LD A,(L5EFC)
   CP $02
   JP Z,L6990_6
 L6990_3:
@@ -2737,7 +2882,7 @@ L6990_3:
   ADD HL,BC
   EX DE,HL
   LD C,A
-  LD HL,($5F7B)
+  LD HL,(L5F7B)
   SRL C
   SRL C
   SRL C
@@ -2782,20 +2927,20 @@ L6A4A:
 ; Routine at 6A4F
 L6A4F:
   LD A,$FF
-  LD ($5F7D),A
+  LD (L5F7D),A
   LD HL,L9500
   LD DE,$0100
-  LD A,($5EF0)
+  LD A,(L5EF0)
   OR A
   SBC HL,DE
 L6A4F_0:
   ADD HL,DE
   DEC A
   JR NZ,L6A4F_0
-  LD A,($5F76)
+  LD A,(L5F76)
   INC A
   AND $3F
-  LD ($5F76),A
+  LD (L5F76),A
   CP $00
   CALL Z,L694D
   LD DE,$0004
@@ -2807,7 +2952,7 @@ L6A4F_1:
   DEC A
   JR NZ,L6A4F_1
   LD A,(HL)
-  LD ($5F77),A
+  LD (L5F77),A
   CP $03
   CALL Z,L693C
   CP $02
@@ -2817,7 +2962,7 @@ L6A4F_1:
   INC HL
   LD B,(HL)
   INC HL
-  LD ($5F78),BC
+  LD (L5F78),BC
   LD A,(HL)
   PUSH AF
   AND $FC
@@ -2825,10 +2970,10 @@ L6A4F_1:
   CALL NZ,L696B
   POP AF
   AND $03
-  LD ($5F7A),A
+  LD (L5F7A),A
 ; This entry point is used by the routine at L60A5.
 L6A4F_2:
-  LD A,($5F77)
+  LD A,(L5F77)
   LD HL,$8063
   LD DE,$0010
   OR A
@@ -2837,16 +2982,16 @@ L6A4F_3:
   ADD HL,DE
   DEC A
   JR NZ,L6A4F_3
-  LD A,($5F7D)
+  LD A,(L5F7D)
   INC A
-  LD ($5F7D),A
+  LD (L5F7D),A
   CP $10
   JP Z,L6A4F
   AND $0F
   LD D,$00
   LD E,A
   ADD HL,DE
-  LD BC,($5F78)
+  LD BC,(L5F78)
   LD A,(HL)
   BIT 7,A
   JP NZ,L6B7B
@@ -2867,7 +3012,7 @@ L6A4F_3:
   ADD HL,BC
   EX DE,HL
   LD C,A
-  LD HL,($5F7B)
+  LD HL,(L5F7B)
   LD B,$00
   SRL C
   SRL C
@@ -2889,11 +3034,11 @@ L6A4F_4:
   DJNZ L6A4F_4
   POP AF
   LD D,A
-  LD BC,($5F78)
-  LD A,($5F7A)
+  LD BC,(L5F78)
+  LD A,(L5F7A)
   CP $01
   JP Z,L6A4F_7
-  LD A,($5F7A)
+  LD A,(L5F7A)
   CP $02
   JP Z,L6A4F_8
 L6A4F_5:
@@ -2907,7 +3052,7 @@ L6A4F_5:
   ADD HL,BC
   EX DE,HL
   LD C,A
-  LD HL,($5F7B)
+  LD HL,(L5F7B)
   SRL C
   SRL C
   SRL C
@@ -2927,7 +3072,7 @@ L6A4F_6:
   LD (DE),A
   INC DE
   DJNZ L6A4F_6
-  LD A,($5EFD)
+  LD A,(L5EFD)
   CP $10
   CALL NZ,L6990
   RET
@@ -2979,14 +3124,14 @@ L6B7B:
   LD HL,$8351
 ; This entry point is used by the routines at L6B63, L6B6B and L6B73.
 L6B7B_0:
-  LD DE,($5F7B)
+  LD DE,(L5F7B)
   LD BC,$0020
   LDIR
-  LD ($5F6C),A
-  LD A,($5F6D)
+  LD (L5F6C),A
+  LD A,(L5F6D)
   CP $00
   RET Z
-  LD HL,($5F7B)
+  LD HL,(L5F7B)
 ; This entry point is used by the routine at L6136.
 L6B7B_1:
   LD DE,$000E
@@ -3014,7 +3159,7 @@ L6BB1:
 
 ; Handle the Enter key pressed
 ;
-; Used by the routines at L5F91 and L6D17.
+; Used by the routines at main_loop and L6D17.
 handle_enter:
   LD A,$FE                ; Scan Caps Shift
   IN A,($FE)              ;
@@ -3023,11 +3168,11 @@ handle_enter:
   LD A,$7F                ; Scan Symbol Shift
   IN A,($FE)              ;
   BIT 1,A                 ;
-  JP Z,handle_enter_0     ;
+  JP Z,select_controls    ;
   RET                     ;
-handle_enter_0:
+select_controls:
   LD HL,$8182             ;
-  LD ($5F7E),HL           ;
+  LD (L5F7E),HL           ;
   JP start_1              ;
 
 ; Routine at 6BDB
@@ -3234,10 +3379,10 @@ L6CD6_2:
 L6CF4:
   LD C,$03
 L6CF4_0:
-  LD A,($5F65)
+  LD A,(L5F65)
   DEC A
   AND $7F
-  LD ($5F65),A
+  LD (L5F65),A
   LD E,A
   LD A,$10
   OUT ($FE),A
@@ -3262,7 +3407,7 @@ L6D17:
   LD BC,$0010
   LD ($5F70),BC
   LD A,$10
-  LD ($5EFD),A
+  LD (L5EFD),A
   LD D,$0C
   CALL L940A
   CALL L8A33
@@ -3284,8 +3429,8 @@ L6D17:
   LD A,$68
   LD (LAST_K),A
   LD A,$00
-  LD ($5F7D),A
-  LD A,($5EF0)
+  LD (L5F7D),A
+  LD A,(L5EF0)
   LD ($5D43),A
 L6D17_0:
   LD A,$BF
@@ -3294,27 +3439,27 @@ L6D17_0:
   CALL Z,handle_enter
   LD A,($5D43)
   LD B,A
-  LD A,($5EF0)
+  LD A,(L5EF0)
   SUB B
   CP $05
   JP Z,start_1
   CALL L8A1B
   CALL L60A5
-  LD HL,$5EEF
+  LD HL,L5EEF
   INC (HL)
   CALL L708E
   CALL L7441
   CALL L7393
   CALL L66D0
   CALL L8A1B
-  LD HL,$5F81
+  LD HL,L5F81
   INC (HL)
   CALL KEYBOARD
   EI
   LD A,(LAST_K)
   CP $0D
   JP Z,L5DA6
-  LD A,($5F81)
+  LD A,(L5F81)
   AND $03
   CP $00
   JP NZ,L6D17_0
@@ -3334,9 +3479,9 @@ L6D17_0:
   RST $10
   LD A,$1F
   RST $10
-  LD HL,($5F7E)
+  LD HL,(L5F7E)
   INC HL
-  LD ($5F7E),HL
+  LD (L5F7E),HL
   LD A,(HL)
   CP $FF
   JP Z,L6D17_1
@@ -3346,9 +3491,9 @@ L6D17_0:
   JP L6D17_0
 L6D17_1:
   LD HL,$8182
-  LD ($5F7E),HL
+  LD (L5F7E),HL
   LD A,$00
-  LD ($5F6D),A
+  LD (L5F6D),A
   JP L6D17_0
 
 ; Routine at 6DEB
@@ -3362,31 +3507,31 @@ L6DEB:
   LD C,A
   ADD HL,BC
   LD A,(HL)
-  LD ($5F6A),A
+  LD (L5F6A),A
   LD ($5F6B),A
   RET
 
 ; Routine at 6DFF
 ;
-; Used by the routine at L5F91.
+; Used by the routine at main_loop.
 L6DFF:
-  LD A,($5EEF)
+  LD A,(L5EEF)
   AND $01
   CP $00
   RET NZ
-  LD A,($5F66)
+  LD A,(L5F66)
   DEC A
-  LD ($5F66),A
+  LD (L5F66),A
   AND $03
   CP $00
   RET NZ
-  LD A,($5F66)
+  LD A,(L5F66)
   CP $00
   JP Z,L650A
   AND $C0
   CP $00
   CALL Z,L6E86
-  LD A,($5F66)
+  LD A,(L5F66)
   LD B,$A8
   SRL A
   SRL A
@@ -3408,23 +3553,23 @@ L6DFF_0:
 ;
 ; Used by the routine at L62E8.
 L6E40:
-  LD A,($5F69)
+  LD A,(L5F69)
   CP $04
   RET Z
-  LD A,($5F66)
+  LD A,(L5F66)
   AND $FC
   CP $FC
   JP Z,L6E92
   LD DE,$0007
   LD HL,$0333
   CALL BEEPER
-  LD A,($5F66)
+  LD A,(L5F66)
   ADD A,$04
-  LD ($5F66),A
+  LD (L5F66),A
   AND $C0
   CP $00
   CALL NZ,L6E8C
-  LD A,($5F66)
+  LD A,(L5F66)
   LD B,$A8
   SRL A
   SRL A
@@ -3502,16 +3647,16 @@ L6E9C_1:
 
 ; Routine at 6EC8
 ;
-; Used by the routines at L5F91, L650A and L6F7A.
+; Used by the routines at main_loop, L650A and L6F7A.
 L6EC8:
-  LD HL,($5F62)
+  LD HL,(L5F62)
   LD C,(HL)
   INC HL
   LD B,(HL)
   INC HL
   LD D,(HL)
   INC HL
-  LD ($5F62),HL
+  LD (L5F62),HL
   LD A,C
   CP $00
   JP Z,L6EC8
@@ -3555,17 +3700,17 @@ L6EC8:
   CALL Z,L6F6F
   LD A,(HL)
   LD HL,$82C5
-  LD ($8B0E),HL
-  LD ($8B10),DE
+  LD (L8B0E),HL
+  LD (L8B10),DE
   LD D,A
   LD A,$00
-  LD ($5EF5),A
+  LD (L5EF5),A
   LD A,$02
   LD (L8B1A),A
   LD A,D
   LD DE,$080C
-  LD ($8B0A),BC
-  LD ($8B0C),BC
+  LD (L8B0A),BC
+  LD (L8B0C),BC
   LD BC,$0000
   BIT 7,A
   JP NZ,L6EC8_0
@@ -3609,7 +3754,7 @@ L6F6B:
 ;
 ; Used by the routine at L6EC8.
 L6F6F:
-  LD DE,$82F5
+  LD DE,L82F5
   RET
 
 ; Routine at 6F73
@@ -3617,7 +3762,7 @@ L6F6F:
 ; Used by the routine at L6EC8.
 L6F73:
   LD HL,$5F2E
-  LD ($5F62),HL
+  LD (L5F62),HL
   RET
 
 ; Routine at 6F7A
@@ -3633,10 +3778,10 @@ L6F7A:
 ; Used by the routines at L68C5 and L6927.
 L6F80:
   LD A,$00
-  LD ($5EF5),A
+  LD (L5EF5),A
   LD HL,LC800
   LD DE,$0100
-  LD A,($5EF0)
+  LD A,(L5EF0)
   OR A
   SBC HL,DE
 L6F80_0:
@@ -3677,10 +3822,10 @@ L6F80_2:
   JR NZ,L6F80_2
   LD B,$00
   LD C,E
-  LD ($8B0E),HL
-  LD HL,$82F5
-  LD ($8B0C),BC
-  LD ($8B0A),BC
+  LD (L8B0E),HL
+  LD HL,L82F5
+  LD (L8B0C),BC
+  LD (L8B0A),BC
   LD A,$03
   LD DE,$1014
   CALL L8B1E_1
@@ -3698,8 +3843,8 @@ L6FE6:
 ; Used by the routines at L6FF6, L7051 and L706C.
 L6FEA:
   CALL L62DA
-  LD ($8B0C),BC
-  LD ($8B0A),BC
+  LD (L8B0C),BC
+  LD (L8B0A),BC
   RET
 
 ; Routine at 6FF6
@@ -3795,7 +3940,7 @@ L706C:
   LD C,E
   LD HL,$8972
   LD A,$00
-  LD ($5EF5),A
+  LD (L5EF5),A
   PUSH HL
   LD HL,L5F00
   CALL L6E9C_0
@@ -3809,19 +3954,19 @@ L706C:
 
 ; Routine at 708E
 ;
-; Used by the routines at L5DA6, L5F91, L6D17, L7158, L71A2, L7224, L724C,
+; Used by the routines at L5DA6, main_loop, L6D17, L7158, L71A2, L7224, L724C,
 ; L7296, L7302, L7358, L74EE, L754C, L75D0, L762E, L7649 and L76DA.
 L708E:
   LD A,$00
-  LD ($5EF5),A
-  LD HL,($5F60)
+  LD (L5EF5),A
+  LD HL,(L5F60)
   LD C,(HL)
   INC HL
   LD B,(HL)
   INC HL
   LD D,(HL)
   INC HL
-  LD ($5F60),HL
+  LD (L5F60),HL
   LD A,C
   CP $00
   JP Z,L708E
@@ -3845,7 +3990,7 @@ L708E:
   POP BC
   POP HL
   POP DE
-  LD A,($5F68)
+  LD A,(L5F68)
   CP $01
   JP Z,L708E
   BIT 7,D
@@ -3874,7 +4019,7 @@ L708E_0:
   JP Z,L7296
   CP $00
   JP Z,L71A2
-  LD A,($5EEF)
+  LD A,(L5EEF)
   AND $01
   CP $00
   JP Z,L724C
@@ -3889,21 +4034,21 @@ L708E_0:
   POP BC
   CP $00
   CALL NZ,L75D0
-  LD ($8B0A),BC
+  LD (L8B0A),BC
   DEC C
   DEC C
 ; This entry point is used by the routines at L7224 and L75A2.
 L708E_1:
-  LD HL,($5F60)
+  LD HL,(L5F60)
   DEC HL
   LD D,(HL)
   DEC HL
   LD (HL),B
   DEC HL
   LD (HL),C
-  LD ($8B0C),BC
+  LD (L8B0C),BC
   LD HL,$82C5
-  LD ($8B0E),HL
+  LD (L8B0E),HL
   CALL L75BA
   LD BC,$0018
   LD E,$0E
@@ -3927,7 +4072,7 @@ L7155:
 ;
 ; Used by the routine at L708E.
 L7158:
-  LD ($8B0A),BC
+  LD (L8B0A),BC
   BIT 6,D
   JP Z,L7158_1
   DEC C
@@ -3938,19 +4083,19 @@ L7158:
   CP $00
   CALL Z,L7155
 L7158_0:
-  LD HL,($5F60)
+  LD HL,(L5F60)
   DEC HL
   LD D,(HL)
   DEC HL
   LD (HL),B
   DEC HL
   LD (HL),C
-  LD ($8B0C),BC
+  LD (L8B0C),BC
   CALL L75BA
   LD BC,$0018
   CALL L72E6
   LD A,$03
-  LD ($5EF5),A
+  LD (L5EF5),A
   LD DE,$0800
   CALL L8B1E
   CALL L72EF
@@ -3976,12 +4121,12 @@ L719F:
 ;
 ; Used by the routine at L708E.
 L71A2:
-  LD A,($5EEF)
+  LD A,(L5EEF)
   AND $01
   CP $01
   JP NZ,L708E
-  LD ($8B0A),BC
-  LD ($8B0C),BC
+  LD (L8B0A),BC
+  LD (L8B0C),BC
   LD A,B
   AND $80
   CP $80
@@ -4001,7 +4146,7 @@ L71A2:
   LD A,D
   AND $C7
   OR E
-  LD HL,($5F60)
+  LD HL,(L5F60)
   DEC HL
   LD (HL),A
   LD HL,$8FFC
@@ -4018,8 +4163,8 @@ L71A2_0:
   JR NZ,L71A2_0
 L71A2_1:
   LD BC,$82C5
-  LD ($8B0E),BC
-  LD A,($5EEF)
+  LD (L8B0E),BC
+  LD A,(L5EEF)
   AND $06
   SRL A
   ADD A,$0C
@@ -4030,12 +4175,12 @@ L71A2_1:
   CALL L8B1E_1
   JP L708E
 L71A2_2:
-  LD HL,($5F60)
+  LD HL,(L5F60)
   DEC HL
   DEC HL
   DEC HL
   LD (HL),$00
-  LD HL,$82F5
+  LD HL,L82F5
   LD A,(L7383)
   RES 5,A
   LD (L7383),A
@@ -4048,7 +4193,7 @@ L7224:
   LD A,D
   CP $06
   JP Z,L7649_1
-  LD A,($5EEF)
+  LD A,(L5EEF)
   AND $01
   CP $01
   JP Z,L724C
@@ -4059,7 +4204,7 @@ L7224:
   CP $03
   JP NZ,L708E
 L7224_0:
-  LD ($8B0A),BC
+  LD (L8B0A),BC
   JP L708E_1
 
 ; Routine at 7248
@@ -4080,7 +4225,7 @@ L724C:
   CP $03
   JP NZ,L708E
 L724C_0:
-  LD HL,($5F60)
+  LD HL,(L5F60)
   DEC HL
   LD D,(HL)
   DEC HL
@@ -4090,12 +4235,12 @@ L724C_0:
   LD HL,$8AB8
   BIT 6,D
   CALL Z,L7248
-  LD ($8B0C),BC
-  LD ($8B0A),BC
+  LD (L8B0C),BC
+  LD (L8B0A),BC
   PUSH HL
   CALL L75BA
   LD HL,$82C5
-  LD ($8B0E),HL
+  LD (L8B0E),HL
   POP HL
   LD DE,$020E
   LD BC,$0004
@@ -4118,25 +4263,25 @@ L728B:
 ; Used by the routine at L7296.
 L7290:
   LD A,$01
-  LD ($5EF2),A
+  LD (L5EF2),A
   RET
 
 ; Routine at 7296
 ;
 ; Used by the routine at L708E.
 L7296:
-  LD A,($5EEF)
+  LD A,(L5EEF)
   AND $01
   CP $01
   JP Z,L708E
-  LD ($8B0A),BC
+  LD (L8B0A),BC
   PUSH DE
   PUSH BC
   BIT 5,D
   JP NZ,L7302
   POP BC
   POP DE
-  LD A,($5F6D)
+  LD A,(L5F6D)
   CP $00
   JP NZ,L74EE
 ; This entry point is used by the routine at L7302.
@@ -4148,14 +4293,14 @@ L7296_0:
   LD A,C
   CP $80
   CALL Z,L7290
-  LD HL,($5F60)
+  LD HL,(L5F60)
   DEC HL
   LD D,(HL)
   DEC HL
   LD (HL),B
   DEC HL
   LD (HL),C
-  LD ($8B0C),BC
+  LD (L8B0C),BC
   CALL L75BA
   LD BC,$0018
   CALL L72E6
@@ -4205,7 +4350,7 @@ L72FD:
 ;
 ; Used by the routine at L7296.
 L7302:
-  LD BC,($8B0A)
+  LD BC,(L8B0A)
   LD A,C
   ADD A,$10
   LD C,A
@@ -4261,7 +4406,7 @@ L7358:
 ;
 ; Used by the routine at L7302.
 L735E:
-  LD A,($5EF2)
+  LD A,(L5EF2)
   CP $01
   JP Z,L7358
   PUSH BC
@@ -4314,14 +4459,14 @@ L738E:
 
 ; Routine at 7393
 ;
-; Used by the routines at L5F91 and L6D17.
+; Used by the routines at main_loop and L6D17.
 L7393:
   LD BC,(L5F73)
   LD A,B
   CP $00
   RET Z
   CALL L62DA
-  LD ($8B0A),BC
+  LD (L8B0A),BC
   LD A,C
   SUB $08
   LD C,A
@@ -4329,13 +4474,13 @@ L7393:
   AND $88
   CP $88
   JP Z,L7393_0
-  LD A,($5F75)
+  LD A,(L5F75)
   BIT 6,A
   CALL Z,L738E
-  LD ($8B0C),BC
+  LD (L8B0C),BC
   LD (L5F73),BC
   LD A,$04
-  LD ($5EF5),A
+  LD (L5EF5),A
   LD A,$01
   LD E,$00
   LD D,$01
@@ -4360,7 +4505,7 @@ L73D8:
 ;
 ; Used by the routine at L708E.
 L73DD:
-  LD A,($5F68)
+  LD A,(L5F68)
   CP $01
   RET Z
   LD BC,(L5F73)
@@ -4370,7 +4515,7 @@ L73DD:
   LD DE,$0001
   LD HL,$2800
   CALL BEEPER
-  LD HL,($5F60)
+  LD HL,(L5F60)
   DEC HL
   LD D,(HL)
   DEC HL
@@ -4382,7 +4527,7 @@ L73DD:
   LD C,A
   LD A,D
   AND $40
-  LD ($5F75),A
+  LD (L5F75),A
   BIT 6,A
   CALL Z,L73D8
   INC B
@@ -4421,7 +4566,7 @@ L7415_0:
 
 ; Routine at 7441
 ;
-; Used by the routines at L5F91 and L6D17.
+; Used by the routines at main_loop and L6D17.
 L7441:
   LD A,(L7383)
   BIT 7,A
@@ -4438,7 +4583,7 @@ L7441:
   CALL BEEPER
   LD BC,($7385)
   CALL L62DA
-  LD ($8B0A),BC
+  LD (L8B0A),BC
   LD A,(L7383)
   LD D,A
   AND $07
@@ -4450,10 +4595,10 @@ L7441:
   BIT 6,D
   CALL NZ,L7387
   INC B
-  LD ($8B0C),BC
+  LD (L8B0C),BC
   LD ($7385),BC
   LD A,$00
-  LD ($5EF5),A
+  LD (L5EF5),A
   LD A,B
   AND $88
   CP $88
@@ -4465,7 +4610,7 @@ L7441:
   CALL L8B1E
   RET
 L7441_0:
-  LD BC,($8B0A)
+  LD BC,(L8B0A)
   LD HL,L8431
   LD A,C
   AND $06
@@ -4474,8 +4619,8 @@ L7441_0:
   LD D,$00
   LD E,A
   ADD HL,DE
-  LD ($8B0E),HL
-  LD HL,$82F5
+  LD (L8B0E),HL
+  LD HL,L82F5
   LD DE,$0100
   LD A,$01
   LD BC,$0008
@@ -4505,7 +4650,7 @@ L7441_2:
 ;
 ; Used by the routine at L7296.
 L74EE:
-  LD HL,($5F60)
+  LD HL,(L5F60)
   DEC HL
   DEC HL
   DEC HL
@@ -4526,7 +4671,7 @@ L74EE:
   OR A
   SBC HL,DE
   JP M,L74EE_0
-  LD HL,($5F60)
+  LD HL,(L5F60)
   DEC HL
   DEC HL
   LD B,(HL)
@@ -4537,7 +4682,7 @@ L74EE:
   LD A,$25
   CALL L90E0
 L74EE_0:
-  LD HL,($5F60)
+  LD HL,(L5F60)
   DEC HL
   SET 4,(HL)
   SET 5,(HL)
@@ -4555,22 +4700,22 @@ L74EE_1:
   LD (HL),$00
   JP L708E
 L74EE_2:
-  LD A,($5F6A)
+  LD A,(L5F6A)
   JP L74EE_1
 
 ; Routine at 754C
 ;
 ; Used by the routine at L708E.
 L754C:
-  LD ($8B0A),BC
-  LD ($8B0C),BC
+  LD (L8B0A),BC
+  LD (L8B0C),BC
   LD D,$19
   LD A,B
   ADD A,$19
   AND $90
   CP $90
   CALL Z,L758A
-  LD BC,($8B0A)
+  LD BC,(L8B0A)
   LD A,B
   AND $88
   CP $88
@@ -4581,7 +4726,7 @@ L754C:
   JP Z,L708E
   LD HL,L8A86
   LD BC,$0000
-  LD A,($5EEF)
+  LD A,(L5EEF)
   AND $04
   ADD A,$0B
   LD E,A
@@ -4622,7 +4767,7 @@ L75A2:
   POP BC
   CP $00
   CALL NZ,L75D0
-  LD ($8B0A),BC
+  LD (L8B0A),BC
   INC C
   INC C
   JP L708E_1
@@ -4649,17 +4794,17 @@ L75BA_0:
 ;
 ; Used by the routines at L708E and L75A2.
 L75D0:
-  LD ($8B0A),BC
+  LD (L8B0A),BC
   LD A,B
   SUB $80
   RET P
-  LD BC,($8B0A)
+  LD BC,(L8B0A)
   POP HL
-  LD HL,($5F60)
+  LD HL,(L5F60)
   DEC HL
   LD D,(HL)
   CALL L75BA
-  LD BC,($8B0A)
+  LD BC,(L8B0A)
   LD A,C
   AND $07
   LD BC,$0018
@@ -4671,13 +4816,13 @@ L75D0_0:
   ADD HL,BC
   DEC A
   JR NZ,L75D0_0
-  LD ($8B0E),HL
-  LD BC,($8B0A)
-  LD ($8B0C),BC
+  LD (L8B0E),HL
+  LD BC,(L8B0A)
+  LD (L8B0C),BC
   LD A,D
   XOR $40
   LD D,A
-  LD HL,($5F60)
+  LD HL,(L5F60)
   DEC HL
   LD (HL),A
   CALL L75BA
@@ -4697,7 +4842,7 @@ L75D0_0:
 ; Used by the routine at L708E.
 L7627:
   LD HL,L5F00
-  LD ($5F60),HL
+  LD (L5F60),HL
   RET
 
 ; Routine at 762E
@@ -4711,7 +4856,7 @@ L762E:
   CP $04
   JP NZ,L708E
   LD A,$00
-  LD ($5EF2),A
+  LD (L5EF2),A
   BIT 5,D
   JP Z,L708E
   CALL L7441_2
@@ -4723,7 +4868,7 @@ L762E:
 L7649:
   BIT 7,B
   JP NZ,L7649_1
-  LD A,($5EEF)
+  LD A,(L5EEF)
   AND $03
   CP $01
   JP NZ,L7649_1
@@ -4750,20 +4895,20 @@ L7649:
   POP BC
   CP $00
   CALL NZ,L76DA
-  LD ($8B0A),BC
+  LD (L8B0A),BC
   DEC C
   DEC C
 L7649_0:
-  LD HL,($5F60)
+  LD HL,(L5F60)
   DEC HL
   LD D,(HL)
   DEC HL
   LD (HL),B
   DEC HL
   LD (HL),C
-  LD ($8B0C),BC
+  LD (L8B0C),BC
   LD HL,$8972
-  LD A,($5EEF)
+  LD A,(L5EEF)
   AND $03
   ADD A,$0C
   LD E,A
@@ -4798,7 +4943,7 @@ L7649_2:
   POP BC
   CP $00
   CALL NZ,L76DA
-  LD ($8B0A),BC
+  LD (L8B0A),BC
   INC C
   INC C
   JP L7649_0
@@ -4807,17 +4952,17 @@ L7649_2:
 ;
 ; Used by the routine at L7649.
 L76DA:
-  LD ($8B0A),BC
+  LD (L8B0A),BC
   LD A,B
   SUB $80
   RET P
-  LD BC,($8B0A)
+  LD BC,(L8B0A)
   POP HL
-  LD HL,($5F60)
+  LD HL,(L5F60)
   DEC HL
   LD D,(HL)
   LD HL,$8972
-  LD BC,($8B0A)
+  LD BC,(L8B0A)
   LD A,C
   AND $06
   LD BC,$0020
@@ -4829,12 +4974,12 @@ L76DA_0:
   ADD HL,BC
   DEC A
   JR NZ,L76DA_0
-  LD ($8B0E),HL
-  LD BC,($8B0A)
-  LD ($8B0C),BC
+  LD (L8B0E),HL
+  LD BC,(L8B0A)
+  LD (L8B0C),BC
   LD A,D
   XOR $40
-  LD HL,($5F60)
+  LD HL,(L5F60)
   DEC HL
   LD (HL),A
   LD HL,$8972
@@ -5553,6 +5698,9 @@ L829D:
   DEFB $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
   DEFB $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
   DEFB $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+
+; Data block at 82F5
+L82F5:
   DEFB $00,$00,$00,$00,$00,$00,$00,$00
   DEFB $00,$00,$00,$00,$00,$00,$00,$00
   DEFB $00,$00,$00,$00,$00,$00,$00,$00
@@ -5990,16 +6138,47 @@ L8AED:
   DEFB $00,$00,$00,$00,$10,$38,$7C,$38
   DEFB $10,$00,$00,$10,$38,$7C,$FE,$7C
   DEFB $38,$10,$00,$18,$3C,$7E,$FF,$FF
-  DEFB $7E,$3C,$18,$00,$00,$00,$00,$00
-  DEFB $00,$00,$00,$00,$00
+  DEFB $7E,$3C,$18,$00,$00
 
-; Message at 8B12
+; Data block at 8B0A
+L8B0A:
+  DEFW $0000
+
+; Data block at 8B0C
+L8B0C:
+  DEFW $0000
+
+; Data block at 8B0E
+L8B0E:
+  DEFW $0000
+
+; Data block at 8B10
+L8B10:
+  DEFW $0000
+
+; Data block at 8B12
 L8B12:
-  DEFM "        "
+  DEFW $2020
+
+; Data block at 8B14
+L8B14:
+  DEFW $2020
+
+; Data block at 8B16
+L8B16:
+  DEFW $2020
+
+; Message at 8B18
+L8B18:
+  DEFM "  "
+
+; Data block at 8B1A
+L8B1A:
+  DEFB $00
 
 ; Unused
-L8B1A:
-  DEFS $04
+L8B1B:
+  DEFS $03
 
 ; Routine at 8B1E
 ;
@@ -6008,7 +6187,7 @@ L8B1A:
 L8B1E:
   PUSH DE
   LD (L8B1A),A
-  LD DE,($8B0A)
+  LD DE,(L8B0A)
   LD A,E
   AND $07
   SRL A
@@ -6020,7 +6199,7 @@ L8B1E_0:
   ADD HL,BC
   DEC A
   JR NZ,L8B1E_0
-  LD ($8B0E),HL
+  LD (L8B0E),HL
   POP HL
   LD A,(L8B1A)
   POP DE
@@ -6041,24 +6220,24 @@ L8B1E_2:
   ADD HL,BC
   DEC A
   JR NZ,L8B1E_2
-  LD ($8B10),HL
-  LD ($8B16),HL
+  LD (L8B10),HL
+  LD (L8B16),HL
   POP DE
 ; This entry point is used by the routine at L6EC8.
 L8B1E_3:
   PUSH DE
-  LD BC,($8B0C)
+  LD BC,(L8B0C)
   CALL L8A4E
   LD (L8B12),HL
-  LD BC,($8B0A)
+  LD BC,(L8B0A)
   CALL L8A4E
-  LD ($8B14),HL
+  LD (L8B14),HL
   JP L8B70_3
 
 ; Routine at 8B70
 L8B70:
   PUSH DE
-  LD BC,($8B0C)
+  LD BC,(L8B0C)
   LD A,B
   AND $07
   CP $00
@@ -6081,7 +6260,7 @@ L8B70_0:
   LD (L8B12),HL
   JP L8B70_1
 L8B70_1:
-  LD BC,($8B0A)
+  LD BC,(L8B0A)
   LD A,B
   AND $07
   CP $00
@@ -6090,42 +6269,42 @@ L8B70_1:
   AND $3F
   CP $00
   JP Z,L8B70_2
-  LD HL,($8B14)
+  LD HL,(L8B14)
   LD DE,$07E0
   OR A
   SBC HL,DE
-  LD ($8B14),HL
+  LD (L8B14),HL
   JP L8B70_3
 L8B70_2:
-  LD HL,($8B14)
+  LD HL,(L8B14)
   LD DE,$00E0
   OR A
   SBC HL,DE
-  LD ($8B14),HL
+  LD (L8B14),HL
 ; This entry point is used by the routine at L8B1E.
 L8B70_3:
   CALL L8C0B
   LD A,(L8B1A)
   LD D,$00
   LD E,A
-  LD HL,($8B0E)
+  LD HL,(L8B0E)
   ADD HL,DE
-  LD ($8B0E),HL
-  LD HL,($8B10)
+  LD (L8B0E),HL
+  LD HL,(L8B10)
   ADD HL,DE
-  LD ($8B10),HL
-  LD HL,($8B0A)
+  LD (L8B10),HL
+  LD HL,(L8B0A)
   INC H
-  LD ($8B0A),HL
-  LD HL,($8B0C)
+  LD (L8B0A),HL
+  LD HL,(L8B0C)
   INC H
-  LD ($8B0C),HL
+  LD (L8B0C),HL
   LD HL,(L8B12)
   INC H
   LD (L8B12),HL
-  LD HL,($8B14)
+  LD HL,(L8B14)
   INC H
-  LD ($8B14),HL
+  LD (L8B14),HL
   POP DE
   DEC D
   JP NZ,L8B70
@@ -6137,8 +6316,8 @@ L8B70_3:
 L8C0B:
   LD A,(L8B1A)
   LD C,A
-  LD HL,($8B14)
-  LD DE,($8B0E)
+  LD HL,(L8B14)
+  LD DE,(L8B0E)
 ; This entry point is used by the routine at L8C1B.
 L8C0B_0:
   LD A,(DE)
@@ -6158,7 +6337,7 @@ L8C1B:
   LD A,(L8B1A)
   LD C,A
   LD HL,(L8B12)
-  LD DE,($8B10)
+  LD DE,(L8B10)
 ; This entry point is used by the routine at L8C3C.
 L8C1B_0:
   PUSH DE
@@ -6644,7 +6823,7 @@ L928D:
   LD ($9287),DE
   LD ($9285),BC
   LD ($9289),HL
-  LD BC,($8B0A)
+  LD BC,(L8B0A)
   LD A,B
   AND $F8
   LD H,$00
@@ -6677,7 +6856,7 @@ L928D:
   OR A
   SBC HL,BC
   EX DE,HL
-  LD BC,($8B0A)
+  LD BC,(L8B0A)
   LD A,B
   AND $F8
   CP $00
@@ -6701,7 +6880,7 @@ L928D_1:
   ADD HL,DE
   DJNZ L928D_0
 L928D_2:
-  LD BC,($8B0C)
+  LD BC,(L8B0C)
   LD A,B
   AND $F8
   LD H,$00
@@ -6733,7 +6912,7 @@ L928D_2:
   OR A
   SBC HL,BC
   EX DE,HL
-  LD BC,($8B0C)
+  LD BC,(L8B0C)
   LD A,B
   AND $F8
   CP $00
@@ -6761,7 +6940,7 @@ L928D_5:
   LD A,($928B)
   POP BC
   POP HL
-  LD DE,($8B0C)
+  LD DE,(L8B0C)
   RET
 L928D_6:
   POP BC
