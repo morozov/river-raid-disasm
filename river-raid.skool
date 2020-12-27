@@ -968,7 +968,7 @@ c$5CD2 LD HL,$6BB0   ;
  $5CFF EI            ;
  $5D00 LD HL,$8182   ;
  $5D03 LD ($5F7E),HL ;
-; This entry point is used by the routine at #R$6D17.
+; This entry point is used by the routines at #R$6BBF and #R$6D17.
 *$5D06 LD A,$3F      ;
  $5D08 LD I,A        ;
  $5D0A IM 1          ;
@@ -992,13 +992,20 @@ c$5D10 LD A,$FC      ;
  $5D2F CALL $5D44    ;
  $5D32 JP $6D17      ;
 
-; Data block at 5D35
-b$5D35 DEFB $ED,$7B,$83,$5F,$CD,$44,$5D,$C3
- $5D3D DEFB $A6,$5D,$01,$05,$14,$1E,$00
+; Restart the game
+;
+; Used by the routine at #R$6BBF.
+@label=restart
+c$5D35 LD SP,($5F83) ;
+ $5D39 CALL $5D44    ;
+ $5D3C JP $5DA6      ;
+
+; Data block at 5D3F
+b$5D3F DEFB $01,$05,$14,$1E,$00
 
 ; Routine at 5D44
 ;
-; Used by the routine at #R$5D10.
+; Used by the routines at #R$5D10 and #R$5D35.
 c$5D44 LD A,$78      ;
  $5D46 LD ($5F72),A  ;
  $5D49 CALL $6DEB    ;
@@ -1042,7 +1049,7 @@ c$5D9F LD HL,$923C   ;
 
 ; Routine at 5DA6
 ;
-; Used by the routines at #R$5D10, #R$650A and #R$6D17.
+; Used by the routines at #R$5D10, #R$5D35, #R$650A and #R$6D17.
 c$5DA6 LD A,$10      ;
  $5DA8 LD ($5EFD),A  ;
  $5DAB LD A,$1F      ;
@@ -1196,12 +1203,15 @@ g$5F64 DEFB $02,$00,$00,$00,$00,$00,$01,$01
 
 ; Current X coordinate
 @label=state_x
-g$5F72 DEFB $00,$00,$00,$00,$00,$00,$00,$00
- $5F7A DEFB $00,$00,$00,$01,$00,$00,$00,$00
- $5F82 DEFB $00,$00,$00,$00,$00,$00,$00,$00
- $5F8A DEFB $00,$00,$00,$00,$00,$00,$00
+g$5F72 DEFB $00
 
-; Routine at 5F91
+; Data block at 5F73
+b$5F73 DEFB $00,$00,$00,$00,$00,$00,$00,$00
+ $5F7B DEFB $00,$00,$01,$00,$00,$00,$00,$00
+ $5F83 DEFB $00,$00,$00,$00,$00,$00,$00,$00
+ $5F8B DEFB $00,$00,$00,$00,$00,$00
+
+; Scan Enter
 ;
 ; Used by the routines at #R$5DA6 and #R$6097.
 c$5F91 LD A,$BF      ;
@@ -2860,18 +2870,35 @@ c$6B7B CP $80        ;
  $6BAD DJNZ $6BAA    ;
  $6BAF RET           ;
 
-; Data block at 6BB0
-b$6BB0 DEFB $00,$CD,$BF,$02,$3A,$08,$5C,$FE
- $6BB8 DEFB $68,$CA,$B1,$6B,$C3,$ED,$6B,$3E
- $6BC0 DEFB $FE,$DB,$FE,$CB,$47,$CA
+; Game status buffer entry at 6BB0
+@label=L6BB0
+g$6BB0 DEFB $00
 
-; Message at 6BC6
-t$6BC6 DEFM "5]>"
+; Routine at 6BB1
+;
+; Used by the routine at #R$6BDB.
+c$6BB1 CALL $02BF    ;
+ $6BB4 LD A,($5C08)  ;
+ $6BB7 CP $68        ;
+ $6BB9 JP Z,$6BB1    ;
+ $6BBC JP $6BED      ;
 
-; Data block at 6BC9
-b$6BC9 DEFB $7F,$DB,$FE,$CB,$4F,$CA,$D2,$6B
- $6BD1 DEFB $C9,$21,$82,$81,$22,$7E,$5F,$C3
- $6BD9 DEFB $06,$5D
+; Handle the Enter key pressed
+;
+; Used by the routines at #R$5F91 and #R$6D17.
+@label=handle_enter
+c$6BBF LD A,$FE      ; {Scan Caps Shift
+ $6BC1 IN A,($FE)    ;
+ $6BC3 BIT 0,A       ;
+ $6BC5 JP Z,$5D35    ; }
+ $6BC8 LD A,$7F      ; {Scan Symbol Shift
+ $6BCA IN A,($FE)    ;
+ $6BCC BIT 1,A       ;
+ $6BCE JP Z,$6BD2    ;
+ $6BD1 RET           ;
+*$6BD2 LD HL,$8182   ;
+ $6BD5 LD ($5F7E),HL ;
+ $6BD8 JP $5D06      ; }
 
 ; Routine at 6BDB
 c$6BDB DI            ;
@@ -2885,7 +2912,8 @@ c$6BDB DI            ;
  $6BE6 IN A,($FE)    ;
  $6BE8 BIT 4,A       ;
  $6BEA JP Z,$6BB1    ;
- $6BED LD A,($5C08)  ;
+; This entry point is used by the routine at #R$6BB1.
+*$6BED LD A,($5C08)  ;
  $6BF0 CP $68        ;
  $6BF2 JP Z,$6C24    ;
  $6BF5 LD HL,$6BB0   ;

@@ -971,7 +971,7 @@ start_0:
   EI
   LD HL,$8182
   LD ($5F7E),HL
-; This entry point is used by the routine at L6D17.
+; This entry point is used by the routines at handle_enter and L6D17.
 start_1:
   LD A,$3F
   LD I,A
@@ -998,14 +998,21 @@ L5D10_0:
   CALL L5D44
   JP L6D17
 
-; Data block at 5D35
-L5D35:
-  DEFB $ED,$7B,$83,$5F,$CD,$44,$5D,$C3
-  DEFB $A6,$5D,$01,$05,$14,$1E,$00
+; Restart the game
+;
+; Used by the routine at handle_enter.
+restart:
+  LD SP,($5F83)
+  CALL L5D44
+  JP L5DA6
+
+; Data block at 5D3F
+L5D3F:
+  DEFB $01,$05,$14,$1E,$00
 
 ; Routine at 5D44
 ;
-; Used by the routine at L5D10.
+; Used by the routines at L5D10 and restart.
 L5D44:
   LD A,$78
   LD (state_x),A
@@ -1051,7 +1058,7 @@ L5D9F:
 
 ; Routine at 5DA6
 ;
-; Used by the routines at L5D10, L650A and L6D17.
+; Used by the routines at L5D10, restart, L650A and L6D17.
 L5DA6:
   LD A,$10
   LD ($5EFD),A
@@ -1210,19 +1217,23 @@ state_speed:
 
 ; Current X coordinate
 state_x:
-  DEFB $00,$00,$00,$00,$00,$00,$00,$00
-  DEFB $00,$00,$00,$01,$00,$00,$00,$00
-  DEFB $00,$00,$00,$00,$00,$00,$00,$00
-  DEFB $00,$00,$00,$00,$00,$00,$00
+  DEFB $00
 
-; Routine at 5F91
+; Data block at 5F73
+L5F73:
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$01,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00
+
+; Scan Enter
 ;
 ; Used by the routines at L5DA6 and L6097.
 L5F91:
   LD A,$BF
   IN A,($FE)
   BIT 0,A
-  CALL Z,$6BBF
+  CALL Z,handle_enter
   LD HL,$5EEF
   INC (HL)
   CALL L6EC8
@@ -2535,7 +2546,7 @@ L68E9_0:
   INC HL
   DJNZ L68E9_0
   CALL L7441_2
-  LD ($5F73),HL
+  LD (L5F73),HL
   LD A,($5F6A)
   LD B,A
   LD A,($923D)
@@ -2987,21 +2998,37 @@ L6B7B_2:
   DJNZ L6B7B_2
   RET
 
-; Data block at 6BB0
+; Game status buffer entry at 6BB0
 L6BB0:
-  DEFB $00,$CD,$BF,$02,$3A,$08,$5C,$FE
-  DEFB $68,$CA,$B1,$6B,$C3,$ED,$6B,$3E
-  DEFB $FE,$DB,$FE,$CB,$47,$CA
+  DEFB $00
 
-; Message at 6BC6
-L6BC6:
-  DEFM "5]>"
+; Routine at 6BB1
+;
+; Used by the routine at L6BDB.
+L6BB1:
+  CALL KEYBOARD
+  LD A,(LAST_K)
+  CP $68
+  JP Z,L6BB1
+  JP L6BDB_0
 
-; Data block at 6BC9
-L6BC9:
-  DEFB $7F,$DB,$FE,$CB,$4F,$CA,$D2,$6B
-  DEFB $C9,$21,$82,$81,$22,$7E,$5F,$C3
-  DEFB $06,$5D
+; Handle the Enter key pressed
+;
+; Used by the routines at L5F91 and L6D17.
+handle_enter:
+  LD A,$FE                ; Scan Caps Shift
+  IN A,($FE)              ;
+  BIT 0,A                 ;
+  JP Z,restart            ;
+  LD A,$7F                ; Scan Symbol Shift
+  IN A,($FE)              ;
+  BIT 1,A                 ;
+  JP Z,handle_enter_0     ;
+  RET                     ;
+handle_enter_0:
+  LD HL,$8182             ;
+  LD ($5F7E),HL           ;
+  JP start_1              ;
 
 ; Routine at 6BDB
 L6BDB:
@@ -3015,10 +3042,12 @@ L6BDB:
   LD A,$BF
   IN A,($FE)
   BIT 4,A
-  JP Z,$6BB1
+  JP Z,L6BB1
+; This entry point is used by the routine at L6BB1.
+L6BDB_0:
   LD A,(LAST_K)
   CP $68
-  JP Z,L6BDB_0
+  JP Z,L6BDB_1
   LD HL,L6BB0
   BIT 0,(HL)
   CALL NZ,L8A02
@@ -3039,7 +3068,7 @@ L6BDB:
   CP $06
   JP Z,L6CD6
 ; This entry point is used by the routines at L6C5D, L6CB8, L6CD6 and L6CF4.
-L6BDB_0:
+L6BDB_1:
   POP AF
   POP BC
   POP DE
@@ -3102,7 +3131,7 @@ L6C5D_2:
   JR NZ,L6C5D_2
   DEC C
   JP NZ,L6C5D_0
-  JP L6BDB_0
+  JP L6BDB_1
 
 ; Data block at 6C7A
 L6C7A:
@@ -3172,7 +3201,7 @@ L6CB8_2:
   JR NZ,L6CB8_2
   DEC C
   JP NZ,L6CB8_0
-  JP L6BDB_0
+  JP L6BDB_1
 
 ; Routine at 6CD6
 ;
@@ -3197,7 +3226,7 @@ L6CD6_2:
   JR NZ,L6CD6_2
   DEC C
   JP NZ,L6CD6_0
-  JP L6BDB_0
+  JP L6BDB_1
 
 ; Routine at 6CF4
 ;
@@ -3224,7 +3253,7 @@ L6CF4_2:
   JR NZ,L6CF4_2
   DEC C
   JP NZ,L6CF4_0
-  JP L6BDB_0
+  JP L6BDB_1
 
 ; Routine at 6D17
 ;
@@ -3262,7 +3291,7 @@ L6D17_0:
   LD A,$BF
   IN A,($FE)
   BIT 0,A
-  CALL Z,$6BBF
+  CALL Z,handle_enter
   LD A,($5D43)
   LD B,A
   LD A,($5EF0)
@@ -3328,7 +3357,7 @@ L6D17_1:
 L6DEB:
   LD A,(L923A)
   SRL A
-  LD HL,$5D3F
+  LD HL,L5D3F
   LD B,$00
   LD C,A
   ADD HL,BC
@@ -4287,7 +4316,7 @@ L738E:
 ;
 ; Used by the routines at L5F91 and L6D17.
 L7393:
-  LD BC,($5F73)
+  LD BC,(L5F73)
   LD A,B
   CP $00
   RET Z
@@ -4304,7 +4333,7 @@ L7393:
   BIT 6,A
   CALL Z,L738E
   LD ($8B0C),BC
-  LD ($5F73),BC
+  LD (L5F73),BC
   LD A,$04
   LD ($5EF5),A
   LD A,$01
@@ -4315,7 +4344,7 @@ L7393:
   RET
 L7393_0:
   LD BC,$0000
-  LD ($5F73),BC
+  LD (L5F73),BC
   RET
 
 ; Routine at 73D8
@@ -4334,7 +4363,7 @@ L73DD:
   LD A,($5F68)
   CP $01
   RET Z
-  LD BC,($5F73)
+  LD BC,(L5F73)
   LD A,B
   CP $00
   RET NZ
@@ -4360,14 +4389,14 @@ L73DD:
   INC B
   INC B
   INC B
-  LD ($5F73),BC
+  LD (L5F73),BC
   RET
 
 ; Routine at 7415
 ;
 ; Used by the routine at L6136.
 L7415:
-  LD BC,($5F73)
+  LD BC,(L5F73)
   BIT 7,B
   JP Z,L7415_0
   RES 7,B
@@ -4383,7 +4412,7 @@ L7415:
   JP Z,L650A
 L7415_0:
   LD BC,$0000
-  LD ($5F73),BC
+  LD (L5F73),BC
   POP DE
   POP DE
   POP DE

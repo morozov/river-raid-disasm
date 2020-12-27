@@ -20,7 +20,9 @@ c $5CD2 The entry point invoked from the BASIC loader
 @ $5CD8 nowarn
 @ $5CE3 nowarn
 c $5D10
-b $5D35
+@ $5D35 label=restart
+c $5D35 Restart the game
+b $5D3F
 c $5D44
 c $5D9F
 c $5DA6
@@ -34,7 +36,9 @@ b $5F5F
 g $5F64 Current speed
 @ $5F72 label=state_x
 g $5F72 Current X coordinate
+b $5F73
 c $5F91
+c $5F91 Scan Enter
 c $6068 Scan "O" (LEFT)
 c $6071 Scan "P" (RIGHT)
 c $607A Scan "2" (UP)
@@ -99,9 +103,13 @@ c $6B63
 c $6B6B
 c $6B73
 c $6B7B
-b $6BB0
-t $6BC6
-b $6BC9
+@ $6BB0 label=L6BB0
+g $6BB0
+c $6BB1
+@ $6BBF label=handle_enter
+c $6BBF Handle the Enter key pressed
+C $6BBF Scan Caps Shift
+C $6BC8 Scan Symbol Shift
 c $6BDB
 b $6C2B
 c $6C31
