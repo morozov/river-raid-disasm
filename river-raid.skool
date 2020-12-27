@@ -1187,17 +1187,23 @@ t$5F00 DEFM "                                                                 "
  $5F41 DEFM "                              "
 
 ; Data block at 5F5F
-b$5F5F DEFB $04,$00,$00,$00,$00,$02,$00,$00
- $5F67 DEFB $00,$00,$00,$01,$01,$00,$00,$00
- $5F6F DEFB $00,$00,$00,$00,$00,$00,$00,$00
- $5F77 DEFB $00,$00,$00,$00,$00,$00,$01,$00
- $5F7F DEFB $00,$00,$00,$00,$00,$00,$00,$00
- $5F87 DEFB $00,$00,$00,$00,$00,$00,$00,$00
- $5F8F DEFB $00,$00
+b$5F5F DEFB $04,$00,$00,$00,$00
+
+; Current speed
+@label=state_speed
+g$5F64 DEFB $02,$00,$00,$00,$00,$00,$01,$01
+ $5F6C DEFB $00,$00,$00,$00,$00,$00
+
+; Current X coordinate
+@label=state_x
+g$5F72 DEFB $00,$00,$00,$00,$00,$00,$00,$00
+ $5F7A DEFB $00,$00,$00,$01,$00,$00,$00,$00
+ $5F82 DEFB $00,$00,$00,$00,$00,$00,$00,$00
+ $5F8A DEFB $00,$00,$00,$00,$00,$00,$00
 
 ; Routine at 5F91
 ;
-; Used by the routine at #R$5DA6.
+; Used by the routines at #R$5DA6 and #R$6097.
 c$5F91 LD A,$BF      ;
  $5F93 IN A,($FE)    ;
  $5F95 BIT 0,A       ;
@@ -1281,28 +1287,42 @@ c$5F91 LD A,$BF      ;
  $6060 BIT 4,A       ;
  $6062 CALL Z,$6642  ;
  $6065 JP $5F91      ;
-*$6068 LD A,$DF      ;
+
+; Scan "O" (LEFT)
+;
+; Used by the routine at #R$5F91.
+c$6068 LD A,$DF      ;
  $606A IN A,($FE)    ;
  $606C BIT 0,A       ;
  $606E CALL Z,$65F3  ;
- $6071 LD A,$DF      ;
+
+; Scan "P" (RIGHT)
+c$6071 LD A,$DF      ;
  $6073 IN A,($FE)    ;
  $6075 BIT 1,A       ;
  $6077 CALL Z,$6642  ;
- $607A LD A,$F7      ;
+
+; Scan "2" (UP)
+c$607A LD A,$F7      ;
  $607C IN A,($FE)    ;
  $607E BIT 1,A       ;
  $6080 CALL Z,$670A  ;
- $6083 LD A,$FB      ;
+
+; Scan "W" (DOWN)
+c$6083 LD A,$FB      ;
  $6085 IN A,($FE)    ;
  $6087 BIT 1,A       ;
  $6089 CALL Z,$6717  ;
- $608C LD A,$7F      ;
+
+; Scan X
+c$608C LD A,$7F      ;
  $608E IN A,($FE)    ;
  $6090 AND $1F       ;
  $6092 CP $1F        ;
  $6094 CALL NZ,$6724 ;
- $6097 LD A,$FE      ;
+
+; Scan Y
+c$6097 LD A,$FE      ;
  $6099 IN A,($FE)    ;
  $609B AND $1F       ;
  $609D CP $1F        ;
@@ -2011,7 +2031,8 @@ c$65CB LD A,($923C)  ;
 
 ; Routine at 65F3
 ;
-; Used by the routine at #R$5F91.
+; Used by the routines at #R$5F91 and #R$6068.
+@label=handle_right
 c$65F3 LD A,($5F72)  ;
  $65F6 LD HL,($5EF3) ;
  $65F9 LD ($5F8F),HL ;
@@ -2048,7 +2069,8 @@ c$65F3 LD A,($5F72)  ;
 
 ; Routine at 6642
 ;
-; Used by the routine at #R$5F91.
+; Used by the routines at #R$5F91 and #R$6071.
+@label=handle_left
 c$6642 LD A,($5F72)  ;
  $6645 LD HL,($5EF3) ;
  $6648 LD ($5F8F),HL ;
@@ -2152,31 +2174,25 @@ c$66EE LD A,($5F6E)  ;
 c$6704 LD A,$00      ;
  $6706 LD ($5F6D),A  ;
  $6709 RET           ;
-
-; Routine at 670A
-;
-; Used by the routine at #R$5F91.
-c$670A LD A,$04      ;
+; This entry point is used by the routines at #R$5F91 and #R$607A.
+@label=handle_up
+*$670A LD A,$04      ;
  $670C LD ($5F64),A  ;
  $670F LD HL,$6BB0   ;
  $6712 SET 2,(HL)    ;
  $6714 RES 1,(HL)    ;
  $6716 RET           ;
-
-; Routine at 6717
-;
-; Used by the routine at #R$5F91.
-c$6717 LD A,$01      ;
+; This entry point is used by the routines at #R$5F91 and #R$6083.
+@label=handle_down
+*$6717 LD A,$01      ;
  $6719 LD ($5F64),A  ;
  $671C LD HL,$6BB0   ;
  $671F SET 2,(HL)    ;
  $6721 SET 1,(HL)    ;
  $6723 RET           ;
-
-; Routine at 6724
-;
-; Used by the routine at #R$5F91.
-c$6724 LD A,($5EF3)  ;
+; This entry point is used by the routines at #R$5F91, #R$608C and #R$6097.
+@label=handle_fire
+*$6724 LD A,($5EF3)  ;
  $6727 CP $00        ;
  $6729 RET NZ        ;
  $672A LD A,($5F72)  ;

@@ -30,7 +30,17 @@ c $5DA6
 b $5EEE
 t $5F00
 b $5F5F
+@ $5F64 label=state_speed
+g $5F64 Current speed
+@ $5F72 label=state_x
+g $5F72 Current X coordinate
 c $5F91
+c $6068 Scan "O" (LEFT)
+c $6071 Scan "P" (RIGHT)
+c $607A Scan "2" (UP)
+c $6083 Scan "W" (DOWN)
+c $608C Scan X
+c $6097 Scan Y
 c $60A5
 c $6124
 c $6136
@@ -53,16 +63,18 @@ c $6587
 c $65AB
 c $65BB
 c $65CB
+@ $65F3 label=handle_right
 c $65F3
+@ $6642 label=handle_left
 c $6642
 c $6682
 c $66CC
 c $66D0
 c $66EE
 c $6704
-c $670A
-c $6717
-c $6724
+@ $670A label=handle_up
+@ $6717 label=handle_down
+@ $6724 label=handle_fire
 s $673C
 c $673D
 c $678E
