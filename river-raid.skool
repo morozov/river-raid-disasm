@@ -5503,146 +5503,520 @@ b$85A6 DEFB $16,$0C,$05
 ; Message at 85A9
 t$85A9 DEFM "3 KEYBOARD"
 
-; Data block at 85B3
-b$85B3 DEFB $F0,$00,$00,$1E,$00,$00,$30,$00
- $85BB DEFB $00,$7C,$40,$00,$FF,$C0,$00,$78
- $85C3 DEFB $40,$00,$10,$00,$00,$7C,$00,$00
- $85CB DEFB $3C,$00,$00,$07,$80,$00,$0C,$00
- $85D3 DEFB $00,$1F,$10,$00,$3F,$F0,$00,$1E
- $85DB DEFB $10,$00,$04,$00,$00,$1F,$00,$00
- $85E3 DEFB $0F,$00,$00,$01,$E0,$00,$03,$00
- $85EB DEFB $00,$07,$C4,$00,$0F,$FC,$00,$07
- $85F3 DEFB $84,$00,$01,$00,$00,$07,$C0,$00
- $85FB DEFB $03,$C0,$00,$00,$78,$00,$00,$C0
- $8603 DEFB $00,$01,$F1,$00,$03,$FF,$00,$01
- $860B DEFB $E1,$00,$00,$40,$00,$01,$F0,$00
- $8613 DEFB $00,$00,$00,$00,$00,$00,$00,$60
- $861B DEFB $00,$00,$F8,$00,$07,$FE,$00,$FF
- $8623 DEFB $FF,$C0,$7F,$FF,$C0,$1F,$FF,$80
- $862B DEFB $00,$00,$00,$00,$00,$00,$00,$18
- $8633 DEFB $00,$00,$3E,$00,$01,$FF,$80,$3F
- $863B DEFB $FF,$F0,$1F,$FF,$F0,$07,$FF,$E0
- $8643 DEFB $00,$00,$00,$00,$00,$00,$00,$06
- $864B DEFB $00,$00,$0F,$80,$00,$7F,$E0,$0F
- $8653 DEFB $FF,$FC,$07,$FF,$FC,$01,$FF,$F8
- $865B DEFB $00,$00,$00,$00,$00,$00,$00,$01
- $8663 DEFB $80,$00,$03,$E0,$00,$1F,$F8,$03
- $866B DEFB $FF,$FF,$01,$FF,$FF,$00,$7F,$FE
- $8673 DEFB $F0,$00,$00,$1E,$00,$00,$30,$00
- $867B DEFB $00,$7C,$40,$00,$87,$C0,$00,$7C
- $8683 DEFB $40,$00,$10,$00,$00,$7C,$00,$00
- $868B DEFB $3C,$00,$00,$07,$80,$00,$0C,$00
- $8693 DEFB $00,$1F,$10,$00,$21,$F0,$00,$1F
- $869B DEFB $10,$00,$04,$00,$00,$1F,$00,$00
- $86A3 DEFB $0F,$00,$00,$01,$E0,$00,$03,$00
- $86AB DEFB $00,$07,$C4,$00,$08,$7C,$00,$07
- $86B3 DEFB $C4,$00,$01,$00,$00,$07,$C0,$00
- $86BB DEFB $03,$C0,$00,$00,$78,$00,$00,$C0
- $86C3 DEFB $00,$01,$F1,$00,$02,$1F,$00,$01
- $86CB DEFB $F1,$00,$00,$40,$00,$01,$F0,$00
- $86D3 DEFB $00,$00,$00,$7F,$00,$00,$07,$00
- $86DB DEFB $00,$7F,$C0,$00,$FF,$C0,$00,$2A
- $86E3 DEFB $80,$00,$00,$00,$00,$2A,$80,$00
- $86EB DEFB $00,$00,$00,$1F,$C0,$00,$01,$C0
- $86F3 DEFB $00,$1F,$F0,$00,$3F,$F0,$00,$05
- $86FB DEFB $40,$00,$10,$00,$00,$05,$40,$00
- $8703 DEFB $00,$00,$00,$07,$F0,$00,$00,$70
- $870B DEFB $00,$07,$FC,$00,$0F,$FC,$00,$02
- $8713 DEFB $A8,$00,$00,$00,$00,$02,$A8,$00
- $871B DEFB $00,$00,$00,$01,$FC,$00,$00,$1C
- $8723 DEFB $00,$01,$FF,$00,$03,$FF,$00,$00
- $872B DEFB $54,$00,$00,$01,$00,$00,$54,$00
- $8733 DEFB $00,$00,$00,$70,$40,$00,$00,$C0
- $873B DEFB $00,$FF,$C0,$00,$FC,$80,$00,$07
- $8743 DEFB $00,$00,$03,$80,$00,$00,$00,$00
- $874B DEFB $00,$00,$00,$00,$10,$00,$1C,$30
- $8753 DEFB $00,$3F,$F0,$00,$3F,$20,$00,$01
- $875B DEFB $C0,$00,$00,$E0,$00,$00,$00,$00
- $8763 DEFB $00,$00,$00,$00,$04,$00,$07,$0C
- $876B DEFB $00,$0F,$FC,$00,$0F,$C8,$00,$00
- $8773 DEFB $70,$00,$00,$38,$00,$00,$00,$00
- $877B DEFB $00,$00,$00,$00,$01,$00,$01,$C3
- $8783 DEFB $00,$03,$FF,$00,$03,$F2,$00,$00
- $878B DEFB $1C,$00,$00,$0E,$00,$00,$00,$00
+; Array [5] arrays of enemy headed left sprites (each element is 3×1 tiles × 4
+; frames = 96 bytes).
+;
+; .
+;
+; .
+;
+; #UDGTABLE
+; { #UDGARRAY3,14,4,3;$85B3-$85B6-1-16(*helicopter-reg-left-f1) |
+; #UDGARRAY3,14,4,3;$85CB-$85CF-1-16(*helicopter-reg-left-f2) |
+; #UDGARRAY3,14,4,3;$85E3-$85E6-1-16(*helicopter-reg-left-f3) |
+; #UDGARRAY3,14,4,3;$85FB-$85FE-1-16(*helicopter-reg-left-f4) }
+; TABLE#
+; .
+; Array [4] of regular helicopter headed left sprites (3×1 tiles, 24 bytes).
+@label=sprite_enemies_left
+b$85B3 DEFB $F0,$00,$00 ; {Frame 1
+ $85B6 DEFB $1E,$00,$00 ;
+ $85B9 DEFB $30,$00,$00 ;
+ $85BC DEFB $7C,$40,$00 ;
+ $85BF DEFB $FF,$C0,$00 ;
+ $85C2 DEFB $78,$40,$00 ;
+ $85C5 DEFB $10,$00,$00 ;
+ $85C8 DEFB $7C,$00,$00 ; }
+ $85CB DEFB $3C,$00,$00 ; {Frame 2
+ $85CE DEFB $07,$80,$00 ;
+ $85D1 DEFB $0C,$00,$00 ;
+ $85D4 DEFB $1F,$10,$00 ;
+ $85D7 DEFB $3F,$F0,$00 ;
+ $85DA DEFB $1E,$10,$00 ;
+ $85DD DEFB $04,$00,$00 ;
+ $85E0 DEFB $1F,$00,$00 ; }
+ $85E3 DEFB $0F,$00,$00 ; {Frame 3
+ $85E6 DEFB $01,$E0,$00 ;
+ $85E9 DEFB $03,$00,$00 ;
+ $85EC DEFB $07,$C4,$00 ;
+ $85EF DEFB $0F,$FC,$00 ;
+ $85F2 DEFB $07,$84,$00 ;
+ $85F5 DEFB $01,$00,$00 ;
+ $85F8 DEFB $07,$C0,$00 ; }
+ $85FB DEFB $03,$C0,$00 ; {Frame 4
+ $85FE DEFB $00,$78,$00 ;
+ $8601 DEFB $00,$C0,$00 ;
+ $8604 DEFB $01,$F1,$00 ;
+ $8607 DEFB $03,$FF,$00 ;
+ $860A DEFB $01,$E1,$00 ;
+ $860D DEFB $00,$40,$00 ;
+ $8610 DEFB $01,$F0,$00 ; }
+; #UDGTABLE
+; { #UDGARRAY3,13,4,3;$8613-$8616-1-16(*ship-left-f1) |
+; #UDGARRAY3,13,4,3;$862B-$862E-1-16(*ship-left-f2) |
+; #UDGARRAY3,13,4,3;$8643-$8646-1-16(*ship-left-f3) |
+; #UDGARRAY3,13,4,3;$865B-$865E-1-16(*ship-left-f4) }
+; TABLE#
+; .
+; Array [4] of ship headed left sprites (each element is 3×1 tiles = 24 bytes).
+ $8613 DEFB $00,$00,$00 ; {Frame 1
+ $8616 DEFB $00,$00,$00 ;
+ $8619 DEFB $00,$60,$00 ;
+ $861C DEFB $00,$F8,$00 ;
+ $861F DEFB $07,$FE,$00 ;
+ $8622 DEFB $FF,$FF,$C0 ;
+ $8625 DEFB $7F,$FF,$C0 ;
+ $8628 DEFB $1F,$FF,$80 ; }
+ $862B DEFB $00,$00,$00 ; {Frame 2
+ $862E DEFB $00,$00,$00 ;
+ $8631 DEFB $00,$18,$00 ;
+ $8634 DEFB $00,$3E,$00 ;
+ $8637 DEFB $01,$FF,$80 ;
+ $863A DEFB $3F,$FF,$F0 ;
+ $863D DEFB $1F,$FF,$F0 ;
+ $8640 DEFB $07,$FF,$E0 ; }
+ $8643 DEFB $00,$00,$00 ; {Frame 3
+ $8646 DEFB $00,$00,$00 ;
+ $8649 DEFB $00,$06,$00 ;
+ $864C DEFB $00,$0F,$80 ;
+ $864F DEFB $00,$7F,$E0 ;
+ $8652 DEFB $0F,$FF,$FC ;
+ $8655 DEFB $07,$FF,$FC ;
+ $8658 DEFB $01,$FF,$F8 ; }
+ $865B DEFB $00,$00,$00 ; {Frame 4
+ $865E DEFB $00,$00,$00 ;
+ $8661 DEFB $00,$01,$80 ;
+ $8664 DEFB $00,$03,$E0 ;
+ $8667 DEFB $00,$1F,$F8 ;
+ $866A DEFB $03,$FF,$FF ;
+ $866D DEFB $01,$FF,$FF ;
+ $8670 DEFB $00,$7F,$FE ; }
+; #UDGTABLE
+; { #UDGARRAY3,14,4,3;$8673-$8676-1-16(*helicopter-adv-left-f1) |
+; #UDGARRAY3,14,4,3;$868B-$868F-1-16(*helicopter-adv-left-f2) |
+; #UDGARRAY3,14,4,3;$86A3-$86A6-1-16(*helicopter-adv-left-f3) |
+; #UDGARRAY3,14,4,3;$86BB-$86BE-1-16(*helicopter-adv-left-f4) }
+; TABLE#
+; .
+; Array [4] of advanced helicopter headed left sprites (each element is 3×1
+; tiles = 24 bytes).
+ $8673 DEFB $F0,$00,$00 ; {Frame 1
+ $8676 DEFB $1E,$00,$00 ;
+ $8679 DEFB $30,$00,$00 ;
+ $867C DEFB $7C,$40,$00 ;
+ $867F DEFB $87,$C0,$00 ;
+ $8682 DEFB $7C,$40,$00 ;
+ $8685 DEFB $10,$00,$00 ;
+ $8688 DEFB $7C,$00,$00 ; }
+ $868B DEFB $3C,$00,$00 ; {Frame 2
+ $868E DEFB $07,$80,$00 ;
+ $8691 DEFB $0C,$00,$00 ;
+ $8694 DEFB $1F,$10,$00 ;
+ $8697 DEFB $21,$F0,$00 ;
+ $869A DEFB $1F,$10,$00 ;
+ $869D DEFB $04,$00,$00 ;
+ $86A0 DEFB $1F,$00,$00 ; }
+ $86A3 DEFB $0F,$00,$00 ; {Frame 3
+ $86A6 DEFB $01,$E0,$00 ;
+ $86A9 DEFB $03,$00,$00 ;
+ $86AC DEFB $07,$C4,$00 ;
+ $86AF DEFB $08,$7C,$00 ;
+ $86B2 DEFB $07,$C4,$00 ;
+ $86B5 DEFB $01,$00,$00 ;
+ $86B8 DEFB $07,$C0,$00 ; }
+ $86BB DEFB $03,$C0,$00 ; {Frame 4
+ $86BE DEFB $00,$78,$00 ;
+ $86C1 DEFB $00,$C0,$00 ;
+ $86C4 DEFB $01,$F1,$00 ;
+ $86C7 DEFB $02,$1F,$00 ;
+ $86CA DEFB $01,$F1,$00 ;
+ $86CD DEFB $00,$40,$00 ;
+ $86D0 DEFB $01,$F0,$00 ; }
+; #UDGTABLE
+; { #UDGARRAY3,60,4,3;$86D3-$86D6-1-16(*tank-left-f1) |
+; #UDGARRAY3,60,4,3;$86EB-$86EE-1-16(*tank-left-f2) |
+; #UDGARRAY3,60,4,3;$8703-$8706-1-16(*tank-left-f3) |
+; #UDGARRAY3,60,4,3;$871B-$871E-1-16(*tank-left-f4) }
+; TABLE#
+; .
+; Array [4] of tank headed left sprites (each element is 3×1 tiles = 24 bytes).
+ $86D3 DEFB $00,$00,$00 ; {Frame 1
+ $86D6 DEFB $7F,$00,$00 ;
+ $86D9 DEFB $07,$00,$00 ;
+ $86DC DEFB $7F,$C0,$00 ;
+ $86DF DEFB $FF,$C0,$00 ;
+ $86E2 DEFB $2A,$80,$00 ;
+ $86E5 DEFB $00,$00,$00 ;
+ $86E8 DEFB $2A,$80,$00 ; }
+ $86EB DEFB $00,$00,$00 ; {Frame 2
+ $86EE DEFB $1F,$C0,$00 ;
+ $86F1 DEFB $01,$C0,$00 ;
+ $86F4 DEFB $1F,$F0,$00 ;
+ $86F7 DEFB $3F,$F0,$00 ;
+ $86FA DEFB $05,$40,$00 ;
+ $86FD DEFB $10,$00,$00 ;
+ $8700 DEFB $05,$40,$00 ; }
+ $8703 DEFB $00,$00,$00 ; {Frame 3
+ $8706 DEFB $07,$F0,$00 ;
+ $8709 DEFB $00,$70,$00 ;
+ $870C DEFB $07,$FC,$00 ;
+ $870F DEFB $0F,$FC,$00 ;
+ $8712 DEFB $02,$A8,$00 ;
+ $8715 DEFB $00,$00,$00 ;
+ $8718 DEFB $02,$A8,$00 ; }
+ $871B DEFB $00,$00,$00 ; {Frame 4
+ $871E DEFB $01,$FC,$00 ;
+ $8721 DEFB $00,$1C,$00 ;
+ $8724 DEFB $01,$FF,$00 ;
+ $8727 DEFB $03,$FF,$00 ;
+ $872A DEFB $00,$54,$00 ;
+ $872D DEFB $00,$01,$00 ;
+ $8730 DEFB $00,$54,$00 ; }
+; #UDGTABLE
+; { #UDGARRAY3,12,4,3;$8733-$8736-1-16(*fighter-left-f1) |
+; #UDGARRAY3,12,4,3;$874B-$874E-1-16(*fighter-left-f2) |
+; #UDGARRAY3,12,4,3;$8763-$8766-1-16(*fighter-left-f3) |
+; #UDGARRAY3,12,4,3;$877B-$877E-1-16(*fighter-left-f4) }
+; TABLE#
+; .
+; Array [4] of fighter headed left sprites (each element is 3×1 tiles = 24
+; bytes).
+ $8733 DEFB $00,$00,$00 ; {Frame 1
+ $8736 DEFB $70,$40,$00 ;
+ $8739 DEFB $00,$C0,$00 ;
+ $873C DEFB $FF,$C0,$00 ;
+ $873F DEFB $FC,$80,$00 ;
+ $8742 DEFB $07,$00,$00 ;
+ $8745 DEFB $03,$80,$00 ;
+ $8748 DEFB $00,$00,$00 ; }
+ $874B DEFB $00,$00,$00 ; {Frame 2
+ $874E DEFB $00,$10,$00 ;
+ $8751 DEFB $1C,$30,$00 ;
+ $8754 DEFB $3F,$F0,$00 ;
+ $8757 DEFB $3F,$20,$00 ;
+ $875A DEFB $01,$C0,$00 ;
+ $875D DEFB $00,$E0,$00 ;
+ $8760 DEFB $00,$00,$00 ; }
+ $8763 DEFB $00,$00,$00 ; {Frame 3
+ $8766 DEFB $00,$04,$00 ;
+ $8769 DEFB $07,$0C,$00 ;
+ $876C DEFB $0F,$FC,$00 ;
+ $876F DEFB $0F,$C8,$00 ;
+ $8772 DEFB $00,$70,$00 ;
+ $8775 DEFB $00,$38,$00 ;
+ $8778 DEFB $00,$00,$00 ; }
+ $877B DEFB $00,$00,$00 ; {Frame 4
+ $877E DEFB $00,$01,$00 ;
+ $8781 DEFB $01,$C3,$00 ;
+ $8784 DEFB $03,$FF,$00 ;
+ $8787 DEFB $03,$F2,$00 ;
+ $878A DEFB $00,$1C,$00 ;
+ $878D DEFB $00,$0E,$00 ;
+ $8790 DEFB $00,$00,$00 ; }
 
-; Data block at 8793
-@label=L8793
-b$8793 DEFB $03,$C0,$00,$1E,$00,$00,$03,$00
- $879B DEFB $00,$8F,$80,$00,$FF,$C0,$00,$87
- $87A3 DEFB $80,$00,$02,$00,$00,$0F,$80,$00
- $87AB DEFB $00,$F0,$00,$07,$80,$00,$00,$C0
- $87B3 DEFB $00,$23,$E0,$00,$3F,$F0,$00,$21
- $87BB DEFB $E0,$00,$00,$80,$00,$03,$E0,$00
- $87C3 DEFB $00,$3C,$00,$01,$E0,$00,$00,$30
- $87CB DEFB $00,$08,$F8,$00,$0F,$FC,$00,$08
- $87D3 DEFB $78,$00,$00,$20,$00,$00,$F8,$00
- $87DB DEFB $00,$0F,$00,$00,$78,$00,$00,$0C
- $87E3 DEFB $00,$02,$3E,$00,$03,$FF,$00,$02
- $87EB DEFB $1E,$00,$00,$08,$00,$00,$3E,$00
- $87F3 DEFB $00,$00,$00,$00,$00,$00,$01,$80
- $87FB DEFB $00,$07,$C0,$00,$1F,$F8,$00,$FF
- $8803 DEFB $FF,$C0,$FF,$FF,$80,$7F,$FF,$00
- $880B DEFB $00,$00,$00,$00,$00,$00,$00,$60
- $8813 DEFB $00,$01,$F0,$00,$07,$FE,$00,$3F
- $881B DEFB $FF,$F0,$3F,$FF,$E0,$1F,$FF,$80
- $8823 DEFB $00,$00,$00,$00,$00,$00,$00,$18
- $882B DEFB $00,$00,$7C,$00,$01,$FF,$80,$0F
- $8833 DEFB $FF,$FC,$0F,$FF,$F8,$07,$FF,$E0
- $883B DEFB $00,$00,$00,$00,$00,$00,$00,$06
- $8843 DEFB $00,$00,$1F,$00,$00,$7F,$E0,$03
- $884B DEFB $FF,$FF,$03,$FF,$FE,$01,$FF,$F8
- $8853 DEFB $03,$C0,$00,$1E,$00,$00,$03,$00
- $885B DEFB $00,$8F,$80,$00,$F8,$40,$00,$8F
- $8863 DEFB $80,$00,$02,$00,$00,$0F,$80,$00
- $886B DEFB $00,$F0,$00,$07,$80,$00,$00,$C0
- $8873 DEFB $00,$23,$E0,$00,$3E,$10,$00,$23
- $887B DEFB $E0,$00,$00,$80,$00,$03,$E0,$00
- $8883 DEFB $00,$3C,$00,$01,$E0,$00,$00,$30
- $888B DEFB $00,$08,$F8,$00,$0F,$84,$00,$08
- $8893 DEFB $F8,$00,$00,$20,$00,$08,$F8,$00
- $889B DEFB $00,$0F,$00,$00,$78,$00,$00,$0C
- $88A3 DEFB $00,$02,$3E,$00,$03,$E1,$00,$02
- $88AB DEFB $3E,$00,$00,$08,$00,$02,$3E,$00
- $88B3 DEFB $00,$00,$00,$3F,$80,$00,$38,$00
- $88BB DEFB $00,$FF,$80,$00,$FF,$C0,$00,$2A
- $88C3 DEFB $00,$00,$80,$00,$00,$2A,$00,$00
- $88CB DEFB $00,$00,$00,$0F,$E0,$00,$0E,$00
- $88D3 DEFB $00,$3F,$E0,$00,$3F,$F0,$00,$15
- $88DB DEFB $40,$00,$D0,$00,$00,$15,$40,$00
- $88E3 DEFB $00,$00,$00,$03,$F8,$00,$03,$80
- $88EB DEFB $00,$0F,$F8,$00,$0F,$FC,$00,$02
- $88F3 DEFB $A0,$00,$00,$08,$00,$02,$A0,$00
- $88FB DEFB $00,$00,$00,$00,$FE,$00,$00,$E0
- $8903 DEFB $00,$03,$FE,$00,$03,$FF,$00,$01
- $890B DEFB $54,$00,$00,$00,$00,$01,$54,$00
- $8913 DEFB $00,$00,$00,$80,$80,$00,$C3,$C0
- $891B DEFB $00,$FF,$C0,$00,$4F,$00,$00,$38
- $8923 DEFB $00,$00,$70,$00,$00,$00,$00,$00
- $892B DEFB $00,$00,$00,$20,$00,$00,$30,$E0
- $8933 DEFB $00,$3F,$F0,$00,$13,$F0,$00,$07
- $893B DEFB $00,$00,$1C,$00,$00,$00,$00,$00
- $8943 DEFB $00,$00,$00,$08,$00,$00,$0C,$38
- $894B DEFB $00,$0F,$FC,$00,$04,$FC,$00,$03
- $8953 DEFB $80,$00,$07,$00,$00,$00,$00,$00
- $895B DEFB $00,$00,$00,$02,$00,$00,$03,$0E
- $8963 DEFB $00,$03,$FF,$00,$01,$3F,$00,$00
- $896B DEFB $E0,$00,$01,$C0,$00,$00,$00,$0C
- $8973 DEFB $00,$3F,$00,$7F,$80,$7F,$80,$FF
- $897B DEFB $C0,$FF,$C0,$7F,$80,$7F,$80,$7F
- $8983 DEFB $80,$4C,$80,$21,$00,$21,$00,$12
- $898B DEFB $00,$12,$00,$1E,$00,$1E,$00,$03
- $8993 DEFB $00,$0F,$C0,$1F,$E0,$1F,$E0,$3F
- $899B DEFB $F0,$3F,$F0,$1F,$E0,$1F,$E0,$1F
- $89A3 DEFB $E0,$13,$20,$08,$40,$08,$40,$04
- $89AB DEFB $80,$04,$80,$07,$80,$07,$80,$00
- $89B3 DEFB $C0,$03,$F0,$07,$F8,$07,$F8,$0F
- $89BB DEFB $FC,$0F,$FC,$07,$F8,$07,$F8,$07
- $89C3 DEFB $F8,$04,$C8,$02,$10,$02,$10,$01
- $89CB DEFB $20,$01,$20,$01,$E0,$01,$E0,$00
- $89D3 DEFB $30,$00,$FC,$01,$FE,$01,$FE,$03
- $89DB DEFB $FF,$03,$FF,$01,$FE,$01,$FE,$01
- $89E3 DEFB $FE,$01,$32,$00,$84,$00,$84,$00
- $89EB DEFB $48,$00,$48,$00,$78,$00,$78
+; Array [5] arrays of enemy headed right sprites (each element is 3×1 tiles × 4
+; frames = 96 bytes).
+;
+; .
+;
+; .
+;
+; #UDGTABLE
+; { #UDGARRAY3,14,4,3;$8793-$8796-1-16(*helicopter-reg-right-f1) |
+; #UDGARRAY3,14,4,3;$87AB-$87AE-1-16(*helicopter-reg-right-f2) |
+; #UDGARRAY3,14,4,3;$87C3-$87C6-1-16(*helicopter-reg-right-f3) |
+; #UDGARRAY3,14,4,3;$87DB-$87DE-1-16(*helicopter-reg-right-f4) |
+; #UDGARRAY*helicopter-reg-right-f1,50;helicopter-reg-right-f2;helicopter-reg-right-f3;helicopter-reg-right-f4;helicopter-reg-left-f4;helicopter-reg-left-f3;helicopter-reg-left-f2;helicopter-reg-left-f1(helicopter-reg)
+; }
+; TABLE#
+; .
+; Array [4] of regular helicopter headed right sprites (each element is 3×1
+; tiles = 24 bytes).
+; .
+; #UDGTABLE
+; { #UDGARRAY3,13,4,3;$87F3-$87F6-1-16(*ship-right-f1) |
+; #UDGARRAY3,13,4,3;$880B-$880E-1-16(*ship-right-f2) |
+; #UDGARRAY3,13,4,3;$8823-$8826-1-16(*ship-right-f3) |
+; #UDGARRAY3,13,4,3;$883B-$883E-1-16(*ship-right-f4) |
+; #UDGARRAY*ship-right-f1,50;ship-right-f2;ship-right-f3;ship-right-f4;ship-left-f4;ship-left-f3;ship-left-f2;ship-left-f1(ship)
+; }
+; TABLE#
+; .
+; #UDGTABLE
+; { #UDGARRAY3,14,4,3;$8853-$8856-1-16(*helicopter-adv-right-f1) |
+; #UDGARRAY3,14,4,3;$886B-$886E-1-16(*helicopter-adv-right-f2) |
+; #UDGARRAY3,14,4,3;$8883-$8886-1-16(*helicopter-adv-right-f3) |
+; #UDGARRAY3,14,4,3;$889B-$889E-1-16(*helicopter-adv-right-f4) |
+; #UDGARRAY*helicopter-adv-right-f1,50;helicopter-adv-right-f2;helicopter-adv-right-f3;helicopter-adv-right-f4;helicopter-adv-left-f4;helicopter-adv-left-f3;helicopter-adv-left-f2;helicopter-adv-left-f1(helicopter-adv)
+; }
+; TABLE#
+; .
+; #UDGTABLE
+; { #UDGARRAY3,60,4,3;$88B3-$88B6-1-16(*tank-right-f1) |
+; #UDGARRAY3,60,4,3;$88CB-$88CE-1-16(*tank-right-f2) |
+; #UDGARRAY3,60,4,3;$88E3-$88E6-1-16(*tank-right-f3) |
+; #UDGARRAY3,60,4,3;$88FB-$88FE-1-16(*tank-right-f4) |
+; #UDGARRAY*tank-right-f1,50;tank-right-f2;tank-right-f3;tank-right-f4;tank-left-f4;tank-left-f3;tank-left-f2;tank-left-f1(tank)
+; }
+; TABLE#
+@label=sprite_enemies_right
+b$8793 DEFB $03,$C0,$00 ; {Frame 1
+ $8796 DEFB $1E,$00,$00 ;
+ $8799 DEFB $03,$00,$00 ;
+ $879C DEFB $8F,$80,$00 ;
+ $879F DEFB $FF,$C0,$00 ;
+ $87A2 DEFB $87,$80,$00 ;
+ $87A5 DEFB $02,$00,$00 ;
+ $87A8 DEFB $0F,$80,$00 ; }
+ $87AB DEFB $00,$F0,$00 ; {Frame 2
+ $87AE DEFB $07,$80,$00 ;
+ $87B1 DEFB $00,$C0,$00 ;
+ $87B4 DEFB $23,$E0,$00 ;
+ $87B7 DEFB $3F,$F0,$00 ;
+ $87BA DEFB $21,$E0,$00 ;
+ $87BD DEFB $00,$80,$00 ;
+ $87C0 DEFB $03,$E0,$00 ; }
+ $87C3 DEFB $00,$3C,$00 ; {Frame 3
+ $87C6 DEFB $01,$E0,$00 ;
+ $87C9 DEFB $00,$30,$00 ;
+ $87CC DEFB $08,$F8,$00 ;
+ $87CF DEFB $0F,$FC,$00 ;
+ $87D2 DEFB $08,$78,$00 ;
+ $87D5 DEFB $00,$20,$00 ;
+ $87D8 DEFB $00,$F8,$00 ; }
+ $87DB DEFB $00,$0F,$00 ; {Frame 4
+ $87DE DEFB $00,$78,$00 ;
+ $87E1 DEFB $00,$0C,$00 ;
+ $87E4 DEFB $02,$3E,$00 ;
+ $87E7 DEFB $03,$FF,$00 ;
+ $87EA DEFB $02,$1E,$00 ;
+ $87ED DEFB $00,$08,$00 ;
+ $87F0 DEFB $00,$3E,$00 ; }
+; Array [4] of ship headed right sprites (each element is 3×1 tiles = 24
+; bytes).
+ $87F3 DEFB $00,$00,$00 ; {Frame 1
+ $87F6 DEFB $00,$00,$00 ;
+ $87F9 DEFB $01,$80,$00 ;
+ $87FC DEFB $07,$C0,$00 ;
+ $87FF DEFB $1F,$F8,$00 ;
+ $8802 DEFB $FF,$FF,$C0 ;
+ $8805 DEFB $FF,$FF,$80 ;
+ $8808 DEFB $7F,$FF,$00 ; }
+ $880B DEFB $00,$00,$00 ; {Frame 2
+ $880E DEFB $00,$00,$00 ;
+ $8811 DEFB $00,$60,$00 ;
+ $8814 DEFB $01,$F0,$00 ;
+ $8817 DEFB $07,$FE,$00 ;
+ $881A DEFB $3F,$FF,$F0 ;
+ $881D DEFB $3F,$FF,$E0 ;
+ $8820 DEFB $1F,$FF,$80 ; }
+ $8823 DEFB $00,$00,$00 ; {Frame 3
+ $8826 DEFB $00,$00,$00 ;
+ $8829 DEFB $00,$18,$00 ;
+ $882C DEFB $00,$7C,$00 ;
+ $882F DEFB $01,$FF,$80 ;
+ $8832 DEFB $0F,$FF,$FC ;
+ $8835 DEFB $0F,$FF,$F8 ;
+ $8838 DEFB $07,$FF,$E0 ; }
+ $883B DEFB $00,$00,$00 ; {Frame 4
+ $883E DEFB $00,$00,$00 ;
+ $8841 DEFB $00,$06,$00 ;
+ $8844 DEFB $00,$1F,$00 ;
+ $8847 DEFB $00,$7F,$E0 ;
+ $884A DEFB $03,$FF,$FF ;
+ $884D DEFB $03,$FF,$FE ;
+ $8850 DEFB $01,$FF,$F8 ; }
+; Array [4] of advanced helicopter headed right sprites (each element is 3×1
+; tiles = 24 bytes).
+ $8853 DEFB $03,$C0,$00 ; {Frame 1
+ $8856 DEFB $1E,$00,$00 ;
+ $8859 DEFB $03,$00,$00 ;
+ $885C DEFB $8F,$80,$00 ;
+ $885F DEFB $F8,$40,$00 ;
+ $8862 DEFB $8F,$80,$00 ;
+ $8865 DEFB $02,$00,$00 ;
+ $8868 DEFB $0F,$80,$00 ; }
+ $886B DEFB $00,$F0,$00 ; {Frame 2
+ $886E DEFB $07,$80,$00 ;
+ $8871 DEFB $00,$C0,$00 ;
+ $8874 DEFB $23,$E0,$00 ;
+ $8877 DEFB $3E,$10,$00 ;
+ $887A DEFB $23,$E0,$00 ;
+ $887D DEFB $00,$80,$00 ;
+ $8880 DEFB $03,$E0,$00 ; }
+ $8883 DEFB $00,$3C,$00 ; {Frame 3
+ $8886 DEFB $01,$E0,$00 ;
+ $8889 DEFB $00,$30,$00 ;
+ $888C DEFB $08,$F8,$00 ;
+ $888F DEFB $0F,$84,$00 ;
+ $8892 DEFB $08,$F8,$00 ;
+ $8895 DEFB $00,$20,$00 ;
+ $8898 DEFB $08,$F8,$00 ; }
+ $889B DEFB $00,$0F,$00 ; {Frame 4
+ $889E DEFB $00,$78,$00 ;
+ $88A1 DEFB $00,$0C,$00 ;
+ $88A4 DEFB $02,$3E,$00 ;
+ $88A7 DEFB $03,$E1,$00 ;
+ $88AA DEFB $02,$3E,$00 ;
+ $88AD DEFB $00,$08,$00 ;
+ $88B0 DEFB $02,$3E,$00 ; }
+; Array [4] of tank headed right sprites (each element is 3×1 tiles = 24
+; bytes).
+ $88B3 DEFB $00,$00,$00 ; {Frame 1
+ $88B6 DEFB $3F,$80,$00 ;
+ $88B9 DEFB $38,$00,$00 ;
+ $88BC DEFB $FF,$80,$00 ;
+ $88BF DEFB $FF,$C0,$00 ;
+ $88C2 DEFB $2A,$00,$00 ;
+ $88C5 DEFB $80,$00,$00 ;
+ $88C8 DEFB $2A,$00,$00 ; }
+ $88CB DEFB $00,$00,$00 ; {Frame 2
+ $88CE DEFB $0F,$E0,$00 ;
+ $88D1 DEFB $0E,$00,$00 ;
+ $88D4 DEFB $3F,$E0,$00 ;
+ $88D7 DEFB $3F,$F0,$00 ;
+ $88DA DEFB $15,$40,$00 ;
+ $88DD DEFB $D0,$00,$00 ;
+ $88E0 DEFB $15,$40,$00 ; }
+ $88E3 DEFB $00,$00,$00 ; {Frame 3
+ $88E6 DEFB $03,$F8,$00 ;
+ $88E9 DEFB $03,$80,$00 ;
+ $88EC DEFB $0F,$F8,$00 ;
+ $88EF DEFB $0F,$FC,$00 ;
+ $88F2 DEFB $02,$A0,$00 ;
+ $88F5 DEFB $00,$08,$00 ;
+ $88F8 DEFB $02,$A0,$00 ; }
+ $88FB DEFB $00,$00,$00 ; {Frame 4
+ $88FE DEFB $00,$FE,$00 ;
+ $8901 DEFB $00,$E0,$00 ;
+ $8904 DEFB $03,$FE,$00 ;
+ $8907 DEFB $03,$FF,$00 ;
+ $890A DEFB $01,$54,$00 ;
+ $890D DEFB $00,$00,$00 ;
+ $8910 DEFB $01,$54,$00 ; }
+; #UDGTABLE
+; { #UDGARRAY3,12,4,3;$8913-$8916-1-16(*fighter-right-f1) |
+; #UDGARRAY3,12,4,3;$892B-$892E-1-16(*fighter-right-f2) |
+; #UDGARRAY3,12,4,3;$8943-$8946-1-16(*fighter-right-f3) |
+; #UDGARRAY3,12,4,3;$895B-$895E-1-16(*fighter-right-f4) |
+; #UDGARRAY*fighter-right-f1,50;fighter-right-f2;fighter-right-f3;fighter-right-f4;fighter-left-f4;fighter-left-f3;fighter-left-f2;fighter-left-f1(fighter)
+; }
+; TABLE#
+; .
+; Array [4] of fighter headed right sprites (each element is 3×1 tiles = 24
+; bytes).
+ $8913 DEFB $00,$00,$00 ; {Frame 1
+ $8916 DEFB $80,$80,$00 ;
+ $8919 DEFB $C3,$C0,$00 ;
+ $891C DEFB $FF,$C0,$00 ;
+ $891F DEFB $4F,$00,$00 ;
+ $8922 DEFB $38,$00,$00 ;
+ $8925 DEFB $70,$00,$00 ;
+ $8928 DEFB $00,$00,$00 ; }
+ $892B DEFB $00,$00,$00 ; {Frame 2
+ $892E DEFB $20,$00,$00 ;
+ $8931 DEFB $30,$E0,$00 ;
+ $8934 DEFB $3F,$F0,$00 ;
+ $8937 DEFB $13,$F0,$00 ;
+ $893A DEFB $07,$00,$00 ;
+ $893D DEFB $1C,$00,$00 ;
+ $8940 DEFB $00,$00,$00 ; }
+ $8943 DEFB $00,$00,$00 ; {Frame 3
+ $8946 DEFB $08,$00,$00 ;
+ $8949 DEFB $0C,$38,$00 ;
+ $894C DEFB $0F,$FC,$00 ;
+ $894F DEFB $04,$FC,$00 ;
+ $8952 DEFB $03,$80,$00 ;
+ $8955 DEFB $07,$00,$00 ;
+ $8958 DEFB $00,$00,$00 ; }
+ $895B DEFB $00,$00,$00 ; {Frame 4
+ $895E DEFB $02,$00,$00 ;
+ $8961 DEFB $03,$0E,$00 ;
+ $8964 DEFB $03,$FF,$00 ;
+ $8967 DEFB $01,$3F,$00 ;
+ $896A DEFB $00,$E0,$00 ;
+ $896D DEFB $01,$C0,$00 ; }
+ $8970 DEFB $00,$00
+
+; Array [4] of balloon sprites (2×2 tiles, 32 bytes).
+;
+; .
+;
+; .
+;
+; #UDGTABLE
+; { #UDGARRAY2,14,4,2;$8972-$898A-1-16(*balloon-f1) |
+; #UDGARRAY2,14,4,2;$8992-$89AA-1-16(*balloon-f2) |
+; #UDGARRAY2,14,4,2;$89B2-$89CA-1-16(*balloon-f3) |
+; #UDGARRAY2,14,4,2;$89D2-$89EA-1-16(*balloon-f4) |
+; #UDGARRAY*balloon-f1,50;balloon-f2;balloon-f3;balloon-f4;balloon-f3;balloon-f2(balloon)
+; }
+; TABLE#
+@label=sprite_balloon
+b$8972 DEFB $0C,$00  ; {Frame 1
+ $8974 DEFB $3F,$00  ;
+ $8976 DEFB $7F,$80  ;
+ $8978 DEFB $7F,$80  ;
+ $897A DEFB $FF,$C0  ;
+ $897C DEFB $FF,$C0  ;
+ $897E DEFB $7F,$80  ;
+ $8980 DEFB $7F,$80  ;
+ $8982 DEFB $7F,$80  ;
+ $8984 DEFB $4C,$80  ;
+ $8986 DEFB $21,$00  ;
+ $8988 DEFB $21,$00  ;
+ $898A DEFB $12,$00  ;
+ $898C DEFB $12,$00  ;
+ $898E DEFB $1E,$00  ;
+ $8990 DEFB $1E,$00  ; }
+ $8992 DEFB $03,$00  ; {Frame 2
+ $8994 DEFB $0F,$C0  ;
+ $8996 DEFB $1F,$E0  ;
+ $8998 DEFB $1F,$E0  ;
+ $899A DEFB $3F,$F0  ;
+ $899C DEFB $3F,$F0  ;
+ $899E DEFB $1F,$E0  ;
+ $89A0 DEFB $1F,$E0  ;
+ $89A2 DEFB $1F,$E0  ;
+ $89A4 DEFB $13,$20  ;
+ $89A6 DEFB $08,$40  ;
+ $89A8 DEFB $08,$40  ;
+ $89AA DEFB $04,$80  ;
+ $89AC DEFB $04,$80  ;
+ $89AE DEFB $07,$80  ;
+ $89B0 DEFB $07,$80  ; }
+ $89B2 DEFB $00,$C0  ; {Frame 3
+ $89B4 DEFB $03,$F0  ;
+ $89B6 DEFB $07,$F8  ;
+ $89B8 DEFB $07,$F8  ;
+ $89BA DEFB $0F,$FC  ;
+ $89BC DEFB $0F,$FC  ;
+ $89BE DEFB $07,$F8  ;
+ $89C0 DEFB $07,$F8  ;
+ $89C2 DEFB $07,$F8  ;
+ $89C4 DEFB $04,$C8  ;
+ $89C6 DEFB $02,$10  ;
+ $89C8 DEFB $02,$10  ;
+ $89CA DEFB $01,$20  ;
+ $89CC DEFB $01,$20  ;
+ $89CE DEFB $01,$E0  ;
+ $89D0 DEFB $01,$E0  ; }
+ $89D2 DEFB $00,$30  ; {Frame 4
+ $89D4 DEFB $00,$FC  ;
+ $89D6 DEFB $01,$FE  ;
+ $89D8 DEFB $01,$FE  ;
+ $89DA DEFB $03,$FF  ;
+ $89DC DEFB $03,$FF  ;
+ $89DE DEFB $01,$FE  ;
+ $89E0 DEFB $01,$FE  ;
+ $89E2 DEFB $01,$FE  ;
+ $89E4 DEFB $01,$32  ;
+ $89E6 DEFB $00,$84  ;
+ $89E8 DEFB $00,$84  ;
+ $89EA DEFB $00,$48  ;
+ $89EC DEFB $00,$48  ;
+ $89EE DEFB $00,$78  ;
+ $89F0 DEFB $00,$78  ; }
 
 ; Data block at 89F2
 @label=L89F2
@@ -5749,20 +6123,33 @@ c$8A4E LD DE,$0800   ;
  $8A84 LD B,A        ;
  $8A85 RET           ;
 
-; Data block at 8A86
+; Fuel sprite
+;
+; .
+;
+; .
+;
+; #UDGTABLE
+; { #UDGARRAY2,11,4,2;$8A86-$8AB8-1-16{0,0,64,100}(sprite-fuel) }
+; TABLE#
+@label=sprite_fuel
 b$8A86 DEFB $0F,$F0,$0C,$30,$0D,$F0,$0C,$70
  $8A8E DEFB $0D,$F0,$0D,$F0,$0F,$F0,$0D,$B0
  $8A96 DEFB $0D,$B0,$0D,$B0,$0D,$B0,$0E,$70
  $8A9E DEFB $0F,$F0,$0C,$30,$0D,$F0,$0C,$70
  $8AA6 DEFB $0D,$F0,$0C,$30,$0F,$F0,$0D,$F0
  $8AAE DEFB $0D,$F0,$0D,$F0,$0D,$F0,$0C,$30
- $8AB6 DEFB $0F,$F0,$1E,$00,$F0,$00,$07,$80
- $8ABE DEFB $3C,$00,$01,$E0,$0F,$00,$00,$78
- $8AC6 DEFB $03,$C0,$1E,$00,$03,$C0,$07,$80
- $8ACE DEFB $00,$F0,$01,$E0,$00,$3C,$00,$78
- $8AD6 DEFB $00,$0F,$00,$00,$00,$10,$00,$00
- $8ADE DEFB $00,$00,$00,$00,$00,$18,$18,$00
- $8AE6 DEFB $00,$00,$00,$00
+ $8AB6 DEFB $0F,$F0
+
+; Data block at 8AB8
+b$8AB8 DEFB $1E,$00,$F0,$00,$07,$80,$3C,$00
+ $8AC0 DEFB $01,$E0,$0F,$00,$00,$78,$03,$C0
+@label=L8AC8
+ $8AC8 DEFB $1E,$00,$03,$C0,$07,$80,$00,$F0
+ $8AD0 DEFB $01,$E0,$00,$3C,$00,$78,$00,$0F
+ $8AD8 DEFB $00,$00,$00,$10,$00,$00,$00,$00
+ $8AE0 DEFB $00,$00,$00,$18,$18,$00,$00,$00
+ $8AE8 DEFB $00,$00
 
 ; Message at 8AEA
 t$8AEA DEFM "888"

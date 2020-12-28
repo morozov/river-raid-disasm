@@ -3835,7 +3835,7 @@ L6F80_2:
 ;
 ; Used by the routine at L75BA.
 L6FE6:
-  LD HL,L8793
+  LD HL,sprite_enemies_right
   RET
 
 ; Routine at 6FEA
@@ -3924,7 +3924,7 @@ L7051:
   LD C,E
   LD HL,L5F00
   CALL L6E9C_0
-  LD HL,L8A86
+  LD HL,sprite_fuel
   CALL L6FEA
   LD BC,$0000
   LD A,$02
@@ -3938,7 +3938,7 @@ L7051:
 L706C:
   LD B,$00
   LD C,E
-  LD HL,$8972
+  LD HL,sprite_balloon
   LD A,$00
   LD (L5EF5),A
   PUSH HL
@@ -4211,7 +4211,7 @@ L7224_0:
 ;
 ; Used by the routine at L724C.
 L7248:
-  LD HL,$8AC8
+  LD HL,L8AC8
   RET
 
 ; Routine at 724C
@@ -4232,7 +4232,7 @@ L724C_0:
   LD B,(HL)
   DEC HL
   LD C,(HL)
-  LD HL,$8AB8
+  LD HL,L8AB8
   BIT 6,D
   CALL Z,L7248
   LD (L8B0C),BC
@@ -4724,7 +4724,7 @@ L754C:
   AND $87
   CP $87
   JP Z,L708E
-  LD HL,L8A86
+  LD HL,sprite_fuel
   LD BC,$0000
   LD A,(L5EEF)
   AND $04
@@ -4776,7 +4776,7 @@ L75A2:
 ;
 ; Used by the routines at L6FF6, L708E, L7158, L724C, L7296 and L75D0.
 L75BA:
-  LD HL,L85B3
+  LD HL,sprite_enemies_left
   LD BC,$0060
   BIT 6,D
   CALL Z,L6FE6
@@ -4907,7 +4907,7 @@ L7649_0:
   DEC HL
   LD (HL),C
   LD (L8B0C),BC
-  LD HL,$8972
+  LD HL,sprite_balloon
   LD A,(L5EEF)
   AND $03
   ADD A,$0C
@@ -4961,7 +4961,7 @@ L76DA:
   LD HL,(L5F60)
   DEC HL
   LD D,(HL)
-  LD HL,$8972
+  LD HL,sprite_balloon
   LD BC,(L8B0A)
   LD A,C
   AND $06
@@ -4982,7 +4982,7 @@ L76DA_0:
   LD HL,(L5F60)
   DEC HL
   LD (HL),A
-  LD HL,$8972
+  LD HL,sprite_balloon
   LD DE,$100D
   LD A,$02
   LD BC,$0020
@@ -5857,147 +5857,420 @@ L85A6:
 L85A9:
   DEFM "3 KEYBOARD"
 
-; Data block at 85B3
-L85B3:
-  DEFB $F0,$00,$00,$1E,$00,$00,$30,$00
-  DEFB $00,$7C,$40,$00,$FF,$C0,$00,$78
-  DEFB $40,$00,$10,$00,$00,$7C,$00,$00
-  DEFB $3C,$00,$00,$07,$80,$00,$0C,$00
-  DEFB $00,$1F,$10,$00,$3F,$F0,$00,$1E
-  DEFB $10,$00,$04,$00,$00,$1F,$00,$00
-  DEFB $0F,$00,$00,$01,$E0,$00,$03,$00
-  DEFB $00,$07,$C4,$00,$0F,$FC,$00,$07
-  DEFB $84,$00,$01,$00,$00,$07,$C0,$00
-  DEFB $03,$C0,$00,$00,$78,$00,$00,$C0
-  DEFB $00,$01,$F1,$00,$03,$FF,$00,$01
-  DEFB $E1,$00,$00,$40,$00,$01,$F0,$00
-  DEFB $00,$00,$00,$00,$00,$00,$00,$60
-  DEFB $00,$00,$F8,$00,$07,$FE,$00,$FF
-  DEFB $FF,$C0,$7F,$FF,$C0,$1F,$FF,$80
-  DEFB $00,$00,$00,$00,$00,$00,$00,$18
-  DEFB $00,$00,$3E,$00,$01,$FF,$80,$3F
-  DEFB $FF,$F0,$1F,$FF,$F0,$07,$FF,$E0
-  DEFB $00,$00,$00,$00,$00,$00,$00,$06
-  DEFB $00,$00,$0F,$80,$00,$7F,$E0,$0F
-  DEFB $FF,$FC,$07,$FF,$FC,$01,$FF,$F8
-  DEFB $00,$00,$00,$00,$00,$00,$00,$01
-  DEFB $80,$00,$03,$E0,$00,$1F,$F8,$03
-  DEFB $FF,$FF,$01,$FF,$FF,$00,$7F,$FE
-  DEFB $F0,$00,$00,$1E,$00,$00,$30,$00
-  DEFB $00,$7C,$40,$00,$87,$C0,$00,$7C
-  DEFB $40,$00,$10,$00,$00,$7C,$00,$00
-  DEFB $3C,$00,$00,$07,$80,$00,$0C,$00
-  DEFB $00,$1F,$10,$00,$21,$F0,$00,$1F
-  DEFB $10,$00,$04,$00,$00,$1F,$00,$00
-  DEFB $0F,$00,$00,$01,$E0,$00,$03,$00
-  DEFB $00,$07,$C4,$00,$08,$7C,$00,$07
-  DEFB $C4,$00,$01,$00,$00,$07,$C0,$00
-  DEFB $03,$C0,$00,$00,$78,$00,$00,$C0
-  DEFB $00,$01,$F1,$00,$02,$1F,$00,$01
-  DEFB $F1,$00,$00,$40,$00,$01,$F0,$00
-  DEFB $00,$00,$00,$7F,$00,$00,$07,$00
-  DEFB $00,$7F,$C0,$00,$FF,$C0,$00,$2A
-  DEFB $80,$00,$00,$00,$00,$2A,$80,$00
-  DEFB $00,$00,$00,$1F,$C0,$00,$01,$C0
-  DEFB $00,$1F,$F0,$00,$3F,$F0,$00,$05
-  DEFB $40,$00,$10,$00,$00,$05,$40,$00
-  DEFB $00,$00,$00,$07,$F0,$00,$00,$70
-  DEFB $00,$07,$FC,$00,$0F,$FC,$00,$02
-  DEFB $A8,$00,$00,$00,$00,$02,$A8,$00
-  DEFB $00,$00,$00,$01,$FC,$00,$00,$1C
-  DEFB $00,$01,$FF,$00,$03,$FF,$00,$00
-  DEFB $54,$00,$00,$01,$00,$00,$54,$00
-  DEFB $00,$00,$00,$70,$40,$00,$00,$C0
-  DEFB $00,$FF,$C0,$00,$FC,$80,$00,$07
-  DEFB $00,$00,$03,$80,$00,$00,$00,$00
-  DEFB $00,$00,$00,$00,$10,$00,$1C,$30
-  DEFB $00,$3F,$F0,$00,$3F,$20,$00,$01
-  DEFB $C0,$00,$00,$E0,$00,$00,$00,$00
-  DEFB $00,$00,$00,$00,$04,$00,$07,$0C
-  DEFB $00,$0F,$FC,$00,$0F,$C8,$00,$00
-  DEFB $70,$00,$00,$38,$00,$00,$00,$00
-  DEFB $00,$00,$00,$00,$01,$00,$01,$C3
-  DEFB $00,$03,$FF,$00,$03,$F2,$00,$00
-  DEFB $1C,$00,$00,$0E,$00,$00,$00,$00
+; Array [5] arrays of enemy headed left sprites (each element is 3×1 tiles × 4
+; frames = 96 bytes).
+;
+; Array [4] of regular helicopter headed left sprites (3×1 tiles, 24 bytes).
+sprite_enemies_left:
+  DEFB $F0,$00,$00        ; Frame 1
+  DEFB $1E,$00,$00        ;
+  DEFB $30,$00,$00        ;
+  DEFB $7C,$40,$00        ;
+  DEFB $FF,$C0,$00        ;
+  DEFB $78,$40,$00        ;
+  DEFB $10,$00,$00        ;
+  DEFB $7C,$00,$00        ;
+  DEFB $3C,$00,$00        ; Frame 2
+  DEFB $07,$80,$00        ;
+  DEFB $0C,$00,$00        ;
+  DEFB $1F,$10,$00        ;
+  DEFB $3F,$F0,$00        ;
+  DEFB $1E,$10,$00        ;
+  DEFB $04,$00,$00        ;
+  DEFB $1F,$00,$00        ;
+  DEFB $0F,$00,$00        ; Frame 3
+  DEFB $01,$E0,$00        ;
+  DEFB $03,$00,$00        ;
+  DEFB $07,$C4,$00        ;
+  DEFB $0F,$FC,$00        ;
+  DEFB $07,$84,$00        ;
+  DEFB $01,$00,$00        ;
+  DEFB $07,$C0,$00        ;
+  DEFB $03,$C0,$00        ; Frame 4
+  DEFB $00,$78,$00        ;
+  DEFB $00,$C0,$00        ;
+  DEFB $01,$F1,$00        ;
+  DEFB $03,$FF,$00        ;
+  DEFB $01,$E1,$00        ;
+  DEFB $00,$40,$00        ;
+  DEFB $01,$F0,$00        ;
+; Array [4] of ship headed left sprites (each element is 3×1 tiles = 24 bytes).
+  DEFB $00,$00,$00        ; Frame 1
+  DEFB $00,$00,$00        ;
+  DEFB $00,$60,$00        ;
+  DEFB $00,$F8,$00        ;
+  DEFB $07,$FE,$00        ;
+  DEFB $FF,$FF,$C0        ;
+  DEFB $7F,$FF,$C0        ;
+  DEFB $1F,$FF,$80        ;
+  DEFB $00,$00,$00        ; Frame 2
+  DEFB $00,$00,$00        ;
+  DEFB $00,$18,$00        ;
+  DEFB $00,$3E,$00        ;
+  DEFB $01,$FF,$80        ;
+  DEFB $3F,$FF,$F0        ;
+  DEFB $1F,$FF,$F0        ;
+  DEFB $07,$FF,$E0        ;
+  DEFB $00,$00,$00        ; Frame 3
+  DEFB $00,$00,$00        ;
+  DEFB $00,$06,$00        ;
+  DEFB $00,$0F,$80        ;
+  DEFB $00,$7F,$E0        ;
+  DEFB $0F,$FF,$FC        ;
+  DEFB $07,$FF,$FC        ;
+  DEFB $01,$FF,$F8        ;
+  DEFB $00,$00,$00        ; Frame 4
+  DEFB $00,$00,$00        ;
+  DEFB $00,$01,$80        ;
+  DEFB $00,$03,$E0        ;
+  DEFB $00,$1F,$F8        ;
+  DEFB $03,$FF,$FF        ;
+  DEFB $01,$FF,$FF        ;
+  DEFB $00,$7F,$FE        ;
+; Array [4] of advanced helicopter headed left sprites (each element is 3×1
+; tiles = 24 bytes).
+  DEFB $F0,$00,$00        ; Frame 1
+  DEFB $1E,$00,$00        ;
+  DEFB $30,$00,$00        ;
+  DEFB $7C,$40,$00        ;
+  DEFB $87,$C0,$00        ;
+  DEFB $7C,$40,$00        ;
+  DEFB $10,$00,$00        ;
+  DEFB $7C,$00,$00        ;
+  DEFB $3C,$00,$00        ; Frame 2
+  DEFB $07,$80,$00        ;
+  DEFB $0C,$00,$00        ;
+  DEFB $1F,$10,$00        ;
+  DEFB $21,$F0,$00        ;
+  DEFB $1F,$10,$00        ;
+  DEFB $04,$00,$00        ;
+  DEFB $1F,$00,$00        ;
+  DEFB $0F,$00,$00        ; Frame 3
+  DEFB $01,$E0,$00        ;
+  DEFB $03,$00,$00        ;
+  DEFB $07,$C4,$00        ;
+  DEFB $08,$7C,$00        ;
+  DEFB $07,$C4,$00        ;
+  DEFB $01,$00,$00        ;
+  DEFB $07,$C0,$00        ;
+  DEFB $03,$C0,$00        ; Frame 4
+  DEFB $00,$78,$00        ;
+  DEFB $00,$C0,$00        ;
+  DEFB $01,$F1,$00        ;
+  DEFB $02,$1F,$00        ;
+  DEFB $01,$F1,$00        ;
+  DEFB $00,$40,$00        ;
+  DEFB $01,$F0,$00        ;
+; Array [4] of tank headed left sprites (each element is 3×1 tiles = 24 bytes).
+  DEFB $00,$00,$00        ; Frame 1
+  DEFB $7F,$00,$00        ;
+  DEFB $07,$00,$00        ;
+  DEFB $7F,$C0,$00        ;
+  DEFB $FF,$C0,$00        ;
+  DEFB $2A,$80,$00        ;
+  DEFB $00,$00,$00        ;
+  DEFB $2A,$80,$00        ;
+  DEFB $00,$00,$00        ; Frame 2
+  DEFB $1F,$C0,$00        ;
+  DEFB $01,$C0,$00        ;
+  DEFB $1F,$F0,$00        ;
+  DEFB $3F,$F0,$00        ;
+  DEFB $05,$40,$00        ;
+  DEFB $10,$00,$00        ;
+  DEFB $05,$40,$00        ;
+  DEFB $00,$00,$00        ; Frame 3
+  DEFB $07,$F0,$00        ;
+  DEFB $00,$70,$00        ;
+  DEFB $07,$FC,$00        ;
+  DEFB $0F,$FC,$00        ;
+  DEFB $02,$A8,$00        ;
+  DEFB $00,$00,$00        ;
+  DEFB $02,$A8,$00        ;
+  DEFB $00,$00,$00        ; Frame 4
+  DEFB $01,$FC,$00        ;
+  DEFB $00,$1C,$00        ;
+  DEFB $01,$FF,$00        ;
+  DEFB $03,$FF,$00        ;
+  DEFB $00,$54,$00        ;
+  DEFB $00,$01,$00        ;
+  DEFB $00,$54,$00        ;
+; Array [4] of fighter headed left sprites (each element is 3×1 tiles = 24
+; bytes).
+  DEFB $00,$00,$00        ; Frame 1
+  DEFB $70,$40,$00        ;
+  DEFB $00,$C0,$00        ;
+  DEFB $FF,$C0,$00        ;
+  DEFB $FC,$80,$00        ;
+  DEFB $07,$00,$00        ;
+  DEFB $03,$80,$00        ;
+  DEFB $00,$00,$00        ;
+  DEFB $00,$00,$00        ; Frame 2
+  DEFB $00,$10,$00        ;
+  DEFB $1C,$30,$00        ;
+  DEFB $3F,$F0,$00        ;
+  DEFB $3F,$20,$00        ;
+  DEFB $01,$C0,$00        ;
+  DEFB $00,$E0,$00        ;
+  DEFB $00,$00,$00        ;
+  DEFB $00,$00,$00        ; Frame 3
+  DEFB $00,$04,$00        ;
+  DEFB $07,$0C,$00        ;
+  DEFB $0F,$FC,$00        ;
+  DEFB $0F,$C8,$00        ;
+  DEFB $00,$70,$00        ;
+  DEFB $00,$38,$00        ;
+  DEFB $00,$00,$00        ;
+  DEFB $00,$00,$00        ; Frame 4
+  DEFB $00,$01,$00        ;
+  DEFB $01,$C3,$00        ;
+  DEFB $03,$FF,$00        ;
+  DEFB $03,$F2,$00        ;
+  DEFB $00,$1C,$00        ;
+  DEFB $00,$0E,$00        ;
+  DEFB $00,$00,$00        ;
 
-; Data block at 8793
-L8793:
-  DEFB $03,$C0,$00,$1E,$00,$00,$03,$00
-  DEFB $00,$8F,$80,$00,$FF,$C0,$00,$87
-  DEFB $80,$00,$02,$00,$00,$0F,$80,$00
-  DEFB $00,$F0,$00,$07,$80,$00,$00,$C0
-  DEFB $00,$23,$E0,$00,$3F,$F0,$00,$21
-  DEFB $E0,$00,$00,$80,$00,$03,$E0,$00
-  DEFB $00,$3C,$00,$01,$E0,$00,$00,$30
-  DEFB $00,$08,$F8,$00,$0F,$FC,$00,$08
-  DEFB $78,$00,$00,$20,$00,$00,$F8,$00
-  DEFB $00,$0F,$00,$00,$78,$00,$00,$0C
-  DEFB $00,$02,$3E,$00,$03,$FF,$00,$02
-  DEFB $1E,$00,$00,$08,$00,$00,$3E,$00
-  DEFB $00,$00,$00,$00,$00,$00,$01,$80
-  DEFB $00,$07,$C0,$00,$1F,$F8,$00,$FF
-  DEFB $FF,$C0,$FF,$FF,$80,$7F,$FF,$00
-  DEFB $00,$00,$00,$00,$00,$00,$00,$60
-  DEFB $00,$01,$F0,$00,$07,$FE,$00,$3F
-  DEFB $FF,$F0,$3F,$FF,$E0,$1F,$FF,$80
-  DEFB $00,$00,$00,$00,$00,$00,$00,$18
-  DEFB $00,$00,$7C,$00,$01,$FF,$80,$0F
-  DEFB $FF,$FC,$0F,$FF,$F8,$07,$FF,$E0
-  DEFB $00,$00,$00,$00,$00,$00,$00,$06
-  DEFB $00,$00,$1F,$00,$00,$7F,$E0,$03
-  DEFB $FF,$FF,$03,$FF,$FE,$01,$FF,$F8
-  DEFB $03,$C0,$00,$1E,$00,$00,$03,$00
-  DEFB $00,$8F,$80,$00,$F8,$40,$00,$8F
-  DEFB $80,$00,$02,$00,$00,$0F,$80,$00
-  DEFB $00,$F0,$00,$07,$80,$00,$00,$C0
-  DEFB $00,$23,$E0,$00,$3E,$10,$00,$23
-  DEFB $E0,$00,$00,$80,$00,$03,$E0,$00
-  DEFB $00,$3C,$00,$01,$E0,$00,$00,$30
-  DEFB $00,$08,$F8,$00,$0F,$84,$00,$08
-  DEFB $F8,$00,$00,$20,$00,$08,$F8,$00
-  DEFB $00,$0F,$00,$00,$78,$00,$00,$0C
-  DEFB $00,$02,$3E,$00,$03,$E1,$00,$02
-  DEFB $3E,$00,$00,$08,$00,$02,$3E,$00
-  DEFB $00,$00,$00,$3F,$80,$00,$38,$00
-  DEFB $00,$FF,$80,$00,$FF,$C0,$00,$2A
-  DEFB $00,$00,$80,$00,$00,$2A,$00,$00
-  DEFB $00,$00,$00,$0F,$E0,$00,$0E,$00
-  DEFB $00,$3F,$E0,$00,$3F,$F0,$00,$15
-  DEFB $40,$00,$D0,$00,$00,$15,$40,$00
-  DEFB $00,$00,$00,$03,$F8,$00,$03,$80
-  DEFB $00,$0F,$F8,$00,$0F,$FC,$00,$02
-  DEFB $A0,$00,$00,$08,$00,$02,$A0,$00
-  DEFB $00,$00,$00,$00,$FE,$00,$00,$E0
-  DEFB $00,$03,$FE,$00,$03,$FF,$00,$01
-  DEFB $54,$00,$00,$00,$00,$01,$54,$00
-  DEFB $00,$00,$00,$80,$80,$00,$C3,$C0
-  DEFB $00,$FF,$C0,$00,$4F,$00,$00,$38
-  DEFB $00,$00,$70,$00,$00,$00,$00,$00
-  DEFB $00,$00,$00,$20,$00,$00,$30,$E0
-  DEFB $00,$3F,$F0,$00,$13,$F0,$00,$07
-  DEFB $00,$00,$1C,$00,$00,$00,$00,$00
-  DEFB $00,$00,$00,$08,$00,$00,$0C,$38
-  DEFB $00,$0F,$FC,$00,$04,$FC,$00,$03
-  DEFB $80,$00,$07,$00,$00,$00,$00,$00
-  DEFB $00,$00,$00,$02,$00,$00,$03,$0E
-  DEFB $00,$03,$FF,$00,$01,$3F,$00,$00
-  DEFB $E0,$00,$01,$C0,$00,$00,$00,$0C
-  DEFB $00,$3F,$00,$7F,$80,$7F,$80,$FF
-  DEFB $C0,$FF,$C0,$7F,$80,$7F,$80,$7F
-  DEFB $80,$4C,$80,$21,$00,$21,$00,$12
-  DEFB $00,$12,$00,$1E,$00,$1E,$00,$03
-  DEFB $00,$0F,$C0,$1F,$E0,$1F,$E0,$3F
-  DEFB $F0,$3F,$F0,$1F,$E0,$1F,$E0,$1F
-  DEFB $E0,$13,$20,$08,$40,$08,$40,$04
-  DEFB $80,$04,$80,$07,$80,$07,$80,$00
-  DEFB $C0,$03,$F0,$07,$F8,$07,$F8,$0F
-  DEFB $FC,$0F,$FC,$07,$F8,$07,$F8,$07
-  DEFB $F8,$04,$C8,$02,$10,$02,$10,$01
-  DEFB $20,$01,$20,$01,$E0,$01,$E0,$00
-  DEFB $30,$00,$FC,$01,$FE,$01,$FE,$03
-  DEFB $FF,$03,$FF,$01,$FE,$01,$FE,$01
-  DEFB $FE,$01,$32,$00,$84,$00,$84,$00
-  DEFB $48,$00,$48,$00,$78,$00,$78
+; Array [5] arrays of enemy headed right sprites (each element is 3×1 tiles × 4
+; frames = 96 bytes).
+;
+; Array [4] of regular helicopter headed right sprites (each element is 3×1
+; tiles = 24 bytes).
+sprite_enemies_right:
+  DEFB $03,$C0,$00        ; Frame 1
+  DEFB $1E,$00,$00        ;
+  DEFB $03,$00,$00        ;
+  DEFB $8F,$80,$00        ;
+  DEFB $FF,$C0,$00        ;
+  DEFB $87,$80,$00        ;
+  DEFB $02,$00,$00        ;
+  DEFB $0F,$80,$00        ;
+  DEFB $00,$F0,$00        ; Frame 2
+  DEFB $07,$80,$00        ;
+  DEFB $00,$C0,$00        ;
+  DEFB $23,$E0,$00        ;
+  DEFB $3F,$F0,$00        ;
+  DEFB $21,$E0,$00        ;
+  DEFB $00,$80,$00        ;
+  DEFB $03,$E0,$00        ;
+  DEFB $00,$3C,$00        ; Frame 3
+  DEFB $01,$E0,$00        ;
+  DEFB $00,$30,$00        ;
+  DEFB $08,$F8,$00        ;
+  DEFB $0F,$FC,$00        ;
+  DEFB $08,$78,$00        ;
+  DEFB $00,$20,$00        ;
+  DEFB $00,$F8,$00        ;
+  DEFB $00,$0F,$00        ; Frame 4
+  DEFB $00,$78,$00        ;
+  DEFB $00,$0C,$00        ;
+  DEFB $02,$3E,$00        ;
+  DEFB $03,$FF,$00        ;
+  DEFB $02,$1E,$00        ;
+  DEFB $00,$08,$00        ;
+  DEFB $00,$3E,$00        ;
+; Array [4] of ship headed right sprites (each element is 3×1 tiles = 24
+; bytes).
+  DEFB $00,$00,$00        ; Frame 1
+  DEFB $00,$00,$00        ;
+  DEFB $01,$80,$00        ;
+  DEFB $07,$C0,$00        ;
+  DEFB $1F,$F8,$00        ;
+  DEFB $FF,$FF,$C0        ;
+  DEFB $FF,$FF,$80        ;
+  DEFB $7F,$FF,$00        ;
+  DEFB $00,$00,$00        ; Frame 2
+  DEFB $00,$00,$00        ;
+  DEFB $00,$60,$00        ;
+  DEFB $01,$F0,$00        ;
+  DEFB $07,$FE,$00        ;
+  DEFB $3F,$FF,$F0        ;
+  DEFB $3F,$FF,$E0        ;
+  DEFB $1F,$FF,$80        ;
+  DEFB $00,$00,$00        ; Frame 3
+  DEFB $00,$00,$00        ;
+  DEFB $00,$18,$00        ;
+  DEFB $00,$7C,$00        ;
+  DEFB $01,$FF,$80        ;
+  DEFB $0F,$FF,$FC        ;
+  DEFB $0F,$FF,$F8        ;
+  DEFB $07,$FF,$E0        ;
+  DEFB $00,$00,$00        ; Frame 4
+  DEFB $00,$00,$00        ;
+  DEFB $00,$06,$00        ;
+  DEFB $00,$1F,$00        ;
+  DEFB $00,$7F,$E0        ;
+  DEFB $03,$FF,$FF        ;
+  DEFB $03,$FF,$FE        ;
+  DEFB $01,$FF,$F8        ;
+; Array [4] of advanced helicopter headed right sprites (each element is 3×1
+; tiles = 24 bytes).
+  DEFB $03,$C0,$00        ; Frame 1
+  DEFB $1E,$00,$00        ;
+  DEFB $03,$00,$00        ;
+  DEFB $8F,$80,$00        ;
+  DEFB $F8,$40,$00        ;
+  DEFB $8F,$80,$00        ;
+  DEFB $02,$00,$00        ;
+  DEFB $0F,$80,$00        ;
+  DEFB $00,$F0,$00        ; Frame 2
+  DEFB $07,$80,$00        ;
+  DEFB $00,$C0,$00        ;
+  DEFB $23,$E0,$00        ;
+  DEFB $3E,$10,$00        ;
+  DEFB $23,$E0,$00        ;
+  DEFB $00,$80,$00        ;
+  DEFB $03,$E0,$00        ;
+  DEFB $00,$3C,$00        ; Frame 3
+  DEFB $01,$E0,$00        ;
+  DEFB $00,$30,$00        ;
+  DEFB $08,$F8,$00        ;
+  DEFB $0F,$84,$00        ;
+  DEFB $08,$F8,$00        ;
+  DEFB $00,$20,$00        ;
+  DEFB $08,$F8,$00        ;
+  DEFB $00,$0F,$00        ; Frame 4
+  DEFB $00,$78,$00        ;
+  DEFB $00,$0C,$00        ;
+  DEFB $02,$3E,$00        ;
+  DEFB $03,$E1,$00        ;
+  DEFB $02,$3E,$00        ;
+  DEFB $00,$08,$00        ;
+  DEFB $02,$3E,$00        ;
+; Array [4] of tank headed right sprites (each element is 3×1 tiles = 24
+; bytes).
+  DEFB $00,$00,$00        ; Frame 1
+  DEFB $3F,$80,$00        ;
+  DEFB $38,$00,$00        ;
+  DEFB $FF,$80,$00        ;
+  DEFB $FF,$C0,$00        ;
+  DEFB $2A,$00,$00        ;
+  DEFB $80,$00,$00        ;
+  DEFB $2A,$00,$00        ;
+  DEFB $00,$00,$00        ; Frame 2
+  DEFB $0F,$E0,$00        ;
+  DEFB $0E,$00,$00        ;
+  DEFB $3F,$E0,$00        ;
+  DEFB $3F,$F0,$00        ;
+  DEFB $15,$40,$00        ;
+  DEFB $D0,$00,$00        ;
+  DEFB $15,$40,$00        ;
+  DEFB $00,$00,$00        ; Frame 3
+  DEFB $03,$F8,$00        ;
+  DEFB $03,$80,$00        ;
+  DEFB $0F,$F8,$00        ;
+  DEFB $0F,$FC,$00        ;
+  DEFB $02,$A0,$00        ;
+  DEFB $00,$08,$00        ;
+  DEFB $02,$A0,$00        ;
+  DEFB $00,$00,$00        ; Frame 4
+  DEFB $00,$FE,$00        ;
+  DEFB $00,$E0,$00        ;
+  DEFB $03,$FE,$00        ;
+  DEFB $03,$FF,$00        ;
+  DEFB $01,$54,$00        ;
+  DEFB $00,$00,$00        ;
+  DEFB $01,$54,$00        ;
+; Array [4] of fighter headed right sprites (each element is 3×1 tiles = 24
+; bytes).
+  DEFB $00,$00,$00        ; Frame 1
+  DEFB $80,$80,$00        ;
+  DEFB $C3,$C0,$00        ;
+  DEFB $FF,$C0,$00        ;
+  DEFB $4F,$00,$00        ;
+  DEFB $38,$00,$00        ;
+  DEFB $70,$00,$00        ;
+  DEFB $00,$00,$00        ;
+  DEFB $00,$00,$00        ; Frame 2
+  DEFB $20,$00,$00        ;
+  DEFB $30,$E0,$00        ;
+  DEFB $3F,$F0,$00        ;
+  DEFB $13,$F0,$00        ;
+  DEFB $07,$00,$00        ;
+  DEFB $1C,$00,$00        ;
+  DEFB $00,$00,$00        ;
+  DEFB $00,$00,$00        ; Frame 3
+  DEFB $08,$00,$00        ;
+  DEFB $0C,$38,$00        ;
+  DEFB $0F,$FC,$00        ;
+  DEFB $04,$FC,$00        ;
+  DEFB $03,$80,$00        ;
+  DEFB $07,$00,$00        ;
+  DEFB $00,$00,$00        ;
+  DEFB $00,$00,$00        ; Frame 4
+  DEFB $02,$00,$00        ;
+  DEFB $03,$0E,$00        ;
+  DEFB $03,$FF,$00        ;
+  DEFB $01,$3F,$00        ;
+  DEFB $00,$E0,$00        ;
+  DEFB $01,$C0,$00        ;
+  DEFB $00,$00
+
+; Array [4] of balloon sprites (2×2 tiles, 32 bytes).
+;
+sprite_balloon:
+  DEFB $0C,$00            ; Frame 1
+  DEFB $3F,$00            ;
+  DEFB $7F,$80            ;
+  DEFB $7F,$80            ;
+  DEFB $FF,$C0            ;
+  DEFB $FF,$C0            ;
+  DEFB $7F,$80            ;
+  DEFB $7F,$80            ;
+  DEFB $7F,$80            ;
+  DEFB $4C,$80            ;
+  DEFB $21,$00            ;
+  DEFB $21,$00            ;
+  DEFB $12,$00            ;
+  DEFB $12,$00            ;
+  DEFB $1E,$00            ;
+  DEFB $1E,$00            ;
+  DEFB $03,$00            ; Frame 2
+  DEFB $0F,$C0            ;
+  DEFB $1F,$E0            ;
+  DEFB $1F,$E0            ;
+  DEFB $3F,$F0            ;
+  DEFB $3F,$F0            ;
+  DEFB $1F,$E0            ;
+  DEFB $1F,$E0            ;
+  DEFB $1F,$E0            ;
+  DEFB $13,$20            ;
+  DEFB $08,$40            ;
+  DEFB $08,$40            ;
+  DEFB $04,$80            ;
+  DEFB $04,$80            ;
+  DEFB $07,$80            ;
+  DEFB $07,$80            ;
+  DEFB $00,$C0            ; Frame 3
+  DEFB $03,$F0            ;
+  DEFB $07,$F8            ;
+  DEFB $07,$F8            ;
+  DEFB $0F,$FC            ;
+  DEFB $0F,$FC            ;
+  DEFB $07,$F8            ;
+  DEFB $07,$F8            ;
+  DEFB $07,$F8            ;
+  DEFB $04,$C8            ;
+  DEFB $02,$10            ;
+  DEFB $02,$10            ;
+  DEFB $01,$20            ;
+  DEFB $01,$20            ;
+  DEFB $01,$E0            ;
+  DEFB $01,$E0            ;
+  DEFB $00,$30            ; Frame 4
+  DEFB $00,$FC            ;
+  DEFB $01,$FE            ;
+  DEFB $01,$FE            ;
+  DEFB $03,$FF            ;
+  DEFB $03,$FF            ;
+  DEFB $01,$FE            ;
+  DEFB $01,$FE            ;
+  DEFB $01,$FE            ;
+  DEFB $01,$32            ;
+  DEFB $00,$84            ;
+  DEFB $00,$84            ;
+  DEFB $00,$48            ;
+  DEFB $00,$48            ;
+  DEFB $00,$78            ;
+  DEFB $00,$78            ;
 
 ; Data block at 89F2
 L89F2:
@@ -6113,21 +6386,27 @@ L8A4E_1:
   LD B,A
   RET
 
-; Data block at 8A86
-L8A86:
+; Fuel sprite
+;
+sprite_fuel:
   DEFB $0F,$F0,$0C,$30,$0D,$F0,$0C,$70
   DEFB $0D,$F0,$0D,$F0,$0F,$F0,$0D,$B0
   DEFB $0D,$B0,$0D,$B0,$0D,$B0,$0E,$70
   DEFB $0F,$F0,$0C,$30,$0D,$F0,$0C,$70
   DEFB $0D,$F0,$0C,$30,$0F,$F0,$0D,$F0
   DEFB $0D,$F0,$0D,$F0,$0D,$F0,$0C,$30
-  DEFB $0F,$F0,$1E,$00,$F0,$00,$07,$80
-  DEFB $3C,$00,$01,$E0,$0F,$00,$00,$78
-  DEFB $03,$C0,$1E,$00,$03,$C0,$07,$80
-  DEFB $00,$F0,$01,$E0,$00,$3C,$00,$78
-  DEFB $00,$0F,$00,$00,$00,$10,$00,$00
-  DEFB $00,$00,$00,$00,$00,$18,$18,$00
-  DEFB $00,$00,$00,$00
+  DEFB $0F,$F0
+
+; Data block at 8AB8
+L8AB8:
+  DEFB $1E,$00,$F0,$00,$07,$80,$3C,$00
+  DEFB $01,$E0,$0F,$00,$00,$78,$03,$C0
+L8AC8:
+  DEFB $1E,$00,$03,$C0,$07,$80,$00,$F0
+  DEFB $01,$E0,$00,$3C,$00,$78,$00,$0F
+  DEFB $00,$00,$00,$10,$00,$00,$00,$00
+  DEFB $00,$00,$00,$18,$18,$00,$00,$00
+  DEFB $00,$00
 
 ; Message at 8AEA
 L8AEA:

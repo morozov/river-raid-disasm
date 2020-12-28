@@ -436,9 +436,77 @@ b $8599
 t $859C
 b $85A6
 t $85A9
-b $85B3
-@ $8793 label=L8793
-b $8793
+@ $85B3 label=sprite_enemies_left
+b $85B3 Array [5] arrays of enemy headed left sprites (each element is 3×1 tiles × 4 frames = 96 bytes).
+N $85B3 #UDGTABLE { #UDGARRAY3,14,4,3;$85B3-$85B6-1-16(*helicopter-reg-left-f1) | #UDGARRAY3,14,4,3;$85CB-$85CF-1-16(*helicopter-reg-left-f2) | #UDGARRAY3,14,4,3;$85E3-$85E6-1-16(*helicopter-reg-left-f3) | #UDGARRAY3,14,4,3;$85FB-$85FE-1-16(*helicopter-reg-left-f4) } TABLE#
+N $85B3 Array [4] of regular helicopter headed left sprites (3×1 tiles, 24 bytes).
+  $85B3,24,3 Frame 1
+  $85CB,24,3 Frame 2
+  $85E3,24,3 Frame 3
+  $85FB,24,3 Frame 4
+N $8613 #UDGTABLE { #UDGARRAY3,13,4,3;$8613-$8616-1-16(*ship-left-f1) | #UDGARRAY3,13,4,3;$862B-$862E-1-16(*ship-left-f2) | #UDGARRAY3,13,4,3;$8643-$8646-1-16(*ship-left-f3) | #UDGARRAY3,13,4,3;$865B-$865E-1-16(*ship-left-f4) } TABLE#
+N $8613 Array [4] of ship headed left sprites (each element is 3×1 tiles = 24 bytes).
+  $8613,24,3 Frame 1
+  $862B,24,3 Frame 2
+  $8643,24,3 Frame 3
+  $865B,24,3 Frame 4
+N $8673 #UDGTABLE { #UDGARRAY3,14,4,3;$8673-$8676-1-16(*helicopter-adv-left-f1) | #UDGARRAY3,14,4,3;$868B-$868F-1-16(*helicopter-adv-left-f2) | #UDGARRAY3,14,4,3;$86A3-$86A6-1-16(*helicopter-adv-left-f3) | #UDGARRAY3,14,4,3;$86BB-$86BE-1-16(*helicopter-adv-left-f4) } TABLE#
+N $8673 Array [4] of advanced helicopter headed left sprites (each element is 3×1 tiles = 24 bytes).
+  $8673,24,3 Frame 1
+  $868B,24,3 Frame 2
+  $86A3,24,3 Frame 3
+  $86BB,24,3 Frame 4
+N $86D3 #UDGTABLE { #UDGARRAY3,60,4,3;$86D3-$86D6-1-16(*tank-left-f1) | #UDGARRAY3,60,4,3;$86EB-$86EE-1-16(*tank-left-f2) | #UDGARRAY3,60,4,3;$8703-$8706-1-16(*tank-left-f3) | #UDGARRAY3,60,4,3;$871B-$871E-1-16(*tank-left-f4) } TABLE#
+N $86D3 Array [4] of tank headed left sprites (each element is 3×1 tiles = 24 bytes).
+  $86D3,24,3 Frame 1
+  $86EB,24,3 Frame 2
+  $8703,24,3 Frame 3
+  $871B,24,3 Frame 4
+N $8733 #UDGTABLE { #UDGARRAY3,12,4,3;$8733-$8736-1-16(*fighter-left-f1) | #UDGARRAY3,12,4,3;$874B-$874E-1-16(*fighter-left-f2) | #UDGARRAY3,12,4,3;$8763-$8766-1-16(*fighter-left-f3) | #UDGARRAY3,12,4,3;$877B-$877E-1-16(*fighter-left-f4) } TABLE#
+N $8733 Array [4] of fighter headed left sprites (each element is 3×1 tiles = 24 bytes).
+  $8733,24,3 Frame 1
+  $874B,24,3 Frame 2
+  $8763,24,3 Frame 3
+  $877B,24,3 Frame 4
+@ $8793 label=sprite_enemies_right
+b $8793 Array [5] arrays of enemy headed right sprites (each element is 3×1 tiles × 4 frames = 96 bytes).
+N $8793 #UDGTABLE { #UDGARRAY3,14,4,3;$8793-$8796-1-16(*helicopter-reg-right-f1) | #UDGARRAY3,14,4,3;$87AB-$87AE-1-16(*helicopter-reg-right-f2) | #UDGARRAY3,14,4,3;$87C3-$87C6-1-16(*helicopter-reg-right-f3) | #UDGARRAY3,14,4,3;$87DB-$87DE-1-16(*helicopter-reg-right-f4) | #UDGARRAY*helicopter-reg-right-f1,50;helicopter-reg-right-f2;helicopter-reg-right-f3;helicopter-reg-right-f4;helicopter-reg-left-f4;helicopter-reg-left-f3;helicopter-reg-left-f2;helicopter-reg-left-f1(helicopter-reg) } TABLE#
+N $8793 Array [4] of regular helicopter headed right sprites (each element is 3×1 tiles = 24 bytes).
+N $8793 #UDGTABLE { #UDGARRAY3,13,4,3;$87F3-$87F6-1-16(*ship-right-f1) | #UDGARRAY3,13,4,3;$880B-$880E-1-16(*ship-right-f2) | #UDGARRAY3,13,4,3;$8823-$8826-1-16(*ship-right-f3) | #UDGARRAY3,13,4,3;$883B-$883E-1-16(*ship-right-f4) | #UDGARRAY*ship-right-f1,50;ship-right-f2;ship-right-f3;ship-right-f4;ship-left-f4;ship-left-f3;ship-left-f2;ship-left-f1(ship) } TABLE#
+N $8793 #UDGTABLE { #UDGARRAY3,14,4,3;$8853-$8856-1-16(*helicopter-adv-right-f1) | #UDGARRAY3,14,4,3;$886B-$886E-1-16(*helicopter-adv-right-f2) | #UDGARRAY3,14,4,3;$8883-$8886-1-16(*helicopter-adv-right-f3) | #UDGARRAY3,14,4,3;$889B-$889E-1-16(*helicopter-adv-right-f4) | #UDGARRAY*helicopter-adv-right-f1,50;helicopter-adv-right-f2;helicopter-adv-right-f3;helicopter-adv-right-f4;helicopter-adv-left-f4;helicopter-adv-left-f3;helicopter-adv-left-f2;helicopter-adv-left-f1(helicopter-adv) } TABLE#
+N $8793 #UDGTABLE { #UDGARRAY3,60,4,3;$88B3-$88B6-1-16(*tank-right-f1) | #UDGARRAY3,60,4,3;$88CB-$88CE-1-16(*tank-right-f2) | #UDGARRAY3,60,4,3;$88E3-$88E6-1-16(*tank-right-f3) | #UDGARRAY3,60,4,3;$88FB-$88FE-1-16(*tank-right-f4) | #UDGARRAY*tank-right-f1,50;tank-right-f2;tank-right-f3;tank-right-f4;tank-left-f4;tank-left-f3;tank-left-f2;tank-left-f1(tank) } TABLE#
+  $8793,24,3 Frame 1
+  $87AB,24,3 Frame 2
+  $87C3,24,3 Frame 3
+  $87DB,24,3 Frame 4
+N $87F3 Array [4] of ship headed right sprites (each element is 3×1 tiles = 24 bytes).
+  $87F3,24,3 Frame 1
+  $880B,24,3 Frame 2
+  $8823,24,3 Frame 3
+  $883B,24,3 Frame 4
+N $8853 Array [4] of advanced helicopter headed right sprites (each element is 3×1 tiles = 24 bytes).
+  $8853,24,3 Frame 1
+  $886B,24,3 Frame 2
+  $8883,24,3 Frame 3
+  $889B,24,3 Frame 4
+N $88B3 Array [4] of tank headed right sprites (each element is 3×1 tiles = 24 bytes).
+  $88B3,24,3 Frame 1
+  $88CB,24,3 Frame 2
+  $88E3,24,3 Frame 3
+  $88FB,24,3 Frame 4
+N $8913 #UDGTABLE { #UDGARRAY3,12,4,3;$8913-$8916-1-16(*fighter-right-f1) | #UDGARRAY3,12,4,3;$892B-$892E-1-16(*fighter-right-f2) | #UDGARRAY3,12,4,3;$8943-$8946-1-16(*fighter-right-f3) | #UDGARRAY3,12,4,3;$895B-$895E-1-16(*fighter-right-f4) | #UDGARRAY*fighter-right-f1,50;fighter-right-f2;fighter-right-f3;fighter-right-f4;fighter-left-f4;fighter-left-f3;fighter-left-f2;fighter-left-f1(fighter) } TABLE#
+N $8913 Array [4] of fighter headed right sprites (each element is 3×1 tiles = 24 bytes).
+  $8913,24,3 Frame 1
+  $892B,24,3 Frame 2
+  $8943,24,3 Frame 3
+  $895B,21,3 Frame 4
+@ $8972 label=sprite_balloon
+b $8972 Array [4] of balloon sprites (2×2 tiles, 32 bytes).
+N $8972 #UDGTABLE { #UDGARRAY2,14,4,2;$8972-$898A-1-16(*balloon-f1) | #UDGARRAY2,14,4,2;$8992-$89AA-1-16(*balloon-f2) | #UDGARRAY2,14,4,2;$89B2-$89CA-1-16(*balloon-f3) | #UDGARRAY2,14,4,2;$89D2-$89EA-1-16(*balloon-f4) | #UDGARRAY*balloon-f1,50;balloon-f2;balloon-f3;balloon-f4;balloon-f3;balloon-f2(balloon) } TABLE#
+  $8972,32,2 Frame 1
+  $8992,32,2 Frame 2
+  $89B2,32,2 Frame 3
+  $89D2,32,2 Frame 4
 @ $89F2 label=L89F2
 b $89F2
 @ $89FA label=L89FA
@@ -448,7 +516,10 @@ c $8A1B
 c $8A33
 @ $8A39 nowarn
 c $8A4E
-b $8A86
+@ $8A86 label=sprite_fuel
+b $8A86 Fuel sprite
+N $8A86 #UDGTABLE { #UDGARRAY2,11,4,2;$8A86-$8AB8-1-16{0,0,64,100}(sprite-fuel) } TABLE#
+b $8AB8
 @ $8AC8 label=L8AC8
 t $8AEA
 b $8AED
