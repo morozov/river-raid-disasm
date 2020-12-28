@@ -1348,7 +1348,7 @@ b$5F81 DEFB $00
 u$5F82 DEFB $00
 
 ; Data block at 5F83
-@label=stack
+@label=sp_5F83
 w$5F83 DEFW $0000
 
 ; Data block at 5F85
@@ -4806,18 +4806,30 @@ b$7787 DEFB $0E,$00,$00,$60,$EA,$00,$0D,$00
  $77F7 DEFB $00,$00,$00,$00,$00,$00,$00,$00
  $77FF DEFB $00
 
-; Main code file
-c$7800 NOP           ;
- $7801 NOP           ;
- $7802 NOP           ;
- $7803 NOP           ;
-; This entry point is used by the routine at #R$5CD2.
-*$7804 LD ($7810),SP ;
+; Data block at 7800
+@label=L7800
+b$7800 DEFB $00
+
+; Data block at 7801
+@label=L7801
+b$7801 DEFB $00
+
+; Data block at 7802
+@label=L7802
+b$7802 DEFB $00,$00
+
+; Routine at 7804
+;
+; Used by the routine at #R$5CD2.
+@label=clear_and_setup
+c$7804 LD ($7810),SP ;
  $7808 LD D,$07      ;
  $780A CALL $940A    ;
  $780D JP $7AB9      ;
- $7810 NOP           ;
- $7811 NOP           ;
+
+; Data block at 7810
+@label=sp_7810
+b$7810 DEFB $00,$00
 
 ; Keyboard configuration; INK 2
 b$7812 DEFB $10,$02
@@ -5010,7 +5022,7 @@ t$7AA6 DEFM "4. CURSOR INTERFACE"
 
 ; Print control choice dialog
 ;
-; Used by the routine at #R$7800.
+; Used by the routine at #R$7804.
 c$7AB9 LD DE,$7A2E   ;
  $7ABC LD BC,$008B   ;
  $7ABF CALL $203C    ;
@@ -6976,7 +6988,8 @@ b$93A1 DEFB $0E,$06,$7E,$47,$1A,$90,$FA,$B8
 
 ; Routine at 940A
 ;
-; Used by the routines at #R$5DA6, #R$6D17, #R$7800 and #R$7AB9.
+; Used by the routines at #R$5DA6, #R$6D17, #R$7804 and #R$7AB9.
+@label=clear_screen
 c$940A LD HL,$4000   ;
  $940D LD C,$18      ;
 *$940F LD B,$00      ;

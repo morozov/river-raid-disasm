@@ -966,7 +966,7 @@ start_0:
   LD (HL),$FE
   LD A,$FC
   LD I,A
-  LD (stack),SP
+  LD (sp_5F83),SP
   IM 2
   EI
   LD HL,$8182
@@ -977,7 +977,7 @@ start_1:
   LD I,A
   IM 1
   EI
-  CALL L7800_0
+  CALL clear_and_setup
 
 ; Routine at 5D10
 L5D10:
@@ -987,14 +987,14 @@ L5D10:
   EI
   LD A,(L7800)
   LD (state_control_type),A
-  LD A,($7801)
+  LD A,(L7801)
   CP $01
   JP Z,L5D10_0
   CALL L5D44
   JP L5DA6
 ; This entry point is used by the routine at L650A.
 L5D10_0:
-  LD SP,(stack)
+  LD SP,(sp_5F83)
   CALL L5D44
   JP L6D17
 
@@ -1002,7 +1002,7 @@ L5D10_0:
 ;
 ; Used by the routine at handle_enter.
 restart:
-  LD SP,(stack)
+  LD SP,(sp_5F83)
   CALL L5D44
   JP L5DA6
 
@@ -1064,9 +1064,9 @@ L5DA6:
   LD (L5EFD),A
   LD A,$1F
   LD (L5F5F),A
-  LD SP,(stack)
+  LD SP,(sp_5F83)
   LD D,$0C
-  CALL L940A
+  CALL clear_screen
   CALL L8A33
   LD DE,status_line_1
   LD BC,status_line_2 - status_line_1
@@ -1362,7 +1362,7 @@ L5F82:
   DEFB $00
 
 ; Data block at 5F83
-stack:
+sp_5F83:
   DEFW $0000
 
 ; Data block at 5F85
@@ -2172,7 +2172,7 @@ L650A_3:
   JP NZ,L65BB
 ; This entry point is used by the routines at L65AB, L65BB and L65CB.
 L650A_4:
-  LD SP,(stack)
+  LD SP,(sp_5F83)
   JP L5DA6
 L650A_5:
   LD A,(L923A)
@@ -2183,7 +2183,7 @@ L650A_6:
   LD HL,L8153
   LD (L5F7E),HL
   CALL $93BE
-  LD SP,(stack)
+  LD SP,(sp_5F83)
   JP L5D10_0
 
 ; Routine at 6587
@@ -3409,7 +3409,7 @@ L6D17:
   LD A,$10
   LD (L5EFD),A
   LD D,$0C
-  CALL L940A
+  CALL clear_screen
   CALL L8A33
   LD DE,status_line_1
   LD BC,status_line_2 - status_line_1
@@ -5048,20 +5048,30 @@ L7787:
   DEFB $00,$00,$00,$00,$00,$00,$00,$00
   DEFB $00
 
-; Main code file
+; Data block at 7800
 L7800:
-  NOP
-  NOP
-  NOP
-  NOP
-; This entry point is used by the routine at start.
-L7800_0:
-  LD ($7810),SP
+  DEFB $00
+
+; Data block at 7801
+L7801:
+  DEFB $00
+
+; Data block at 7802
+L7802:
+  DEFB $00,$00
+
+; Routine at 7804
+;
+; Used by the routine at start.
+clear_and_setup:
+  LD (sp_7810),SP
   LD D,$07
-  CALL L940A
+  CALL clear_screen
   JP L7AB9
-  NOP
-  NOP
+
+; Data block at 7810
+sp_7810:
+  DEFB $00,$00
 
 ; Keyboard configuration; INK 2
 L7812:
@@ -5317,19 +5327,19 @@ L7AA6:
 
 ; Print control choice dialog
 ;
-; Used by the routine at L7800.
+; Used by the routine at clear_and_setup.
 L7AB9:
   LD DE,L7A2E
   LD BC,$008B
   CALL PR_STRING
   LD HL,$FFFF
-  LD ($7802),HL
+  LD (L7802),HL
   LD A,$0D
   LD (LAST_K),A
 L7AB9_0:
-  LD HL,($7802)
+  LD HL,(L7802)
   DEC HL
-  LD ($7802),HL
+  LD (L7802),HL
   LD A,H
   OR L
   JP Z,L7B57
@@ -5349,7 +5359,7 @@ L7AB9_2:
   DEC A
   JR NZ,L7AB9_1
   LD D,$07
-  CALL L940A
+  CALL clear_screen
   LD DE,L792A             ; Print game mode dialog
   LD BC,$0104
   CALL PR_STRING
@@ -5365,7 +5375,7 @@ L7AB9_3:
   CP $00
   JP NZ,L7AB9_3
   LD D,$07
-  CALL L940A
+  CALL clear_screen
   LD A,(L7800)
   CP $00
   JP NZ,L7AB9_4
@@ -5386,8 +5396,8 @@ L7AB9_5:
   CP $0D
   JP NZ,L7AB9_5
   LD A,$00
-  LD ($7801),A
-  LD SP,($7810)
+  LD (L7801),A
+  LD SP,(sp_7810)
   RET
 
 ; Data block at 7B57
@@ -7285,25 +7295,25 @@ L93A1:
 
 ; Routine at 940A
 ;
-; Used by the routines at L5DA6, L6D17, L7800 and L7AB9.
-L940A:
+; Used by the routines at L5DA6, L6D17, clear_and_setup and L7AB9.
+clear_screen:
   LD HL,screen_pixels
   LD C,$18
-L940A_0:
+clear_screen_0:
   LD B,$00
-L940A_1:
+clear_screen_1:
   LD (HL),$00
   INC HL
-  DJNZ L940A_1
+  DJNZ clear_screen_1
   DEC C
-  JR NZ,L940A_0
+  JR NZ,clear_screen_0
   LD C,$03
-L940A_2:
+clear_screen_2:
   LD (HL),D
   INC HL
-  DJNZ L940A_2
+  DJNZ clear_screen_2
   DEC C
-  JR NZ,L940A_2
+  JR NZ,clear_screen_2
   RET
 
 ; Routine at 9423

@@ -108,7 +108,7 @@ u $5F80
 @ $5F81 label=L5F81
 b $5F81
 u $5F82
-@ $5F83 label=stack
+@ $5F83 label=sp_5F83
 w $5F83
 @ $5F85 label=L5F85
 w $5F85
@@ -289,7 +289,16 @@ t $7770
 b $7773
 t $7784
 b $7787
-c $7800 Main code file
+@ $7800 label=L7800
+b $7800
+@ $7801 label=L7801
+b $7801
+@ $7802 label=L7802
+b $7802
+@ $7804 label=clear_and_setup
+c $7804
+@ $7810 label=sp_7810
+b $7810
 b $7812 Keyboard configuration; INK 2
 b $7814 AT 0,8
 t $7817
@@ -562,6 +571,7 @@ c $928D
 @ $92F1 nowarn
 @ $934F nowarn
 b $93A1
+@ $940A label=clear_screen
 c $940A
 c $9423
 b $9430
