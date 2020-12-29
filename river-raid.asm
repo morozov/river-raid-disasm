@@ -985,9 +985,9 @@ L5D10:
   LD I,A
   IM 2
   EI
-  LD A,(L7800)
+  LD A,(tmp_control_type)
   LD (state_control_type),A
-  LD A,(L7801)
+  LD A,(state_demo_mode)
   CP $01
   JP Z,L5D10_0
   CALL L5D44
@@ -1122,7 +1122,7 @@ L5DA6:
   LD DE,status_line_4
   LD BC,end_status_line_4 - status_line_4
   CALL PR_STRING
-  LD A,(L923A)
+  LD A,(state_game_mode)
   ADD A,$31
   RST $10
   LD A,$01
@@ -2167,7 +2167,7 @@ L650A_3:
   LD A,($923B)
   CP $00
   JP Z,L650A_5
-  LD A,(L923A)
+  LD A,(state_game_mode)
   BIT 0,A
   JP NZ,L65BB
 ; This entry point is used by the routines at L65AB, L65BB and L65CB.
@@ -2175,7 +2175,7 @@ L650A_4:
   LD SP,(sp_5F83)
   JP L5DA6
 L650A_5:
-  LD A,(L923A)
+  LD A,(state_game_mode)
   BIT 0,A
   JP NZ,L65AB
 ; This entry point is used by the routines at L65AB and L65CB.
@@ -2190,7 +2190,7 @@ L650A_6:
 ;
 ; Used by the routine at L6D17.
 L6587:
-  LD A,(L923A)
+  LD A,(state_game_mode)
   BIT 0,A
   RET Z
   LD A,$01
@@ -3423,7 +3423,7 @@ L6D17:
   LD DE,status_line_4
   LD BC,end_status_line_4 - status_line_4
   CALL PR_STRING
-  LD A,(L923A)
+  LD A,(state_game_mode)
   ADD A,$31
   RST $10
   LD A,$68
@@ -3500,7 +3500,7 @@ L6D17_1:
 ;
 ; Used by the routines at L5D44 and L6D17.
 L6DEB:
-  LD A,(L923A)
+  LD A,(state_game_mode)
   SRL A
   LD HL,L5D3F
   LD B,$00
@@ -5048,362 +5048,204 @@ L7787:
   DEFB $00,$00,$00,$00,$00,$00,$00,$00
   DEFB $00
 
-; Data block at 7800
-L7800:
+; Control type chosen from the dialog before the validation
+tmp_control_type:
   DEFB $00
 
-; Data block at 7801
-L7801:
+; Demo mode flag ($00 - No, $01 - Yes)
+state_demo_mode:
   DEFB $00
 
-; Data block at 7802
-L7802:
-  DEFB $00,$00
+; Stores the number of remaining iterations before the control choice dialog
+; switches to demo mode
+controls_timer:
+  DEFW $0000
 
 ; Routine at 7804
 ;
 ; Used by the routine at start.
 clear_and_setup:
-  LD (sp_7810),SP
+  LD (setup_sp),SP
   LD D,$07                ; PAPER 0; INK 7
   CALL clear_screen
-  JP L7AB9
+  JP setup
 
-; Data block at 7810
-sp_7810:
-  DEFB $00,$00
+; Temporary stack pointer used by the control choice dialog
+setup_sp:
+  DEFW $0000
 
-; Keyboard configuration; INK 2
-L7812:
-  DEFB $10,$02
-
-; AT 0,8
-L7814:
-  DEFB $16,$00,$08
-
-; Message at 7817
-L7817:
+; Keyboard configuration;
+msg_keyboard_config:
+  DEFM $10,$02            ; INK RED
+  DEFM $16,$00,$08        ; AT 0,8
   DEFM "LEFT........O"
-
-; Data block at 7824
-L7824:
-  DEFB $10,$03,$16,$02,$08
-
-; Message at 7829
-L7829:
+  DEFM $10,$03            ; INK MAGENTA
+  DEFM $16,$02,$08        ; AT 2,8
   DEFM "RIGHT.......P"
-
-; Data block at 7836
-L7836:
-  DEFB $10,$06,$16,$04,$08
-
-; Message at 783B
-L783B:
+  DEFM $10,$06            ; INK YELLOW
+  DEFM $16
+  DEFM $04,$08            ; AT 4,8
   DEFM "FASTER......2"
-
-; Data block at 7848
-L7848:
-  DEFB $10,$04,$16,$06,$08
-
-; Message at 784D
-L784D:
+  DEFM $10,$04            ; INK GREEN
+  DEFM $16,$06,$08        ; AT 6,8
   DEFM "SLOWER......W"
-
-; Data block at 785A
-L785A:
-  DEFB $10,$05,$16,$08,$08
-
-; Message at 785F
-L785F:
+  DEFM $10,$05            ; INK CYAN
+  DEFM $16,$08,$08        ; AT 8,8
   DEFM "FIRE......Bottom"
-
-; Data block at 786F
-L786F:
-  DEFB $16,$09,$08
-
-; Message at 7872
-L7872:
+  DEFM $16,$09,$08        ; AT 9,8
   DEFM "           row"
-
-; Game controls
-L7880:
-  DEFB $10,$07,$16,$0B,$07
-
-; Message at 7885
-L7885:
+  DEFM $10,$07            ; INK WHITE
+msg_instructions:
+  DEFM $16,$0B,$07        ; AT 11,7
   DEFM "Press H to pause"
-
-; Data block at 7895
-L7895:
-  DEFB $16,$0D,$06
-
-; Message at 7898
-L7898:
+  DEFM $16,$0D,$06        ; AT 13,6
   DEFM "Press ENTER to play"
-
-; Data block at 78AB
-L78AB:
-  DEFB $16,$0F,$04
-
-; Message at 78AE
-L78AE:
+  DEFM $16,$0F,$04        ; AT 15,4
   DEFM "Press CAPS SHIFT & ENTER"
-
-; Data block at 78C6
-L78C6:
-  DEFB $16,$10,$03
-
-; Message at 78C9
-L78C9:
+  DEFM $16,$10,$03        ; AT 16,3
   DEFM "to reset the game you have"
-
-; Data block at 78E3
-L78E3:
-  DEFB $16,$11,$09
-
-; Message at 78E6
-L78E6:
+  DEFM $16,$11,$09        ; AT 17,9
   DEFM "just played"
-
-; Data block at 78F1
-L78F1:
-  DEFB $16,$13,$00
-
-; Message at 78F4
-L78F4:
+  DEFM $16,$13,$00        ; AT 19,0
   DEFM "Press SYM SHIFT & ENTER to reset"
-
-; Data block at 7914
-L7914:
-  DEFB $16,$14,$05
-
-; Message at 7917
-L7917:
+  DEFM $16,$14,$05        ; AT 20,5
   DEFM "the menu selections"
-
-; Data block at 792A
-L792A:
-  DEFB $10,$07,$11,$00,$16,$02,$03
-
-; Message at 7931
-L7931:
+msg_game_mode:
+  DEFM $10,$07            ; INK WHITE
+  DEFM $11,$00            ; PAPER BLACK
+  DEFM $16,$02,$03        ; AT 2,3
   DEFM "Press corresponding number"
-
-; Data block at 794B
-L794B:
-  DEFB $16,$03,$0A
-
-; Message at 794E
-L794E:
+  DEFM $16,$03,$0A        ; AT 3,10
   DEFM "on keyboard"
-
-; Data block at 7959
-L7959:
-  DEFB $16,$06,$06
-
-; Message at 795C
-L795C:
+  DEFM $16,$06,$06        ; AT 6,6
   DEFM " Game    No of  Starting"
-
-; Data block at 7974
-L7974:
-  DEFB $16,$07,$06
-
-; Message at 7977
-L7977:
+  DEFM $16,$07,$06        ; AT 7,6
   DEFM "Number  Players  Bridge"
-
-; Data block at 798E
-L798E:
-  DEFB $16,$09,$09
-
-; Message at 7991
-L7991:
+  DEFM $16,$09,$09        ; AT 9,9
   DEFM "1       1       1"
-
-; Data block at 79A2
-L79A2:
-  DEFB $16,$0A,$09
-
-; Message at 79A5
-L79A5:
+  DEFM $16,$0A,$09        ; AT 10,9
   DEFM "2       2       1"
-
-; Data block at 79B6
-L79B6:
-  DEFB $16,$0C,$09
-
-; Message at 79B9
-L79B9:
+  DEFM $16,$0C,$09        ; AT 12,9
   DEFM "3       1       5"
-
-; Data block at 79CA
-L79CA:
-  DEFB $16,$0D,$09
-
-; Message at 79CD
-L79CD:
+  DEFM $16,$0D,$09        ; AT 13,7
   DEFM "4       2       5"
-
-; Data block at 79DE
-L79DE:
-  DEFB $16,$0F,$09
-
-; Message at 79E1
-L79E1:
+  DEFM $16,$0F,$09        ; AT 15,9
   DEFM "5       1      20"
-
-; Data block at 79F2
-L79F2:
-  DEFB $16,$10,$09
-
-; Message at 79F5
-L79F5:
+  DEFM $16,$10,$09        ; AT 16,9
   DEFM "6       2      20"
-
-; Data block at 7A06
-L7A06:
-  DEFB $16,$12,$09
-
-; Message at 7A09
-L7A09:
+  DEFM $16,$12,$09        ; AT 18,9
   DEFM "7       1      30"
-
-; Data block at 7A1A
-L7A1A:
-  DEFB $16,$13,$09
-
-; Message at 7A1D
-L7A1D:
+  DEFM $16,$13,$09        ; AT 19,9
   DEFM "8       2      30"
-
-; Data block at 7A2E
-L7A2E:
-  DEFB $10,$07,$11,$00,$16,$03,$03
-
-; Message at 7A35
-L7A35:
+msg_control_types:
+  DEFM $10,$07            ; INK WHITE
+  DEFM $11,$00            ; PAPER BLACK
+  DEFM $16,$03,$03        ; AT 3,3
   DEFM "Press corresponding number"
-
-; Data block at 7A4F
-L7A4F:
-  DEFB $16,$04,$0A
-
-; Message at 7A52
-L7A52:
+  DEFM $16,$04,$0A        ; AT 4,10
   DEFM "on keyboard"
-
-; Data block at 7A5D
-L7A5D:
-  DEFB $16,$08,$06
-
-; Message at 7A60
-L7A60:
+  DEFM $16,$08,$06        ; AT 8,6
   DEFM "1. KEYBOARD CONTROL"
-
-; Data block at 7A73
-L7A73:
-  DEFB $16,$0A,$06
-
-; Message at 7A76
-L7A76:
+  DEFM $16,$0A,$06        ; AT 10,6
   DEFM "2. SINCLAIR INTERFACE"
-
-; Data block at 7A8B
-L7A8B:
-  DEFB $16,$0C,$06
-
-; Message at 7A8E
-L7A8E:
+  DEFM $16,$0C,$06        ; AT 12,6
   DEFM "3. KEMPSTON INTERFACE"
-
-; Data block at 7AA3
-L7AA3:
-  DEFB $16,$0E,$06
-
-; Message at 7AA6
-L7AA6:
+  DEFM $16,$0E,$06        ; AT 14,6
   DEFM "4. CURSOR INTERFACE"
 
-; Print control choice dialog
+; Initial game setup
 ;
 ; Used by the routine at clear_and_setup.
-L7AB9:
-  LD DE,L7A2E
-  LD BC,$008B
-  CALL PR_STRING
-  LD HL,$FFFF
-  LD (L7802),HL
+;
+; Initializes tmp_control_type, state_demo_mode and state_game_mode.
+; Sets the stack pointer to setup_sp and returns using that stack.
+setup:
+  LD DE,msg_control_types ; Print control types dialog
+  LD BC,$008B             ;
+  CALL PR_STRING          ;
+  LD HL,$FFFF             ; Initialize timer
+  LD (controls_timer),HL  ;
   LD A,$0D
   LD (LAST_K),A
-L7AB9_0:
-  LD HL,(L7802)
-  DEC HL
-  LD (L7802),HL
-  LD A,H
-  OR L
-  JP Z,L7B57
+
+; Wait until the user chooses a valid control type or switch to the demo mode
+; on timeout.
+controls_input:
+  LD HL,(controls_timer)  ; Decrease timer
+  DEC HL                  ;
+  LD (controls_timer),HL  ;
+  LD A,H                   ; Check if the time is up
+  OR L                     ;
+  JP Z,switch_to_demo_mode ;
   LD A,(LAST_K)
-  CALL KEYBOARD
-  EI
-  SUB $31
-  LD (L7800),A
-  AND $FC
-  CP $00
-  JR NZ,L7AB9_0
+  CALL KEYBOARD           ; Scan keyboard
+  EI                      ;
+  SUB $31                 ; Subtract $31 from the pressed key ASCII code,
+                          ; effectively mapping the "1" key to 0, "2" to 1,
+                          ; etc.
+  LD (tmp_control_type),A
+  AND $FC                 ; Validate the pressed key by making sure that none
+  CP $00                  ; of the bits older than the first two are set,
+                          ; effectively allowing values 0 through 3.
+  JR NZ,controls_input    ; Repeat if a valid key was not pressed.
   LD A,$FF
-L7AB9_1:
-  LD B,$00
-L7AB9_2:
-  DJNZ L7AB9_2
-  DEC A
-  JR NZ,L7AB9_1
+game_mode_print:
+  LD B,$00                ; The purpose of this block is really unclear
+controls_input_0:
+  DJNZ controls_input_0   ;
+  DEC A                   ;
+  JR NZ,game_mode_print   ;
   LD D,$07                ; PAPER 0; INK 7
   CALL clear_screen
-  LD DE,L792A             ; Print game mode dialog
-  LD BC,$0104
-  CALL PR_STRING
+  LD DE,msg_game_mode     ; Print game mode dialog
+  LD BC,$0104             ;
+  CALL PR_STRING          ;
   LD A,$0D
   LD (LAST_K),A
-L7AB9_3:
+
+; Wait until the user chooses a valid game mode.
+game_mode_input:
   LD A,(LAST_K)
-  CALL KEYBOARD
-  EI
-  SUB $31
-  LD (L923A),A
-  AND $F8
-  CP $00
-  JP NZ,L7AB9_3
+  CALL KEYBOARD           ; Scan keyboard
+  EI                      ;
+  SUB $31                 ; Subtract $31 from the pressed key ASCII code,
+                          ; effectively mapping the "1" key to 0, "2" to 1,
+                          ; etc.
+  LD (state_game_mode),A
+  AND $F8                 ; Validate the pressed key by making sure that none
+  CP $00                  ; of the bits older than the first three are set,
+                          ; effectively allowing values 0 through 7.
+  JP NZ,game_mode_input   ; Repeat if a valid key was not pressed.
   LD D,$07                ; PAPER 0; INK 7
   CALL clear_screen
-  LD A,(L7800)
+  LD A,(tmp_control_type)
   CP $00
-  JP NZ,L7AB9_4
-  LD DE,L7812             ; Print game controls
-  LD BC,$0070
-  CALL PR_STRING
-L7AB9_4:
-  LD DE,$7882
+  JP NZ,instructions_print
+  LD DE,msg_keyboard_config ; Print keyboard configuration
+  LD BC,$0070               ;
+  CALL PR_STRING            ;
+instructions_print:
+  LD DE,msg_instructions
   LD BC,$00A8
   CALL PR_STRING
   LD A,$20
   LD (LAST_K),A
-L7AB9_5:
+instructions_input:
   LD A,(LAST_K)
-  CALL KEYBOARD
-  EI
+  CALL KEYBOARD           ; Scan keyboard
+  EI                      ;
   LD A,(LAST_K)
-  CP $0D
-  JP NZ,L7AB9_5
-  LD A,$00
-  LD (L7801),A
-  LD SP,(sp_7810)
+  CP $0D                   ; Loop until Enter is pressed
+  JP NZ,instructions_input ;
+  LD A,$00                ; Switch to the non-demo mode
+  LD (state_demo_mode),A  ;
+  LD SP,(setup_sp)
   RET
 
 ; Data block at 7B57
 ;
-; Used by the routine at L7AB9.
-L7B57:
+; Used by the routine at controls_input.
+switch_to_demo_mode:
   DEFB $3E,$01,$32,$01,$78,$ED,$7B,$10
   DEFB $78,$C9,$C3,$90,$EA,$00,$00,$00
   DEFB $00,$00,$00,$00,$00,$00,$00,$00
@@ -7004,7 +6846,7 @@ L91E8:
   RST $10
   LD A,$15
   RST $10
-  LD A,(L923A)
+  LD A,(state_game_mode)
   BIT 0,A
   JP NZ,L91C1
   LD A,$10
@@ -7013,10 +6855,10 @@ L91E8:
   RST $10
   LD BC,$0006
   LD HL,$90C8
-  LD A,(L923A)
+  LD A,(state_game_mode)
   AND $FE
   LD E,A
-  LD A,(L923A)
+  LD A,(state_game_mode)
   AND $FE
   SLA A
   SLA A
@@ -7042,9 +6884,9 @@ L91E8:
   CALL CHAN_OPEN
   RET
 
-; Unused
-L923A:
-  DEFS $04
+; Data block at 923A
+state_game_mode:
+  DEFB $00,$00,$00,$00
 
 ; Routine at 923E
 ;
@@ -7296,7 +7138,8 @@ L93A1:
 ; Clear the screen by setting all pixel bytes to $00 and all attributes to the
 ; value set in D.
 ;
-; Used by the routines at L5DA6, L6D17, clear_and_setup and L7AB9.
+; Used by the routines at L5DA6, L6D17, clear_and_setup, controls_input and
+; game_mode_input.
 ;
 ; I:D Attribute value.
 clear_screen:

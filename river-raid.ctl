@@ -291,86 +291,95 @@ t $7770
 b $7773
 t $7784
 b $7787
-@ $7800 label=L7800
-b $7800
-@ $7801 label=L7801
-b $7801
-@ $7802 label=L7802
-b $7802
+@ $7800 label=tmp_control_type
+b $7800 Control type chosen from the dialog before the validation
+@ $7801 label=state_demo_mode
+b $7801 Demo mode flag ($00 - No, $01 - Yes)
+@ $7802 label=controls_timer
+w $7802 Stores the number of remaining iterations before the control choice dialog switches to demo mode
 @ $7804 label=clear_and_setup
 c $7804
 C $7808,2 PAPER 0; INK 7
-@ $7810 label=sp_7810
-b $7810
-b $7812 Keyboard configuration; INK 2
-b $7814 AT 0,8
-t $7817
-b $7824
-t $7829
-b $7836
-t $783B
-b $7848
-t $784D
-b $785A
-t $785F
-b $786F
-t $7872
-b $7880 Game controls
-t $7885
-b $7895
-t $7898
-b $78AB
-t $78AE
-b $78C6
-t $78C9
-b $78E3
-t $78E6
-b $78F1
-t $78F4
-b $7914
-t $7917
-b $792A
-t $7931
-b $794B
-t $794E
-b $7959
-t $795C
-b $7974
-t $7977
-b $798E
-t $7991
-b $79A2
-t $79A5
-b $79B6
-t $79B9
-b $79CA
-t $79CD
-b $79DE
-t $79E1
-b $79F2
-t $79F5
-b $7A06
-t $7A09
-b $7A1A
-t $7A1D
-b $7A2E
-t $7A35
-b $7A4F
-t $7A52
-b $7A5D
-t $7A60
-b $7A73
-t $7A76
-b $7A8B
-t $7A8E
-b $7AA3
-t $7AA6
-c $7AB9 Print control choice dialog
-C $7AF4,2 PAPER 0; INK 7
-  $7AF9,3 Print game mode dialog
-C $7B1A,2 PAPER 0; INK 7
-  $7B27,3 Print keyboard configuration
-  $7B27,3 Print game controls
+@ $7810 label=setup_sp
+w $7810 Temporary stack pointer used by the control choice dialog
+@ $7812 label=msg_keyboard_config
+t $7812 Keyboard configuration;
+  $7812,2 INK RED
+  $7814,3 AT 0,8
+  $7824,2 INK MAGENTA
+  $7826,3 AT 2,8
+  $7836,2 INK YELLOW
+  $7839,2 AT 4,8
+  $7848,2 INK GREEN
+  $784A,3 AT 6,8
+  $785A,2 INK CYAN
+  $785C,3 AT 8,8
+  $786F,3 AT 9,8
+  $7880,2 INK WHITE
+@ $7882 label=msg_instructions
+  $7882,3 AT 11,7
+  $7895,3 AT 13,6
+  $78AB,3 AT 15,4
+  $78C6,3 AT 16,3
+  $78E3,3 AT 17,9
+  $78F1,3 AT 19,0
+  $7914,3 AT 20,5
+@ $792A label=msg_game_mode
+T $792A,2 INK WHITE
+T $792C,2 PAPER BLACK
+T $792E,3 AT 2,3
+T $794B,3 AT 3,10
+T $7959,3 AT 6,6
+T $7974,3 AT 7,6
+T $798E,3 AT 9,9
+T $79A2,3 AT 10,9
+T $79B6,3 AT 12,9
+T $79CA,3 AT 13,7
+T $79DE,3 AT 15,9
+T $79F2,3 AT 16,9
+T $7A06,3 AT 18,9
+T $7A1A,3 AT 19,9
+@ $7A2E label=msg_control_types
+T $7A2E,2 INK WHITE
+T $7A30,2 PAPER BLACK
+T $7A32,3 AT 3,3
+T $7A4F,3 AT 4,10
+T $7A5D,3 AT 8,6
+T $7A73,3 AT 10,6
+T $7A8B,3 AT 12,6
+T $7AA3,3 AT 14,6
+@ $7AB9 label=setup
+c $7AB9 Initial game setup
+C $7AB9,9 Print control types dialog
+R $7AB9 Initializes #R$7800, #R$7801 and #R$923A.
+R $7AB9 Sets the stack pointer to #R$7810 and returns using that stack.
+C $7AC2,6 Initialize timer
+@ $7ACD label=controls_input
+c $7ACD Wait until the user chooses a valid control type or switch to the demo mode on timeout.
+  $7ACD,7 Decrease timer
+  $7AD4,5 Check if the time is up
+  $7ADC,4 Scan keyboard
+  $7AE0,2 Subtract $31 from the pressed key ASCII code, effectively mapping the "1" key to 0, "2" to 1, etc.
+  $7AE5,4 Validate the pressed key by making sure that none of the bits older than the first two are set, effectively allowing values 0 through 3.
+  $7AE9,2 Repeat if a valid key was not pressed.
+@ $7AED label=game_mode_print
+  $7AED,7 The purpose of this block is really unclear
+  $7AF4,2 PAPER 0; INK 7
+  $7AF9,9 Print game mode dialog
+@ $7B07 label=game_mode_input
+c $7B07 Wait until the user chooses a valid game mode.
+  $7B0A,4 Scan keyboard
+  $7B0E,2 Subtract $31 from the pressed key ASCII code, effectively mapping the "1" key to 0, "2" to 1, etc.
+  $7B13,4 Validate the pressed key by making sure that none of the bits older than the first three are set, effectively allowing values 0 through 7.
+  $7B17,3 Repeat if a valid key was not pressed.
+  $7B1A,2 PAPER 0; INK 7
+  $7B27,9 Print keyboard configuration
+@ $7B30 label=instructions_print
+@ $7B3E label=instructions_input
+  $7B41,4 Scan keyboard
+  $7B48,5 Loop until Enter is pressed
+  $7B4D,5 Switch to the non-demo mode
+@ $7B57 label=switch_to_demo_mode
 b $7B57
 @ $8000 label=status_line_1
 T $8000 PAPER 0
@@ -569,7 +578,8 @@ c $9109
 c $9122
 c $91C1
 c $91E8
-s $923A
+@ $923A label=state_game_mode
+b $923A
 c $923E
 s $9283
 c $928D
