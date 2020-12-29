@@ -26,6 +26,7 @@ b $5D3F
 c $5D44
 c $5D9F
 c $5DA6
+C $5DB4,2 PAPER 1; INK 4
 @ $5DBF isub=LD BC,status_line_2 - status_line_1
 @ $5DD0 isub=LD BC,status_line_3 - status_line_2
 @ $5E40 isub=LD BC,end_status_line_4 - status_line_4
@@ -211,6 +212,7 @@ c $6CB8
 c $6CD6
 c $6CF4
 c $6D17
+C $6D23,2 PAPER 1; INK 4
 @ $6D2E isub=LD BC,status_line_2 - status_line_1
 @ $6D48 isub=LD BC,end_status_line_4 - status_line_4
 c $6DEB
@@ -297,6 +299,7 @@ b $7801
 b $7802
 @ $7804 label=clear_and_setup
 c $7804
+C $7808,2 PAPER 0; INK 7
 @ $7810 label=sp_7810
 b $7810
 b $7812 Keyboard configuration; INK 2
@@ -363,7 +366,9 @@ t $7A8E
 b $7AA3
 t $7AA6
 c $7AB9 Print control choice dialog
+C $7AF4,2 PAPER 0; INK 7
   $7AF9,3 Print game mode dialog
+C $7B1A,2 PAPER 0; INK 7
   $7B27,3 Print keyboard configuration
   $7B27,3 Print game controls
 b $7B57
@@ -572,7 +577,18 @@ c $928D
 @ $934F nowarn
 b $93A1
 @ $940A label=clear_screen
-c $940A
+c $940A Clear the screen by setting all pixel bytes to $00 and all attributes to the value set in #REGd.
+R $940A I:D Attribute value.
+C $940D,2 Clear the $18 of 256-byte blocks (6144 bytes) of pixels
+@ $940F label=clear_scr_block
+C $940F,2 256-byte counter
+@ $9411 label=clear_scr_byte
+C $9414,2 ...loop until the counter is zero
+C $9417,2 Process next block
+C $9419,2 Set the $03 of 256-byte blocks (768 bytes) of attribute
+@ $941B label=clear_scr_attr
+C $941D,2 ...loop until the counter is zero
+C $9420,2 Process next block
 c $9423
 b $9430
 @ $9500 label=L9500

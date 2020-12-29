@@ -1055,7 +1055,7 @@ c$5DA6 LD A,$10      ;
  $5DAB LD A,$1F      ;
  $5DAD LD ($5F5F),A  ;
  $5DB0 LD SP,($5F83) ;
- $5DB4 LD D,$0C      ;
+ $5DB4 LD D,$0C      ; PAPER 1; INK 4
  $5DB6 CALL $940A    ;
  $5DB9 CALL $8A33    ;
  $5DBC LD DE,$8000   ;
@@ -3261,7 +3261,7 @@ c$6D17 LD BC,$0010   ;
  $6D1A LD ($5F70),BC ;
  $6D1E LD A,$10      ;
  $6D20 LD ($5EFD),A  ;
- $6D23 LD D,$0C      ;
+ $6D23 LD D,$0C      ; PAPER 1; INK 4
  $6D25 CALL $940A    ;
  $6D28 CALL $8A33    ;
  $6D2B LD DE,$8000   ;
@@ -4823,7 +4823,7 @@ b$7802 DEFB $00,$00
 ; Used by the routine at #R$5CD2.
 @label=clear_and_setup
 c$7804 LD ($7810),SP ;
- $7808 LD D,$07      ;
+ $7808 LD D,$07      ; PAPER 0; INK 7
  $780A CALL $940A    ;
  $780D JP $7AB9      ;
 
@@ -5049,7 +5049,7 @@ c$7AB9 LD DE,$7A2E   ;
 *$7AEF DJNZ $7AEF    ;
  $7AF1 DEC A         ;
  $7AF2 JR NZ,$7AED   ;
- $7AF4 LD D,$07      ;
+ $7AF4 LD D,$07      ; PAPER 0; INK 7
  $7AF6 CALL $940A    ;
  $7AF9 LD DE,$792A   ; Print game mode dialog
  $7AFC LD BC,$0104   ;
@@ -5064,7 +5064,7 @@ c$7AB9 LD DE,$7A2E   ;
  $7B13 AND $F8       ;
  $7B15 CP $00        ;
  $7B17 JP NZ,$7B07   ;
- $7B1A LD D,$07      ;
+ $7B1A LD D,$07      ; PAPER 0; INK 7
  $7B1C CALL $940A    ;
  $7B1F LD A,($7800)  ;
  $7B22 CP $00        ;
@@ -6986,24 +6986,30 @@ b$93A1 DEFB $0E,$06,$7E,$47,$1A,$90,$FA,$B8
  $9401 DEFB $11,$BC,$90,$01,$06,$00,$ED,$B0
  $9409 DEFB $C9
 
-; Routine at 940A
+; Clear the screen by setting all pixel bytes to $00 and all attributes to the
+; value set in #REGd.
 ;
 ; Used by the routines at #R$5DA6, #R$6D17, #R$7804 and #R$7AB9.
+;
+; I:D Attribute value.
 @label=clear_screen
 c$940A LD HL,$4000   ;
- $940D LD C,$18      ;
-*$940F LD B,$00      ;
+ $940D LD C,$18      ; Clear the $18 of 256-byte blocks (6144 bytes) of pixels
+@label=clear_scr_block
+*$940F LD B,$00      ; 256-byte counter
+@label=clear_scr_byte
 *$9411 LD (HL),$00   ;
  $9413 INC HL        ;
- $9414 DJNZ $9411    ;
+ $9414 DJNZ $9411    ; ...loop until the counter is zero
  $9416 DEC C         ;
- $9417 JR NZ,$940F   ;
- $9419 LD C,$03      ;
+ $9417 JR NZ,$940F   ; Process next block
+ $9419 LD C,$03      ; Set the $03 of 256-byte blocks (768 bytes) of attribute
+@label=clear_scr_attr
 *$941B LD (HL),D     ;
  $941C INC HL        ;
- $941D DJNZ $941B    ;
+ $941D DJNZ $941B    ; ...loop until the counter is zero
  $941F DEC C         ;
- $9420 JR NZ,$941B   ;
+ $9420 JR NZ,$941B   ; Process next block
  $9422 RET           ;
 
 ; Routine at 9423

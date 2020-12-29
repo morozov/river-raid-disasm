@@ -1065,7 +1065,7 @@ L5DA6:
   LD A,$1F
   LD (L5F5F),A
   LD SP,(sp_5F83)
-  LD D,$0C
+  LD D,$0C                ; PAPER 1; INK 4
   CALL clear_screen
   CALL L8A33
   LD DE,status_line_1
@@ -3408,7 +3408,7 @@ L6D17:
   LD ($5F70),BC
   LD A,$10
   LD (L5EFD),A
-  LD D,$0C
+  LD D,$0C                ; PAPER 1; INK 4
   CALL clear_screen
   CALL L8A33
   LD DE,status_line_1
@@ -5065,7 +5065,7 @@ L7802:
 ; Used by the routine at start.
 clear_and_setup:
   LD (sp_7810),SP
-  LD D,$07
+  LD D,$07                ; PAPER 0; INK 7
   CALL clear_screen
   JP L7AB9
 
@@ -5358,7 +5358,7 @@ L7AB9_2:
   DJNZ L7AB9_2
   DEC A
   JR NZ,L7AB9_1
-  LD D,$07
+  LD D,$07                ; PAPER 0; INK 7
   CALL clear_screen
   LD DE,L792A             ; Print game mode dialog
   LD BC,$0104
@@ -5374,7 +5374,7 @@ L7AB9_3:
   AND $F8
   CP $00
   JP NZ,L7AB9_3
-  LD D,$07
+  LD D,$07                ; PAPER 0; INK 7
   CALL clear_screen
   LD A,(L7800)
   CP $00
@@ -7293,27 +7293,32 @@ L93A1:
   DEFB $11,$BC,$90,$01,$06,$00,$ED,$B0
   DEFB $C9
 
-; Routine at 940A
+; Clear the screen by setting all pixel bytes to $00 and all attributes to the
+; value set in D.
 ;
 ; Used by the routines at L5DA6, L6D17, clear_and_setup and L7AB9.
+;
+; I:D Attribute value.
 clear_screen:
   LD HL,screen_pixels
-  LD C,$18
-clear_screen_0:
-  LD B,$00
-clear_screen_1:
+  LD C,$18                ; Clear the $18 of 256-byte blocks (6144 bytes) of
+                          ; pixels
+clear_scr_block:
+  LD B,$00                ; 256-byte counter
+clear_scr_byte:
   LD (HL),$00
   INC HL
-  DJNZ clear_screen_1
+  DJNZ clear_scr_byte     ; ...loop until the counter is zero
   DEC C
-  JR NZ,clear_screen_0
-  LD C,$03
-clear_screen_2:
+  JR NZ,clear_scr_block   ; Process next block
+  LD C,$03                ; Set the $03 of 256-byte blocks (768 bytes) of
+                          ; attribute
+clear_scr_attr:
   LD (HL),D
   INC HL
-  DJNZ clear_screen_2
+  DJNZ clear_scr_attr     ; ...loop until the counter is zero
   DEC C
-  JR NZ,clear_screen_2
+  JR NZ,clear_scr_attr    ; Process next block
   RET
 
 ; Routine at 9423
