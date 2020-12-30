@@ -1,5 +1,12 @@
 @start
 @org
+@equ=KEYBOARD=$02BF
+@equ=BEEPER=$03B5
+@equ=CHAN_OPEN=$1601
+@equ=OUT_NUM_1=$1A1B
+@equ=PR_STRING=$203C
+@equ=LAST_K=$5C08
+@equ=UDG=$5C7B
 ; Screen pixels.
 @label=screen_pixels
 b$4000 DEFB $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF

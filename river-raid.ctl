@@ -1,5 +1,12 @@
 @ $4000 start
 @ $4000 org
+@ $4000 equ=KEYBOARD=$02BF
+@ $4000 equ=BEEPER=$03B5
+@ $4000 equ=CHAN_OPEN=$1601
+@ $4000 equ=OUT_NUM_1=$1A1B
+@ $4000 equ=PR_STRING=$203C
+@ $4000 equ=LAST_K=$5C08
+@ $4000 equ=UDG=$5C7B
 @ $4000 label=screen_pixels
 b $4000 Screen pixels.
 @ $5800 label=screen_attributes
