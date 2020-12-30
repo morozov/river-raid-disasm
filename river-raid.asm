@@ -971,7 +971,7 @@ start_0:
   EI
   LD HL,$8182
   LD (L5F7E),HL
-; This entry point is used by the routines at handle_enter and L6D17.
+; This entry point is used by the routines at handle_enter and demo.
 start_1:
   LD A,$3F
   LD I,A
@@ -991,12 +991,12 @@ L5D10:
   CP $01                  ;
   JP Z,L5D10_0
   CALL init_state
-  JP L5DA6
+  JP play
 ; This entry point is used by the routine at L650A.
 L5D10_0:
   LD SP,(sp_5F83)
   CALL init_state
-  JP L6D17
+  JP demo
 
 ; Restart the game
 ;
@@ -1004,7 +1004,7 @@ L5D10_0:
 restart:
   LD SP,(sp_5F83)
   CALL init_state
-  JP L5DA6
+  JP play
 
 ; Array of possible starting bridge values.
 ;
@@ -1055,17 +1055,12 @@ init_state:
   RET
 
 ; Routine at 5D9F
-;
-; Used by the routine at L5DA6.
 L5D9F:
   LD HL,L923C
   DEC (HL)
-  JP L5DA6_1
-
-; Routine at 5DA6
-;
-; Used by the routines at L5D10, restart, L650A and L6D17.
-L5DA6:
+  JP L5D9F_1
+; This entry point is used by the routines at L5D10, restart, L650A and demo.
+play:
   LD A,$10
   LD (L5EFD),A
   LD A,$1F
@@ -1073,7 +1068,7 @@ L5DA6:
   LD SP,(sp_5F83)
   LD D,$0C                ; PAPER 1; INK 4
   CALL clear_screen
-  CALL L8A33
+  CALL init_udg
   LD DE,status_line_1
   LD BC,status_line_2 - status_line_1
   CALL PR_STRING
@@ -1154,7 +1149,7 @@ L5DA6:
   CALL L91E8
   CALL L68E9
   LD B,$28
-L5DA6_0:
+L5D9F_0:
   PUSH BC
   LD HL,L5EEF
   INC (HL)
@@ -1164,7 +1159,7 @@ L5DA6_0:
   LD A,$04
   LD (state_speed),A
   POP BC
-  DJNZ L5DA6_0
+  DJNZ L5D9F_0
   LD A,$00
   LD (L6BB0),A
   LD (L5F68),A
@@ -1176,23 +1171,22 @@ L5DA6_0:
   JP Z,L5D9F
   LD HL,L923B
   DEC (HL)
-; This entry point is used by the routine at L5D9F.
-L5DA6_1:
+L5D9F_1:
   CALL L923E
-L5DA6_2:
+L5D9F_2:
   CALL KEYBOARD
   EI
   LD A,(LAST_K)
   CP $0D
-  JR NZ,L5DA6_3
+  JR NZ,L5D9F_3
   LD A,(state_control_type)
   CP $02
-  JP NZ,L5DA6_2
+  JP NZ,L5D9F_2
   LD A,$FE
   IN A,($1F)
   CP $00
-  JP Z,L5DA6_2
-L5DA6_3:
+  JP Z,L5D9F_2
+L5D9F_3:
   LD A,$00
   LD (L5F6D),A
   LD ($5F6E),A
@@ -1401,7 +1395,7 @@ L5F8F:
 
 ; Main loop
 ;
-; Used by the routine at L5DA6.
+; Used by the routine at L5D9F.
 main_loop:
   LD A,$BF                ; Scan Enter
   IN A,($FE)              ;
@@ -1520,7 +1514,7 @@ scan_keyboard:
 
 ; Routine at 60A5
 ;
-; Used by the routines at L5DA6, main_loop and L6D17.
+; Used by the routines at L5D9F, main_loop and demo.
 L60A5:
   LD A,(L5F68)
   CP $00
@@ -2081,7 +2075,7 @@ L64B4:
 
 ; Routine at 64BC
 ;
-; Used by the routines at L5DA6, L6136, L6587 and L6D17.
+; Used by the routines at L5D9F, L6136, L6587 and demo.
 L64BC:
   LD A,(L923D)
   CP $02
@@ -2183,7 +2177,7 @@ L650A_3:
 ; This entry point is used by the routines at L65AB, L65BB and L65CB.
 L650A_4:
   LD SP,(sp_5F83)
-  JP L5DA6
+  JP play
 L650A_5:
   LD A,(state_game_mode)
   BIT 0,A
@@ -2198,7 +2192,7 @@ L650A_6:
 
 ; Routine at 6587
 ;
-; Used by the routine at L6D17.
+; Used by the routine at demo.
 L6587:
   LD A,(state_game_mode)
   BIT 0,A
@@ -2335,7 +2329,7 @@ handle_left:
 
 ; Routine at 6682
 ;
-; Used by the routines at L5DA6 and L683B.
+; Used by the routines at L5D9F and L683B.
 L6682:
   LD A,(L5F68)
   CP $00
@@ -2375,7 +2369,7 @@ L66CC:
 
 ; Routine at 66D0
 ;
-; Used by the routines at L5DA6, main_loop and L6D17.
+; Used by the routines at L5D9F, main_loop and demo.
 L66D0:
   LD BC,($5F70)
   LD H,$00
@@ -2692,7 +2686,7 @@ L68C5_1:
 
 ; Routine at 68E9
 ;
-; Used by the routines at L5DA6 and L6D17.
+; Used by the routines at L5D9F and demo.
 L68E9:
   LD HL,screen_attributes
   LD B,$20
@@ -3169,7 +3163,7 @@ L6BB1:
 
 ; Handle the Enter key pressed
 ;
-; Used by the routines at main_loop and L6D17.
+; Used by the routines at main_loop and demo.
 handle_enter:
   LD A,$FE                ; Scan Caps Shift
   IN A,($FE)              ;
@@ -3413,14 +3407,14 @@ L6CF4_2:
 ; Routine at 6D17
 ;
 ; Used by the routine at L5D10.
-L6D17:
+demo:
   LD BC,$0010
   LD ($5F70),BC
   LD A,$10
   LD (L5EFD),A
   LD D,$0C                ; PAPER 1; INK 4
   CALL clear_screen
-  CALL L8A33
+  CALL init_udg
   LD DE,status_line_1
   LD BC,status_line_2 - status_line_1
   CALL PR_STRING
@@ -3442,7 +3436,7 @@ L6D17:
   LD (L5F7D),A
   LD A,(L5EF0)
   LD (L5D43),A
-L6D17_0:
+demo_0:
   LD A,$BF
   IN A,($FE)
   BIT 0,A
@@ -3468,11 +3462,11 @@ L6D17_0:
   EI
   LD A,(LAST_K)
   CP $0D
-  JP Z,L5DA6
+  JP Z,play
   LD A,(L5F81)
   AND $03
   CP $00
-  JP NZ,L6D17_0
+  JP NZ,demo_0
   LD A,$01
   CALL CHAN_OPEN
   LD A,$10
@@ -3494,22 +3488,22 @@ L6D17_0:
   LD (L5F7E),HL
   LD A,(HL)
   CP $FF
-  JP Z,L6D17_1
+  JP Z,demo_1
   RST $10
   LD A,$02
   CALL CHAN_OPEN
-  JP L6D17_0
-L6D17_1:
+  JP demo_0
+demo_1:
   LD HL,$8182
   LD (L5F7E),HL
   LD A,$00
   LD (L5F6D),A
-  JP L6D17_0
+  JP demo_0
 
 ; Initializes the starting bridge based on the value of state_game_mode using
 ; starting_bridges for the lookup.
 ;
-; Used by the routines at init_state and L6D17.
+; Used by the routines at init_state and demo.
 init_starting_bridge:
   LD A,(state_game_mode)
   SRL A                   ; Shift the game mode right discarding the bit
@@ -3712,7 +3706,7 @@ L6EC8:
   CP $06
   CALL Z,L6F6F
   LD A,(HL)
-  LD HL,$82C5
+  LD HL,L82C5
   LD (L8B0E),HL
   LD (L8B10),DE
   LD D,A
@@ -3967,7 +3961,7 @@ L706C:
 
 ; Routine at 708E
 ;
-; Used by the routines at L5DA6, main_loop, L6D17, L7158, L71A2, L7224, L724C,
+; Used by the routines at L5D9F, main_loop, demo, L7158, L71A2, L7224, L724C,
 ; L7296, L7302, L7358, L74EE, L754C, L75D0, L762E, L7649 and L76DA.
 L708E:
   LD A,$00
@@ -4060,7 +4054,7 @@ L708E_1:
   DEC HL
   LD (HL),C
   LD (L8B0C),BC
-  LD HL,$82C5
+  LD HL,L82C5
   LD (L8B0E),HL
   CALL L75BA
   LD BC,$0018
@@ -4175,7 +4169,7 @@ L71A2_0:
   DEC A
   JR NZ,L71A2_0
 L71A2_1:
-  LD BC,$82C5
+  LD BC,L82C5
   LD (L8B0E),BC
   LD A,(L5EEF)
   AND $06
@@ -4252,7 +4246,7 @@ L724C_0:
   LD (L8B0A),BC
   PUSH HL
   CALL L75BA
-  LD HL,$82C5
+  LD HL,L82C5
   LD (L8B0E),HL
   POP HL
   LD DE,$020E
@@ -4472,7 +4466,7 @@ L738E:
 
 ; Routine at 7393
 ;
-; Used by the routines at main_loop and L6D17.
+; Used by the routines at main_loop and demo.
 L7393:
   LD BC,(L5F73)
   LD A,B
@@ -4497,7 +4491,7 @@ L7393:
   LD A,$01
   LD E,$00
   LD D,$01
-  LD HL,$82C5
+  LD HL,L82C5
   CALL L8B1E
   RET
 L7393_0:
@@ -4579,7 +4573,7 @@ L7415_0:
 
 ; Routine at 7441
 ;
-; Used by the routines at main_loop and L6D17.
+; Used by the routines at main_loop and demo.
 L7441:
   LD A,(L7383)
   BIT 7,A
@@ -5516,47 +5510,26 @@ L81E8:
 
 ; Data block at 825C
 L825C:
-  DEFB $FF,$00,$00,$00,$80,$80,$AA,$AA
-  DEFB $FF,$80,$80,$80,$80,$80,$AA,$AA
-  DEFB $FF,$80,$80,$80,$80,$80,$80,$80
-  DEFB $80,$40,$C4
+  DEFB $FF
 
-; Message at 8277
-L8277:
-  DEFM "HP&a"
-
-; Data block at 827B
-L827B:
-  DEFB $02,$07,$F1
-
-; Message at 827E
-L827E:
-  DEFM "[UQ"
-
-; Data block at 8281
-L8281:
-  DEFB $00,$00,$00,$00,$00,$03,$07,$0F
-  DEFB $19,$3F,$61,$C1,$00,$3F,$01
-
-; Message at 8290
-L8290:
-  DEFM "9!!!9"
-
-; Data block at 8295
-L8295:
-  DEFB $00,$FC,$04
-
-; Message at 8298
-L8298:
-  DEFM "$$''&"
-
-; Data block at 829D
-L829D:
+; Data block at 825D
+udg_data:
+  DEFB $00,$00,$00,$80,$80,$AA,$AA,$FF
+  DEFB $80,$80,$80,$80,$80,$AA,$AA,$FF
+  DEFB $80,$80,$80,$80,$80,$80,$80,$80
+  DEFB $40,$C4,$48,$50,$26,$61,$02,$07
+  DEFB $F1,$5B,$55,$51,$00,$00,$00,$00
+  DEFB $00,$03,$07,$0F,$19,$3F,$61,$C1
+  DEFB $00,$3F,$01,$39,$21,$21,$21,$39
+  DEFB $00,$FC,$04,$24,$24,$27,$27,$26
   DEFB $00,$1F,$30,$61,$C9,$89,$08,$09
   DEFB $00,$FC,$00,$E4,$04,$E4,$24,$E4
   DEFB $00,$00,$00,$F2,$93,$93,$92,$F2
   DEFB $00,$00,$00,$20,$20,$E0,$60,$20
   DEFB $10,$10,$38,$7C,$D6,$92,$38,$54
+
+; Data block at 82C5
+L82C5:
   DEFB $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
   DEFB $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
   DEFB $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
@@ -6168,7 +6141,7 @@ L8A02_1:
 
 ; Routine at 8A1B
 ;
-; Used by the routine at L6D17.
+; Used by the routine at demo.
 L8A1B:
   LD HL,$57FF
   LD C,$08
@@ -6188,17 +6161,20 @@ L8A1B_1:
 
 ; Routine at 8A33
 ;
-; Used by the routines at L5DA6 and L6D17.
-L8A33:
+; Used by the routines at L5D9F and demo.
+;
+; Sets BORDER to BLACK, sets screen attributes to WHITE-on-BLACK and copies
+;      udg_data to the UDG area.
+init_udg:
   LD A,$00
   OUT ($FE),A
   LD B,$C0
   LD HL,$5A40
-L8A33_0:
+init_udg_loop:
   LD (HL),$07
   INC HL
-  DJNZ L8A33_0
-  LD HL,$825D
+  DJNZ init_udg_loop
+  LD HL,udg_data
   LD DE,(UDG)
   LD BC,$0068
   LDIR
@@ -6849,7 +6825,7 @@ L91C1:
 
 ; Routine at 91E8
 ;
-; Used by the routine at L5DA6.
+; Used by the routine at L5D9F.
 L91E8:
   LD A,$01
   CALL CHAN_OPEN
@@ -6910,7 +6886,7 @@ L923D:
 
 ; Routine at 923E
 ;
-; Used by the routines at L5DA6 and L9109.
+; Used by the routines at L5D9F and L9109.
 L923E:
   LD A,(L923D)
   CP $02
@@ -7158,7 +7134,7 @@ L93A1:
 ; Clear the screen by setting all pixel bytes to $00 and all attributes to the
 ; value set in D.
 ;
-; Used by the routines at L5DA6, L6D17, clear_and_setup, controls_input and
+; Used by the routines at L5D9F, demo, clear_and_setup, controls_input and
 ; game_mode_input.
 ;
 ; I:D Attribute value.

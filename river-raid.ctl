@@ -33,7 +33,7 @@ B $5D43,1
 c $5D44
   $5D44,5 Initialize #R$5F72. Why isn't it $80?
 c $5D9F
-c $5DA6
+@ $5DA6 label=play
 C $5DB4,2 PAPER 1; INK 4
 @ $5DBF isub=LD BC,status_line_2 - status_line_1
 @ $5DD0 isub=LD BC,status_line_3 - status_line_2
@@ -221,6 +221,7 @@ c $6C7B
 c $6CB8
 c $6CD6
 c $6CF4
+@ $6D17 label=demo
 c $6D17
 C $6D23,2 PAPER 1; INK 4
 @ $6D2E isub=LD BC,status_line_2 - status_line_1
@@ -437,14 +438,9 @@ t $81B6
 b $81E4
 t $81E8
 b $825C
-t $8277
-b $827B
-t $827E
-b $8281
-t $8290
-b $8295
-t $8298
-b $829D
+@ $825D label=udg_data
+b $825D
+b $82C5
 @ $82F5 label=L82F5
 b $82F5
 t $8371
@@ -552,8 +548,11 @@ b $89F2
 b $89FA
 c $8A02
 c $8A1B
+@ $8A33 label=init_udg
 c $8A33
+R $8A33 Sets BORDER to BLACK, sets screen attributes to WHITE-on-BLACK and copies #R$825D to the UDG area.
 @ $8A39 nowarn
+@ $8A3C label=init_udg_loop
 c $8A4E
 @ $8A86 label=sprite_fuel
 b $8A86 Fuel sprite

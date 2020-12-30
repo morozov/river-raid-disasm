@@ -1051,16 +1051,13 @@ c$5D44 LD A,$78      ; {Initialize #R$5F72. Why isn't it $80?
  $5D9E RET           ;
 
 ; Routine at 5D9F
-;
-; Used by the routine at #R$5DA6.
 c$5D9F LD HL,$923C   ;
  $5DA2 DEC (HL)      ;
  $5DA3 JP $5EBC      ;
-
-; Routine at 5DA6
-;
-; Used by the routines at #R$5D10, #R$5D35, #R$650A and #R$6D17.
-c$5DA6 LD A,$10      ;
+; This entry point is used by the routines at #R$5D10, #R$5D35, #R$650A and
+; #R$6D17.
+@label=play
+*$5DA6 LD A,$10      ;
  $5DA8 LD ($5EFD),A  ;
  $5DAB LD A,$1F      ;
  $5DAD LD ($5F5F),A  ;
@@ -1172,7 +1169,6 @@ c$5DA6 LD A,$10      ;
  $5EB5 JP Z,$5D9F    ;
  $5EB8 LD HL,$923B   ;
  $5EBB DEC (HL)      ;
-; This entry point is used by the routine at #R$5D9F.
 *$5EBC CALL $923E    ;
 *$5EBF CALL $02BF    ;
  $5EC2 EI            ;
@@ -1391,7 +1387,7 @@ w$5F8F DEFW $0000
 
 ; Main loop
 ;
-; Used by the routine at #R$5DA6.
+; Used by the routine at #R$5D9F.
 @label=main_loop
 c$5F91 LD A,$BF      ; {Scan Enter
  $5F93 IN A,($FE)    ;
@@ -1510,7 +1506,7 @@ c$5F91 LD A,$BF      ; {Scan Enter
 
 ; Routine at 60A5
 ;
-; Used by the routines at #R$5DA6, #R$5F91 and #R$6D17.
+; Used by the routines at #R$5D9F, #R$5F91 and #R$6D17.
 c$60A5 LD A,($5F68)  ;
  $60A8 CP $00        ;
  $60AA JP NZ,$60E5   ;
@@ -2042,7 +2038,7 @@ b$64B4 DEFB $D1,$D1,$D1,$D1,$D1,$C3,$0A,$65
 
 ; Routine at 64BC
 ;
-; Used by the routines at #R$5DA6, #R$6136, #R$6587 and #R$6D17.
+; Used by the routines at #R$5D9F, #R$6136, #R$6587 and #R$6D17.
 c$64BC LD A,($923D)  ;
  $64BF CP $02        ;
  $64C1 JP Z,$64E5    ;
@@ -2279,7 +2275,7 @@ c$6642 LD A,($5F72)  ;
 
 ; Routine at 6682
 ;
-; Used by the routines at #R$5DA6 and #R$683B.
+; Used by the routines at #R$5D9F and #R$683B.
 c$6682 LD A,($5F68)  ;
  $6685 CP $00        ;
  $6687 RET NZ        ;
@@ -2317,7 +2313,7 @@ c$66CC LD HL,$83F1   ;
 
 ; Routine at 66D0
 ;
-; Used by the routines at #R$5DA6, #R$5F91 and #R$6D17.
+; Used by the routines at #R$5D9F, #R$5F91 and #R$6D17.
 c$66D0 LD BC,($5F70) ;
  $66D4 LD H,$00      ;
  $66D6 LD A,($5F64)  ;
@@ -2615,7 +2611,7 @@ c$68C5 LD DE,$5820   ;
 
 ; Routine at 68E9
 ;
-; Used by the routines at #R$5DA6 and #R$6D17.
+; Used by the routines at #R$5D9F and #R$6D17.
 c$68E9 LD HL,$5800   ;
  $68EC LD B,$20      ;
 *$68EE LD (HL),$00   ;
@@ -3271,6 +3267,7 @@ c$6CF4 LD C,$03      ;
 ; Routine at 6D17
 ;
 ; Used by the routine at #R$5D10.
+@label=demo
 c$6D17 LD BC,$0010   ;
  $6D1A LD ($5F70),BC ;
  $6D1E LD A,$10      ;
@@ -3796,7 +3793,7 @@ c$706C LD B,$00      ;
 
 ; Routine at 708E
 ;
-; Used by the routines at #R$5DA6, #R$5F91, #R$6D17, #R$7158, #R$71A2, #R$7224,
+; Used by the routines at #R$5D9F, #R$5F91, #R$6D17, #R$7158, #R$71A2, #R$7224,
 ; #R$724C, #R$7296, #R$7302, #R$7358, #R$74EE, #R$754C, #R$75D0, #R$762E,
 ; #R$7649 and #R$76DA.
 c$708E LD A,$00      ;
@@ -5264,40 +5261,26 @@ t$81E8 DEFM " rights reserved        Press ENTER to play or C to change contro"
  $8229 DEFM "l or S to select game                              "
 
 ; Data block at 825C
-b$825C DEFB $FF,$00,$00,$00,$80,$80,$AA,$AA
- $8264 DEFB $FF,$80,$80,$80,$80,$80,$AA,$AA
- $826C DEFB $FF,$80,$80,$80,$80,$80,$80,$80
- $8274 DEFB $80,$40,$C4
+b$825C DEFB $FF
 
-; Message at 8277
-t$8277 DEFM "HP&a"
-
-; Data block at 827B
-b$827B DEFB $02,$07,$F1
-
-; Message at 827E
-t$827E DEFM "[UQ"
-
-; Data block at 8281
-b$8281 DEFB $00,$00,$00,$00,$00,$03,$07,$0F
- $8289 DEFB $19,$3F,$61,$C1,$00,$3F,$01
-
-; Message at 8290
-t$8290 DEFM "9!!!9"
-
-; Data block at 8295
-b$8295 DEFB $00,$FC,$04
-
-; Message at 8298
-t$8298 DEFM "$$''&"
-
-; Data block at 829D
-b$829D DEFB $00,$1F,$30,$61,$C9,$89,$08,$09
+; Data block at 825D
+@label=udg_data
+b$825D DEFB $00,$00,$00,$80,$80,$AA,$AA,$FF
+ $8265 DEFB $80,$80,$80,$80,$80,$AA,$AA,$FF
+ $826D DEFB $80,$80,$80,$80,$80,$80,$80,$80
+ $8275 DEFB $40,$C4,$48,$50,$26,$61,$02,$07
+ $827D DEFB $F1,$5B,$55,$51,$00,$00,$00,$00
+ $8285 DEFB $00,$03,$07,$0F,$19,$3F,$61,$C1
+ $828D DEFB $00,$3F,$01,$39,$21,$21,$21,$39
+ $8295 DEFB $00,$FC,$04,$24,$24,$27,$27,$26
+ $829D DEFB $00,$1F,$30,$61,$C9,$89,$08,$09
  $82A5 DEFB $00,$FC,$00,$E4,$04,$E4,$24,$E4
  $82AD DEFB $00,$00,$00,$F2,$93,$93,$92,$F2
  $82B5 DEFB $00,$00,$00,$20,$20,$E0,$60,$20
  $82BD DEFB $10,$10,$38,$7C,$D6,$92,$38,$54
- $82C5 DEFB $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+
+; Data block at 82C5
+b$82C5 DEFB $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
  $82CD DEFB $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
  $82D5 DEFB $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
  $82DD DEFB $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
@@ -6003,12 +5986,17 @@ c$8A1B LD HL,$57FF   ;
 
 ; Routine at 8A33
 ;
-; Used by the routines at #R$5DA6 and #R$6D17.
+; Used by the routines at #R$5D9F and #R$6D17.
+;
+; Sets BORDER to BLACK, sets screen attributes to WHITE-on-BLACK and copies
+; .    #R$825D to the UDG area.
+@label=init_udg
 c$8A33 LD A,$00      ;
  $8A35 OUT ($FE),A   ;
  $8A37 LD B,$C0      ;
 @nowarn
  $8A39 LD HL,$5A40   ;
+@label=init_udg_loop
 *$8A3C LD (HL),$07   ;
  $8A3E INC HL        ;
  $8A3F DJNZ $8A3C    ;
@@ -6635,7 +6623,7 @@ c$91C1 LD A,$10      ;
 
 ; Routine at 91E8
 ;
-; Used by the routine at #R$5DA6.
+; Used by the routine at #R$5D9F.
 c$91E8 LD A,$01      ;
  $91EA CALL $1601    ;
  $91ED LD A,$16      ;
@@ -6695,7 +6683,7 @@ b$923A DEFB $00
 
 ; Routine at 923E
 ;
-; Used by the routines at #R$5DA6 and #R$9109.
+; Used by the routines at #R$5D9F and #R$9109.
 c$923E LD A,($923D)  ;
  $9241 CP $02        ;
  $9243 JP Z,$9277    ;
@@ -6925,7 +6913,7 @@ b$93A1 DEFB $0E,$06,$7E,$47,$1A,$90,$FA,$B8
 ; Clear the screen by setting all pixel bytes to $00 and all attributes to the
 ; value set in #REGd.
 ;
-; Used by the routines at #R$5DA6, #R$6D17, #R$7804, #R$7ACD and #R$7B07.
+; Used by the routines at #R$5D9F, #R$6D17, #R$7804, #R$7ACD and #R$7B07.
 ;
 ; I:D Attribute value.
 @label=clear_screen
