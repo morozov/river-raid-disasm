@@ -606,7 +606,8 @@ b $923A The game mode storing the number of players in the first bit and the sta
   $923B,1
 @ $923C label=L923C
   $923C,1
-@ $923D label=L923D
+@ $923D label=state_player
+b $923D Current player
   $923D,1
 c $923E
 s $9283

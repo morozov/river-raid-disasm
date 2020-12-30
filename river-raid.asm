@@ -1051,7 +1051,7 @@ init_state:
   LD (L5F7D),A
   LD HL,$0404
   LD (L923B),HL
-  LD (L923D),A
+  LD (state_player),A
   RET
 
 ; Routine at 5D9F
@@ -1166,7 +1166,7 @@ L5D9F_0:
   CALL L6682
   LD A,$0D
   LD (LAST_K),A
-  LD A,(L923D)
+  LD A,(state_player)
   CP $02
   JP Z,L5D9F
   LD HL,L923B
@@ -1722,7 +1722,7 @@ L6136_1:
   LD (L5F6D),A
   LD BC,(L5F8D)
   LD (L5EF3),BC
-  LD A,(L923D)
+  LD A,(state_player)
   CP $02
   JP Z,L6136_2
   LD HL,state_bridge_player_1
@@ -2077,7 +2077,7 @@ L64B4:
 ;
 ; Used by the routines at L5D9F, L6136, L6587 and demo.
 print_bridge:
-  LD A,(L923D)
+  LD A,(state_player)
   CP $02
   JP Z,print_bridge_player_2
   LD A,$10
@@ -2172,7 +2172,7 @@ L650A_3:
   JR NZ,L650A_3
   LD A,$00
   LD (L6BB0),A
-  LD A,(L923D)
+  LD A,(state_player)
   CP $02
   JP Z,L65CB
   LD A,(L923B)
@@ -2205,7 +2205,7 @@ L6587:
   BIT 0,A
   RET Z
   LD A,$01
-  LD (L923D),A
+  LD (state_player),A
   CALL print_bridge
   LD A,$10
   RST $10
@@ -2228,7 +2228,7 @@ L65AB:
   CP $00
   JP Z,L650A_6
   LD A,$02
-  LD (L923D),A
+  LD (state_player),A
   JP L650A_4
 
 ; Routine at 65BB
@@ -2239,7 +2239,7 @@ L65BB:
   CP $00
   JP Z,L650A_4
   LD A,$02
-  LD (L923D),A
+  LD (state_player),A
   JP L650A_4
 
 ; Routine at 65CB
@@ -2255,13 +2255,13 @@ L65CB:
   JP L650A_4
 L65CB_0:
   LD A,$01
-  LD (L923D),A
+  LD (state_player),A
 L65CB_1:
   LD A,(L923B)
   CP $00
   JP Z,L650A_6
   LD A,$01
-  LD (L923D),A
+  LD (state_player),A
   JP L650A_4
 
 ; Routine at 65F3
@@ -2286,7 +2286,7 @@ handle_right:
   LD HL,(L5EF7)
   LD (L8B0E),HL
   LD E,$0E
-  LD A,(L923D)
+  LD A,(state_player)
   CP $02
   CALL Z,L7038
   LD D,$08
@@ -2325,7 +2325,7 @@ handle_left:
   LD HL,(L5EF7)
   LD (L8B0E),HL
   LD E,$0E
-  LD A,(L923D)
+  LD A,(state_player)
   CP $02
   CALL Z,L7038
   LD D,$08
@@ -2355,7 +2355,7 @@ L6682:
   LD HL,(L5EF7)
   LD (L8B0E),HL
   LD E,$0E
-  LD A,(L923D)
+  LD A,(state_player)
   CP $02
   CALL Z,L7038
   LD D,$08
@@ -2705,7 +2705,7 @@ L68E9_0:
   LD (L5F73),HL
   LD A,(state_bridge_player_1)
   LD B,A
-  LD A,(L923D)
+  LD A,(state_player)
   CP $02
   CALL Z,L6A4A
   LD A,B
@@ -4702,7 +4702,7 @@ L74EE_0:
   SET 5,(HL)
   DEC HL
   DEC HL
-  LD A,(L923D)
+  LD A,(state_player)
   CP $01
   JP Z,L74EE_2
   LD A,(state_bridge_player_2)
@@ -6710,7 +6710,7 @@ L9122:
   LD A,$06
   SUB B
   LD C,A
-  LD A,(L923D)
+  LD A,(state_player)
   CP $02
   JP Z,L9122_1
   LD HL,L90BC
@@ -6888,14 +6888,16 @@ L923B:
   DEFB $00
 L923C:
   DEFB $00
-L923D:
+
+; Current player
+state_player:
   DEFB $00
 
 ; Routine at 923E
 ;
 ; Used by the routines at L5D9F and L9109.
 L923E:
-  LD A,(L923D)
+  LD A,(state_player)
   CP $02
   JP Z,L923E_3
   LD A,$10
@@ -7216,7 +7218,7 @@ clear_scr_attr:
 ; Used by the routine at L9109.
 L9423:
   LD HL,L923B
-  LD A,(L923D)
+  LD A,(state_player)
   CP $02
   RET NZ
   LD HL,L923C

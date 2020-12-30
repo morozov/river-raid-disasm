@@ -6689,8 +6689,10 @@ b$923A DEFB $00
  $923B DEFB $00
 @label=L923C
  $923C DEFB $00
-@label=L923D
- $923D DEFB $00
+
+; Current player
+@label=state_player
+b$923D DEFB $00
 
 ; Routine at 923E
 ;
