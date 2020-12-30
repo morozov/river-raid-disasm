@@ -23,7 +23,12 @@ c $5D10
   $5D1D,5 Check if we switched to the demo mode
 @ $5D35 label=restart
 c $5D35 Restart the game
-b $5D3F
+@ $5D3F label=starting_bridges
+b $5D3F Array of possible starting bridge values.
+R $5D3F Index of list element is specified by the second and third bits of the #R$923A.
+R $5D3F The values correspond to the dialog rendered as #R$792A.
+@ $5D43 label=L5D43
+B $5D43,1
 @ $5D44 label=init_state
 c $5D44
   $5D44,5 Initialize #R$5F72. Why isn't it $80?
@@ -83,7 +88,9 @@ b $5F68
 @ $5F69 label=L5F69
 b $5F69
 @ $5F6A label=L5F6A
-w $5F6A
+b $5F6A
+@ $5F6B label=L5F6B
+b $5F6B
 @ $5F6C label=L5F6C
 b $5F6C
 @ $5F6D label=L5F6D
@@ -218,7 +225,13 @@ c $6D17
 C $6D23,2 PAPER 1; INK 4
 @ $6D2E isub=LD BC,status_line_2 - status_line_1
 @ $6D48 isub=LD BC,end_status_line_4 - status_line_4
+@ $6DEB label=init_starting_bridge
 c $6DEB
+c $6DEB Initializes the starting bridge based on the value of #R$923A using #R$5D3F for the lookup.
+  $6DEE,2 Shift the game mode right discarding the bit corresponding to the number of players and leaving the ones corresponding to the starting bridge.
+  $6DF0,3 Point to the beginning of the list
+  $6DF3,4 Advance to the element corresponding to the game mode.
+  $6DF7,1 Get the starting bridge number
 c $6DFF
 c $6E40
 c $6E86
@@ -582,7 +595,14 @@ c $9122
 c $91C1
 c $91E8
 @ $923A label=state_game_mode
-b $923A
+b $923A The game mode storing the number of players in the first bit and the starting bridge in the next two.
+  $923A,1
+@ $923B label=L923B
+  $923B,1
+@ $923C label=L923C
+  $923C,1
+@ $923D label=L923D
+  $923D,1
 c $923E
 s $9283
 c $928D

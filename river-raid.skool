@@ -1000,8 +1000,17 @@ c$5D35 LD SP,($5F83) ;
  $5D39 CALL $5D44    ;
  $5D3C JP $5DA6      ;
 
-; Data block at 5D3F
-b$5D3F DEFB $01,$05,$14,$1E,$00
+; Array of possible starting bridge values.
+;
+; .
+;
+; Index of list element is specified by the second and third bits of the
+; .     #R$923A.
+; The values correspond to the dialog rendered as #R$792A.
+@label=starting_bridges
+b$5D3F DEFB $01,$05,$14,$1E
+@label=L5D43
+ $5D43 DEFB $00
 
 ; Routine at 5D44
 ;
@@ -1288,7 +1297,11 @@ b$5F69 DEFB $00
 
 ; Data block at 5F6A
 @label=L5F6A
-w$5F6A DEFW $0101
+b$5F6A DEFB $01
+
+; Data block at 5F6B
+@label=L5F6B
+b$5F6B DEFB $01
 
 ; Data block at 5F6C
 @label=L5F6C
@@ -3350,16 +3363,20 @@ c$6D17 LD BC,$0010   ;
  $6DE5 LD ($5F6D),A  ;
  $6DE8 JP $6D64      ;
 
-; Routine at 6DEB
+; Initializes the starting bridge based on the value of #R$923A using #R$5D3F
+; for the lookup.
 ;
 ; Used by the routines at #R$5D44 and #R$6D17.
+@label=init_starting_bridge
 c$6DEB LD A,($923A)  ;
- $6DEE SRL A         ;
- $6DF0 LD HL,$5D3F   ;
- $6DF3 LD B,$00      ;
+ $6DEE SRL A         ; Shift the game mode right discarding the bit
+                     ; corresponding to the number of players and leaving the
+                     ; ones corresponding to the starting bridge.
+ $6DF0 LD HL,$5D3F   ; Point to the beginning of the list
+ $6DF3 LD B,$00      ; {Advance to the element corresponding to the game mode.
  $6DF5 LD C,A        ;
- $6DF6 ADD HL,BC     ;
- $6DF7 LD A,(HL)     ;
+ $6DF6 ADD HL,BC     ; }
+ $6DF7 LD A,(HL)     ; Get the starting bridge number
  $6DF8 LD ($5F6A),A  ;
  $6DFB LD ($5F6B),A  ;
  $6DFE RET           ;
@@ -6665,9 +6682,16 @@ c$91E8 LD A,$01      ;
  $9236 CALL $1601    ;
  $9239 RET           ;
 
-; Data block at 923A
+; The game mode storing the number of players in the first bit and the starting
+; bridge in the next two.
 @label=state_game_mode
-b$923A DEFB $00,$00,$00,$00
+b$923A DEFB $00
+@label=L923B
+ $923B DEFB $00
+@label=L923C
+ $923C DEFB $00
+@label=L923D
+ $923D DEFB $00
 
 ; Routine at 923E
 ;

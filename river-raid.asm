@@ -1006,9 +1006,15 @@ restart:
   CALL init_state
   JP L5DA6
 
-; Data block at 5D3F
-L5D3F:
-  DEFB $01,$05,$14,$1E,$00
+; Array of possible starting bridge values.
+;
+; Index of list element is specified by the second and third bits of the
+;       state_game_mode.
+; The values correspond to the dialog rendered as msg_game_mode.
+starting_bridges:
+  DEFB $01,$05,$14,$1E
+L5D43:
+  DEFB $00
 
 ; Routine at 5D44
 ;
@@ -1016,7 +1022,7 @@ L5D3F:
 init_state:
   LD A,$78                ; Initialize state_x. Why isn't it $80?
   LD (state_x),A          ;
-  CALL L6DEB
+  CALL init_starting_bridge
   LD HL,L5F00
   LD (L5F60),HL
   LD (HL),$FF
@@ -1044,15 +1050,15 @@ init_state:
   LD (L5F76),A
   LD (L5F7D),A
   LD HL,$0404
-  LD ($923B),HL
-  LD ($923D),A
+  LD (L923B),HL
+  LD (L923D),A
   RET
 
 ; Routine at 5D9F
 ;
 ; Used by the routine at L5DA6.
 L5D9F:
-  LD HL,$923C
+  LD HL,L923C
   DEC (HL)
   JP L5DA6_1
 
@@ -1165,10 +1171,10 @@ L5DA6_0:
   CALL L6682
   LD A,$0D
   LD (LAST_K),A
-  LD A,($923D)
+  LD A,(L923D)
   CP $02
   JP Z,L5D9F
-  LD HL,$923B
+  LD HL,L923B
   DEC (HL)
 ; This entry point is used by the routine at L5D9F.
 L5DA6_1:
@@ -1299,7 +1305,11 @@ L5F69:
 
 ; Data block at 5F6A
 L5F6A:
-  DEFW $0101
+  DEFB $01
+
+; Data block at 5F6B
+L5F6B:
+  DEFB $01
 
 ; Data block at 5F6C
 L5F6C:
@@ -1718,7 +1728,7 @@ L6136_1:
   LD (L5F6D),A
   LD BC,(L5F8D)
   LD (L5EF3),BC
-  LD A,($923D)
+  LD A,(L923D)
   CP $02
   JP Z,L6136_2
   LD HL,L5F6A
@@ -1726,7 +1736,7 @@ L6136_1:
   CALL L64BC
   JP L6794
 L6136_2:
-  LD HL,$5F6B
+  LD HL,L5F6B
   INC (HL)
   CALL L64BC
   JP L6794
@@ -2073,7 +2083,7 @@ L64B4:
 ;
 ; Used by the routines at L5DA6, L6136, L6587 and L6D17.
 L64BC:
-  LD A,($923D)
+  LD A,(L923D)
   CP $02
   JP Z,L64BC_0
   LD A,$10
@@ -2101,10 +2111,10 @@ L64BC_0:
 ; This entry point is used by the routine at L6587.
 L64BC_1:
   CALL PR_STRING
-  LD A,($5F6B)
+  LD A,(L5F6B)
   SUB $0A
   CALL M,L6506
-  LD A,($5F6B)
+  LD A,(L5F6B)
   LD B,$00
   LD C,A
   CALL OUT_NUM_1
@@ -2161,10 +2171,10 @@ L650A_3:
   JR NZ,L650A_3
   LD A,$00
   LD (L6BB0),A
-  LD A,($923D)
+  LD A,(L923D)
   CP $02
   JP Z,L65CB
-  LD A,($923B)
+  LD A,(L923B)
   CP $00
   JP Z,L650A_5
   LD A,(state_game_mode)
@@ -2194,7 +2204,7 @@ L6587:
   BIT 0,A
   RET Z
   LD A,$01
-  LD ($923D),A
+  LD (L923D),A
   CALL L64BC
   LD A,$10
   RST $10
@@ -2213,44 +2223,44 @@ L6587:
 ;
 ; Used by the routine at L650A.
 L65AB:
-  LD A,($923C)
+  LD A,(L923C)
   CP $00
   JP Z,L650A_6
   LD A,$02
-  LD ($923D),A
+  LD (L923D),A
   JP L650A_4
 
 ; Routine at 65BB
 ;
 ; Used by the routine at L650A.
 L65BB:
-  LD A,($923C)
+  LD A,(L923C)
   CP $00
   JP Z,L650A_4
   LD A,$02
-  LD ($923D),A
+  LD (L923D),A
   JP L650A_4
 
 ; Routine at 65CB
 ;
 ; Used by the routine at L650A.
 L65CB:
-  LD A,($923C)
+  LD A,(L923C)
   CP $00
   JP Z,L65CB_1
-  LD A,($923B)
+  LD A,(L923B)
   CP $00
   JP NZ,L65CB_0
   JP L650A_4
 L65CB_0:
   LD A,$01
-  LD ($923D),A
+  LD (L923D),A
 L65CB_1:
-  LD A,($923B)
+  LD A,(L923B)
   CP $00
   JP Z,L650A_6
   LD A,$01
-  LD ($923D),A
+  LD (L923D),A
   JP L650A_4
 
 ; Routine at 65F3
@@ -2275,7 +2285,7 @@ handle_right:
   LD HL,(L5EF7)
   LD (L8B0E),HL
   LD E,$0E
-  LD A,($923D)
+  LD A,(L923D)
   CP $02
   CALL Z,L7038
   LD D,$08
@@ -2314,7 +2324,7 @@ handle_left:
   LD HL,(L5EF7)
   LD (L8B0E),HL
   LD E,$0E
-  LD A,($923D)
+  LD A,(L923D)
   CP $02
   CALL Z,L7038
   LD D,$08
@@ -2344,7 +2354,7 @@ L6682:
   LD HL,(L5EF7)
   LD (L8B0E),HL
   LD E,$0E
-  LD A,($923D)
+  LD A,(L923D)
   CP $02
   CALL Z,L7038
   LD D,$08
@@ -2694,7 +2704,7 @@ L68E9_0:
   LD (L5F73),HL
   LD A,(L5F6A)
   LD B,A
-  LD A,($923D)
+  LD A,(L923D)
   CP $02
   CALL Z,L6A4A
   LD A,B
@@ -2920,7 +2930,7 @@ L6990_6:
 ;
 ; Used by the routine at L68E9.
 L6A4A:
-  LD A,($5F6B)
+  LD A,(L5F6B)
   LD B,A
   RET
 
@@ -3416,7 +3426,7 @@ L6D17:
   CALL PR_STRING
   CALL L64BC
   CALL L6587
-  CALL L6DEB
+  CALL init_starting_bridge
   CALL L68E9
   LD A,$04
   LD (L5EEE),A
@@ -3431,13 +3441,13 @@ L6D17:
   LD A,$00
   LD (L5F7D),A
   LD A,(L5EF0)
-  LD ($5D43),A
+  LD (L5D43),A
 L6D17_0:
   LD A,$BF
   IN A,($FE)
   BIT 0,A
   CALL Z,handle_enter
-  LD A,($5D43)
+  LD A,(L5D43)
   LD B,A
   LD A,(L5EF0)
   SUB B
@@ -3496,19 +3506,22 @@ L6D17_1:
   LD (L5F6D),A
   JP L6D17_0
 
-; Routine at 6DEB
+; Initializes the starting bridge based on the value of state_game_mode using
+; starting_bridges for the lookup.
 ;
 ; Used by the routines at init_state and L6D17.
-L6DEB:
+init_starting_bridge:
   LD A,(state_game_mode)
-  SRL A
-  LD HL,L5D3F
-  LD B,$00
-  LD C,A
-  ADD HL,BC
-  LD A,(HL)
+  SRL A                   ; Shift the game mode right discarding the bit
+                          ; corresponding to the number of players and leaving
+                          ; the ones corresponding to the starting bridge.
+  LD HL,starting_bridges  ; Point to the beginning of the list
+  LD B,$00                ; Advance to the element corresponding to the game
+  LD C,A                  ; mode.
+  ADD HL,BC               ;
+  LD A,(HL)               ; Get the starting bridge number
   LD (L5F6A),A
-  LD ($5F6B),A
+  LD (L5F6B),A
   RET
 
 ; Routine at 6DFF
@@ -4688,10 +4701,10 @@ L74EE_0:
   SET 5,(HL)
   DEC HL
   DEC HL
-  LD A,($923D)
+  LD A,(L923D)
   CP $01
   JP Z,L74EE_2
-  LD A,($5F6B)
+  LD A,(L5F6B)
 L74EE_1:
   LD B,A
   LD A,$07
@@ -6714,7 +6727,7 @@ L9122:
   LD A,$06
   SUB B
   LD C,A
-  LD A,($923D)
+  LD A,(L923D)
   CP $02
   JP Z,L9122_1
   LD HL,L90BC
@@ -6884,22 +6897,29 @@ L91E8:
   CALL CHAN_OPEN
   RET
 
-; Data block at 923A
+; The game mode storing the number of players in the first bit and the starting
+; bridge in the next two.
 state_game_mode:
-  DEFB $00,$00,$00,$00
+  DEFB $00
+L923B:
+  DEFB $00
+L923C:
+  DEFB $00
+L923D:
+  DEFB $00
 
 ; Routine at 923E
 ;
 ; Used by the routines at L5DA6 and L9109.
 L923E:
-  LD A,($923D)
+  LD A,(L923D)
   CP $02
   JP Z,L923E_3
   LD A,$10
   RST $10
   LD A,$06
   RST $10
-  LD A,($923B)
+  LD A,(L923B)
 L923E_0:
   LD B,A
   LD A,$16
@@ -6934,7 +6954,7 @@ L923E_3:
   RST $10
   LD A,$05
   RST $10
-  LD A,($923C)
+  LD A,(L923C)
   JP L923E_0
 
 ; Unused
@@ -7168,11 +7188,11 @@ clear_scr_attr:
 ;
 ; Used by the routine at L9109.
 L9423:
-  LD HL,$923B
-  LD A,($923D)
+  LD HL,L923B
+  LD A,(L923D)
   CP $02
   RET NZ
-  LD HL,$923C
+  LD HL,L923C
   RET
 
 ; Data block at 9430
