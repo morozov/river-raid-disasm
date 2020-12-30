@@ -2186,7 +2186,7 @@ L650A_5:
 L650A_6:
   LD HL,L8153
   LD (L5F7E),HL
-  CALL $93BE
+  CALL L928D_16
   LD SP,(sp_5F83)
   JP L5D10_0
 
@@ -7113,23 +7113,67 @@ L928D_11:
   SBC HL,BC
   POP BC
   JP L928D_3
-
-; Data block at 93A1
-L93A1:
-  DEFB $0E,$06,$7E,$47,$1A,$90,$FA,$B8
-  DEFB $93,$FE,$00,$C2,$BB,$93,$23,$13
-  DEFB $0D,$C2,$A3,$93,$3E,$00,$C9,$3E
-  DEFB $01,$C9,$3E,$FF,$C9,$3A,$3A,$92
-  DEFB $CB,$47,$C4,$F2,$93,$21,$C8,$90
-  DEFB $3A,$3A,$92,$E6,$FE,$5F,$3A,$3A
-  DEFB $92,$E6,$FE,$CB,$27,$CB,$27,$93
-  DEFB $16,$00,$5F,$19,$EB,$21,$BC,$90
-  DEFB $D5,$CD,$A1,$93,$D1,$FE,$01,$C0
-  DEFB $21,$BC,$90,$01,$06,$00,$ED,$B0
-  DEFB $C9,$21,$BC,$90,$11,$C2,$90,$CD
-  DEFB $A1,$93,$FE,$FF,$C0,$21,$C2,$90
-  DEFB $11,$BC,$90,$01,$06,$00,$ED,$B0
-  DEFB $C9
+L928D_12:
+  LD C,$06
+L928D_13:
+  LD A,(HL)
+  LD B,A
+  LD A,(DE)
+  SUB B
+  JP M,L928D_14
+  CP $00
+  JP NZ,L928D_15
+  INC HL
+  INC DE
+  DEC C
+  JP NZ,L928D_13
+  LD A,$00
+  RET
+L928D_14:
+  LD A,$01
+  RET
+L928D_15:
+  LD A,$FF
+  RET
+; This entry point is used by the routine at L650A.
+L928D_16:
+  LD A,(state_game_mode)
+  BIT 0,A
+  CALL NZ,L928D_17
+  LD HL,$90C8
+  LD A,(state_game_mode)
+  AND $FE
+  LD E,A
+  LD A,(state_game_mode)
+  AND $FE
+  SLA A
+  SLA A
+  SUB E
+  LD D,$00
+  LD E,A
+  ADD HL,DE
+  EX DE,HL
+  LD HL,L90BC
+  PUSH DE
+  CALL L928D_12
+  POP DE
+  CP $01
+  RET NZ
+  LD HL,L90BC
+  LD BC,$0006
+  LDIR
+  RET
+L928D_17:
+  LD HL,L90BC
+  LD DE,$90C2
+  CALL L928D_12
+  CP $FF
+  RET NZ
+  LD HL,$90C2
+  LD DE,L90BC
+  LD BC,$0006
+  LDIR
+  RET
 
 ; Clear the screen by setting all pixel bytes to $00 and all attributes to the
 ; value set in D.

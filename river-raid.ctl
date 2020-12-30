@@ -607,7 +607,6 @@ s $9283
 c $928D
 @ $92F1 nowarn
 @ $934F nowarn
-b $93A1
 @ $940A label=clear_screen
 c $940A Clear the screen by setting all pixel bytes to $00 and all attributes to the value set in #REGd.
 R $940A I:D Attribute value.

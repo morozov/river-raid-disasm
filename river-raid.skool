@@ -6893,22 +6893,61 @@ c$928D PUSH HL       ;
  $939B SBC HL,BC     ;
  $939D POP BC        ;
  $939E JP $9348      ;
-
-; Data block at 93A1
-b$93A1 DEFB $0E,$06,$7E,$47,$1A,$90,$FA,$B8
- $93A9 DEFB $93,$FE,$00,$C2,$BB,$93,$23,$13
- $93B1 DEFB $0D,$C2,$A3,$93,$3E,$00,$C9,$3E
- $93B9 DEFB $01,$C9,$3E,$FF,$C9,$3A,$3A,$92
- $93C1 DEFB $CB,$47,$C4,$F2,$93,$21,$C8,$90
- $93C9 DEFB $3A,$3A,$92,$E6,$FE,$5F,$3A,$3A
- $93D1 DEFB $92,$E6,$FE,$CB,$27,$CB,$27,$93
- $93D9 DEFB $16,$00,$5F,$19,$EB,$21,$BC,$90
- $93E1 DEFB $D5,$CD,$A1,$93,$D1,$FE,$01,$C0
- $93E9 DEFB $21,$BC,$90,$01,$06,$00,$ED,$B0
- $93F1 DEFB $C9,$21,$BC,$90,$11,$C2,$90,$CD
- $93F9 DEFB $A1,$93,$FE,$FF,$C0,$21,$C2,$90
- $9401 DEFB $11,$BC,$90,$01,$06,$00,$ED,$B0
- $9409 DEFB $C9
+*$93A1 LD C,$06      ;
+*$93A3 LD A,(HL)     ;
+ $93A4 LD B,A        ;
+ $93A5 LD A,(DE)     ;
+ $93A6 SUB B         ;
+ $93A7 JP M,$93B8    ;
+ $93AA CP $00        ;
+ $93AC JP NZ,$93BB   ;
+ $93AF INC HL        ;
+ $93B0 INC DE        ;
+ $93B1 DEC C         ;
+ $93B2 JP NZ,$93A3   ;
+ $93B5 LD A,$00      ;
+ $93B7 RET           ;
+*$93B8 LD A,$01      ;
+ $93BA RET           ;
+*$93BB LD A,$FF      ;
+ $93BD RET           ;
+; This entry point is used by the routine at #R$650A.
+*$93BE LD A,($923A)  ;
+ $93C1 BIT 0,A       ;
+ $93C3 CALL NZ,$93F2 ;
+ $93C6 LD HL,$90C8   ;
+ $93C9 LD A,($923A)  ;
+ $93CC AND $FE       ;
+ $93CE LD E,A        ;
+ $93CF LD A,($923A)  ;
+ $93D2 AND $FE       ;
+ $93D4 SLA A         ;
+ $93D6 SLA A         ;
+ $93D8 SUB E         ;
+ $93D9 LD D,$00      ;
+ $93DB LD E,A        ;
+ $93DC ADD HL,DE     ;
+ $93DD EX DE,HL      ;
+ $93DE LD HL,$90BC   ;
+ $93E1 PUSH DE       ;
+ $93E2 CALL $93A1    ;
+ $93E5 POP DE        ;
+ $93E6 CP $01        ;
+ $93E8 RET NZ        ;
+ $93E9 LD HL,$90BC   ;
+ $93EC LD BC,$0006   ;
+ $93EF LDIR          ;
+ $93F1 RET           ;
+*$93F2 LD HL,$90BC   ;
+ $93F5 LD DE,$90C2   ;
+ $93F8 CALL $93A1    ;
+ $93FB CP $FF        ;
+ $93FD RET NZ        ;
+ $93FE LD HL,$90C2   ;
+ $9401 LD DE,$90BC   ;
+ $9404 LD BC,$0006   ;
+ $9407 LDIR          ;
+ $9409 RET           ;
 
 ; Clear the screen by setting all pixel bytes to $00 and all attributes to the
 ; value set in #REGd.
