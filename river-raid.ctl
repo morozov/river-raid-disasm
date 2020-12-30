@@ -87,10 +87,10 @@ g $5F67 Control type ($00 - Keyboard, $01 - Sinclair, $02 - Kempston, Other - Cu
 b $5F68
 @ $5F69 label=L5F69
 b $5F69
-@ $5F6A label=L5F6A
-b $5F6A
-@ $5F6B label=L5F6B
-b $5F6B
+@ $5F6A label=state_bridge_player_1
+b $5F6A Current bridge of player 1
+@ $5F6B label=state_bridge_player_2
+b $5F6B Current bridge of player 2
 @ $5F6C label=L5F6C
 b $5F6C
 @ $5F6D label=L5F6D
@@ -159,10 +159,16 @@ c $62DA
 c $62E0
 c $62E8
 b $64B4
+@ $64BC label=print_bridge
 c $64BC
 @ $64CD isub=LD BC,status_line_4 - status_line_3
+@ $64E5 label=print_bridge_player_2
+c $64E5 Print current bridge for player 2
 @ $64EE isub=LD BC,status_line_4 - status_line_3
-c $6506
+@ $64F1 label=print_bridge_no_player_2
+c $64F1 Print current bridge number for player 2
+@ $6506 label=print_space
+c $6506 Print space
 c $650A
 c $6587
 c $65AB

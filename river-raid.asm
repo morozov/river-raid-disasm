@@ -1080,7 +1080,7 @@ play:
   CALL PR_STRING
   LD A,$02
   CALL CHAN_OPEN
-  CALL L64BC
+  CALL print_bridge
   LD A,$04
   LD (L5EEE),A
   LD A,$00
@@ -1297,12 +1297,12 @@ L5F68:
 L5F69:
   DEFB $00
 
-; Data block at 5F6A
-L5F6A:
+; Current bridge of player 1
+state_bridge_player_1:
   DEFB $01
 
-; Data block at 5F6B
-L5F6B:
+; Current bridge of player 2
+state_bridge_player_2:
   DEFB $01
 
 ; Data block at 5F6C
@@ -1725,14 +1725,14 @@ L6136_1:
   LD A,(L923D)
   CP $02
   JP Z,L6136_2
-  LD HL,L5F6A
+  LD HL,state_bridge_player_1
   INC (HL)
-  CALL L64BC
+  CALL print_bridge
   JP L6794
 L6136_2:
-  LD HL,L5F6B
+  LD HL,state_bridge_player_2
   INC (HL)
-  CALL L64BC
+  CALL print_bridge
   JP L6794
 
 ; Data block at 6253
@@ -2076,10 +2076,10 @@ L64B4:
 ; Routine at 64BC
 ;
 ; Used by the routines at L5D9F, L6136, L6587 and demo.
-L64BC:
+print_bridge:
   LD A,(L923D)
   CP $02
-  JP Z,L64BC_0
+  JP Z,print_bridge_player_2
   LD A,$10
   RST $10
   LD A,$06
@@ -2087,37 +2087,44 @@ L64BC:
   LD DE,status_line_3
   LD BC,status_line_4 - status_line_3
   CALL PR_STRING
-  LD A,(L5F6A)
+  LD A,(state_bridge_player_1)
   SUB $0A
-  CALL M,L6506
-  LD A,(L5F6A)
+  CALL M,print_space
+  LD A,(state_bridge_player_1)
   LD B,$00
   LD C,A
   CALL OUT_NUM_1
   RET
-L64BC_0:
+
+; Print current bridge for player 2
+;
+; Used by the routine at print_bridge.
+print_bridge_player_2:
   LD A,$10
   RST $10
   LD A,$05
   RST $10
   LD DE,status_line_3
   LD BC,status_line_4 - status_line_3
-; This entry point is used by the routine at L6587.
-L64BC_1:
+
+; Print current bridge number for player 2
+;
+; Used by the routine at L6587.
+print_bridge_no_player_2:
   CALL PR_STRING
-  LD A,(L5F6B)
+  LD A,(state_bridge_player_2)
   SUB $0A
-  CALL M,L6506
-  LD A,(L5F6B)
+  CALL M,print_space
+  LD A,(state_bridge_player_2)
   LD B,$00
   LD C,A
   CALL OUT_NUM_1
   RET
 
-; Routine at 6506
+; Print space
 ;
-; Used by the routine at L64BC.
-L6506:
+; Used by the routines at print_bridge and print_bridge_no_player_2.
+print_space:
   LD A,$20
   RST $10
   RET
@@ -2199,7 +2206,7 @@ L6587:
   RET Z
   LD A,$01
   LD (L923D),A
-  CALL L64BC
+  CALL print_bridge
   LD A,$10
   RST $10
   LD A,$05
@@ -2210,7 +2217,7 @@ L6587:
   RST $10
   LD DE,$8051
   LD BC,$0009
-  CALL L64BC_1
+  CALL print_bridge_no_player_2
   RET
 
 ; Routine at 65AB
@@ -2696,7 +2703,7 @@ L68E9_0:
   DJNZ L68E9_0
   CALL L7441_2
   LD (L5F73),HL
-  LD A,(L5F6A)
+  LD A,(state_bridge_player_1)
   LD B,A
   LD A,(L923D)
   CP $02
@@ -2924,7 +2931,7 @@ L6990_6:
 ;
 ; Used by the routine at L68E9.
 L6A4A:
-  LD A,(L5F6B)
+  LD A,(state_bridge_player_2)
   LD B,A
   RET
 
@@ -3418,7 +3425,7 @@ demo:
   LD DE,status_line_1
   LD BC,status_line_2 - status_line_1
   CALL PR_STRING
-  CALL L64BC
+  CALL print_bridge
   CALL L6587
   CALL init_starting_bridge
   CALL L68E9
@@ -3514,8 +3521,8 @@ init_starting_bridge:
   LD C,A                  ; mode.
   ADD HL,BC               ;
   LD A,(HL)               ; Get the starting bridge number
-  LD (L5F6A),A
-  LD (L5F6B),A
+  LD (state_bridge_player_1),A
+  LD (state_bridge_player_2),A
   RET
 
 ; Routine at 6DFF
@@ -4698,7 +4705,7 @@ L74EE_0:
   LD A,(L923D)
   CP $01
   JP Z,L74EE_2
-  LD A,(L5F6B)
+  LD A,(state_bridge_player_2)
 L74EE_1:
   LD B,A
   LD A,$07
@@ -4707,7 +4714,7 @@ L74EE_1:
   LD (HL),$00
   JP L708E
 L74EE_2:
-  LD A,(L5F6A)
+  LD A,(state_bridge_player_1)
   JP L74EE_1
 
 ; Routine at 754C

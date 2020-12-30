@@ -1291,12 +1291,12 @@ b$5F68 DEFB $00
 @label=L5F69
 b$5F69 DEFB $00
 
-; Data block at 5F6A
-@label=L5F6A
+; Current bridge of player 1
+@label=state_bridge_player_1
 b$5F6A DEFB $01
 
-; Data block at 5F6B
-@label=L5F6B
+; Current bridge of player 2
+@label=state_bridge_player_2
 b$5F6B DEFB $01
 
 ; Data block at 5F6C
@@ -2039,6 +2039,7 @@ b$64B4 DEFB $D1,$D1,$D1,$D1,$D1,$C3,$0A,$65
 ; Routine at 64BC
 ;
 ; Used by the routines at #R$5D9F, #R$6136, #R$6587 and #R$6D17.
+@label=print_bridge
 c$64BC LD A,($923D)  ;
  $64BF CP $02        ;
  $64C1 JP Z,$64E5    ;
@@ -2058,15 +2059,24 @@ c$64BC LD A,($923D)  ;
  $64E0 LD C,A        ;
  $64E1 CALL $1A1B    ;
  $64E4 RET           ;
-*$64E5 LD A,$10      ;
+
+; Print current bridge for player 2
+;
+; Used by the routine at #R$64BC.
+@label=print_bridge_player_2
+c$64E5 LD A,$10      ;
  $64E7 RST $10       ;
  $64E8 LD A,$05      ;
  $64EA RST $10       ;
  $64EB LD DE,$804F   ;
 @isub=LD BC,status_line_4 - status_line_3
  $64EE LD BC,$000B   ;
-; This entry point is used by the routine at #R$6587.
-*$64F1 CALL $203C    ;
+
+; Print current bridge number for player 2
+;
+; Used by the routine at #R$6587.
+@label=print_bridge_no_player_2
+c$64F1 CALL $203C    ;
  $64F4 LD A,($5F6B)  ;
  $64F7 SUB $0A       ;
  $64F9 CALL M,$6506  ;
@@ -2076,9 +2086,10 @@ c$64BC LD A,($923D)  ;
  $6502 CALL $1A1B    ;
  $6505 RET           ;
 
-; Routine at 6506
+; Print space
 ;
-; Used by the routine at #R$64BC.
+; Used by the routines at #R$64BC and #R$64F1.
+@label=print_space
 c$6506 LD A,$20      ;
  $6508 RST $10       ;
  $6509 RET           ;
