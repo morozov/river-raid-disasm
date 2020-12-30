@@ -982,8 +982,8 @@ c$5D10 LD A,$FC      ;
  $5D16 EI            ;
  $5D17 LD A,($7800)  ;
  $5D1A LD ($5F67),A  ;
- $5D1D LD A,($7801)  ;
- $5D20 CP $01        ;
+ $5D1D LD A,($7801)  ; {Check if we switched to the demo mode
+ $5D20 CP $01        ; }
  $5D22 JP Z,$5D2B    ;
  $5D25 CALL $5D44    ;
  $5D28 JP $5DA6      ;
@@ -1006,8 +1006,9 @@ b$5D3F DEFB $01,$05,$14,$1E,$00
 ; Routine at 5D44
 ;
 ; Used by the routines at #R$5D10 and #R$5D35.
-c$5D44 LD A,$78      ;
- $5D46 LD ($5F72),A  ;
+@label=init_state
+c$5D44 LD A,$78      ; {Initialize #R$5F72. Why isn't it $80?
+ $5D46 LD ($5F72),A  ; }
  $5D49 CALL $6DEB    ;
  $5D4C LD HL,$5F00   ;
  $5D4F LD ($5F60),HL ;

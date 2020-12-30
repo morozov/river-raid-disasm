@@ -987,15 +987,15 @@ L5D10:
   EI
   LD A,(tmp_control_type)
   LD (state_control_type),A
-  LD A,(state_demo_mode)
-  CP $01
+  LD A,(state_demo_mode)  ; Check if we switched to the demo mode
+  CP $01                  ;
   JP Z,L5D10_0
-  CALL L5D44
+  CALL init_state
   JP L5DA6
 ; This entry point is used by the routine at L650A.
 L5D10_0:
   LD SP,(sp_5F83)
-  CALL L5D44
+  CALL init_state
   JP L6D17
 
 ; Restart the game
@@ -1003,7 +1003,7 @@ L5D10_0:
 ; Used by the routine at handle_enter.
 restart:
   LD SP,(sp_5F83)
-  CALL L5D44
+  CALL init_state
   JP L5DA6
 
 ; Data block at 5D3F
@@ -1013,9 +1013,9 @@ L5D3F:
 ; Routine at 5D44
 ;
 ; Used by the routines at L5D10 and restart.
-L5D44:
-  LD A,$78
-  LD (state_x),A
+init_state:
+  LD A,$78                ; Initialize state_x. Why isn't it $80?
+  LD (state_x),A          ;
   CALL L6DEB
   LD HL,L5F00
   LD (L5F60),HL
@@ -3498,7 +3498,7 @@ L6D17_1:
 
 ; Routine at 6DEB
 ;
-; Used by the routines at L5D44 and L6D17.
+; Used by the routines at init_state and L6D17.
 L6DEB:
   LD A,(state_game_mode)
   SRL A

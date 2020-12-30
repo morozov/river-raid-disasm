@@ -20,10 +20,13 @@ c $5CD2 The entry point invoked from the BASIC loader
 @ $5CD8 nowarn
 @ $5CE3 nowarn
 c $5D10
+  $5D1D,5 Check if we switched to the demo mode
 @ $5D35 label=restart
 c $5D35 Restart the game
 b $5D3F
+@ $5D44 label=init_state
 c $5D44
+  $5D44,5 Initialize #R$5F72. Why isn't it $80?
 c $5D9F
 c $5DA6
 C $5DB4,2 PAPER 1; INK 4
