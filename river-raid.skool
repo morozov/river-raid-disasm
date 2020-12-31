@@ -1806,10 +1806,11 @@ c$62D4 LD E,$09      ;
 c$62D7 LD E,$11      ;
  $62D9 RET           ;
 
-; Routine at 62DA
+; Increase #REGb by the value of #R$5F64
 ;
 ; Used by the routines at #R$6268, #R$62E8, #R$6682, #R$66EE, #R$673D, #R$6794,
 ; #R$6FEA, #R$708E, #R$7393 and #R$7441.
+@label=advance
 c$62DA LD A,($5F64)  ;
  $62DD ADD A,B       ;
  $62DE LD B,A        ;
@@ -4256,8 +4257,17 @@ c$735E LD A,($5EF2)  ;
 c$7380 XOR $7F       ;
  $7382 RET           ;
 
-; Unused
-s$7383 DEFS $04
+; Data block at 7383
+@label=L7383
+b$7383 DEFB $00
+
+; Data block at 7384
+@label=L7384
+b$7384 DEFB $00
+
+; Data block at 7385
+@label=L7385
+w$7385 DEFW $0000
 
 ; Routine at 7387
 ;

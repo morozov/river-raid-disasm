@@ -1767,7 +1767,7 @@ L6268:
   JP Z,L6268
   CP $FF
   JP Z,L6268_0
-  CALL L62DA
+  CALL advance
   LD DE,(L5EF3)
   LD A,D
   ADD A,$08
@@ -1828,11 +1828,11 @@ L62D7:
   LD E,$11
   RET
 
-; Routine at 62DA
+; Increase B by the value of state_speed
 ;
 ; Used by the routines at L6268, L62E8, L6682, L66EE, L673D, L6794, L6FEA,
 ; L708E, L7393 and L7441.
-L62DA:
+advance:
   LD A,(state_speed)
   ADD A,B
   LD B,A
@@ -1867,7 +1867,7 @@ L62E8:
   JP Z,L62E8_0
   LD A,(L5F68)
   CP $06
-  CALL Z,L62DA
+  CALL Z,advance
   LD DE,(L5EF3)
   LD A,D
   ADD A,$09
@@ -1966,7 +1966,7 @@ L62E8_0:
   LD A,(L5F8B)
   CP $02
   JP Z,L62E8_2
-  LD BC,($7385)
+  LD BC,(L7385)
   LD DE,(L8B0C)
   LD A,B
   CP D
@@ -2349,7 +2349,7 @@ L6682:
   LD A,$01
   LD (L5EF5),A
   LD (L8B0C),BC
-  CALL L62DA
+  CALL advance
   LD (L8B0A),BC
   LD BC,$0010
   LD HL,(L5EF7)
@@ -2400,7 +2400,7 @@ L66EE:
   CP $00
   RET Z
   LD B,A
-  CALL L62DA
+  CALL advance
   AND $88
   CP $88
   LD A,B
@@ -2460,7 +2460,7 @@ L673D:
   LD (L5F8D),BC
   LD A,(L673C)
   CP $01
-  CALL Z,L62DA
+  CALL Z,advance
   LD (L8B0A),BC
   LD BC,(L5EF3)
   LD A,(state_x)
@@ -2520,7 +2520,7 @@ L6794_0:
   JR NZ,L6794_0
   LD A,(L673C)
   CP $01
-  CALL Z,L62DA
+  CALL Z,advance
   LD (L8B0E),HL
   LD (L8B0C),BC
   LD (L8B0A),BC
@@ -3856,7 +3856,7 @@ L6FE6:
 ;
 ; Used by the routines at L6FF6, L7051 and L706C.
 L6FEA:
-  CALL L62DA
+  CALL advance
   LD (L8B0C),BC
   LD (L8B0A),BC
   RET
@@ -3986,7 +3986,7 @@ L708E:
   JP Z,L708E
   CP $FF
   JP Z,L7627
-  CALL L62DA
+  CALL advance
   DEC HL
   DEC HL
   LD (HL),B
@@ -4393,7 +4393,7 @@ L7302_0:
   LD C,A
   BIT 6,D
   CALL Z,L72FD
-  LD ($7385),BC
+  LD (L7385),BC
   JP L708E
 L7302_1:
   BIT 4,D
@@ -4446,9 +4446,17 @@ L7380:
   XOR $7F
   RET
 
-; Unused
+; Data block at 7383
 L7383:
-  DEFS $04
+  DEFB $00
+
+; Data block at 7384
+L7384:
+  DEFB $00
+
+; Data block at 7385
+L7385:
+  DEFW $0000
 
 ; Routine at 7387
 ;
@@ -4479,7 +4487,7 @@ L7393:
   LD A,B
   CP $00
   RET Z
-  CALL L62DA
+  CALL advance
   LD (L8B0A),BC
   LD A,C
   SUB $08
@@ -4585,18 +4593,18 @@ L7441:
   LD A,(L7383)
   BIT 7,A
   RET Z
-  LD BC,($7385)
-  LD A,($7384)
+  LD BC,(L7385)
+  LD A,(L7384)
   INC A
-  LD ($7384),A
+  LD (L7384),A
   CP $08
   JP Z,L7441_1
   LD DE,$0002
   LD H,A
   LD L,$00
   CALL BEEPER
-  LD BC,($7385)
-  CALL L62DA
+  LD BC,(L7385)
+  CALL advance
   LD (L8B0A),BC
   LD A,(L7383)
   LD D,A
@@ -4610,7 +4618,7 @@ L7441:
   CALL NZ,L7387
   INC B
   LD (L8B0C),BC
-  LD ($7385),BC
+  LD (L7385),BC
   LD A,$00
   LD (L5EF5),A
   LD A,B
@@ -4643,7 +4651,7 @@ L7441_0:
 L7441_1:
   LD D,$80
   LD HL,$0000
-  LD ($7385),HL
+  LD (L7385),HL
   LD A,(L7383)
   RES 7,A
   SET 5,A
@@ -4651,13 +4659,13 @@ L7441_1:
   LD HL,L5F00
   CALL L6E9C_0
   LD A,$00
-  LD ($7384),A
+  LD (L7384),A
   RET
 ; This entry point is used by the routines at L68E9, L7358 and L762E.
 L7441_2:
   LD HL,$0000
   LD (L7383),HL
-  LD ($7385),HL
+  LD (L7385),HL
   RET
 
 ; Routine at 74EE

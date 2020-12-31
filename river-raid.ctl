@@ -155,7 +155,8 @@ c $6256
 c $6268
 c $62D4
 c $62D7
-c $62DA
+@ $62DA label=advance
+c $62DA Increase #REGb by the value of #R$5F64
 c $62E0
 c $62E8
 b $64B4
@@ -287,7 +288,12 @@ c $7302
 c $7358
 c $735E
 c $7380
-s $7383
+@ $7383 label=L7383
+b $7383
+@ $7384 label=L7384
+b $7384
+@ $7385 label=L7385
+w $7385
 c $7387
 c $738E
 c $7393
