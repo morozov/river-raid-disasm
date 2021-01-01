@@ -7,8 +7,6 @@ b $5800 Screen attributes.
 b $5B00
 t $5B12
 b $5B20
-t $5CD8
-b $5CDC
 c $5D10
 b $5D35
 c $5D44

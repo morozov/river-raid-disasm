@@ -937,20 +937,13 @@ L5B20:
   DEFB $81,$0F,$C4,$15,$52,$F4,$09,$C4
   DEFB $15,$50,$80,$00,$01,$5C,$1A,$EA
   DEFB $0D,$80,$21,$B0,$6B,$22,$83,$92
-
-; Message at 5CD8
-L5CD8:
-  DEFM "!6a\""
-
-; Data block at 5CDC
-L5CDC:
-  DEFB $08,$8B,$3E,$C3,$32,$FE,$FE,$21
-  DEFB $DB,$6B,$22,$FF,$FE,$21,$00,$FC
-  DEFB $06,$00,$36,$FE,$23,$10,$FB,$36
-  DEFB $FE,$3E,$FC,$ED,$47,$ED,$73,$83
-  DEFB $5F,$ED,$5E,$FB,$21,$82,$81,$22
-  DEFB $7E,$5F,$3E,$3F,$ED,$47,$ED,$56
-  DEFB $FB,$CD,$04,$78
+  DEFB $21,$36,$61,$22,$08,$8B,$3E,$C3
+  DEFB $32,$FE,$FE,$21,$DB,$6B,$22,$FF
+  DEFB $FE,$21,$00,$FC,$06,$00,$36,$FE
+  DEFB $23,$10,$FB,$36,$FE,$3E,$FC,$ED
+  DEFB $47,$ED,$73,$83,$5F,$ED,$5E,$FB
+  DEFB $21,$82,$81,$22,$7E,$5F,$3E,$3F
+  DEFB $ED,$47,$ED,$56,$FB,$CD,$04,$78
 
 ; Routine at 5D10
 L5D10:
