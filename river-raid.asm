@@ -1040,12 +1040,12 @@ init_state:
   LD (state_speed),A
   LD (L5F6D),A
   LD HL,$3030
-  LD (L90BC),HL
-  LD (L90BE),HL
-  LD (L90C0),HL
-  LD (L90C2),HL
-  LD (L90C4),HL
-  LD (L90C6),HL
+  LD (state_score_player_1),HL
+  LD ($90BE),HL
+  LD ($90C0),HL
+  LD (state_score_player_2),HL
+  LD ($90C4),HL
+  LD ($90C6),HL
   LD A,$01
   LD (L5F76),A
   LD (L5F7D),A
@@ -1091,14 +1091,14 @@ play:
   LD A,$FF
   LD (L5F66),A
   LD BC,$0010
-  LD ($5F70),BC
+  LD (L5F70),BC
   CALL L68E9
   LD A,$78
   LD (state_x),A
   LD HL,L5F00
   LD (L5F60),HL
   LD (HL),$FF
-  LD HL,$5F2E
+  LD HL,L5F2E
   LD (L5F62),HL
   LD (HL),$FF
   LD BC,$0000
@@ -1115,7 +1115,7 @@ play:
   RST $10
   LD A,$06
   RST $10
-  LD DE,L90BC
+  LD DE,state_score_player_1
   LD BC,$0006
   CALL PR_STRING
   LD A,$02
@@ -1189,7 +1189,7 @@ L5D9F_2:
 L5D9F_3:
   LD A,$00
   LD (L5F6D),A
-  LD ($5F6E),A
+  LD (L5F6E),A
   LD A,$02
   LD (state_speed),A
   LD (L5EEF),A
@@ -1258,8 +1258,11 @@ L5EFE:
 
 ; Message at 5F00
 L5F00:
-  DEFM "                                                                 "
-  DEFM "                              "
+  DEFM "                                              "
+
+; Message at 5F2E
+L5F2E:
+  DEFM "                                                 "
 
 ; Data block at 5F5F
 L5F5F:
@@ -1311,7 +1314,15 @@ L5F6C:
 
 ; Data block at 5F6D
 L5F6D:
-  DEFB $00,$00,$00,$00,$00
+  DEFB $00
+
+; Data block at 5F6E
+L5F6E:
+  DEFW $0000
+
+; Data block at 5F70
+L5F70:
+  DEFW $0000
 
 ; Current X coordinate
 state_x:
@@ -1668,7 +1679,7 @@ L6136_0:
 ; This entry point is used by the routine at L6256.
 L6136_1:
   LD BC,(L5EF3)
-  LD A,($5F6E)
+  LD A,(L5F6E)
   CP $00
   JP Z,L62E8
   LD D,A
@@ -1688,7 +1699,7 @@ L6136_1:
   POP BC
   LD A,D
   LD (L5EF6),A
-  LD A,($5F6E)
+  LD A,(L5F6E)
   SUB $04
   LD B,A
   LD C,$70
@@ -1717,7 +1728,7 @@ L6136_1:
   LD HL,$4100
   CALL Z,L6B7B_1
   LD A,$00
-  LD ($5F6E),A
+  LD (L5F6E),A
   LD A,$01
   LD (L5F6D),A
   LD BC,(L5F8D)
@@ -1961,7 +1972,7 @@ L62E8_0:
   CALL L6268
   LD HL,L5F00
   LD (L5F60),HL
-  LD HL,$5F2E
+  LD HL,L5F2E
   LD (L5F62),HL
   LD A,(L5F8B)
   CP $02
@@ -1978,7 +1989,7 @@ L62E8_1:
   POP BC
   LD A,D
   LD (L5EF6),A
-  LD HL,$5F2E
+  LD HL,L5F2E
   LD (L5F62),HL
   LD HL,L5F00
   LD (L5F60),HL
@@ -2064,7 +2075,7 @@ L62E8_10:
   LD (HL),C
   LD HL,L5F00
   LD (L5F60),HL
-  LD HL,$5F2E
+  LD HL,L5F2E
   LD (L5F62),HL
   CALL L6E40
   JP L62E8_2
@@ -2378,12 +2389,12 @@ L66CC:
 ;
 ; Used by the routines at L5D9F, main_loop and demo.
 L66D0:
-  LD BC,($5F70)
+  LD BC,(L5F70)
   LD H,$00
   LD A,(state_speed)
   LD L,A
   ADD HL,BC
-  LD ($5F70),HL
+  LD (L5F70),HL
   CALL L66EE
   LD A,$02
   LD (state_speed),A
@@ -2396,7 +2407,7 @@ L66D0:
 ;
 ; Used by the routine at L66D0.
 L66EE:
-  LD A,($5F6E)
+  LD A,(L5F6E)
   CP $00
   RET Z
   LD B,A
@@ -2405,7 +2416,7 @@ L66EE:
   CP $88
   LD A,B
   CALL Z,L6704
-  LD ($5F6E),A
+  LD (L5F6E),A
   RET
 
 ; Routine at 6704
@@ -2752,7 +2763,7 @@ L693B:
 ; Used by the routine at L6A4F.
 L693C:
   LD A,$01
-  LD ($5F6E),A
+  LD (L5F6E),A
   LD A,$06
   LD (L5EEE),A
   RET
@@ -2770,7 +2781,7 @@ L6947:
 ; Used by the routine at L6A4F.
 L694D:
   LD DE,$0000
-  LD ($5F70),DE
+  LD (L5F70),DE
   LD A,(L5EF0)
   INC A
   LD (L5EF0),A
@@ -3416,7 +3427,7 @@ L6CF4_2:
 ; Used by the routine at L5D10.
 demo:
   LD BC,$0010
-  LD ($5F70),BC
+  LD (L5F70),BC
   LD A,$10
   LD (L5EFD),A
   LD D,$0C                ; PAPER 1; INK 4
@@ -3635,7 +3646,7 @@ L6E9C:
   RES 0,(HL)
   LD A,$18
   LD (L6C7A),A
-  LD HL,$5F2E
+  LD HL,L5F2E
 ; This entry point is used by the routines at L6FF6, L7051, L706C and L7441.
 L6E9C_0:
   LD A,(HL)
@@ -3775,7 +3786,7 @@ L6F6F:
 ;
 ; Used by the routine at L6EC8.
 L6F73:
-  LD HL,$5F2E
+  LD HL,L5F2E
   LD (L5F62),HL
   RET
 
@@ -3802,7 +3813,7 @@ L6F80_0:
   ADD HL,DE
   DEC A
   JR NZ,L6F80_0
-  LD BC,($5F70)
+  LD BC,(L5F70)
   SRL B
   RR C
   SRL B
@@ -6652,18 +6663,16 @@ L8C4A:
   DEFB $00,$00
 
 ; Message at 90BC
-L90BC:
-  DEFM "00"
-L90BE:
-  DEFM "00"
-L90C0:
-  DEFM "00"
-L90C2:
-  DEFM "00"
-L90C4:
-  DEFM "00"
-L90C6:
-  DEFM "00000000000000000000000000"
+state_score_player_1:
+  DEFM "000000"
+
+; Message at 90C2
+state_score_player_2:
+  DEFM "000000"
+
+; Message at 90C8
+L90C8:
+  DEFM "000000000000000000000000"
 
 ; Routine at 90E0
 ;
@@ -6679,7 +6688,7 @@ L90E0:
 L90E0_0:
   PUSH AF
   LD A,$02
-  CALL L9122
+  CALL update_score
   POP AF
   DEC A
   JR NZ,L90E0_0
@@ -6691,7 +6700,7 @@ L90E0_1:
 L90E0_2:
   PUSH AF
   LD A,$01
-  CALL L9122
+  CALL update_score
   POP AF
   DEC A
   JR NZ,L90E0_2
@@ -6699,7 +6708,7 @@ L90E0_2:
 
 ; Routine at 9109
 ;
-; Used by the routine at L9122.
+; Used by the routine at update_score.
 L9109:
   PUSH AF
   CALL L9423
@@ -6716,8 +6725,11 @@ L9109:
 
 ; Routine at 9122
 ;
-; Used by the routine at L90E0.
-L9122:
+; Used by the routines at L90E0, carry_player_1_score_digit and
+; carry_player_2_score_digit.
+;
+; I:A (can be 1, 2 or 4)
+update_score:
   PUSH AF
   LD A,$01
   CALL CHAN_OPEN
@@ -6730,30 +6742,38 @@ L9122:
   LD C,A
   LD A,(state_player)
   CP $02
-  JP Z,L9122_1
-  LD HL,L90BC
+  JP Z,inc_player_2_score_digit
+
+; Increase a digit in the player 1's score.
+;
+; I:C Offset of the digit to increase.
+; O:D Offset of the digit to increase.
+inc_player_1_score_digit:
+  LD HL,state_score_player_1
   LD B,$00
   LD A,C
   ADD HL,BC
   LD D,A
   LD A,(HL)
   INC A
-  CP $3A
-  JP Z,L9122_3
+  CP $3A                  ; Check for digit overflow (the value got beyond the
+                          ; 0-9 ASCII range).
+  JP Z,carry_player_1_score_digit
   LD (HL),A
-L9122_0:
-  LD A,$10
-  RST $10
-  LD A,$06
-  RST $10
-  LD A,$11
-  RST $10
-  LD A,$00
-  RST $10
-  LD A,$16
-  RST $10
-  LD A,$01
-  RST $10
+; This entry point is used by the routine at carry_player_1_score_digit.
+print_player_1_score_digit:
+  LD A,$10                ; INK YELLOW
+  RST $10                 ;
+  LD A,$06                ;
+  RST $10                 ;
+  LD A,$11                ; PAPER BLACK
+  RST $10                 ;
+  LD A,$00                ;
+  RST $10                 ;
+  LD A,$16                ; AT 1,...
+  RST $10                 ;
+  LD A,$01                ;
+  RST $10                 ;
   LD A,D
   ADD A,$05
   RST $10
@@ -6762,26 +6782,35 @@ L9122_0:
   LD A,$02
   CALL CHAN_OPEN
   RET
-L9122_1:
-  LD HL,L90C2
+
+; Increase a digit in the player 2's score.
+;
+; Used by the routine at update_score.
+;
+; I:C Offset of the digit to increase.
+; O:D Offset of the digit to increase.
+inc_player_2_score_digit:
+  LD HL,state_score_player_2
   LD B,$00
   LD A,C
   ADD HL,BC
   LD D,A
   LD A,(HL)
   INC A
-  CP $3A
-  JP Z,L9122_4
+  CP $3A                  ; Check for digit overflow (the value got beyond the
+                          ; 0-9 ASCII range).
+  JP Z,carry_player_2_score_digit
   LD (HL),A
-L9122_2:
-  LD A,$10
-  RST $10
-  LD A,$05
-  RST $10
-  LD A,$16
-  RST $10
-  LD A,$01
-  RST $10
+; This entry point is used by the routine at carry_player_2_score_digit.
+print_player_2_score_digit:
+  LD A,$10                ; INK CYAN
+  RST $10                 ;
+  LD A,$05                ;
+  RST $10                 ;
+  LD A,$16                ; AT 1,...
+  RST $10                 ;
+  LD A,$01                ;
+  RST $10                 ;
   LD A,D
   ADD A,$15
   RST $10
@@ -6790,7 +6819,35 @@ L9122_2:
   LD A,$02
   CALL CHAN_OPEN
   RET
-L9122_3:
+
+; Carry
+;
+; Used by the routine at inc_player_1_score_digit.
+;
+; I:D Offset of the digit to carry.
+; I:HL Pointer to the digit.
+carry_player_1_score_digit:
+  LD (HL),$30             ; Write "0" to the overflown digit.
+  LD A,$06                ; Check if D is equal to 0 in a very weird way: set A
+                          ; to 6.
+  SUB D                   ; Subtract D from it.
+  INC A                   ; Increase A by one.
+  CP $07                  ; Check if we got 7 (which is only possible if D is
+                          ; 0).
+  RET Z
+  PUSH HL
+  PUSH DE
+  CALL update_score
+  LD A,$01
+  CALL CHAN_OPEN
+  POP DE
+  POP HL
+  JP print_player_1_score_digit
+
+; Carry
+;
+; Used by the routine at inc_player_2_score_digit.
+carry_player_2_score_digit:
   LD (HL),$30
   LD A,$06
   SUB D
@@ -6799,51 +6856,36 @@ L9122_3:
   RET Z
   PUSH HL
   PUSH DE
-  CALL L9122
+  CALL update_score
   LD A,$01
   CALL CHAN_OPEN
   POP DE
   POP HL
-  JP L9122_0
-L9122_4:
-  LD (HL),$30
-  LD A,$06
-  SUB D
-  INC A
-  CP $07
-  RET Z
-  PUSH HL
-  PUSH DE
-  CALL L9122
-  LD A,$01
-  CALL CHAN_OPEN
-  POP DE
-  POP HL
-  JP L9122_2
+  JP print_player_2_score_digit
 
 ; Routine at 91C1
 ;
 ; Used by the routine at L91E8.
-L91C1:
-  LD A,$10
-  RST $10
-  LD A,$05
-  RST $10
-  LD BC,$0006
-  LD DE,L90C2
-  CALL PR_STRING
-  LD A,$30
-  RST $10
-  LD A,$16
-  RST $10
-  LD A,$01
-  RST $10
-  LD A,$12
-  RST $10
-  LD A,$50
-  RST $10
-  LD A,$32
-  RST $10
+print_score_player_2:
+  LD A,$10                ; INK CYAN
+  RST $10                 ;
+  LD A,$05                ;
+  RST $10                 ;
+  LD BC,L90C8 - state_score_player_2 ; Print score.
+  LD DE,state_score_player_2         ;
+  CALL PR_STRING                     ;
+  LD A,$30                ; "0"
+  RST $10                 ;
+  LD A,$16                ; AT 1,18
+  RST $10                 ;
+  LD A,$01                ;
+  RST $10                 ;
+  LD A,$12                ;
+  RST $10                 ;
+  LD A,$50                ; "P2"
+  RST $10                 ;
+  LD A,$32                ;
+  RST $10                 ;
   LD A,$02
   CALL CHAN_OPEN
   RET
@@ -6862,13 +6904,13 @@ L91E8:
   RST $10
   LD A,(state_game_mode)
   BIT 0,A
-  JP NZ,L91C1
+  JP NZ,print_score_player_2
   LD A,$10
   RST $10
   LD A,$07
   RST $10
   LD BC,$0006
-  LD HL,$90C8
+  LD HL,L90C8
   LD A,(state_game_mode)
   AND $FE
   LD E,A
@@ -7167,7 +7209,7 @@ L928D_16:
   LD A,(state_game_mode)
   BIT 0,A
   CALL NZ,L928D_17
-  LD HL,$90C8
+  LD HL,L90C8
   LD A,(state_game_mode)
   AND $FE
   LD E,A
@@ -7180,24 +7222,24 @@ L928D_16:
   LD E,A
   ADD HL,DE
   EX DE,HL
-  LD HL,L90BC
+  LD HL,state_score_player_1
   PUSH DE
   CALL L928D_12
   POP DE
   CP $01
   RET NZ
-  LD HL,L90BC
+  LD HL,state_score_player_1
   LD BC,$0006
   LDIR
   RET
 L928D_17:
-  LD HL,L90BC
-  LD DE,L90C2
+  LD HL,state_score_player_1
+  LD DE,state_score_player_2
   CALL L928D_12
   CP $FF
   RET NZ
-  LD HL,L90C2
-  LD DE,L90BC
+  LD HL,state_score_player_2
+  LD DE,state_score_player_1
   LD BC,$0006
   LDIR
   RET

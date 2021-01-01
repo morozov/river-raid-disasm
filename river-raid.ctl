@@ -69,6 +69,7 @@ b $5EFD
 u $5EFE
 @ $5F00 label=L5F00
 t $5F00
+t $5F2E
 @ $5F5F label=L5F5F
 b $5F5F
 @ $5F60 label=L5F60
@@ -95,6 +96,8 @@ b $5F6B Current bridge of player 2
 b $5F6C
 @ $5F6D label=L5F6D
 b $5F6D
+w $5F6E
+w $5F70
 @ $5F72 label=state_x
 g $5F72 Current X coordinate
 @ $5F73 label=L5F73
@@ -599,22 +602,52 @@ c $8C1B
 @ $8C3C label=L8C3C
 c $8C3C
 b $8C4A
-@ $90BC label=L90BC
+@ $90BC label=state_score_player_1
 t $90BC
-@ $90BE label=L90BE
-  $90BE
-@ $90C0 label=L90C0
-  $90C0
-@ $90C2 label=L90C2
-  $90C2
-@ $90C4 label=L90C4
-  $90C4
-@ $90C6 label=L90C6
-  $90C6
+@ $90C2 label=state_score_player_2
+t $90C2
+t $90C8
 c $90E0
 c $9109
+@ $9122 label=update_score
 c $9122
+R $9122 I:A (can be 1, 2 or 4)
+@ $913B label=inc_player_1_score_digit
+c $913B Increase a digit in the player 1's score.
+R $913B I:C Offset of the digit to increase.
+R $913B O:D Offset of the digit to increase.
+  $9145,2 Check for digit overflow (the value got beyond the 0-9 ASCII range).
+@ $914B label=print_player_1_score_digit
+  $914B,6 INK YELLOW
+  $9151,6 PAPER BLACK
+  $9157,6 AT 1,...
+@ $9169 label=inc_player_2_score_digit
+c $9169 Increase a digit in the player 2's score.
+R $9169 I:C Offset of the digit to increase.
+R $9169 O:D Offset of the digit to increase.
+  $9173,2 Check for digit overflow (the value got beyond the 0-9 ASCII range).
+@ $9179 label=print_player_2_score_digit
+  $9179,6 INK CYAN
+  $917F,6 AT 1,...
+@ $9191 label=carry_player_1_score_digit
+c $9191 Carry
+R $9191 I:D Offset of the digit to carry.
+R $9191 I:HL Pointer to the digit.
+  $9191,2 Write "0" to the overflown digit.
+  $9193,2 Check if #REGd is equal to 0 in a very weird way: set #REGa to 6.
+  $9195,1 Subtract #REGd from it.
+  $9196,1 Increase #REGa by one.
+  $9197,2 Check if we got 7 (which is only possible if #REGd is 0).
+@ $91A9 label=carry_player_2_score_digit
+c $91A9 Carry
+@ $91C1 label=print_score_player_2
 c $91C1
+  $91C1,6 INK CYAN
+@ $91C7 isub=LD BC,L90C8 - state_score_player_2
+  $91C7,9 Print score.
+  $91D0,3 "0"
+  $91D3,9 AT 1,18
+  $91DC,6 "P2"
 c $91E8
 @ $923A label=state_game_mode
 b $923A The game mode storing the number of players in the first bit and the starting bridge in the next two.

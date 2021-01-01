@@ -1252,8 +1252,10 @@ u$5EFE DEFB $FF,$FF
 
 ; Message at 5F00
 @label=L5F00
-t$5F00 DEFM "                                                                 "
- $5F41 DEFM "                              "
+t$5F00 DEFM "                                              "
+
+; Message at 5F2E
+t$5F2E DEFM "                                                 "
 
 ; Data block at 5F5F
 @label=L5F5F
@@ -1305,7 +1307,13 @@ b$5F6C DEFB $00
 
 ; Data block at 5F6D
 @label=L5F6D
-b$5F6D DEFB $00,$00,$00,$00,$00
+b$5F6D DEFB $00
+
+; Data block at 5F6E
+w$5F6E DEFW $0000
+
+; Data block at 5F70
+w$5F70 DEFW $0000
 
 ; Current X coordinate
 @label=state_x
@@ -6469,18 +6477,15 @@ b$8C4A DEFB $C3,$90,$EA,$0E,$8B,$E9,$C3,$90
  $90BA DEFB $00,$00
 
 ; Message at 90BC
-@label=L90BC
-t$90BC DEFM "00"
-@label=L90BE
- $90BE DEFM "00"
-@label=L90C0
- $90C0 DEFM "00"
-@label=L90C2
- $90C2 DEFM "00"
-@label=L90C4
- $90C4 DEFM "00"
-@label=L90C6
- $90C6 DEFM "00000000000000000000000000"
+@label=state_score_player_1
+t$90BC DEFM "000000"
+
+; Message at 90C2
+@label=state_score_player_2
+t$90C2 DEFM "000000"
+
+; Message at 90C8
+t$90C8 DEFM "000000000000000000000000"
 
 ; Routine at 90E0
 ;
@@ -6528,7 +6533,10 @@ c$9109 PUSH AF       ;
 
 ; Routine at 9122
 ;
-; Used by the routine at #R$90E0.
+; Used by the routines at #R$90E0, #R$9191 and #R$91A9.
+;
+; I:A (can be 1, 2 or 4)
+@label=update_score
 c$9122 PUSH AF       ;
  $9123 LD A,$01      ;
  $9125 CALL $1601    ;
@@ -6542,28 +6550,39 @@ c$9122 PUSH AF       ;
  $9133 LD A,($923D)  ;
  $9136 CP $02        ;
  $9138 JP Z,$9169    ;
- $913B LD HL,$90BC   ;
+
+; Increase a digit in the player 1's score.
+;
+; .
+;
+; I:C Offset of the digit to increase.
+; O:D Offset of the digit to increase.
+@label=inc_player_1_score_digit
+c$913B LD HL,$90BC   ;
  $913E LD B,$00      ;
  $9140 LD A,C        ;
  $9141 ADD HL,BC     ;
  $9142 LD D,A        ;
  $9143 LD A,(HL)     ;
  $9144 INC A         ;
- $9145 CP $3A        ;
+ $9145 CP $3A        ; Check for digit overflow (the value got beyond the 0-9
+                     ; ASCII range).
  $9147 JP Z,$9191    ;
  $914A LD (HL),A     ;
-*$914B LD A,$10      ;
+; This entry point is used by the routine at #R$9191.
+@label=print_player_1_score_digit
+*$914B LD A,$10      ; {INK YELLOW
  $914D RST $10       ;
  $914E LD A,$06      ;
- $9150 RST $10       ;
- $9151 LD A,$11      ;
+ $9150 RST $10       ; }
+ $9151 LD A,$11      ; {PAPER BLACK
  $9153 RST $10       ;
  $9154 LD A,$00      ;
- $9156 RST $10       ;
- $9157 LD A,$16      ;
+ $9156 RST $10       ; }
+ $9157 LD A,$16      ; {AT 1,...
  $9159 RST $10       ;
  $915A LD A,$01      ;
- $915C RST $10       ;
+ $915C RST $10       ; }
  $915D LD A,D        ;
  $915E ADD A,$05     ;
  $9160 RST $10       ;
@@ -6572,24 +6591,35 @@ c$9122 PUSH AF       ;
  $9163 LD A,$02      ;
  $9165 CALL $1601    ;
  $9168 RET           ;
-*$9169 LD HL,$90C2   ;
+
+; Increase a digit in the player 2's score.
+;
+; Used by the routine at #R$9122.
+;
+; I:C Offset of the digit to increase.
+; O:D Offset of the digit to increase.
+@label=inc_player_2_score_digit
+c$9169 LD HL,$90C2   ;
  $916C LD B,$00      ;
  $916E LD A,C        ;
  $916F ADD HL,BC     ;
  $9170 LD D,A        ;
  $9171 LD A,(HL)     ;
  $9172 INC A         ;
- $9173 CP $3A        ;
+ $9173 CP $3A        ; Check for digit overflow (the value got beyond the 0-9
+                     ; ASCII range).
  $9175 JP Z,$91A9    ;
  $9178 LD (HL),A     ;
-*$9179 LD A,$10      ;
+; This entry point is used by the routine at #R$91A9.
+@label=print_player_2_score_digit
+*$9179 LD A,$10      ; {INK CYAN
  $917B RST $10       ;
  $917C LD A,$05      ;
- $917E RST $10       ;
- $917F LD A,$16      ;
+ $917E RST $10       ; }
+ $917F LD A,$16      ; {AT 1,...
  $9181 RST $10       ;
  $9182 LD A,$01      ;
- $9184 RST $10       ;
+ $9184 RST $10       ; }
  $9185 LD A,D        ;
  $9186 ADD A,$15     ;
  $9188 RST $10       ;
@@ -6598,11 +6628,21 @@ c$9122 PUSH AF       ;
  $918B LD A,$02      ;
  $918D CALL $1601    ;
  $9190 RET           ;
-*$9191 LD (HL),$30   ;
- $9193 LD A,$06      ;
- $9195 SUB D         ;
- $9196 INC A         ;
- $9197 CP $07        ;
+
+; Carry
+;
+; Used by the routine at #R$913B.
+;
+; I:D Offset of the digit to carry.
+; I:HL Pointer to the digit.
+@label=carry_player_1_score_digit
+c$9191 LD (HL),$30   ; Write "0" to the overflown digit.
+ $9193 LD A,$06      ; Check if #REGd is equal to 0 in a very weird way: set
+                     ; #REGa to 6.
+ $9195 SUB D         ; Subtract #REGd from it.
+ $9196 INC A         ; Increase #REGa by one.
+ $9197 CP $07        ; Check if we got 7 (which is only possible if #REGd is
+                     ; 0).
  $9199 RET Z         ;
  $919A PUSH HL       ;
  $919B PUSH DE       ;
@@ -6612,7 +6652,12 @@ c$9122 PUSH AF       ;
  $91A4 POP DE        ;
  $91A5 POP HL        ;
  $91A6 JP $914B      ;
-*$91A9 LD (HL),$30   ;
+
+; Carry
+;
+; Used by the routine at #R$9169.
+@label=carry_player_2_score_digit
+c$91A9 LD (HL),$30   ;
  $91AB LD A,$06      ;
  $91AD SUB D         ;
  $91AE INC A         ;
@@ -6630,25 +6675,27 @@ c$9122 PUSH AF       ;
 ; Routine at 91C1
 ;
 ; Used by the routine at #R$91E8.
-c$91C1 LD A,$10      ;
+@label=print_score_player_2
+c$91C1 LD A,$10      ; {INK CYAN
  $91C3 RST $10       ;
  $91C4 LD A,$05      ;
- $91C6 RST $10       ;
- $91C7 LD BC,$0006   ;
+ $91C6 RST $10       ; }
+@isub=LD BC,L90C8 - state_score_player_2
+ $91C7 LD BC,$0006   ; {Print score.
  $91CA LD DE,$90C2   ;
- $91CD CALL $203C    ;
- $91D0 LD A,$30      ;
- $91D2 RST $10       ;
- $91D3 LD A,$16      ;
+ $91CD CALL $203C    ; }
+ $91D0 LD A,$30      ; {"0"
+ $91D2 RST $10       ; }
+ $91D3 LD A,$16      ; {AT 1,18
  $91D5 RST $10       ;
  $91D6 LD A,$01      ;
  $91D8 RST $10       ;
  $91D9 LD A,$12      ;
- $91DB RST $10       ;
- $91DC LD A,$50      ;
+ $91DB RST $10       ; }
+ $91DC LD A,$50      ; {"P2"
  $91DE RST $10       ;
  $91DF LD A,$32      ;
- $91E1 RST $10       ;
+ $91E1 RST $10       ; }
  $91E2 LD A,$02      ;
  $91E4 CALL $1601    ;
  $91E7 RET           ;
