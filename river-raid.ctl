@@ -599,7 +599,18 @@ c $8C1B
 @ $8C3C label=L8C3C
 c $8C3C
 b $8C4A
+@ $90BC label=L90BC
 t $90BC
+@ $90BE label=L90BE
+  $90BE
+@ $90C0 label=L90C0
+  $90C0
+@ $90C2 label=L90C2
+  $90C2
+@ $90C4 label=L90C4
+  $90C4
+@ $90C6 label=L90C6
+  $90C6
 c $90E0
 c $9109
 c $9122
