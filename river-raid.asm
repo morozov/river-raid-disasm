@@ -925,6 +925,7 @@ L5B20:
   DEFB $77,$94,$77,$94,$77,$94,$77,$2D
   DEFB $92,$5C,$00,$02,$00,$00,$00,$00
   DEFB $00,$00,$6E,$DC,$9D,$1A,$00,$00
+L5C78:
   DEFB $3D,$00,$00,$58,$FF,$00,$00,$21
   DEFB $00,$5B,$21,$17,$00,$40,$E0,$50
   DEFB $21,$18,$21,$17,$03,$00,$00,$00
@@ -1384,7 +1385,7 @@ L6136:
   LD ($5F89),BC
   LD A,($5EF5)
   CP $00
-  JP Z,L8C0B_2
+  JP Z,L8C1B_1
   CP $01
   JP Z,L6256
   CP $02
@@ -1776,7 +1777,7 @@ L62E8_3:
   LD HL,($5F85)
   LD DE,($5F87)
   LD BC,($5F89)
-  JP L8C0B_2
+  JP L8C1B_1
 L62E8_4:
   LD A,$06
   CALL L90E0
@@ -2065,7 +2066,7 @@ L65F3:
   CALL Z,L7038
   LD D,$08
   LD A,$02
-  LD HL,$83F1
+  LD HL,L83F1
   CALL L8B1E_1
 ; This entry point is used by the routines at L6642 and L6682.
 L65F3_0:
@@ -2104,7 +2105,7 @@ L6642:
   CALL Z,L7038
   LD D,$08
   LD A,$02
-  LD HL,$83F1
+  LD HL,L83F1
   CALL L8B1E_1
   JP L65F3_0
 
@@ -2145,7 +2146,7 @@ L6682:
 ;
 ; Used by the routine at L6682.
 L66CC:
-  LD HL,$83F1
+  LD HL,L83F1
   RET
 
 ; Routine at 66D0
@@ -2263,7 +2264,7 @@ L673D:
   LD A,$02
   LD ($5EF5),A
   LD DE,$080C
-  LD HL,$8431
+  LD HL,L8431
   LD BC,$0008
   LD A,$01
   CALL L8B1E
@@ -2451,6 +2452,9 @@ L68B7:
   LD BC,$020C
   LDDR
   LD HL,$5BDF
+
+; Routine at 68C5
+L68C5:
   LD DE,$5820
   LD BC,$0020
   LDIR
@@ -2460,14 +2464,14 @@ L68B7:
   CP $02
   JP Z,L6927
 ; This entry point is used by the routine at L68E9.
-L68B7_0:
+L68C5_0:
   LD DE,$5BDF
   LD A,$0C
   LD B,$20
-L68B7_1:
+L68C5_1:
   LD (DE),A
   INC DE
-  DJNZ L68B7_1
+  DJNZ L68C5_1
   CALL L6F80
   RET
 
@@ -2508,11 +2512,11 @@ L68E9_2:
   LD A,L
   INC A
   LD ($5EF0),A
-  JP L68B7_0
+  JP L68C5_0
 
 ; Routine at 6927
 ;
-; Used by the routine at L68B7.
+; Used by the routine at L68C5.
 L6927:
   LD DE,$5BDF
   LD HL,L8371
@@ -2568,7 +2572,7 @@ L694D_0:
 ;
 ; Used by the routine at L6A4F.
 L696B:
-  LD HL,$C600
+  LD HL,LC600
   LD DE,$0003
   SRL A
   SRL A
@@ -2615,7 +2619,7 @@ L6990_0:
   LD B,$00
   ADD A,$80
   LD D,A
-  LD HL,$89F2
+  LD HL,L89F2
   LD A,D
   AND $07
   SRL A
@@ -2664,7 +2668,7 @@ L6990_2:
   JP Z,L6990_6
 L6990_3:
   LD D,A
-  LD HL,$89FA
+  LD HL,L89FA
   LD A,D
   AND $06
   LD C,A
@@ -2719,7 +2723,7 @@ L6A4A:
 L6A4F:
   LD A,$FF
   LD ($5F7D),A
-  LD HL,$9500
+  LD HL,L9500
   LD DE,$0100
   LD A,($5EF0)
   OR A
@@ -2793,7 +2797,7 @@ L6A4F_3:
   LD D,A
   LD HL,L693B
   INC (HL)
-  LD HL,$89F2
+  LD HL,L89F2
   LD A,D
   AND $07
   SRL A
@@ -2835,7 +2839,7 @@ L6A4F_4:
 L6A4F_5:
   LD D,A
   LD B,$00
-  LD HL,$89FA
+  LD HL,L89FA
   LD A,D
   AND $06
   LD C,A
@@ -2957,7 +2961,7 @@ L6BDB:
   PUSH DE
   PUSH BC
   PUSH AF
-  LD HL,$5C78
+  LD HL,L5C78
   INC (HL)
   LD A,$BF
   IN A,($FE)
@@ -3506,21 +3510,21 @@ L6EC8_0:
 ;
 ; Used by the routine at L6EC8.
 L6F63:
-  LD DE,$8471
+  LD DE,L8471
   RET
 
 ; Routine at 6F67
 ;
 ; Used by the routine at L6EC8.
 L6F67:
-  LD DE,$8481
+  LD DE,L8481
   RET
 
 ; Routine at 6F6B
 ;
 ; Used by the routine at L6EC8.
 L6F6B:
-  LD DE,$8491
+  LD DE,L8491
   RET
 
 ; Routine at 6F6F
@@ -3548,11 +3552,11 @@ L6F7A:
 
 ; Routine at 6F80
 ;
-; Used by the routines at L68B7 and L6927.
+; Used by the routines at L68C5 and L6927.
 L6F80:
   LD A,$00
   LD ($5EF5),A
-  LD HL,$C800
+  LD HL,LC800
   LD DE,$0100
   LD A,($5EF0)
   OR A
@@ -3585,7 +3589,7 @@ L6F80_1:
   LD A,D
   AND $07
   OR A
-  LD HL,$84A1
+  LD HL,L84A1
   LD BC,$0030
   INC A
   SBC HL,BC
@@ -3608,7 +3612,7 @@ L6F80_2:
 ;
 ; Used by the routine at L75BA.
 L6FE6:
-  LD HL,$8793
+  LD HL,L8793
   RET
 
 ; Routine at 6FEA
@@ -3683,9 +3687,9 @@ L703E:
 ; Used by the routine at L6FF6.
 L7046:
   LD A,$A8
-  LD ($8C3C),A
+  LD (L8C3C),A
   LD A,$00
-  LD ($8C1B),A
+  LD (L8C1B),A
   RET
 
 ; Routine at 7051
@@ -3769,14 +3773,14 @@ L708E:
   JP NZ,L708E_0
   LD A,(L5F5F)
   LD E,A
-  LD A,($5C78)
+  LD A,(L5C78)
   AND E
   CP $00
   JP NZ,L7224
   SET 7,D
   INC HL
   LD (HL),D
-  LD HL,$5C78
+  LD HL,L5C78
   INC (HL)
 L708E_0:
   LD A,D
@@ -4087,8 +4091,8 @@ L7296_0:
 ; Used by the routines at L7158 and L7296.
 L72E6:
   LD A,$A8
-  LD ($8C1B),A
-  LD ($8C3C),A
+  LD (L8C1B),A
+  LD (L8C3C),A
   RET
 
 ; Routine at 72EF
@@ -4096,8 +4100,8 @@ L72E6:
 ; Used by the routines at L6794, L6FF6, L7158 and L7296.
 L72EF:
   LD A,$B0
-  LD ($8C1B),A
-  LD ($8C3C),A
+  LD (L8C1B),A
+  LD (L8C3C),A
   RET
 
 ; Routine at 72F8
@@ -4159,7 +4163,7 @@ L7302_1:
   LD A,D
   AND $40
   LD D,A
-  LD A,($5C78)
+  LD A,(L5C78)
   AND $03
   LD E,A
   LD A,D
@@ -4375,7 +4379,7 @@ L7441:
   AND $88
   CP $88
   JP Z,L7441_0
-  LD HL,$8431
+  LD HL,L8431
   LD DE,$0100
   LD A,$01
   LD BC,$0008
@@ -4383,7 +4387,7 @@ L7441:
   RET
 L7441_0:
   LD BC,($8B0A)
-  LD HL,$8431
+  LD HL,L8431
   LD A,C
   AND $06
   SLA A
@@ -5502,6 +5506,7 @@ L83B1:
   DEFB $0D,$60,$09,$20,$03,$80,$05,$40
   DEFB $00,$40,$00,$40,$00,$E0,$01,$F0
   DEFB $03,$58,$02,$48,$00,$E0,$01,$50
+L83F1:
   DEFB $10,$00,$10,$00,$38,$00,$7C,$00
   DEFB $54,$00,$10,$00,$38,$00,$28,$00
   DEFB $04,$00,$04,$00,$0E,$00,$1F,$00
@@ -5510,6 +5515,7 @@ L83B1:
   DEFB $05,$40,$01,$00,$03,$80,$02,$80
   DEFB $00,$40,$00,$40,$00,$E0,$01,$F0
   DEFB $01,$50,$00,$40,$00,$E0,$00,$A0
+L8431:
   DEFB $C0,$C0,$C0,$C0,$C0,$C0,$00,$00
 
 ; Message at 8439
@@ -5531,12 +5537,22 @@ L8459:
 L8461:
   DEFB $0C,$0C,$0C,$0C,$0C,$0C,$0C,$0C
   DEFB $03,$03,$03,$03,$03,$03,$03,$03
+
+; Data block at 8471
+L8471:
   DEFB $02,$40,$09,$20,$05,$00,$20,$50
   DEFB $15,$00,$08,$28,$02,$40,$00,$00
+
+; Data block at 8481
+L8481:
   DEFB $22,$20,$0D,$04,$90,$52,$46,$88
   DEFB $A8,$54,$04,$40,$11,$88,$00,$00
+
+; Data block at 8491
+L8491:
   DEFB $01,$90,$64,$A6,$AA,$48,$05,$A2
   DEFB $A8,$19,$92,$64,$49,$12,$0A,$48
+L84A1:
   DEFB $00,$00,$00,$00,$00,$00,$00,$00
   DEFB $00,$00,$00,$00,$00,$00,$00,$00
   DEFB $00,$00,$00,$00,$00,$00,$00,$00
@@ -5661,6 +5677,9 @@ L85B3:
   DEFB $00,$00,$00,$00,$01,$00,$01,$C3
   DEFB $00,$03,$FF,$00,$03,$F2,$00,$00
   DEFB $1C,$00,$00,$0E,$00,$00,$00,$00
+
+; Data block at 8793
+L8793:
   DEFB $03,$C0,$00,$1E,$00,$00,$03,$00
   DEFB $00,$8F,$80,$00,$FF,$C0,$00,$87
   DEFB $80,$00,$02,$00,$00,$0F,$80,$00
@@ -5736,9 +5755,15 @@ L85B3:
   DEFB $30,$00,$FC,$01,$FE,$01,$FE,$03
   DEFB $FF,$03,$FF,$01,$FE,$01,$FE,$01
   DEFB $FE,$01,$32,$00,$84,$00,$84,$00
-  DEFB $48,$00,$48,$00,$78,$00,$78,$FF
-  DEFB $C0,$FF,$F0,$FF,$FC,$FF,$FF,$FF
-  DEFB $FF,$3F,$FF,$0F,$FF,$03,$FF
+  DEFB $48,$00,$48,$00,$78,$00,$78
+
+; Data block at 89F2
+L89F2:
+  DEFB $FF,$C0,$FF,$F0,$FF,$FC,$FF,$FF
+
+; Data block at 89FA
+L89FA:
+  DEFB $FF,$FF,$3F,$FF,$0F,$FF,$03,$FF
 
 ; Routine at 8A02
 ;
@@ -6020,11 +6045,15 @@ L8C0B:
   LD C,A
   LD HL,($8B14)
   LD DE,($8B0E)
+; This entry point is used by the routine at L8C1B.
 L8C0B_0:
   LD A,(DE)
   LD B,A
   LD A,(HL)
   XOR $FF
+
+; Routine at 8C1B
+L8C1B:
   OR B
   XOR $FF
   LD (HL),A
@@ -6036,7 +6065,8 @@ L8C0B_0:
   LD C,A
   LD HL,(L8B12)
   LD DE,($8B10)
-L8C0B_1:
+; This entry point is used by the routine at L8C3C.
+L8C1B_0:
   PUSH DE
   LD A,(DE)
   LD B,A
@@ -6046,19 +6076,23 @@ L8C0B_1:
   XOR B
   OR B
   CP D
-  JP NZ,L8C0B_3
+  JP NZ,L8C3C_0
 ; This entry point is used by the routines at L6136 and L62E8.
-L8C0B_2:
+L8C1B_1:
   LD A,(HL)
+
+; Routine at 8C3C
+L8C3C:
   OR B
   LD (HL),A
   POP DE
   INC HL
   INC DE
   DEC C
-  JR NZ,L8C0B_1
+  JR NZ,L8C1B_0
   RET
-L8C0B_3:
+; This entry point is used by the routine at L8C1B.
+L8C3C_0:
   PUSH HL
   LD HL,($8B08)
   JP (HL)
@@ -6759,6 +6793,7 @@ L9430:
   DEFB $00,$00,$00,$00,$00,$00,$00,$00
   DEFB $00,$00,$00,$00,$00,$00,$00,$00
   DEFB $00,$00,$00,$00,$00,$00,$00,$00
+L9500:
   DEFB $0C,$83,$4C,$01,$02,$80,$50,$01
   DEFB $03,$80,$40,$01,$04,$80,$30,$01
   DEFB $0D,$83,$4C,$01,$06,$84,$44,$01
@@ -8327,6 +8362,7 @@ L9430:
   DEFB $00,$00,$00,$00,$00,$00,$00,$00
   DEFB $00,$00,$00,$00,$00,$00,$00,$00
   DEFB $00,$00,$00,$00,$00,$00,$00,$00
+LC600:
   DEFB $09,$00,$01,$0A,$00,$01,$07,$00
   DEFB $01,$08,$00,$01,$0C,$00,$01,$0D
   DEFB $00,$01,$0E,$10,$01,$0F,$10,$01
@@ -8391,6 +8427,7 @@ L9430:
   DEFB $00,$00,$00,$00,$00,$00,$00,$00
   DEFB $00,$00,$00,$00,$00,$00,$00,$00
   DEFB $00,$00,$00,$00,$00,$00,$00,$00
+LC800:
   DEFB $00,$00,$00,$00,$00,$00,$00,$00
   DEFB $00,$00,$00,$00,$00,$00,$00,$00
   DEFB $00,$00,$00,$00,$00,$00,$00,$00

@@ -7,6 +7,9 @@ b $5800 Screen attributes.
 b $5B00
 t $5B12
 b $5B20
+@ $5C78 label=L5C78
+@ $5CD8 nowarn
+@ $5CE3 nowarn
 c $5D10
 b $5D35
 c $5D44
@@ -19,6 +22,7 @@ c $5F91
 c $60A5
 c $6124
 c $6136
+@ $621F keep
 b $6253
 c $6256
 c $6268
@@ -53,6 +57,8 @@ c $6831
 c $6836
 c $683B
 c $68B7
+@ $68C5 nowarn
+c $68C5
 c $68E9
 c $6927
 s $693B
@@ -102,6 +108,8 @@ c $7038
 c $703B
 c $703E
 c $7046
+@ $7048 nowarn
+@ $704D nowarn
 c $7051
 c $706C
 c $708E
@@ -116,7 +124,11 @@ c $728B
 c $7290
 c $7296
 c $72E6
+@ $72E8 nowarn
+@ $72EB nowarn
 c $72EF
+@ $72F1 nowarn
+@ $72F4 nowarn
 c $72F8
 c $72FD
 c $7302
@@ -256,10 +268,19 @@ t $8383
 b $839F
 t $83A3
 b $83B1
+@ $83F1 label=L83F1
+@ $8431 label=L8431
 t $8439
 b $843F
 t $8459
 b $8461
+@ $8471 label=L8471
+b $8471
+@ $8481 label=L8481
+b $8481
+@ $8491 label=L8491
+b $8491
+@ $84A1 label=L84A1
 t $8568
 b $8579
 t $857C
@@ -270,11 +291,19 @@ t $859C
 b $85A6
 t $85A9
 b $85B3
+@ $8793 label=L8793
+b $8793
+@ $89F2 label=L89F2
+b $89F2
+@ $89FA label=L89FA
+b $89FA
 c $8A02
 c $8A1B
 c $8A33
+@ $8A39 nowarn
 c $8A4E
 b $8A86
+@ $8AC8 label=L8AC8
 t $8AEA
 b $8AED
 t $8B12
@@ -282,6 +311,10 @@ s $8B1A
 c $8B1E
 c $8B70
 c $8C0B
+@ $8C1B label=L8C1B
+c $8C1B
+@ $8C3C label=L8C3C
+c $8C3C
 b $8C4A
 t $90BC
 c $90E0
@@ -293,10 +326,15 @@ s $923A
 c $923E
 s $9283
 c $928D
+@ $92F1 nowarn
+@ $934F nowarn
 b $93A1
 c $940A
 c $9423
 b $9430
+@ $9500 label=L9500
+@ $C600 label=LC600
+@ $C800 label=LC800
 t $D13B
 b $D13E
 t $D337
