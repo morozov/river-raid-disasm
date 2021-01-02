@@ -152,6 +152,10 @@ C $6097 Scan lower row left (FIRE)
 c $60A5
 c $6124
 c $6136
+@ $615E label=L615E
+c $615E
+@ $61BB label=interact_with_something
+c $61BB
 @ $621F keep
 b $6253
 c $6256
@@ -162,6 +166,14 @@ c $62D7
 c $62DA Increase #REGb by the value of #R$5F64
 c $62E0
 c $62E8
+@ $6414 label=hit_helicopter_reg
+c $6414
+@ $6423 label=hit_ship
+c $6423
+@ $6462 label=hit_balloon
+c $6462
+@ $6478 label=interact_with_fuel
+c $6478
 b $64B4
 @ $64BC label=print_bridge
 c $64BC
@@ -607,7 +619,9 @@ t $90BC
 @ $90C2 label=state_score_player_2
 t $90C2
 t $90C8
-c $90E0
+@ $90E0 label=add_points
+c $90E0 Add score points for a hit target
+R $90E0 I:A Number of points to add divided by 10.
 c $9109
 @ $9122 label=update_score
 c $9122

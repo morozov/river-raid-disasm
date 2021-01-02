@@ -1618,12 +1618,16 @@ L6136:
   CP $01
   JP Z,L6256
   CP $02
-  JP Z,L6136_1
+  JP Z,interact_with_something
   CP $03
-  JP Z,L6136_0
+  JP Z,L615E
   CP $04
   JP Z,L7415
-L6136_0:
+
+; Routine at 615E
+;
+; Used by the routine at L6136.
+L615E:
   LD BC,(L5EF3)
   LD DE,(L8B0C)
   LD A,B
@@ -1674,10 +1678,13 @@ L6136_0:
   DEC C
   CALL L6E9C
   LD A,$10
-  CALL L90E0
+  CALL add_points
   JP L6794
-; This entry point is used by the routine at L6256.
-L6136_1:
+
+; Routine at 61BB
+;
+; Used by the routines at L6136 and L6256.
+interact_with_something:
   LD BC,(L5EF3)
   LD A,(L5F6E)
   CP $00
@@ -1690,7 +1697,7 @@ L6136_1:
   SUB B
   JP P,L62E8
   LD A,$50
-  CALL L90E0
+  CALL add_points
   LD A,$0F
   LD (L5F5F),A
   POP DE
@@ -1735,12 +1742,12 @@ L6136_1:
   LD (L5EF3),BC
   LD A,(state_player)
   CP $02
-  JP Z,L6136_2
+  JP Z,interact_with_something_0
   LD HL,state_bridge_player_1
   INC (HL)
   CALL print_bridge
   JP L6794
-L6136_2:
+interact_with_something_0:
   LD HL,state_bridge_player_2
   INC (HL)
   CALL print_bridge
@@ -1760,7 +1767,7 @@ L6256:
   LD A,(state_x)
   LD C,A
   LD (L5EF3),BC
-  JP L6136_1
+  JP interact_with_something
 
 ; Routine at 6268
 ;
@@ -1862,7 +1869,7 @@ L62E0:
 
 ; Routine at 62E8
 ;
-; Used by the routine at L6136.
+; Used by the routine at interact_with_something.
 L62E8:
   LD HL,(L5F60)
   LD C,(HL)
@@ -1957,17 +1964,17 @@ L62E8:
   LD (HL),$00
   LD D,$00
   CP $01
-  JP Z,L62E8_4
+  JP Z,hit_helicopter_reg
   CP $02
-  JP Z,L62E8_5
+  JP Z,hit_ship
   CP $03
-  JP Z,L62E8_6
+  JP Z,hit_ship_0
   CP $05
-  JP Z,L62E8_7
+  JP Z,hit_ship_1
   CP $06
-  JP Z,L62E8_8
+  JP Z,hit_balloon
   CP $07
-  JP Z,L62E8_9
+  JP Z,interact_with_fuel
 L62E8_0:
   CALL L6268
   LD HL,L5F00
@@ -1982,6 +1989,8 @@ L62E8_0:
   LD A,B
   CP D
   JP Z,L62E8_2
+; This entry point is used by the routines at hit_helicopter_reg, hit_ship,
+; hit_balloon and interact_with_fuel.
 L62E8_1:
   POP DE
   POP DE
@@ -1996,10 +2005,11 @@ L62E8_1:
   LD BC,(L5F8D)
   LD (L5EF3),BC
   JP L6794
+; This entry point is used by the routine at interact_with_fuel.
 L62E8_2:
   LD A,$00
   LD (L5F68),A
-; This entry point is used by the routine at L6136.
+; This entry point is used by the routine at L615E.
 L62E8_3:
   LD A,$00
   LD (L5EF5),A
@@ -2007,15 +2017,23 @@ L62E8_3:
   LD DE,(L5F87)
   LD BC,(L5F89)
   JP L8C1B_1
-L62E8_4:
+
+; Routine at 6414
+;
+; Used by the routine at L62E8.
+hit_helicopter_reg:
   LD A,$06
-  CALL L90E0
+  CALL add_points
   LD BC,(L5F8B)
   CALL L6E9C
   JP L62E8_1
-L62E8_5:
+
+; Routine at 6423
+;
+; Used by the routine at L62E8.
+hit_ship:
   LD A,$03
-  CALL L90E0
+  CALL add_points
   LD BC,(L5F8B)
   CALL L6E9C
   LD A,C
@@ -2030,21 +2048,27 @@ L62E8_5:
   LD B,A
   CALL L6E9C
   JP L62E8_1
-L62E8_6:
+; This entry point is used by the routine at L62E8.
+hit_ship_0:
   LD A,$15
-  CALL L90E0
+  CALL add_points
   LD BC,(L5F8B)
   CALL L6E9C
   JP L62E8_1
-L62E8_7:
+; This entry point is used by the routine at L62E8.
+hit_ship_1:
   LD A,$10
-  CALL L90E0
+  CALL add_points
   LD BC,(L5F8B)
   CALL L6E9C
   JP L62E8_1
-L62E8_8:
+
+; Routine at 6462
+;
+; Used by the routine at L62E8.
+hit_balloon:
   LD A,$06
-  CALL L90E0
+  CALL add_points
   LD BC,(L5F8B)
   CALL L6E9C
   LD A,B
@@ -2052,12 +2076,16 @@ L62E8_8:
   LD B,A
   CALL L6E9C
   JP L62E8_1
-L62E8_9:
+
+; Routine at 6478
+;
+; Used by the routine at L62E8.
+interact_with_fuel:
   LD A,(L5F68)
   CP $06
-  JP Z,L62E8_10
+  JP Z,interact_with_fuel_0
   LD A,$08
-  CALL L90E0
+  CALL add_points
   LD BC,(L5F8B)
   CALL L6E9C
   LD A,B
@@ -2071,7 +2099,7 @@ L62E8_9:
   INC B
   CALL L6E9C
   JP L62E8_1
-L62E8_10:
+interact_with_fuel_0:
   LD (HL),C
   LD HL,L5F00
   LD (L5F60),HL
@@ -2086,7 +2114,7 @@ L64B4:
 
 ; Routine at 64BC
 ;
-; Used by the routines at L5D9F, L6136, L6587 and demo.
+; Used by the routines at L5D9F, interact_with_something, L6587 and demo.
 print_bridge:
   LD A,(state_player)
   CP $02
@@ -2507,7 +2535,7 @@ L678E:
 
 ; Routine at 6794
 ;
-; Used by the routines at L6136, L62E8 and L673D.
+; Used by the routines at L615E, interact_with_something, L62E8 and L673D.
 L6794:
   LD BC,(L5EF3)
   CALL L72EF
@@ -3154,7 +3182,7 @@ L6B7B_0:
   CP $00
   RET Z
   LD HL,(L5F7B)
-; This entry point is used by the routine at L6136.
+; This entry point is used by the routine at interact_with_something.
 L6B7B_1:
   LD DE,$000E
   LD B,$04
@@ -3576,7 +3604,7 @@ L6DFF_0:
 
 ; Routine at 6E40
 ;
-; Used by the routine at L62E8.
+; Used by the routine at interact_with_fuel.
 L6E40:
   LD A,(L5F69)
   CP $04
@@ -3639,7 +3667,8 @@ L6E92:
 
 ; Routine at 6E9C
 ;
-; Used by the routines at L6136, L62E8, L650A and L74EE.
+; Used by the routines at L615E, interact_with_something, hit_helicopter_reg,
+; hit_ship, hit_balloon, interact_with_fuel, L650A and L74EE.
 L6E9C:
   LD HL,L6BB0
   SET 5,(HL)
@@ -4713,7 +4742,7 @@ L74EE:
   LD D,$80
   CALL L6E9C
   LD A,$25
-  CALL L90E0
+  CALL add_points
 L74EE_0:
   LD HL,(L5F60)
   DEC HL
@@ -6674,36 +6703,39 @@ state_score_player_2:
 L90C8:
   DEFM "000000000000000000000000"
 
-; Routine at 90E0
+; Add score points for a hit target
 ;
-; Used by the routines at L6136, L62E8 and L74EE.
-L90E0:
+; Used by the routines at L615E, interact_with_something, hit_helicopter_reg,
+; hit_ship, hit_balloon, interact_with_fuel and L74EE.
+;
+; I:A Number of points to add divided by 10.
+add_points:
   PUSH AF
   SRL A
   SRL A
   SRL A
   SRL A
   CP $00
-  JP Z,L90E0_1
-L90E0_0:
+  JP Z,add_points_1
+add_points_0:
   PUSH AF
   LD A,$02
   CALL update_score
   POP AF
   DEC A
-  JR NZ,L90E0_0
-L90E0_1:
+  JR NZ,add_points_0
+add_points_1:
   POP AF
   AND $0F
   CP $00
   RET Z
-L90E0_2:
+add_points_2:
   PUSH AF
   LD A,$01
   CALL update_score
   POP AF
   DEC A
-  JR NZ,L90E0_2
+  JR NZ,add_points_2
   RET
 
 ; Routine at 9109
@@ -6725,7 +6757,7 @@ L9109:
 
 ; Routine at 9122
 ;
-; Used by the routines at L90E0, carry_player_1_score_digit and
+; Used by the routines at add_points, carry_player_1_score_digit and
 ; carry_player_2_score_digit.
 ;
 ; I:A (can be 1, 2 or 4)

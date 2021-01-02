@@ -1606,7 +1606,12 @@ c$6136 POP HL        ;
  $6156 JP Z,$615E    ;
  $6159 CP $04        ;
  $615B JP Z,$7415    ;
-*$615E LD BC,($5EF3) ;
+
+; Routine at 615E
+;
+; Used by the routine at #R$6136.
+@label=L615E
+c$615E LD BC,($5EF3) ;
  $6162 LD DE,($8B0C) ;
  $6166 LD A,B        ;
  $6167 ADD A,$06     ;
@@ -1658,8 +1663,13 @@ c$6136 POP HL        ;
  $61B3 LD A,$10      ;
  $61B5 CALL $90E0    ;
  $61B8 JP $6794      ;
-; This entry point is used by the routine at #R$6256.
-*$61BB LD BC,($5EF3) ;
+
+; Routine at 61BB
+;
+; Used by the routines at #R$6136 and #R$6256.
+@label=interact_with_something
+@label=interact_with_something
+c$61BB LD BC,($5EF3) ;
  $61BF LD A,($5F6E)  ;
  $61C2 CP $00        ;
  $61C4 JP Z,$62E8    ;
@@ -1836,7 +1846,7 @@ c$62E0 LD A,($5F64)  ;
 
 ; Routine at 62E8
 ;
-; Used by the routine at #R$6136.
+; Used by the routine at #R$61BB.
 c$62E8 LD HL,($5F60) ;
  $62EB LD C,(HL)     ;
  $62EC INC HL        ;
@@ -1954,6 +1964,8 @@ c$62E8 LD HL,($5F60) ;
  $63D8 LD A,B        ;
  $63D9 CP D          ;
  $63DA JP Z,$63FC    ;
+; This entry point is used by the routines at #R$6414, #R$6423, #R$6462 and
+; #R$6478.
 *$63DD POP DE        ;
  $63DE POP DE        ;
  $63DF POP DE        ;
@@ -1967,21 +1979,32 @@ c$62E8 LD HL,($5F60) ;
  $63F1 LD BC,($5F8D) ;
  $63F5 LD ($5EF3),BC ;
  $63F9 JP $6794      ;
+; This entry point is used by the routine at #R$6478.
 *$63FC LD A,$00      ;
  $63FE LD ($5F68),A  ;
-; This entry point is used by the routine at #R$6136.
+; This entry point is used by the routine at #R$615E.
 *$6401 LD A,$00      ;
  $6403 LD ($5EF5),A  ;
  $6406 LD HL,($5F85) ;
  $6409 LD DE,($5F87) ;
  $640D LD BC,($5F89) ;
  $6411 JP $8C3B      ;
-*$6414 LD A,$06      ;
+
+; Routine at 6414
+;
+; Used by the routine at #R$62E8.
+@label=hit_helicopter_reg
+c$6414 LD A,$06      ;
  $6416 CALL $90E0    ;
  $6419 LD BC,($5F8B) ;
  $641D CALL $6E9C    ;
  $6420 JP $63DD      ;
-*$6423 LD A,$03      ;
+
+; Routine at 6423
+;
+; Used by the routine at #R$62E8.
+@label=hit_ship
+c$6423 LD A,$03      ;
  $6425 CALL $90E0    ;
  $6428 LD BC,($5F8B) ;
  $642C CALL $6E9C    ;
@@ -1997,17 +2020,24 @@ c$62E8 LD HL,($5F60) ;
  $643D LD B,A        ;
  $643E CALL $6E9C    ;
  $6441 JP $63DD      ;
+; This entry point is used by the routine at #R$62E8.
 *$6444 LD A,$15      ;
  $6446 CALL $90E0    ;
  $6449 LD BC,($5F8B) ;
  $644D CALL $6E9C    ;
  $6450 JP $63DD      ;
+; This entry point is used by the routine at #R$62E8.
 *$6453 LD A,$10      ;
  $6455 CALL $90E0    ;
  $6458 LD BC,($5F8B) ;
  $645C CALL $6E9C    ;
  $645F JP $63DD      ;
-*$6462 LD A,$06      ;
+
+; Routine at 6462
+;
+; Used by the routine at #R$62E8.
+@label=hit_balloon
+c$6462 LD A,$06      ;
  $6464 CALL $90E0    ;
  $6467 LD BC,($5F8B) ;
  $646B CALL $6E9C    ;
@@ -2016,7 +2046,12 @@ c$62E8 LD HL,($5F60) ;
  $6471 LD B,A        ;
  $6472 CALL $6E9C    ;
  $6475 JP $63DD      ;
-*$6478 LD A,($5F68)  ;
+
+; Routine at 6478
+;
+; Used by the routine at #R$62E8.
+@label=interact_with_fuel
+c$6478 LD A,($5F68)  ;
  $647B CP $06        ;
  $647D JP Z,$64A1    ;
  $6480 LD A,$08      ;
@@ -2047,7 +2082,7 @@ b$64B4 DEFB $D1,$D1,$D1,$D1,$D1,$C3,$0A,$65
 
 ; Routine at 64BC
 ;
-; Used by the routines at #R$5D9F, #R$6136, #R$6587 and #R$6D17.
+; Used by the routines at #R$5D9F, #R$61BB, #R$6587 and #R$6D17.
 @label=print_bridge
 c$64BC LD A,($923D)  ;
  $64BF CP $02        ;
@@ -2447,7 +2482,7 @@ c$678E LD HL,$6BB0   ;
 
 ; Routine at 6794
 ;
-; Used by the routines at #R$6136, #R$62E8 and #R$673D.
+; Used by the routines at #R$615E, #R$61BB, #R$62E8 and #R$673D.
 c$6794 LD BC,($5EF3) ;
  $6798 CALL $72EF    ;
  $679B LD A,($5F68)  ;
@@ -3046,7 +3081,7 @@ c$6B7B CP $80        ;
  $6B9E CP $00        ;
  $6BA0 RET Z         ;
  $6BA1 LD HL,($5F7B) ;
-; This entry point is used by the routine at #R$6136.
+; This entry point is used by the routine at #R$61BB.
 *$6BA4 LD DE,$000E   ;
  $6BA7 LD B,$04      ;
  $6BA9 ADD HL,DE     ;
@@ -3436,7 +3471,7 @@ c$6DFF LD A,($5EEF)  ;
 
 ; Routine at 6E40
 ;
-; Used by the routine at #R$62E8.
+; Used by the routine at #R$6478.
 c$6E40 LD A,($5F69)  ;
  $6E43 CP $04        ;
  $6E45 RET Z         ;
@@ -3494,7 +3529,8 @@ c$6E92 LD DE,$0008   ;
 
 ; Routine at 6E9C
 ;
-; Used by the routines at #R$6136, #R$62E8, #R$650A and #R$74EE.
+; Used by the routines at #R$615E, #R$61BB, #R$6414, #R$6423, #R$6462, #R$6478,
+; #R$650A and #R$74EE.
 c$6E9C LD HL,$6BB0   ;
  $6E9F SET 5,(HL)    ;
  $6EA1 RES 0,(HL)    ;
@@ -6487,9 +6523,13 @@ t$90C2 DEFM "000000"
 ; Message at 90C8
 t$90C8 DEFM "000000000000000000000000"
 
-; Routine at 90E0
+; Add score points for a hit target
 ;
-; Used by the routines at #R$6136, #R$62E8 and #R$74EE.
+; Used by the routines at #R$615E, #R$61BB, #R$6414, #R$6423, #R$6462, #R$6478
+; and #R$74EE.
+;
+; I:A Number of points to add divided by 10.
+@label=add_points
 c$90E0 PUSH AF       ;
  $90E1 SRL A         ;
  $90E3 SRL A         ;
