@@ -1215,9 +1215,9 @@ b$5EF2 DEFB $00
 @label=L5EF3
 w$5EF3 DEFW $0000
 
-; Data block at 5EF5
-@label=L5EF5
-b$5EF5 DEFB $00
+; Game status buffer entry at 5EF5
+@label=state_interaction_mode_5EF5
+g$5EF5 DEFB $00
 
 ; Data block at 5EF6
 @label=L5EF6
@@ -1285,9 +1285,16 @@ b$5F66 DEFB $00
 @label=state_control_type
 g$5F67 DEFB $00
 
-; Data block at 5F68
-@label=L5F68
-b$5F68 DEFB $00
+; Game status buffer entry at 5F68
+;
+; .
+;
+; $00 - TODO
+; $01 - TODO
+; $02 - TODO
+; $06 - fueling
+@label=state_interaction_mode_5F68
+g$5F68 DEFB $00
 
 ; Data block at 5F69
 @label=L5F69
@@ -1743,6 +1750,7 @@ b$6253 DEFB $3E,$00,$C9
 ; Routine at 6256
 ;
 ; Used by the routine at #R$6136.
+@label=fuel
 c$6256 LD A,$06      ;
  $6258 LD ($5F68),A  ;
  $625B LD B,$80      ;

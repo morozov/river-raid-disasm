@@ -50,8 +50,8 @@ g $5EF1 Contains the current readings of the input port (Sinclair, Kempston, Cur
 b $5EF2
 @ $5EF3 label=L5EF3
 w $5EF3
-@ $5EF5 label=L5EF5
-b $5EF5
+@ $5EF5 label=state_interaction_mode_5EF5
+g $5EF5
 @ $5EF6 label=L5EF6
 b $5EF6
 @ $5EF7 label=L5EF7
@@ -84,8 +84,12 @@ b $5F65
 b $5F66
 @ $5F67 label=state_control_type
 g $5F67 Control type ($00 - Keyboard, $01 - Sinclair, $02 - Kempston, Other - Cursor)
-@ $5F68 label=L5F68
-b $5F68
+@ $5F68 label=state_interaction_mode_5F68
+g $5F68
+R $5F68 $00 - TODO
+R $5F68 $01 - TODO
+R $5F68 $02 - TODO
+R $5F68 $06 - fueling
 @ $5F69 label=L5F69
 b $5F69
 @ $5F6A label=state_bridge_player_1
@@ -158,6 +162,7 @@ c $615E
 c $61BB
 @ $621F keep
 b $6253
+@ $6256 label=fuel
 c $6256
 c $6268
 c $62D4

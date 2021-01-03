@@ -1036,7 +1036,7 @@ init_state:
   LD (L5F78),BC
   LD A,$02
   LD (L5F77),A
-  LD (L5F68),A
+  LD (state_interaction_mode_5F68),A
   LD (state_speed),A
   LD (L5F6D),A
   LD HL,$3030
@@ -1135,7 +1135,7 @@ play:
   CALL CHAN_OPEN
   LD A,$01
   LD (L5F76),A
-  LD (L5F68),A
+  LD (state_interaction_mode_5F68),A
   LD (L5F6D),A
   LD A,$68
   LD (LAST_K),A
@@ -1162,7 +1162,7 @@ L5D9F_0:
   DJNZ L5D9F_0
   LD A,$00
   LD (L6BB0),A
-  LD (L5F68),A
+  LD (state_interaction_mode_5F68),A
   CALL L6682
   LD A,$0D
   LD (LAST_K),A
@@ -1220,8 +1220,8 @@ L5EF2:
 L5EF3:
   DEFW $0000
 
-; Data block at 5EF5
-L5EF5:
+; Game status buffer entry at 5EF5
+state_interaction_mode_5EF5:
   DEFB $00
 
 ; Data block at 5EF6
@@ -1292,8 +1292,13 @@ L5F66:
 state_control_type:
   DEFB $00
 
-; Data block at 5F68
-L5F68:
+; Game status buffer entry at 5F68
+;
+; $00 - TODO
+; $01 - TODO
+; $02 - TODO
+; $06 - fueling
+state_interaction_mode_5F68:
   DEFB $00
 
 ; Data block at 5F69
@@ -1527,11 +1532,11 @@ scan_keyboard:
 ;
 ; Used by the routines at L5D9F, main_loop and demo.
 L60A5:
-  LD A,(L5F68)
+  LD A,(state_interaction_mode_5F68)
   CP $00
   JP NZ,L60A5_0
   LD A,$00
-  LD (L5EF5),A
+  LD (state_interaction_mode_5EF5),A
   LD A,(state_x)
   LD C,A
   LD A,(state_speed)
@@ -1612,11 +1617,11 @@ L6136:
   LD (L5F85),HL
   LD (L5F87),DE
   LD (L5F89),BC
-  LD A,(L5EF5)
+  LD A,(state_interaction_mode_5EF5)
   CP $00
   JP Z,L8C1B_1
   CP $01
-  JP Z,L6256
+  JP Z,fuel
   CP $02
   JP Z,interact_with_something
   CP $03
@@ -1683,7 +1688,7 @@ L615E:
 
 ; Routine at 61BB
 ;
-; Used by the routines at L6136 and L6256.
+; Used by the routines at L6136 and fuel.
 interact_with_something:
   LD BC,(L5EF3)
   LD A,(L5F6E)
@@ -1760,9 +1765,9 @@ L6253:
 ; Routine at 6256
 ;
 ; Used by the routine at L6136.
-L6256:
+fuel:
   LD A,$06
-  LD (L5F68),A
+  LD (state_interaction_mode_5F68),A
   LD B,$80
   LD A,(state_x)
   LD C,A
@@ -1883,7 +1888,7 @@ L62E8:
   JP Z,L62E8
   CP $FF
   JP Z,L62E8_0
-  LD A,(L5F68)
+  LD A,(state_interaction_mode_5F68)
   CP $06
   CALL Z,advance
   LD DE,(L5EF3)
@@ -1949,7 +1954,7 @@ L62E8:
   LD D,$00
   SBC HL,DE
   JP M,L62E8
-  LD A,(L5F68)
+  LD A,(state_interaction_mode_5F68)
   CP $06
   CALL Z,L62E0
   LD (L5F8B),BC
@@ -2008,11 +2013,11 @@ L62E8_1:
 ; This entry point is used by the routine at interact_with_fuel.
 L62E8_2:
   LD A,$00
-  LD (L5F68),A
+  LD (state_interaction_mode_5F68),A
 ; This entry point is used by the routine at L615E.
 L62E8_3:
   LD A,$00
-  LD (L5EF5),A
+  LD (state_interaction_mode_5EF5),A
   LD HL,(L5F85)
   LD DE,(L5F87)
   LD BC,(L5F89)
@@ -2081,7 +2086,7 @@ hit_balloon:
 ;
 ; Used by the routine at L62E8.
 interact_with_fuel:
-  LD A,(L5F68)
+  LD A,(state_interaction_mode_5F68)
   CP $06
   JP Z,interact_with_fuel_0
   LD A,$08
@@ -2316,7 +2321,7 @@ handle_right:
   LD C,A
   LD B,$80
   LD A,$01
-  LD (L5EF5),A
+  LD (state_interaction_mode_5EF5),A
   LD (L8B0C),BC
   DEC C
   DEC C
@@ -2355,7 +2360,7 @@ handle_left:
   LD C,A
   LD B,$80
   LD A,$01
-  LD (L5EF5),A
+  LD (state_interaction_mode_5EF5),A
   LD (L8B0C),BC
   INC C
   INC C
@@ -2377,7 +2382,7 @@ handle_left:
 ;
 ; Used by the routines at L5D9F and L683B.
 L6682:
-  LD A,(L5F68)
+  LD A,(state_interaction_mode_5F68)
   CP $00
   RET NZ
   LD A,(state_x)
@@ -2386,7 +2391,7 @@ L6682:
   LD C,A
   LD B,$80
   LD A,$01
-  LD (L5EF5),A
+  LD (state_interaction_mode_5EF5),A
   LD (L8B0C),BC
   CALL advance
   LD (L8B0A),BC
@@ -2517,7 +2522,7 @@ L673D:
   CALL P,L678E
   LD (L8B0C),BC
   LD A,$02
-  LD (L5EF5),A
+  LD (state_interaction_mode_5EF5),A
   LD DE,$080C
   LD HL,L8431
   LD BC,$0008
@@ -2539,11 +2544,11 @@ L678E:
 L6794:
   LD BC,(L5EF3)
   CALL L72EF
-  LD A,(L5F68)
+  LD A,(state_interaction_mode_5F68)
   CP $06
   JP Z,L650A
   LD A,$00
-  LD (L5EF5),A
+  LD (state_interaction_mode_5EF5),A
   LD A,$01
   LD HL,$8451
   LD DE,$0008
@@ -3758,7 +3763,7 @@ L6EC8:
   LD (L8B10),DE
   LD D,A
   LD A,$00
-  LD (L5EF5),A
+  LD (state_interaction_mode_5EF5),A
   LD A,$02
   LD (L8B1A),A
   LD A,D
@@ -3832,7 +3837,7 @@ L6F7A:
 ; Used by the routines at L68C5 and L6927.
 L6F80:
   LD A,$00
-  LD (L5EF5),A
+  LD (state_interaction_mode_5EF5),A
   LD HL,LC800
   LD DE,$0100
   LD A,(L5EF0)
@@ -3994,7 +3999,7 @@ L706C:
   LD C,E
   LD HL,sprite_balloon
   LD A,$00
-  LD (L5EF5),A
+  LD (state_interaction_mode_5EF5),A
   PUSH HL
   LD HL,L5F00
   CALL L6E9C_0
@@ -4012,7 +4017,7 @@ L706C:
 ; L7296, L7302, L7358, L74EE, L754C, L75D0, L762E, L7649 and L76DA.
 L708E:
   LD A,$00
-  LD (L5EF5),A
+  LD (state_interaction_mode_5EF5),A
   LD HL,(L5F60)
   LD C,(HL)
   INC HL
@@ -4044,7 +4049,7 @@ L708E:
   POP BC
   POP HL
   POP DE
-  LD A,(L5F68)
+  LD A,(state_interaction_mode_5F68)
   CP $01
   JP Z,L708E
   BIT 7,D
@@ -4149,7 +4154,7 @@ L7158_0:
   LD BC,$0018
   CALL L72E6
   LD A,$03
-  LD (L5EF5),A
+  LD (state_interaction_mode_5EF5),A
   LD DE,$0800
   CALL L8B1E
   CALL L72EF
@@ -4542,7 +4547,7 @@ L7393:
   LD (L8B0C),BC
   LD (L5F73),BC
   LD A,$04
-  LD (L5EF5),A
+  LD (state_interaction_mode_5EF5),A
   LD A,$01
   LD E,$00
   LD D,$01
@@ -4567,7 +4572,7 @@ L73D8:
 ;
 ; Used by the routine at L708E.
 L73DD:
-  LD A,(L5F68)
+  LD A,(state_interaction_mode_5F68)
   CP $01
   RET Z
   LD BC,(L5F73)
@@ -4660,7 +4665,7 @@ L7441:
   LD (L8B0C),BC
   LD (L7385),BC
   LD A,$00
-  LD (L5EF5),A
+  LD (state_interaction_mode_5EF5),A
   LD A,B
   AND $88
   CP $88
