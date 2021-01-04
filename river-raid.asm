@@ -1092,7 +1092,7 @@ play:
   LD (L5F66),A
   LD BC,$0010
   LD (L5F70),BC
-  CALL L68E9
+  CALL init_current_bridge
   LD A,$78
   LD (state_x),A
   LD HL,L5F00
@@ -1147,7 +1147,7 @@ play:
   LD BC,$4C83
   LD (L5F78),BC
   CALL L91E8
-  CALL L68E9
+  CALL init_current_bridge
   LD B,$28
 L5D9F_0:
   PUSH BC
@@ -1203,8 +1203,8 @@ L5EEE:
 L5EEF:
   DEFB $00
 
-; Data block at 5EF0
-L5EF0:
+; Game status buffer entry at 5EF0
+state_bridge_mod:
   DEFB $00
 
 ; Contains the current readings of the input port (Sinclair, Kempston, Cursor,
@@ -1747,12 +1747,13 @@ interact_with_something:
   LD (L5EF3),BC
   LD A,(state_player)
   CP $02
-  JP Z,interact_with_something_0
+  JP Z,next_bridge_player_2
+next_bridge_player_1:
   LD HL,state_bridge_player_1
   INC (HL)
   CALL print_bridge
   JP L6794
-interact_with_something_0:
+next_bridge_player_2:
   LD HL,state_bridge_player_2
   INC (HL)
   CALL print_bridge
@@ -2723,7 +2724,6 @@ L68C5:
   JP Z,L6927
   CP $02
   JP Z,L6927
-; This entry point is used by the routine at L68E9.
 L68C5_0:
   LD DE,$5BDF
   LD A,$0C
@@ -2734,17 +2734,14 @@ L68C5_1:
   DJNZ L68C5_1
   CALL L6F80
   RET
-
-; Routine at 68E9
-;
-; Used by the routines at L5D9F and demo.
-L68E9:
+; This entry point is used by the routines at L5D9F and demo.
+init_current_bridge:
   LD HL,screen_attributes
   LD B,$20
-L68E9_0:
+init_current_bridge_loop:
   LD (HL),$00
   INC HL
-  DJNZ L68E9_0
+  DJNZ init_current_bridge_loop
   CALL L7441_2
   LD (L5F73),HL
   LD A,(state_bridge_player_1)
@@ -2759,19 +2756,19 @@ L68E9_0:
   LD L,A
   OR A
   SBC HL,DE
-  JP M,L68E9_2
+  JP M,L68C5_3
   LD E,$0F
-L68E9_1:
+L68C5_2:
   OR A
   SBC HL,DE
-  JP P,L68E9_1
+  JP P,L68C5_2
   ADD HL,DE
   LD E,$21
-L68E9_2:
+L68C5_3:
   ADD HL,DE
   LD A,L
   INC A
-  LD (L5EF0),A
+  LD (state_bridge_mod),A
   JP L68C5_0
 
 ; Routine at 6927
@@ -2815,16 +2812,16 @@ L6947:
 L694D:
   LD DE,$0000
   LD (L5F70),DE
-  LD A,(L5EF0)
+  LD A,(state_bridge_mod)
   INC A
-  LD (L5EF0),A
+  LD (state_bridge_mod),A
   CP $31
   JP Z,L694D_0
   LD A,$00
   RET
 L694D_0:
   LD A,$01
-  LD (L5EF0),A
+  LD (state_bridge_mod),A
   LD A,$00
   RET
 
@@ -2973,7 +2970,7 @@ L6990_6:
 
 ; Routine at 6A4A
 ;
-; Used by the routine at L68E9.
+; Used by the routine at L68C5.
 L6A4A:
   LD A,(state_bridge_player_2)
   LD B,A
@@ -2985,7 +2982,7 @@ L6A4F:
   LD (L5F7D),A
   LD HL,L9500
   LD DE,$0100
-  LD A,(L5EF0)
+  LD A,(state_bridge_mod)
   OR A
   SBC HL,DE
 L6A4F_0:
@@ -3472,7 +3469,7 @@ demo:
   CALL print_bridge
   CALL L6587
   CALL init_starting_bridge
-  CALL L68E9
+  CALL init_current_bridge
   LD A,$04
   LD (L5EEE),A
   LD DE,status_line_4
@@ -3485,7 +3482,7 @@ demo:
   LD (LAST_K),A
   LD A,$00
   LD (L5F7D),A
-  LD A,(L5EF0)
+  LD A,(state_bridge_mod)
   LD (L5D43),A
 demo_0:
   LD A,$BF
@@ -3494,7 +3491,7 @@ demo_0:
   CALL Z,handle_enter
   LD A,(L5D43)
   LD B,A
-  LD A,(L5EF0)
+  LD A,(state_bridge_mod)
   SUB B
   CP $05
   JP Z,start_1
@@ -3840,7 +3837,7 @@ L6F80:
   LD (state_interaction_mode_5EF5),A
   LD HL,LC800
   LD DE,$0100
-  LD A,(L5EF0)
+  LD A,(state_bridge_mod)
   OR A
   SBC HL,DE
 L6F80_0:
@@ -4706,7 +4703,7 @@ L7441_1:
   LD A,$00
   LD (L7384),A
   RET
-; This entry point is used by the routines at L68E9, L7358 and L762E.
+; This entry point is used by the routines at L68C5, L7358 and L762E.
 L7441_2:
   LD HL,$0000
   LD (L7383),HL

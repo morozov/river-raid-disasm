@@ -42,8 +42,8 @@ C $5DB4,2 PAPER 1; INK 4
 b $5EEE
 @ $5EEF label=L5EEF
 b $5EEF
-@ $5EF0 label=L5EF0
-b $5EF0
+@ $5EF0 label=state_bridge_mod
+g $5EF0
 @ $5EF1 label=state_input_readings
 g $5EF1 Contains the current readings of the input port (Sinclair, Kempston, Cursor, etc.).
 @ $5EF2 label=L5EF2
@@ -161,6 +161,8 @@ c $615E
 @ $61BB label=interact_with_something
 c $61BB
 @ $621F keep
+@ $623F label=next_bridge_player_1
+@ $6249 label=next_bridge_player_2
 b $6253
 @ $6256 label=fuel
 c $6256
@@ -217,7 +219,8 @@ c $683B
 c $68B7
 @ $68C5 nowarn
 c $68C5
-c $68E9
+@ $68E9 label=init_current_bridge
+@ $68EE label=init_current_bridge_loop
 c $6927
 s $693B
 c $693C

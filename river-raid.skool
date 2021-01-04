@@ -1198,9 +1198,9 @@ b$5EEE DEFB $00
 @label=L5EEF
 b$5EEF DEFB $00
 
-; Data block at 5EF0
-@label=L5EF0
-b$5EF0 DEFB $00
+; Game status buffer entry at 5EF0
+@label=state_bridge_mod
+g$5EF0 DEFB $00
 
 ; Contains the current readings of the input port (Sinclair, Kempston, Cursor,
 ; etc.).
@@ -1735,10 +1735,12 @@ c$61BB LD BC,($5EF3) ;
  $6237 LD A,($923D)  ;
  $623A CP $02        ;
  $623C JP Z,$6249    ;
+@label=next_bridge_player_1
  $623F LD HL,$5F6A   ;
  $6242 INC (HL)      ;
  $6243 CALL $64BC    ;
  $6246 JP $6794      ;
+@label=next_bridge_player_2
 *$6249 LD HL,$5F6B   ;
  $624C INC (HL)      ;
  $624D CALL $64BC    ;
@@ -2662,7 +2664,6 @@ c$68C5 LD DE,$5820   ;
  $68D2 JP Z,$6927    ;
  $68D5 CP $02        ;
  $68D7 JP Z,$6927    ;
-; This entry point is used by the routine at #R$68E9.
 *$68DA LD DE,$5BDF   ;
  $68DD LD A,$0C      ;
  $68DF LD B,$20      ;
@@ -2671,12 +2672,11 @@ c$68C5 LD DE,$5820   ;
  $68E3 DJNZ $68E1    ;
  $68E5 CALL $6F80    ;
  $68E8 RET           ;
-
-; Routine at 68E9
-;
-; Used by the routines at #R$5D9F and #R$6D17.
-c$68E9 LD HL,$5800   ;
+; This entry point is used by the routines at #R$5D9F and #R$6D17.
+@label=init_current_bridge
+*$68E9 LD HL,$5800   ;
  $68EC LD B,$20      ;
+@label=init_current_bridge_loop
 *$68EE LD (HL),$00   ;
  $68F0 INC HL        ;
  $68F1 DJNZ $68EE    ;
@@ -2891,7 +2891,7 @@ c$6990 LD HL,$5EFD   ;
 
 ; Routine at 6A4A
 ;
-; Used by the routine at #R$68E9.
+; Used by the routine at #R$68C5.
 c$6A4A LD A,($5F6B)  ;
  $6A4D LD B,A        ;
  $6A4E RET           ;
@@ -4513,7 +4513,7 @@ c$7441 LD A,($7383)  ;
  $74DE LD A,$00      ;
  $74E0 LD ($7384),A  ;
  $74E3 RET           ;
-; This entry point is used by the routines at #R$68E9, #R$7358 and #R$762E.
+; This entry point is used by the routines at #R$68C5, #R$7358 and #R$762E.
 *$74E4 LD HL,$0000   ;
  $74E7 LD ($7383),HL ;
  $74EA LD ($7385),HL ;
