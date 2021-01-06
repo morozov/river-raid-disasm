@@ -25,7 +25,9 @@ b $5800 Screen attributes.
 b $5B00
 t $5B12
 b $5B20
-@ $5C78 label=L5C78
+@ $5C78 label=int_counter
+b $5C78 Interrupt counter
+b $5C79
 @ $5CD2 label=start
 c $5CD2 The entry point invoked from the BASIC loader
 @ $5CD8 nowarn
@@ -258,13 +260,26 @@ c $6B73
 c $6B7B
 @ $6BB0 label=state_controls
 g $6BB0 Bitmask of the CONTROLS_BIT_* bits containing the current controls and other information.
-c $6BB1
+@ $6BB1 label=pause
+c $6BB1 Keep the game paused
+  $6BB7,5 Loop until anything else than H is pressed
 @ $6BBF label=handle_enter
 c $6BBF Handle the Enter key pressed
 C $6BBF Scan Caps Shift
 C $6BC8 Scan Symbol Shift
 @ $6BD2 label=select_controls
-c $6BDB
+@ $6BDB label=int_handler
+c $6BDB Non-maskable interrupt handler
+  $6BE4,6 Check if H was pressed
+@ $6BED label=handle_controls
+c $6BED
+  $6BED,5 Check if H was pressed
+  $6C13,2 Distill the state down to CONTROLS_BIT_SPEED_DECREASED and CONTROLS_BIT_SPEED_ALTERED.
+  $6C15,5 Check if only CONTROLS_BIT_SPEED_DECREASED is set.
+  $6C1A,5 Check if only CONTROLS_BIT_SPEED_ALTERED is set.
+  $6C1F,5 Check if both bits are set.
+@ $6C24 label=int_return
+c $6C24 Return from the non-maskable interrupt handler
 b $6C2B
 c $6C31
   $6C5A,2 Reset CONTROLS_BIT_4
@@ -612,7 +627,8 @@ N $8972 #UDGTABLE { #UDGARRAY2,14,4,2;$8972-$898A-1-16(*balloon-f1) | #UDGARRAY2
 b $89F2
 @ $89FA label=L89FA
 b $89FA
-c $8A02
+@ $8A02 label=do_fire
+c $8A02 Invoked from the interrupt handler when FIRE is pressed
 c $8A1B
 @ $8A33 label=init_udg
 c $8A33

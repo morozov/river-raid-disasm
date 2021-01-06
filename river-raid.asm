@@ -945,19 +945,25 @@ L5B20:
   DEFB $77,$94,$77,$94,$77,$94,$77,$2D
   DEFB $92,$5C,$00,$02,$00,$00,$00,$00
   DEFB $00,$00,$6E,$DC,$9D,$1A,$00,$00
-L5C78:
-  DEFB $3D,$00,$00,$58,$FF,$00,$00,$21
-  DEFB $00,$5B,$21,$17,$00,$40,$E0,$50
-  DEFB $21,$18,$21,$17,$03,$00,$00,$00
-  DEFB $00,$00,$00,$00,$01,$00,$00,$00
+
+; Interrupt counter
+int_counter:
+  DEFB $3D
+
+; Data block at 5C79
+L5C79:
+  DEFB $00,$00,$58,$FF,$00,$00,$21,$00
+  DEFB $5B,$21,$17,$00,$40,$E0,$50,$21
+  DEFB $18,$21,$17,$03,$00,$00,$00,$00
+  DEFB $00,$00,$00,$01,$00,$00,$00,$00
   DEFB $00,$00,$00,$00,$00,$00,$00,$00
   DEFB $00,$00,$00,$00,$00,$00,$00,$00
   DEFB $00,$00,$00,$00,$00,$00,$00,$00
-  DEFB $00,$00,$57,$FF,$FF,$FF,$F4,$09
-  DEFB $A8,$10,$4B,$F4,$09,$C4,$15,$53
-  DEFB $81,$0F,$C4,$15,$52,$F4,$09,$C4
-  DEFB $15,$50,$80,$00,$01,$5C,$1A,$EA
-  DEFB $0D,$80
+  DEFB $00,$57,$FF,$FF,$FF,$F4,$09,$A8
+  DEFB $10,$4B,$F4,$09,$C4,$15,$53,$81
+  DEFB $0F,$C4,$15,$52,$F4,$09,$C4,$15
+  DEFB $50,$80,$00,$01,$5C,$1A,$EA,$0D
+  DEFB $80
 
 ; The entry point invoked from the BASIC loader
 start:
@@ -967,7 +973,7 @@ start:
   LD (L8B08),HL
   LD A,$C3
   LD ($FEFE),A
-  LD HL,L6BDB
+  LD HL,int_handler
   LD ($FEFF),HL
   LD HL,$FC00
   LD B,$00
@@ -3243,15 +3249,15 @@ L6B7B_2:
 state_controls:
   DEFB $00
 
-; Routine at 6BB1
+; Keep the game paused
 ;
-; Used by the routine at L6BDB.
-L6BB1:
+; Used by the routine at int_handler.
+pause:
   CALL KEYBOARD
   LD A,(LAST_K)
-  CP $68
-  JP Z,L6BB1
-  JP L6BDB_0
+  CP $68                  ; Loop until anything else than H is pressed
+  JP Z,pause              ;
+  JP handle_controls
 
 ; Handle the Enter key pressed
 ;
@@ -3271,27 +3277,30 @@ select_controls:
   LD (L5F7E),HL           ;
   JP start_1              ;
 
-; Routine at 6BDB
-L6BDB:
+; Non-maskable interrupt handler
+int_handler:
   DI
   PUSH HL
   PUSH DE
   PUSH BC
   PUSH AF
-  LD HL,L5C78
+  LD HL,int_counter
   INC (HL)
-  LD A,$BF
-  IN A,($FE)
-  BIT 4,A
-  JP Z,L6BB1
-; This entry point is used by the routine at L6BB1.
-L6BDB_0:
-  LD A,(LAST_K)
-  CP $68
-  JP Z,L6BDB_1
+  LD A,$BF                ; Check if H was pressed
+  IN A,($FE)              ;
+  BIT 4,A                 ;
+  JP Z,pause
+
+; Routine at 6BED
+;
+; Used by the routine at pause.
+handle_controls:
+  LD A,(LAST_K)           ; Check if H was pressed
+  CP $68                  ;
+  JP Z,int_return
   LD HL,state_controls
   BIT 0,(HL)
-  CALL NZ,L8A02
+  CALL NZ,do_fire
   BIT 4,(HL)
   CALL NZ,L6C31
   LD HL,state_controls
@@ -3301,15 +3310,20 @@ L6BDB_0:
   BIT 3,(HL)
   JP NZ,L6CF4
   LD A,(HL)
-  AND $06
-  CP $02
-  JP Z,L6C5D
-  CP $04
-  JP Z,L6CB8
-  CP $06
-  JP Z,L6CD6
-; This entry point is used by the routines at L6C5D, L6CB8, L6CD6 and L6CF4.
-L6BDB_1:
+  AND $06                 ; Distill the state down to
+                          ; CONTROLS_BIT_SPEED_DECREASED and
+                          ; CONTROLS_BIT_SPEED_ALTERED.
+  CP $02                  ; Check if only CONTROLS_BIT_SPEED_DECREASED is set.
+  JP Z,L6C5D              ;
+  CP $04                  ; Check if only CONTROLS_BIT_SPEED_ALTERED is set.
+  JP Z,L6CB8              ;
+  CP $06                  ; Check if both bits are set.
+  JP Z,L6CD6              ;
+
+; Return from the non-maskable interrupt handler
+;
+; Used by the routines at handle_controls, L6C5D, L6CB8, L6CD6 and L6CF4.
+int_return:
   POP AF
   POP BC
   POP DE
@@ -3323,7 +3337,7 @@ L6C2B:
 
 ; Routine at 6C31
 ;
-; Used by the routine at L6BDB.
+; Used by the routine at handle_controls.
 L6C31:
   LD A,($6C30)
   INC A
@@ -3351,7 +3365,7 @@ L6C31_0:
 
 ; Routine at 6C5D
 ;
-; Used by the routine at L6BDB.
+; Used by the routine at handle_controls.
 L6C5D:
   LD A,(HL)
   AND $0F
@@ -3372,7 +3386,7 @@ L6C5D_2:
   JR NZ,L6C5D_2
   DEC C
   JP NZ,L6C5D_0
-  JP L6BDB_1
+  JP int_return
 
 ; Data block at 6C7A
 L6C7A:
@@ -3380,7 +3394,7 @@ L6C7A:
 
 ; Routine at 6C7B
 ;
-; Used by the routine at L6BDB.
+; Used by the routine at handle_controls.
 L6C7B:
   LD A,(L6C7A)
   DEC A
@@ -3421,7 +3435,7 @@ L6C7B_3:
 
 ; Routine at 6CB8
 ;
-; Used by the routine at L6BDB.
+; Used by the routine at handle_controls.
 L6CB8:
   LD A,(HL)
   AND $07
@@ -3442,11 +3456,11 @@ L6CB8_2:
   JR NZ,L6CB8_2
   DEC C
   JP NZ,L6CB8_0
-  JP L6BDB_1
+  JP int_return
 
 ; Routine at 6CD6
 ;
-; Used by the routine at L6BDB.
+; Used by the routine at handle_controls.
 L6CD6:
   LD A,(HL)
   AND $17
@@ -3467,11 +3481,11 @@ L6CD6_2:
   JR NZ,L6CD6_2
   DEC C
   JP NZ,L6CD6_0
-  JP L6BDB_1
+  JP int_return
 
 ; Routine at 6CF4
 ;
-; Used by the routine at L6BDB.
+; Used by the routine at handle_controls.
 L6CF4:
   LD C,$03
 L6CF4_0:
@@ -3494,7 +3508,7 @@ L6CF4_2:
   JR NZ,L6CF4_2
   DEC C
   JP NZ,L6CF4_0
-  JP L6BDB_1
+  JP int_return
 
 ; Routine at 6D17
 ;
@@ -4097,14 +4111,14 @@ L708E:
   JP NZ,L708E_0
   LD A,(L5F5F)
   LD E,A
-  LD A,(L5C78)
+  LD A,(int_counter)
   AND E
   CP $00
   JP NZ,L7224
   SET 7,D
   INC HL
   LD (HL),D
-  LD HL,L5C78
+  LD HL,int_counter
   INC (HL)
 L708E_0:
   LD A,D
@@ -4487,7 +4501,7 @@ L7302_1:
   LD A,D
   AND $40
   LD D,A
-  LD A,(L5C78)
+  LD A,(int_counter)
   AND $03
   LD E,A
   LD A,D
@@ -6219,25 +6233,25 @@ L89F2:
 L89FA:
   DEFB $FF,$FF,$3F,$FF,$0F,$FF,$03,$FF
 
-; Routine at 8A02
+; Invoked from the interrupt handler when FIRE is pressed
 ;
-; Used by the routine at L6BDB.
-L8A02:
+; Used by the routine at handle_controls.
+do_fire:
   LD C,$08
-L8A02_0:
+do_fire_0:
   LD A,$10
   OUT ($FE),A
   LD D,$20
-L8A02_1:
+do_fire_1:
   DEC D
-  JR NZ,L8A02_1
+  JR NZ,do_fire_1
   LD A,$00
   OUT ($FE),A
   LD D,$20
   LD D,$20
   DEFB $FD
   DEC C
-  JP NZ,L8A02_0
+  JP NZ,do_fire_0
   RET
 
 ; Routine at 8A1B
@@ -6592,7 +6606,7 @@ L8C3C:
 ; This entry point is used by the routine at L8C1B.
 L8C3C_0:
   PUSH HL
-  LD HL,($8B08)
+  LD HL,(L8B08)
   JP (HL)
 
 ; Data block at 8C4A
