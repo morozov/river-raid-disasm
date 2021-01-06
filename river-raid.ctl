@@ -67,15 +67,18 @@ b $5EFC
 @ $5EFD label=L5EFD
 b $5EFD
 u $5EFE
-@ $5F00 label=L5F00
-t $5F00
-t $5F2E
+@ $5F00 label=viewport_1
+b $5F00
+  $5F00,46,3
+@ $5F2E label=viewport_2
+b $5F2E
+  $5F2E,49,3
 @ $5F5F label=L5F5F
 b $5F5F
-@ $5F60 label=L5F60
-w $5F60
-@ $5F62 label=L5F62
-w $5F62
+@ $5F60 label=viewport_1_ptr
+w $5F60 Pointer to a slot from viewport #1
+@ $5F62 label=viewport_2_ptr
+w $5F62 Pointer to a slot from viewport #2
 @ $5F64 label=state_speed
 g $5F64 Current speed
 @ $5F65 label=L5F65
@@ -330,7 +333,8 @@ c $758A
 c $75A2
 c $75BA
 c $75D0
-c $7627
+@ $7627 label=init_current_object_ptr
+c $7627 Point #R$5F60 to the head of #R$5F00.
 c $762E
 c $7649
 c $76DA

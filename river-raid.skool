@@ -1250,23 +1250,55 @@ b$5EFD DEFB $10
 ; Unused
 u$5EFE DEFB $FF,$FF
 
-; Message at 5F00
-@label=L5F00
-t$5F00 DEFM "                                              "
+; Data block at 5F00
+@label=viewport_1
+b$5F00 DEFB $20,$20,$20
+ $5F03 DEFB $20,$20,$20
+ $5F06 DEFB $20,$20,$20
+ $5F09 DEFB $20,$20,$20
+ $5F0C DEFB $20,$20,$20
+ $5F0F DEFB $20,$20,$20
+ $5F12 DEFB $20,$20,$20
+ $5F15 DEFB $20,$20,$20
+ $5F18 DEFB $20,$20,$20
+ $5F1B DEFB $20,$20,$20
+ $5F1E DEFB $20,$20,$20
+ $5F21 DEFB $20,$20,$20
+ $5F24 DEFB $20,$20,$20
+ $5F27 DEFB $20,$20,$20
+ $5F2A DEFB $20,$20,$20
+ $5F2D DEFB $20
 
-; Message at 5F2E
-t$5F2E DEFM "                                                 "
+; Data block at 5F2E
+@label=viewport_2
+b$5F2E DEFB $20,$20,$20
+ $5F31 DEFB $20,$20,$20
+ $5F34 DEFB $20,$20,$20
+ $5F37 DEFB $20,$20,$20
+ $5F3A DEFB $20,$20,$20
+ $5F3D DEFB $20,$20,$20
+ $5F40 DEFB $20,$20,$20
+ $5F43 DEFB $20,$20,$20
+ $5F46 DEFB $20,$20,$20
+ $5F49 DEFB $20,$20,$20
+ $5F4C DEFB $20,$20,$20
+ $5F4F DEFB $20,$20,$20
+ $5F52 DEFB $20,$20,$20
+ $5F55 DEFB $20,$20,$20
+ $5F58 DEFB $20,$20,$20
+ $5F5B DEFB $20,$20,$20
+ $5F5E DEFB $20
 
 ; Data block at 5F5F
 @label=L5F5F
 b$5F5F DEFB $04
 
-; Data block at 5F60
-@label=L5F60
+; Pointer to a slot from viewport #1
+@label=viewport_1_ptr
 w$5F60 DEFW $0000
 
-; Data block at 5F62
-@label=L5F62
+; Pointer to a slot from viewport #2
+@label=viewport_2_ptr
 w$5F62 DEFW $0000
 
 ; Current speed
@@ -4700,9 +4732,10 @@ c$75D0 LD ($8B0A),BC ;
  $7621 CALL $8B3C    ;
  $7624 JP $708E      ;
 
-; Routine at 7627
+; Point #R$5F60 to the head of #R$5F00.
 ;
 ; Used by the routine at #R$708E.
+@label=init_current_object_ptr
 c$7627 LD HL,$5F00   ;
  $762A LD ($5F60),HL ;
  $762D RET           ;

@@ -1023,8 +1023,8 @@ init_state:
   LD A,$78                ; Initialize state_x. Why isn't it $80?
   LD (state_x),A          ;
   CALL init_starting_bridge
-  LD HL,L5F00
-  LD (L5F60),HL
+  LD HL,viewport_1
+  LD (viewport_1_ptr),HL
   LD (HL),$FF
   LD A,$1F
   LD (L5F5F),A
@@ -1095,11 +1095,11 @@ play:
   CALL init_current_bridge
   LD A,$78
   LD (state_x),A
-  LD HL,L5F00
-  LD (L5F60),HL
+  LD HL,viewport_1
+  LD (viewport_1_ptr),HL
   LD (HL),$FF
-  LD HL,L5F2E
-  LD (L5F62),HL
+  LD HL,viewport_2
+  LD (viewport_2_ptr),HL
   LD (HL),$FF
   LD BC,$0000
   CALL L923E
@@ -1256,24 +1256,55 @@ L5EFD:
 L5EFE:
   DEFB $FF,$FF
 
-; Message at 5F00
-L5F00:
-  DEFM "                                              "
+; Data block at 5F00
+viewport_1:
+  DEFB $20,$20,$20
+  DEFB $20,$20,$20
+  DEFB $20,$20,$20
+  DEFB $20,$20,$20
+  DEFB $20,$20,$20
+  DEFB $20,$20,$20
+  DEFB $20,$20,$20
+  DEFB $20,$20,$20
+  DEFB $20,$20,$20
+  DEFB $20,$20,$20
+  DEFB $20,$20,$20
+  DEFB $20,$20,$20
+  DEFB $20,$20,$20
+  DEFB $20,$20,$20
+  DEFB $20,$20,$20
+  DEFB $20
 
-; Message at 5F2E
-L5F2E:
-  DEFM "                                                 "
+; Data block at 5F2E
+viewport_2:
+  DEFB $20,$20,$20
+  DEFB $20,$20,$20
+  DEFB $20,$20,$20
+  DEFB $20,$20,$20
+  DEFB $20,$20,$20
+  DEFB $20,$20,$20
+  DEFB $20,$20,$20
+  DEFB $20,$20,$20
+  DEFB $20,$20,$20
+  DEFB $20,$20,$20
+  DEFB $20,$20,$20
+  DEFB $20,$20,$20
+  DEFB $20,$20,$20
+  DEFB $20,$20,$20
+  DEFB $20,$20,$20
+  DEFB $20,$20,$20
+  DEFB $20
 
 ; Data block at 5F5F
 L5F5F:
   DEFB $04
 
-; Data block at 5F60
-L5F60:
+; Pointer to a slot from viewport #1
+viewport_1_ptr:
   DEFW $0000
 
-; Data block at 5F62
-L5F62:
+; Pointer to a slot from viewport #2
+viewport_2_ptr:
   DEFW $0000
 
 ; Current speed
@@ -1666,7 +1697,7 @@ L615E:
   POP DE
   LD A,D
   LD (L5EF6),A
-  LD HL,(L5F60)
+  LD HL,(viewport_1_ptr)
   DEC HL
   DEC HL
   LD B,(HL)
@@ -1779,13 +1810,13 @@ fuel:
 ;
 ; Used by the routine at L62E8.
 L6268:
-  LD HL,(L5F62)
+  LD HL,(viewport_2_ptr)
   LD C,(HL)
   INC HL
   LD B,(HL)
   INC HL
   INC HL
-  LD (L5F62),HL
+  LD (viewport_2_ptr),HL
   LD A,C
   CP $00
   JP Z,L6268
@@ -1877,13 +1908,13 @@ L62E0:
 ;
 ; Used by the routine at interact_with_something.
 L62E8:
-  LD HL,(L5F60)
+  LD HL,(viewport_1_ptr)
   LD C,(HL)
   INC HL
   LD B,(HL)
   INC HL
   INC HL
-  LD (L5F60),HL
+  LD (viewport_1_ptr),HL
   LD A,C
   CP $00
   JP Z,L62E8
@@ -1906,7 +1937,7 @@ L62E8:
   ADD A,$08
   LD D,A
   LD E,$00
-  LD HL,(L5F60)
+  LD HL,(viewport_1_ptr)
   DEC HL
   LD A,(HL)
   AND $07
@@ -1939,7 +1970,7 @@ L62E8:
   ADD A,$0A
   LD D,A
   LD E,$00
-  LD HL,(L5F60)
+  LD HL,(viewport_1_ptr)
   DEC HL
   LD A,(HL)
   AND $07
@@ -1959,7 +1990,7 @@ L62E8:
   CP $06
   CALL Z,L62E0
   LD (L5F8B),BC
-  LD HL,(L5F60)
+  LD HL,(viewport_1_ptr)
   DEC HL
   LD A,(HL)
   AND $07
@@ -1983,10 +2014,10 @@ L62E8:
   JP Z,interact_with_fuel
 L62E8_0:
   CALL L6268
-  LD HL,L5F00
-  LD (L5F60),HL
-  LD HL,L5F2E
-  LD (L5F62),HL
+  LD HL,viewport_1
+  LD (viewport_1_ptr),HL
+  LD HL,viewport_2
+  LD (viewport_2_ptr),HL
   LD A,(L5F8B)
   CP $02
   JP Z,L62E8_2
@@ -2004,10 +2035,10 @@ L62E8_1:
   POP BC
   LD A,D
   LD (L5EF6),A
-  LD HL,L5F2E
-  LD (L5F62),HL
-  LD HL,L5F00
-  LD (L5F60),HL
+  LD HL,viewport_2
+  LD (viewport_2_ptr),HL
+  LD HL,viewport_1
+  LD (viewport_1_ptr),HL
   LD BC,(L5F8D)
   LD (L5EF3),BC
   JP L6794
@@ -2107,10 +2138,10 @@ interact_with_fuel:
   JP L62E8_1
 interact_with_fuel_0:
   LD (HL),C
-  LD HL,L5F00
-  LD (L5F60),HL
-  LD HL,L5F2E
-  LD (L5F62),HL
+  LD HL,viewport_1
+  LD (viewport_1_ptr),HL
+  LD HL,viewport_2
+  LD (viewport_2_ptr),HL
   CALL L6E40
   JP L62E8_2
 
@@ -3677,7 +3708,7 @@ L6E9C:
   RES 0,(HL)
   LD A,$18
   LD (L6C7A),A
-  LD HL,L5F2E
+  LD HL,viewport_2
 ; This entry point is used by the routines at L6FF6, L7051, L706C and L7441.
 L6E9C_0:
   LD A,(HL)
@@ -3705,14 +3736,14 @@ L6E9C_1:
 ;
 ; Used by the routines at main_loop, L650A and L6F7A.
 L6EC8:
-  LD HL,(L5F62)
+  LD HL,(viewport_2_ptr)
   LD C,(HL)
   INC HL
   LD B,(HL)
   INC HL
   LD D,(HL)
   INC HL
-  LD (L5F62),HL
+  LD (viewport_2_ptr),HL
   LD A,C
   CP $00
   JP Z,L6EC8
@@ -3817,8 +3848,8 @@ L6F6F:
 ;
 ; Used by the routine at L6EC8.
 L6F73:
-  LD HL,L5F2E
-  LD (L5F62),HL
+  LD HL,viewport_2
+  LD (viewport_2_ptr),HL
   RET
 
 ; Routine at 6F7A
@@ -3917,7 +3948,7 @@ L6FF6:
   LD B,$00
   LD C,E
   PUSH HL
-  LD HL,L5F00
+  LD HL,viewport_1
   CALL L6E9C_0
   POP HL
   CALL L6FEA
@@ -3978,7 +4009,7 @@ L7046:
 L7051:
   LD B,$00
   LD C,E
-  LD HL,L5F00
+  LD HL,viewport_1
   CALL L6E9C_0
   LD HL,sprite_fuel
   CALL L6FEA
@@ -3998,7 +4029,7 @@ L706C:
   LD A,$00
   LD (state_interaction_mode_5EF5),A
   PUSH HL
-  LD HL,L5F00
+  LD HL,viewport_1
   CALL L6E9C_0
   POP HL
   CALL L6FEA
@@ -4015,19 +4046,19 @@ L706C:
 L708E:
   LD A,$00
   LD (state_interaction_mode_5EF5),A
-  LD HL,(L5F60)
+  LD HL,(viewport_1_ptr)
   LD C,(HL)
   INC HL
   LD B,(HL)
   INC HL
   LD D,(HL)
   INC HL
-  LD (L5F60),HL
+  LD (viewport_1_ptr),HL
   LD A,C
   CP $00
   JP Z,L708E
   CP $FF
-  JP Z,L7627
+  JP Z,init_current_object_ptr
   CALL advance
   DEC HL
   DEC HL
@@ -4095,7 +4126,7 @@ L708E_0:
   DEC C
 ; This entry point is used by the routines at L7224 and L75A2.
 L708E_1:
-  LD HL,(L5F60)
+  LD HL,(viewport_1_ptr)
   DEC HL
   LD D,(HL)
   DEC HL
@@ -4139,7 +4170,7 @@ L7158:
   CP $00
   CALL Z,L7155
 L7158_0:
-  LD HL,(L5F60)
+  LD HL,(viewport_1_ptr)
   DEC HL
   LD D,(HL)
   DEC HL
@@ -4202,7 +4233,7 @@ L71A2:
   LD A,D
   AND $C7
   OR E
-  LD HL,(L5F60)
+  LD HL,(viewport_1_ptr)
   DEC HL
   LD (HL),A
   LD HL,$8FFC
@@ -4231,7 +4262,7 @@ L71A2_1:
   CALL L8B1E_1
   JP L708E
 L71A2_2:
-  LD HL,(L5F60)
+  LD HL,(viewport_1_ptr)
   DEC HL
   DEC HL
   DEC HL
@@ -4281,7 +4312,7 @@ L724C:
   CP $03
   JP NZ,L708E
 L724C_0:
-  LD HL,(L5F60)
+  LD HL,(viewport_1_ptr)
   DEC HL
   LD D,(HL)
   DEC HL
@@ -4349,7 +4380,7 @@ L7296_0:
   LD A,C
   CP $80
   CALL Z,L7290
-  LD HL,(L5F60)
+  LD HL,(viewport_1_ptr)
   DEC HL
   LD D,(HL)
   DEC HL
@@ -4579,7 +4610,7 @@ L73DD:
   LD DE,$0001
   LD HL,$2800
   CALL BEEPER
-  LD HL,(L5F60)
+  LD HL,(viewport_1_ptr)
   DEC HL
   LD D,(HL)
   DEC HL
@@ -4698,7 +4729,7 @@ L7441_1:
   RES 7,A
   SET 5,A
   LD (L7383),A
-  LD HL,L5F00
+  LD HL,viewport_1
   CALL L6E9C_0
   LD A,$00
   LD (L7384),A
@@ -4714,7 +4745,7 @@ L7441_2:
 ;
 ; Used by the routine at L7296.
 L74EE:
-  LD HL,(L5F60)
+  LD HL,(viewport_1_ptr)
   DEC HL
   DEC HL
   DEC HL
@@ -4735,7 +4766,7 @@ L74EE:
   OR A
   SBC HL,DE
   JP M,L74EE_0
-  LD HL,(L5F60)
+  LD HL,(viewport_1_ptr)
   DEC HL
   DEC HL
   LD B,(HL)
@@ -4746,7 +4777,7 @@ L74EE:
   LD A,$25
   CALL add_points
 L74EE_0:
-  LD HL,(L5F60)
+  LD HL,(viewport_1_ptr)
   DEC HL
   SET 4,(HL)
   SET 5,(HL)
@@ -4864,7 +4895,7 @@ L75D0:
   RET P
   LD BC,(L8B0A)
   POP HL
-  LD HL,(L5F60)
+  LD HL,(viewport_1_ptr)
   DEC HL
   LD D,(HL)
   CALL L75BA
@@ -4886,7 +4917,7 @@ L75D0_0:
   LD A,D
   XOR $40
   LD D,A
-  LD HL,(L5F60)
+  LD HL,(viewport_1_ptr)
   DEC HL
   LD (HL),A
   CALL L75BA
@@ -4901,12 +4932,12 @@ L75D0_0:
   CALL L8B1E_1
   JP L708E
 
-; Routine at 7627
+; Point viewport_1_ptr to the head of viewport_1.
 ;
 ; Used by the routine at L708E.
-L7627:
-  LD HL,L5F00
-  LD (L5F60),HL
+init_current_object_ptr:
+  LD HL,viewport_1
+  LD (viewport_1_ptr),HL
   RET
 
 ; Routine at 762E
@@ -4963,7 +4994,7 @@ L7649:
   DEC C
   DEC C
 L7649_0:
-  LD HL,(L5F60)
+  LD HL,(viewport_1_ptr)
   DEC HL
   LD D,(HL)
   DEC HL
@@ -5022,7 +5053,7 @@ L76DA:
   RET P
   LD BC,(L8B0A)
   POP HL
-  LD HL,(L5F60)
+  LD HL,(viewport_1_ptr)
   DEC HL
   LD D,(HL)
   LD HL,sprite_balloon
@@ -5043,7 +5074,7 @@ L76DA_0:
   LD (L8B0C),BC
   LD A,D
   XOR $40
-  LD HL,(L5F60)
+  LD HL,(viewport_1_ptr)
   DEC HL
   LD (HL),A
   LD HL,sprite_balloon
