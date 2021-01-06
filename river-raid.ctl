@@ -1,4 +1,15 @@
-@ $4000 start
+> $4000 @start
+> $4000 ; CONSTANTS
+> $4000 ;
+> $4000 ; These are here for information only and are not used by any of the assembly
+> $4000 ; directives.
+> $4000 ;
+> $4000 ; CONTROLS_BIT_FIRE            = 0
+> $4000 ; CONTROLS_BIT_SPEED_DECREASED = 1
+> $4000 ; CONTROLS_BIT_SPEED_ALTERED   = 2
+> $4000 ; CONTROLS_BIT_3               = 3
+> $4000 ; CONTROLS_BIT_4               = 4
+> $4000 ; CONTROLS_BIT_5               = 5
 @ $4000 org
 @ $4000 equ=KEYBOARD=$02BF
 @ $4000 equ=BEEPER=$03B5
@@ -211,12 +222,19 @@ c $66D0
 c $66EE
 c $6704
 @ $670A label=handle_up
+  $6712,2 Set CONTROLS_BIT_SPEED_ALTERED
+  $6714,2 Reset CONTROLS_BIT_SPEED_DECREASED
 @ $6717 label=handle_down
+  $671F,2 Set CONTROLS_BIT_SPEED_ALTERED
+  $6721,2 Set CONTROLS_BIT_SPEED_DECREASED
 @ $6724 label=handle_fire
+  $6739,2 Set CONTROLS_BIT_FIRE
 s $673C
 c $673D
 c $678E
+  $6791,2 Reset CONTROLS_BIT_FIRE
 c $6794
+  $67E1,2 Reset CONTROLS_BIT_SPEED_DECREASED
 c $6831
 c $6836
 c $683B
@@ -238,8 +256,8 @@ c $6B63
 c $6B6B
 c $6B73
 c $6B7B
-@ $6BB0 label=L6BB0
-g $6BB0
+@ $6BB0 label=state_controls
+g $6BB0 Bitmask of the CONTROLS_BIT_* bits containing the current controls and other information.
 c $6BB1
 @ $6BBF label=handle_enter
 c $6BBF Handle the Enter key pressed
@@ -249,9 +267,11 @@ C $6BC8 Scan Symbol Shift
 c $6BDB
 b $6C2B
 c $6C31
+  $6C5A,2 Reset CONTROLS_BIT_4
 c $6C5D
 b $6C7A
 c $6C7B
+  $6CB5,2 Reset CONTROLS_BIT_5
 c $6CB8
 c $6CD6
 c $6CF4
@@ -270,9 +290,13 @@ c $6DEB Initializes the starting bridge based on the value of #R$923A using #R$5
 c $6DFF
 c $6E40
 c $6E86
+  $6E89,2 Set CONTROLS_BIT_3
 c $6E8C
+  $6E8F,2 Reset CONTROLS_BIT_3
 c $6E92
 c $6E9C
+  $6E9F,2 Set CONTROLS_BIT_5
+  $6EA1,2 Reset CONTROLS_BIT_FIRE
 c $6EC8
 c $6F63
 c $6F67
@@ -329,6 +353,8 @@ c $73DD
 c $7415
 c $7441
 c $74EE
+  $7529,2 Set CONTROLS_BIT_4
+  $752B,2 Set CONTROLS_BIT_5
 c $754C
 c $758A
 c $75A2
@@ -638,6 +664,7 @@ t $90C8
 c $90E0 Add score points for a hit target
 R $90E0 I:A Number of points to add divided by 10.
 c $9109
+  $9119,2 Set CONTROLS_BIT_4
 @ $9122 label=update_score
 c $9122
 R $9122 I:A (can be 1, 2 or 4)

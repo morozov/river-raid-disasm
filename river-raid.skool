@@ -1,4 +1,16 @@
 @start
+; CONSTANTS
+;
+; These are here for information only and are not used by any of the assembly
+; directives.
+;
+; CONTROLS_BIT_FIRE            = 0
+; CONTROLS_BIT_SPEED_DECREASED = 1
+; CONTROLS_BIT_SPEED_ALTERED   = 2
+; CONTROLS_BIT_3               = 3
+; CONTROLS_BIT_4               = 4
+; CONTROLS_BIT_5               = 5
+
 @org
 @equ=KEYBOARD=$02BF
 @equ=BEEPER=$03B5
@@ -2452,16 +2464,16 @@ c$6704 LD A,$00      ;
 *$670A LD A,$04      ;
  $670C LD ($5F64),A  ;
  $670F LD HL,$6BB0   ;
- $6712 SET 2,(HL)    ;
- $6714 RES 1,(HL)    ;
+ $6712 SET 2,(HL)    ; Set CONTROLS_BIT_SPEED_ALTERED
+ $6714 RES 1,(HL)    ; Reset CONTROLS_BIT_SPEED_DECREASED
  $6716 RET           ;
 ; This entry point is used by the routine at #R$5F91.
 @label=handle_down
 *$6717 LD A,$01      ;
  $6719 LD ($5F64),A  ;
  $671C LD HL,$6BB0   ;
- $671F SET 2,(HL)    ;
- $6721 SET 1,(HL)    ;
+ $671F SET 2,(HL)    ; Set CONTROLS_BIT_SPEED_ALTERED
+ $6721 SET 1,(HL)    ; Set CONTROLS_BIT_SPEED_DECREASED
  $6723 RET           ;
 ; This entry point is used by the routine at #R$5F91.
 @label=handle_fire
@@ -2474,7 +2486,7 @@ c$6704 LD A,$00      ;
  $6731 LD C,A        ;
  $6732 LD ($5EF3),BC ;
  $6736 LD HL,$6BB0   ;
- $6739 SET 0,(HL)    ;
+ $6739 SET 0,(HL)    ; Set CONTROLS_BIT_FIRE
  $673B RET           ;
 
 ; Unused
@@ -2520,7 +2532,7 @@ c$673D LD A,($5EF3)  ;
 ;
 ; Used by the routine at #R$673D.
 c$678E LD HL,$6BB0   ;
- $6791 RES 0,(HL)    ;
+ $6791 RES 0,(HL)    ; Reset CONTROLS_BIT_FIRE
  $6793 RET           ;
 
 ; Routine at 6794
@@ -2557,7 +2569,7 @@ c$6794 LD BC,($5EF3) ;
  $67D8 LD HL,$82F5   ;
  $67DB CALL $8B3C    ;
  $67DE LD HL,$6BB0   ;
- $67E1 RES 1,(HL)    ;
+ $67E1 RES 1,(HL)    ; Reset CONTROLS_BIT_SPEED_DECREASED
  $67E3 LD BC,($5EF3) ;
  $67E7 LD HL,$0000   ;
  $67EA LD ($5EF3),HL ;
@@ -3131,8 +3143,9 @@ c$6B7B CP $80        ;
  $6BAD DJNZ $6BAA    ;
  $6BAF RET           ;
 
-; Game status buffer entry at 6BB0
-@label=L6BB0
+; Bitmask of the CONTROLS_BIT_* bits containing the current controls and other
+; information.
+@label=state_controls
 g$6BB0 DEFB $00
 
 ; Routine at 6BB1
@@ -3232,7 +3245,7 @@ c$6C31 LD A,($6C30)  ;
 *$6C52 LD A,$00      ;
  $6C54 LD ($6C30),A  ;
  $6C57 LD HL,$6BB0   ;
- $6C5A RES 4,(HL)    ;
+ $6C5A RES 4,(HL)    ; Reset CONTROLS_BIT_4
  $6C5C RET           ;
 
 ; Routine at 6C5D
@@ -3292,7 +3305,7 @@ c$6C7B LD A,($6C7A)  ;
 *$6CAD LD A,$18      ;
  $6CAF LD ($6C7A),A  ;
  $6CB2 LD HL,$6BB0   ;
- $6CB5 RES 5,(HL)    ;
+ $6CB5 RES 5,(HL)    ; Reset CONTROLS_BIT_5
  $6CB7 RET           ;
 
 ; Routine at 6CB8
@@ -3550,14 +3563,14 @@ c$6E40 LD A,($5F69)  ;
 ;
 ; Used by the routine at #R$6DFF.
 c$6E86 LD HL,$6BB0   ;
- $6E89 SET 3,(HL)    ;
+ $6E89 SET 3,(HL)    ; Set CONTROLS_BIT_3
  $6E8B RET           ;
 
 ; Routine at 6E8C
 ;
 ; Used by the routine at #R$6E40.
 c$6E8C LD HL,$6BB0   ;
- $6E8F RES 3,(HL)    ;
+ $6E8F RES 3,(HL)    ; Reset CONTROLS_BIT_3
  $6E91 RET           ;
 
 ; Routine at 6E92
@@ -3573,8 +3586,8 @@ c$6E92 LD DE,$0008   ;
 ; Used by the routines at #R$615E, #R$61BB, #R$6414, #R$6423, #R$6462, #R$6478,
 ; #R$650A and #R$74EE.
 c$6E9C LD HL,$6BB0   ;
- $6E9F SET 5,(HL)    ;
- $6EA1 RES 0,(HL)    ;
+ $6E9F SET 5,(HL)    ; Set CONTROLS_BIT_5
+ $6EA1 RES 0,(HL)    ; Reset CONTROLS_BIT_FIRE
  $6EA3 LD A,$18      ;
  $6EA5 LD ($6C7A),A  ;
  $6EA8 LD HL,$5F2E   ;
@@ -4588,8 +4601,8 @@ c$74EE LD HL,($5F60) ;
  $7522 CALL $90E0    ;
 *$7525 LD HL,($5F60) ;
  $7528 DEC HL        ;
- $7529 SET 4,(HL)    ;
- $752B SET 5,(HL)    ;
+ $7529 SET 4,(HL)    ; Set CONTROLS_BIT_4
+ $752B SET 5,(HL)    ; Set CONTROLS_BIT_5
  $752D DEC HL        ;
  $752E DEC HL        ;
  $752F LD A,($923D)  ;
@@ -6611,7 +6624,7 @@ c$9109 PUSH AF       ;
  $9110 CALL $1601    ;
  $9113 CALL $923E    ;
  $9116 LD HL,($9283) ;
- $9119 SET 4,(HL)    ;
+ $9119 SET 4,(HL)    ; Set CONTROLS_BIT_4
  $911B LD A,$01      ;
  $911D CALL $1601    ;
  $9120 POP AF        ;

@@ -1,3 +1,15 @@
+; CONSTANTS
+;
+; These are here for information only and are not used by any of the assembly
+; directives.
+;
+; CONTROLS_BIT_FIRE            = 0
+; CONTROLS_BIT_SPEED_DECREASED = 1
+; CONTROLS_BIT_SPEED_ALTERED   = 2
+; CONTROLS_BIT_3               = 3
+; CONTROLS_BIT_4               = 4
+; CONTROLS_BIT_5               = 5
+
 KEYBOARD EQU $02BF
 BEEPER EQU $03B5
 CHAN_OPEN EQU $1601
@@ -949,7 +961,7 @@ L5C78:
 
 ; The entry point invoked from the BASIC loader
 start:
-  LD HL,L6BB0
+  LD HL,state_controls
   LD (ptr_state_controls),HL
   LD HL,L6136
   LD (L8B08),HL
@@ -1031,7 +1043,7 @@ init_state:
   LD A,$00
   OUT ($FE),A
   LD (L5EF2),A
-  LD (L6BB0),A
+  LD (state_controls),A
   LD BC,$4C83
   LD (L5F78),BC
   LD A,$02
@@ -1140,7 +1152,7 @@ play:
   LD A,$68
   LD (LAST_K),A
   LD A,$00
-  LD (L6BB0),A
+  LD (state_controls),A
   LD (L5EF2),A
   LD A,$04
   LD (state_speed),A
@@ -1161,7 +1173,7 @@ L5D9F_0:
   POP BC
   DJNZ L5D9F_0
   LD A,$00
-  LD (L6BB0),A
+  LD (state_controls),A
   LD (state_interaction_mode_5F68),A
   CALL L6682
   LD A,$0D
@@ -2247,7 +2259,7 @@ L650A_3:
   DEC D
   JR NZ,L650A_3
   LD A,$00
-  LD (L6BB0),A
+  LD (state_controls),A
   LD A,(state_player)
   CP $02
   JP Z,L65CB
@@ -2463,7 +2475,7 @@ L66D0:
   CALL L66EE
   LD A,$02
   LD (state_speed),A
-  LD HL,L6BB0
+  LD HL,state_controls
   RES 2,(HL)
   SET 1,(HL)
   RET
@@ -2495,17 +2507,17 @@ L6704:
 handle_up:
   LD A,$04
   LD (state_speed),A
-  LD HL,L6BB0
-  SET 2,(HL)
-  RES 1,(HL)
+  LD HL,state_controls
+  SET 2,(HL)              ; Set CONTROLS_BIT_SPEED_ALTERED
+  RES 1,(HL)              ; Reset CONTROLS_BIT_SPEED_DECREASED
   RET
 ; This entry point is used by the routine at main_loop.
 handle_down:
   LD A,$01
   LD (state_speed),A
-  LD HL,L6BB0
-  SET 2,(HL)
-  SET 1,(HL)
+  LD HL,state_controls
+  SET 2,(HL)              ; Set CONTROLS_BIT_SPEED_ALTERED
+  SET 1,(HL)              ; Set CONTROLS_BIT_SPEED_DECREASED
   RET
 ; This entry point is used by the routine at main_loop.
 handle_fire:
@@ -2517,8 +2529,8 @@ handle_fire:
   LD B,$7E
   LD C,A
   LD (L5EF3),BC
-  LD HL,L6BB0
-  SET 0,(HL)
+  LD HL,state_controls
+  SET 0,(HL)              ; Set CONTROLS_BIT_FIRE
   RET
 
 ; Unused
@@ -2566,8 +2578,8 @@ L673D:
 ;
 ; Used by the routine at L673D.
 L678E:
-  LD HL,L6BB0
-  RES 0,(HL)
+  LD HL,state_controls
+  RES 0,(HL)              ; Reset CONTROLS_BIT_FIRE
   RET
 
 ; Routine at 6794
@@ -2605,8 +2617,8 @@ L6794_0:
   LD DE,$080C
   LD HL,L82F5
   CALL L8B1E_1
-  LD HL,L6BB0
-  RES 1,(HL)
+  LD HL,state_controls
+  RES 1,(HL)              ; Reset CONTROLS_BIT_SPEED_DECREASED
   LD BC,(L5EF3)
   LD HL,$0000
   LD (L5EF3),HL
@@ -3226,8 +3238,9 @@ L6B7B_2:
   DJNZ L6B7B_2
   RET
 
-; Game status buffer entry at 6BB0
-L6BB0:
+; Bitmask of the CONTROLS_BIT_* bits containing the current controls and other
+; information.
+state_controls:
   DEFB $00
 
 ; Routine at 6BB1
@@ -3276,15 +3289,15 @@ L6BDB_0:
   LD A,(LAST_K)
   CP $68
   JP Z,L6BDB_1
-  LD HL,L6BB0
+  LD HL,state_controls
   BIT 0,(HL)
   CALL NZ,L8A02
   BIT 4,(HL)
   CALL NZ,L6C31
-  LD HL,L6BB0
+  LD HL,state_controls
   BIT 5,(HL)
   CALL NZ,L6C7B
-  LD HL,L6BB0
+  LD HL,state_controls
   BIT 3,(HL)
   JP NZ,L6CF4
   LD A,(HL)
@@ -3332,8 +3345,8 @@ L6C31:
 L6C31_0:
   LD A,$00
   LD ($6C30),A
-  LD HL,L6BB0
-  RES 4,(HL)
+  LD HL,state_controls
+  RES 4,(HL)              ; Reset CONTROLS_BIT_4
   RET
 
 ; Routine at 6C5D
@@ -3402,8 +3415,8 @@ L6C7B_2:
 L6C7B_3:
   LD A,$18
   LD (L6C7A),A
-  LD HL,L6BB0
-  RES 5,(HL)
+  LD HL,state_controls
+  RES 5,(HL)              ; Reset CONTROLS_BIT_5
   RET
 
 ; Routine at 6CB8
@@ -3677,16 +3690,16 @@ L6E40_0:
 ;
 ; Used by the routine at L6DFF.
 L6E86:
-  LD HL,L6BB0
-  SET 3,(HL)
+  LD HL,state_controls
+  SET 3,(HL)              ; Set CONTROLS_BIT_3
   RET
 
 ; Routine at 6E8C
 ;
 ; Used by the routine at L6E40.
 L6E8C:
-  LD HL,L6BB0
-  RES 3,(HL)
+  LD HL,state_controls
+  RES 3,(HL)              ; Reset CONTROLS_BIT_3
   RET
 
 ; Routine at 6E92
@@ -3703,9 +3716,9 @@ L6E92:
 ; Used by the routines at L615E, interact_with_something, hit_helicopter_reg,
 ; hit_ship, hit_balloon, interact_with_fuel, L650A and L74EE.
 L6E9C:
-  LD HL,L6BB0
-  SET 5,(HL)
-  RES 0,(HL)
+  LD HL,state_controls
+  SET 5,(HL)              ; Set CONTROLS_BIT_5
+  RES 0,(HL)              ; Reset CONTROLS_BIT_FIRE
   LD A,$18
   LD (L6C7A),A
   LD HL,viewport_2
@@ -4779,8 +4792,8 @@ L74EE:
 L74EE_0:
   LD HL,(viewport_1_ptr)
   DEC HL
-  SET 4,(HL)
-  SET 5,(HL)
+  SET 4,(HL)              ; Set CONTROLS_BIT_4
+  SET 5,(HL)              ; Set CONTROLS_BIT_5
   DEC HL
   DEC HL
   LD A,(state_player)
@@ -6786,7 +6799,7 @@ L9109:
   CALL CHAN_OPEN
   CALL L923E
   LD HL,(ptr_state_controls)
-  SET 4,(HL)
+  SET 4,(HL)              ; Set CONTROLS_BIT_4
   LD A,$01
   CALL CHAN_OPEN
   POP AF
@@ -7071,7 +7084,7 @@ L923E_3:
   LD A,(L923C)
   JP L923E_0
 
-; Pointer to L6BB0
+; Pointer to state_controls
 ptr_state_controls:
   DEFW $0000
 
