@@ -158,6 +158,7 @@ C $608C Scan lower row right (FIRE)
 C $6097 Scan lower row left (FIRE)
 c $60A5
 c $6124
+@ $6136 label=L6136
 c $6136
 @ $615E label=L615E
 c $615E
@@ -600,6 +601,8 @@ b $8AB8
 @ $8AC8 label=L8AC8
 t $8AEA
 b $8AED
+@ $8B08 label=L8B08
+w $8B08 Pointer to #R$6136
 @ $8B0A label=L8B0A
 w $8B0A
 @ $8B0C label=L8B0C
@@ -686,7 +689,9 @@ b $923A The game mode storing the number of players in the first bit and the sta
 b $923D Current player
   $923D,1
 c $923E
-s $9283
+@ $9283 label=ptr_state_controls
+w $9283 Pointer to #R$6BB0
+s $9285
 c $928D
 @ $92F1 nowarn
 @ $934F nowarn

@@ -1630,6 +1630,7 @@ c$6124 LD A,$07      ;
  $6135 RET           ;
 
 ; Routine at 6136
+@label=L6136
 c$6136 POP HL        ;
  $6137 LD ($5F85),HL ;
  $613A LD ($5F87),DE ;
@@ -6192,7 +6193,11 @@ t$8AEA DEFM "888"
 b$8AED DEFB $00,$00,$00,$00,$10,$38,$7C,$38
  $8AF5 DEFB $10,$00,$00,$10,$38,$7C,$FE,$7C
  $8AFD DEFB $38,$10,$00,$18,$3C,$7E,$FF,$FF
- $8B05 DEFB $7E,$3C,$18,$00,$00
+ $8B05 DEFB $7E,$3C,$18
+
+; Pointer to #R$6136
+@label=L8B08
+w$8B08 DEFW $0000
 
 ; Data block at 8B0A
 @label=L8B0A
@@ -6887,8 +6892,12 @@ c$923E LD A,($923D)  ;
  $927D LD A,($923C)  ;
  $9280 JP $924F      ;
 
+; Pointer to #R$6BB0
+@label=ptr_state_controls
+w$9283 DEFW $0000
+
 ; Unused
-s$9283 DEFS $0A
+s$9285 DEFS $08
 
 ; Routine at 928D
 ;

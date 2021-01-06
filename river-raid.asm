@@ -950,9 +950,9 @@ L5C78:
 ; The entry point invoked from the BASIC loader
 start:
   LD HL,L6BB0
-  LD (L9283),HL
+  LD (ptr_state_controls),HL
   LD HL,L6136
-  LD ($8B08),HL
+  LD (L8B08),HL
   LD A,$C3
   LD ($FEFE),A
   LD HL,L6BDB
@@ -6346,7 +6346,11 @@ L8AED:
   DEFB $00,$00,$00,$00,$10,$38,$7C,$38
   DEFB $10,$00,$00,$10,$38,$7C,$FE,$7C
   DEFB $38,$10,$00,$18,$3C,$7E,$FF,$FF
-  DEFB $7E,$3C,$18,$00,$00
+  DEFB $7E,$3C,$18
+
+; Pointer to L6136
+L8B08:
+  DEFW $0000
 
 ; Data block at 8B0A
 L8B0A:
@@ -6781,7 +6785,7 @@ L9109:
   LD A,$02
   CALL CHAN_OPEN
   CALL L923E
-  LD HL,(L9283)
+  LD HL,(ptr_state_controls)
   SET 4,(HL)
   LD A,$01
   CALL CHAN_OPEN
@@ -7067,9 +7071,13 @@ L923E_3:
   LD A,(L923C)
   JP L923E_0
 
+; Pointer to L6BB0
+ptr_state_controls:
+  DEFW $0000
+
 ; Unused
-L9283:
-  DEFS $0A
+L9285:
+  DEFS $08
 
 ; Routine at 928D
 ;
@@ -7082,7 +7090,7 @@ L928D:
   CP $00
   JP Z,L928D_5
   LD ($9287),DE
-  LD ($9285),BC
+  LD (L9285),BC
   LD ($9289),HL
   LD BC,(L8B0A)
   LD A,B
