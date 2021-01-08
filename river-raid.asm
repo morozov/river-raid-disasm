@@ -1688,11 +1688,11 @@ L615E:
   LD A,B
   ADD A,$06
   SUB D
-  JP M,L62E8_3
+  JP M,interact_with_something2_3
   LD A,D
   ADD A,$06
   SUB B
-  JP M,L62E8_3
+  JP M,interact_with_something2_3
   LD H,$00
   LD A,E
   ADD A,$0A
@@ -1700,7 +1700,7 @@ L615E:
   LD B,$00
   OR A
   SBC HL,BC
-  JP M,L62E8_3
+  JP M,interact_with_something2_3
   LD H,$00
   LD BC,(L5EF3)
   LD A,C
@@ -1710,7 +1710,7 @@ L615E:
   LD C,E
   OR A
   SBC HL,BC
-  JP M,L62E8_3
+  JP M,interact_with_something2_3
   POP DE
   POP DE
   POP DE
@@ -1724,14 +1724,14 @@ L615E:
   LD C,(HL)
   LD (HL),$00
   LD D,$00
-  CALL L6E9C
+  CALL explode_fragment
   DEC C
   DEC C
   DEC C
   DEC C
   DEC C
   DEC C
-  CALL L6E9C
+  CALL explode_fragment
   LD A,$10
   CALL add_points
   JP L6794
@@ -1743,14 +1743,14 @@ interact_with_something:
   LD BC,(L5EF3)
   LD A,(L5F6E)
   CP $00
-  JP Z,L62E8
+  JP Z,interact_with_something2
   LD D,A
   SUB B
-  JP M,L62E8
+  JP M,interact_with_something2
   LD A,D
   SUB $16
   SUB B
-  JP P,L62E8
+  JP P,interact_with_something2
   LD A,$50
   CALL add_points
   LD A,$0F
@@ -1766,21 +1766,21 @@ interact_with_something:
   LD B,A
   LD C,$70
   LD D,$00
-  CALL L6E9C
+  CALL explode_fragment
   LD C,$80
-  CALL L6E9C
+  CALL explode_fragment
   LD A,B
   SUB $08
   LD B,A
-  CALL L6E9C
+  CALL explode_fragment
   LD C,$70
-  CALL L6E9C
+  CALL explode_fragment
   LD A,B
   SUB $08
   LD B,A
-  CALL L6E9C
+  CALL explode_fragment
   LD C,$80
-  CALL L6E9C
+  CALL explode_fragment
   LD A,(L5F6C)
   CP $02
   LD HL,screen_pixels
@@ -1825,10 +1825,10 @@ fuel:
   LD (L5EF3),BC
   JP interact_with_something
 
-; Routine at 6268
+; Fighter hits terrain
 ;
-; Used by the routine at L62E8.
-L6268:
+; Used by the routine at interact_with_something2.
+hit_terrain:
   LD HL,(viewport_2_ptr)
   LD C,(HL)
   INC HL
@@ -1838,9 +1838,9 @@ L6268:
   LD (viewport_2_ptr),HL
   LD A,C
   CP $00
-  JP Z,L6268
+  JP Z,hit_terrain
   CP $FF
-  JP Z,L6268_0
+  JP Z,hit_terrain_0
   CALL advance
   LD DE,(L5EF3)
   LD A,D
@@ -1851,7 +1851,7 @@ L6268:
   OR A
   LD E,B
   SBC HL,DE
-  JP M,L6268
+  JP M,hit_terrain
   LD A,B
   ADD A,$08
   LD H,$00
@@ -1860,7 +1860,7 @@ L6268:
   LD D,$00
   OR A
   SBC HL,DE
-  JP M,L6268
+  JP M,hit_terrain
   LD DE,(L5EF3)
   LD H,$00
   LD A,E
@@ -1870,7 +1870,7 @@ L6268:
   LD E,C
   OR A
   SBC HL,DE
-  JP M,L6268
+  JP M,hit_terrain
   LD A,C
   ADD A,$10
   LD DE,(L5EF3)
@@ -1879,33 +1879,33 @@ L6268:
   OR A
   LD D,$00
   SBC HL,DE
-  JP M,L6268
+  JP M,hit_terrain
   LD A,$02
   LD (L5F8B),A
   RET
-L6268_0:
+hit_terrain_0:
   LD A,$00
   LD (L5F8B),A
   RET
 
 ; Routine at 62D4
 ;
-; Used by the routine at L62E8.
+; Used by the routine at interact_with_something2.
 L62D4:
   LD E,$09
   RET
 
 ; Routine at 62D7
 ;
-; Used by the routine at L62E8.
+; Used by the routine at interact_with_something2.
 L62D7:
   LD E,$11
   RET
 
 ; Increase B by the value of state_speed
 ;
-; Used by the routines at L6268, L62E8, L6682, L66EE, L673D, L6794, L6FEA,
-; L708E, L7393 and L7441.
+; Used by the routines at hit_terrain, interact_with_something2, L6682, L66EE,
+; L673D, L6794, L6FEA, L708E, L7393 and L7441.
 advance:
   LD A,(state_speed)
   ADD A,B
@@ -1914,7 +1914,7 @@ advance:
 
 ; Routine at 62E0
 ;
-; Used by the routine at L62E8.
+; Used by the routine at interact_with_something2.
 L62E0:
   LD A,(state_speed)
   LD H,A
@@ -1923,10 +1923,10 @@ L62E0:
   LD B,A
   RET
 
-; Routine at 62E8
+; Interact with something
 ;
 ; Used by the routine at interact_with_something.
-L62E8:
+interact_with_something2:
   LD HL,(viewport_1_ptr)
   LD C,(HL)
   INC HL
@@ -1936,9 +1936,9 @@ L62E8:
   LD (viewport_1_ptr),HL
   LD A,C
   CP $00
-  JP Z,L62E8
+  JP Z,interact_with_something2
   CP $FF
-  JP Z,L62E8_0
+  JP Z,interact_with_something2_0
   LD A,(state_interaction_mode_5F68)
   CP $06
   CALL Z,advance
@@ -1951,7 +1951,7 @@ L62E8:
   OR A
   LD E,B
   SBC HL,DE
-  JP M,L62E8
+  JP M,interact_with_something2
   LD A,B
   ADD A,$08
   LD D,A
@@ -1973,7 +1973,7 @@ L62E8:
   LD D,$00
   OR A
   SBC HL,DE
-  JP M,L62E8
+  JP M,interact_with_something2
   LD DE,(L5EF3)
   LD A,E
   ADD A,$08
@@ -1984,7 +1984,7 @@ L62E8:
   LD E,C
   OR A
   SBC HL,DE
-  JP M,L62E8
+  JP M,interact_with_something2
   LD A,C
   ADD A,$0A
   LD D,A
@@ -2004,7 +2004,7 @@ L62E8:
   OR A
   LD D,$00
   SBC HL,DE
-  JP M,L62E8
+  JP M,interact_with_something2
   LD A,(state_interaction_mode_5F68)
   CP $06
   CALL Z,L62E0
@@ -2014,7 +2014,7 @@ L62E8:
   LD A,(HL)
   AND $07
   CP $00
-  JP Z,L62E8_1
+  JP Z,interact_with_something2_1
   DEC HL
   DEC HL
   LD (HL),$00
@@ -2031,23 +2031,23 @@ L62E8:
   JP Z,hit_balloon
   CP $07
   JP Z,interact_with_fuel
-L62E8_0:
-  CALL L6268
+interact_with_something2_0:
+  CALL hit_terrain
   LD HL,viewport_1
   LD (viewport_1_ptr),HL
   LD HL,viewport_2
   LD (viewport_2_ptr),HL
   LD A,(L5F8B)
   CP $02
-  JP Z,L62E8_2
+  JP Z,interact_with_something2_2
   LD BC,(L7385)
   LD DE,(L8B0C)
   LD A,B
   CP D
-  JP Z,L62E8_2
+  JP Z,interact_with_something2_2
 ; This entry point is used by the routines at hit_helicopter_reg, hit_ship,
 ; hit_balloon and interact_with_fuel.
-L62E8_1:
+interact_with_something2_1:
   POP DE
   POP DE
   POP DE
@@ -2062,11 +2062,11 @@ L62E8_1:
   LD (L5EF3),BC
   JP L6794
 ; This entry point is used by the routine at interact_with_fuel.
-L62E8_2:
+interact_with_something2_2:
   LD A,$00
   LD (state_interaction_mode_5F68),A
 ; This entry point is used by the routine at L615E.
-L62E8_3:
+interact_with_something2_3:
   LD A,$00
   LD (state_interaction_mode_5EF5),A
   LD HL,(L5F85)
@@ -2076,66 +2076,66 @@ L62E8_3:
 
 ; Routine at 6414
 ;
-; Used by the routine at L62E8.
+; Used by the routine at interact_with_something2.
 hit_helicopter_reg:
   LD A,$06
   CALL add_points
   LD BC,(L5F8B)
-  CALL L6E9C
-  JP L62E8_1
+  CALL explode_fragment
+  JP interact_with_something2_1
 
 ; Routine at 6423
 ;
-; Used by the routine at L62E8.
+; Used by the routine at interact_with_something2.
 hit_ship:
   LD A,$03
   CALL add_points
   LD BC,(L5F8B)
-  CALL L6E9C
+  CALL explode_fragment
   LD A,C
   ADD A,$08
   LD C,A
-  CALL L6E9C
+  CALL explode_fragment
   LD A,C
   SUB $08
   LD C,A
   LD A,B
   ADD A,$04
   LD B,A
-  CALL L6E9C
-  JP L62E8_1
-; This entry point is used by the routine at L62E8.
+  CALL explode_fragment
+  JP interact_with_something2_1
+; This entry point is used by the routine at interact_with_something2.
 hit_ship_0:
   LD A,$15
   CALL add_points
   LD BC,(L5F8B)
-  CALL L6E9C
-  JP L62E8_1
-; This entry point is used by the routine at L62E8.
+  CALL explode_fragment
+  JP interact_with_something2_1
+; This entry point is used by the routine at interact_with_something2.
 hit_ship_1:
   LD A,$10
   CALL add_points
   LD BC,(L5F8B)
-  CALL L6E9C
-  JP L62E8_1
+  CALL explode_fragment
+  JP interact_with_something2_1
 
 ; Routine at 6462
 ;
-; Used by the routine at L62E8.
+; Used by the routine at interact_with_something2.
 hit_balloon:
   LD A,$06
   CALL add_points
   LD BC,(L5F8B)
-  CALL L6E9C
+  CALL explode_fragment
   LD A,B
   ADD A,$08
   LD B,A
-  CALL L6E9C
-  JP L62E8_1
+  CALL explode_fragment
+  JP interact_with_something2_1
 
 ; Routine at 6478
 ;
-; Used by the routine at L62E8.
+; Used by the routine at interact_with_something2.
 interact_with_fuel:
   LD A,(state_interaction_mode_5F68)
   CP $06
@@ -2143,18 +2143,18 @@ interact_with_fuel:
   LD A,$08
   CALL add_points
   LD BC,(L5F8B)
-  CALL L6E9C
+  CALL explode_fragment
   LD A,B
   ADD A,$08
   LD B,A
-  CALL L6E9C
+  CALL explode_fragment
   LD A,B
   ADD A,$08
   LD B,A
-  CALL L6E9C
+  CALL explode_fragment
   INC B
-  CALL L6E9C
-  JP L62E8_1
+  CALL explode_fragment
+  JP interact_with_something2_1
 interact_with_fuel_0:
   LD (HL),C
   LD HL,viewport_1
@@ -2162,7 +2162,7 @@ interact_with_fuel_0:
   LD HL,viewport_2
   LD (viewport_2_ptr),HL
   CALL L6E40
-  JP L62E8_2
+  JP interact_with_something2_2
 
 ; Data block at 64B4
 L64B4:
@@ -2237,11 +2237,11 @@ handle_no_fuel:
   LD (L5EF3),A
   LD ($5EF4),A
   LD D,$00
-  CALL L6E9C
+  CALL explode_fragment
   LD A,B
   ADD A,$05
   LD B,A
-  CALL L6E9C
+  CALL explode_fragment
   LD A,$10
 handle_no_fuel_0:
   PUSH AF
@@ -2591,7 +2591,8 @@ L678E:
 
 ; Routine at 6794
 ;
-; Used by the routines at L615E, interact_with_something, L62E8 and L673D.
+; Used by the routines at L615E, interact_with_something,
+; interact_with_something2 and L673D.
 L6794:
   LD BC,(L5EF3)
   CALL L72EF
@@ -3738,11 +3739,13 @@ L6E92:
   CALL BEEPER
   RET
 
-; Routine at 6E9C
+; Explode a single fragment
 ;
 ; Used by the routines at L615E, interact_with_something, hit_helicopter_reg,
 ; hit_ship, hit_balloon, interact_with_fuel, handle_no_fuel and L74EE.
-L6E9C:
+;
+; I:BC Pointer to the fragment to explode.
+explode_fragment:
   LD HL,state_controls
   SET 5,(HL)              ; Set CONTROLS_BIT_EXPLODING
   RES 0,(HL)              ; Reset CONTROLS_BIT_FIRE
@@ -3750,17 +3753,17 @@ L6E9C:
   LD (explosion_counter),A
   LD HL,viewport_2
 ; This entry point is used by the routines at L6FF6, L7051, L706C and L7441.
-L6E9C_0:
+explode_fragment_0:
   LD A,(HL)
   CP $00
-  JP Z,L6E9C_1
+  JP Z,explode_fragment_1
   CP $FF
-  JP Z,L6E9C_1
+  JP Z,explode_fragment_1
   INC HL
   INC HL
   INC HL
-  JP L6E9C_0
-L6E9C_1:
+  JP explode_fragment_0
+explode_fragment_1:
   LD (HL),C
   INC HL
   LD (HL),B
@@ -3989,7 +3992,7 @@ L6FF6:
   LD C,E
   PUSH HL
   LD HL,viewport_1
-  CALL L6E9C_0
+  CALL explode_fragment_0
   POP HL
   CALL L6FEA
   LD BC,$0018
@@ -4050,7 +4053,7 @@ L7051:
   LD B,$00
   LD C,E
   LD HL,viewport_1
-  CALL L6E9C_0
+  CALL explode_fragment_0
   LD HL,sprite_fuel
   CALL L6FEA
   LD BC,$0000
@@ -4070,7 +4073,7 @@ L706C:
   LD (state_interaction_mode_5EF5),A
   PUSH HL
   LD HL,viewport_1
-  CALL L6E9C_0
+  CALL explode_fragment_0
   POP HL
   CALL L6FEA
   LD BC,$0020
@@ -4770,7 +4773,7 @@ L7441_1:
   SET 5,A
   LD (L7383),A
   LD HL,viewport_1
-  CALL L6E9C_0
+  CALL explode_fragment_0
   LD A,$00
   LD (L7384),A
   RET
@@ -4813,7 +4816,7 @@ L74EE:
   DEC HL
   LD (HL),$00
   LD D,$80
-  CALL L6E9C
+  CALL explode_fragment
   LD A,$25
   CALL add_points
 L74EE_0:
@@ -6602,7 +6605,8 @@ L8C1B_0:
   OR B
   CP D
   JP NZ,L8C3C_0
-; This entry point is used by the routines at L6136 and L62E8.
+; This entry point is used by the routines at L6136 and
+; interact_with_something2.
 L8C1B_1:
   LD A,(HL)
 

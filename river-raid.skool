@@ -1725,7 +1725,6 @@ c$615E LD BC,($5EF3) ;
 ;
 ; Used by the routines at #R$6136 and #R$6256.
 @label=interact_with_something
-@label=interact_with_something
 c$61BB LD BC,($5EF3) ;
  $61BF LD A,($5F6E)  ;
  $61C2 CP $00        ;
@@ -1811,9 +1810,10 @@ c$6256 LD A,$06      ;
  $6261 LD ($5EF3),BC ;
  $6265 JP $61BB      ;
 
-; Routine at 6268
+; Fighter hits terrain
 ;
 ; Used by the routine at #R$62E8.
+@label=hit_terrain
 c$6268 LD HL,($5F62) ;
  $626B LD C,(HL)     ;
  $626C INC HL        ;
@@ -1904,9 +1904,10 @@ c$62E0 LD A,($5F64)  ;
  $62E6 LD B,A        ;
  $62E7 RET           ;
 
-; Routine at 62E8
+; Interact with something
 ;
 ; Used by the routine at #R$61BB.
+@label=interact_with_something2
 c$62E8 LD HL,($5F60) ;
  $62EB LD C,(HL)     ;
  $62EC INC HL        ;
@@ -3617,10 +3618,13 @@ c$6E92 LD DE,$0008   ;
  $6E98 CALL $03B5    ;
  $6E9B RET           ;
 
-; Routine at 6E9C
+; Explode a single fragment
 ;
 ; Used by the routines at #R$615E, #R$61BB, #R$6414, #R$6423, #R$6462, #R$6478,
 ; #R$650A and #R$74EE.
+;
+; I:BC Pointer to the fragment to explode.
+@label=explode_fragment
 c$6E9C LD HL,$6BB0   ;
  $6E9F SET 5,(HL)    ; Set CONTROLS_BIT_EXPLODING
  $6EA1 RES 0,(HL)    ; Reset CONTROLS_BIT_FIRE

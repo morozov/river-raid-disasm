@@ -183,13 +183,15 @@ c $61BB
 b $6253
 @ $6256 label=fuel
 c $6256
-c $6268
+@ $6268 label=hit_terrain
+c $6268 Fighter hits terrain
 c $62D4
 c $62D7
 @ $62DA label=advance
 c $62DA Increase #REGb by the value of #R$5F64
 c $62E0
-c $62E8
+@ $62E8 label=interact_with_something2
+c $62E8 Interact with something
 @ $6414 label=hit_helicopter_reg
 c $6414
 @ $6423 label=hit_ship
@@ -198,6 +200,7 @@ c $6423
 c $6462
 @ $6478 label=interact_with_fuel
 c $6478
+b $64B4
 b $64B4
 @ $64BC label=print_bridge
 c $64BC
@@ -322,7 +325,9 @@ c $6E86 Register low fuel level
 c $6E8C Register sufficient fuel level
   $6E8F,2 Reset CONTROLS_BIT_LOW_FUEL
 c $6E92
-c $6E9C
+@ $6E9C label=explode_fragment
+c $6E9C Explode a single fragment
+R $6E9C I:BC Pointer to the fragment to explode.
   $6E9F,2 Set CONTROLS_BIT_EXPLODING
   $6EA1,2 Reset CONTROLS_BIT_FIRE
 c $6EC8
