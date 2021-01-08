@@ -3302,7 +3302,7 @@ handle_controls:
   BIT 0,(HL)
   CALL NZ,do_fire
   BIT 4,(HL)
-  CALL NZ,L6C31
+  CALL NZ,do_bit4
   LD HL,state_controls
   BIT 5,(HL)
   CALL NZ,L6C7B
@@ -3333,17 +3333,21 @@ int_return:
 
 ; Data block at 6C2B
 L6C2B:
-  DEFB $ED,$56,$C3,$08,$00,$00
+  DEFB $ED,$56,$C3,$08,$00
 
-; Routine at 6C31
+; Bit4 frame counter
+state_bit4_counter:
+  DEFB $00
+
+; Do something about bit4
 ;
 ; Used by the routine at handle_controls.
-L6C31:
-  LD A,($6C30)
+do_bit4:
+  LD A,(state_bit4_counter)
   INC A
-  LD ($6C30),A
+  LD (state_bit4_counter),A
   CP $40
-  JP Z,L6C31_0
+  JP Z,bit4_finish
   LD B,A
   LD A,$40
   SUB B
@@ -3356,9 +3360,13 @@ L6C31:
   CALL BEEPER
   DI
   RET
-L6C31_0:
+
+; Finish doing something about bit4
+;
+; Used by the routine at do_bit4.
+bit4_finish:
   LD A,$00
-  LD ($6C30),A
+  LD (state_bit4_counter),A
   LD HL,state_controls
   RES 4,(HL)              ; Reset CONTROLS_BIT_4
   RET

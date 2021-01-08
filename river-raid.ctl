@@ -281,7 +281,12 @@ c $6BED
 @ $6C24 label=int_return
 c $6C24 Return from the non-maskable interrupt handler
 b $6C2B
-c $6C31
+@ $6C30 label=state_bit4_counter
+g $6C30 Bit4 frame counter
+@ $6C31 label=do_bit4
+c $6C31 Do something about bit4
+@ $6C52 label=bit4_finish
+c $6C52 Finish doing something about bit4
   $6C5A,2 Reset CONTROLS_BIT_4
 c $6C5D
 b $6C7A

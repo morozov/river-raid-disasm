@@ -3235,11 +3235,16 @@ c$6C24 POP AF        ;
  $6C29 RETN          ;
 
 ; Data block at 6C2B
-b$6C2B DEFB $ED,$56,$C3,$08,$00,$00
+b$6C2B DEFB $ED,$56,$C3,$08,$00
 
-; Routine at 6C31
+; Bit4 frame counter
+@label=state_bit4_counter
+g$6C30 DEFB $00
+
+; Do something about bit4
 ;
 ; Used by the routine at #R$6BED.
+@label=do_bit4
 c$6C31 LD A,($6C30)  ;
  $6C34 INC A         ;
  $6C35 LD ($6C30),A  ;
@@ -3257,7 +3262,12 @@ c$6C31 LD A,($6C30)  ;
  $6C4D CALL $03B5    ;
  $6C50 DI            ;
  $6C51 RET           ;
-*$6C52 LD A,$00      ;
+
+; Finish doing something about bit4
+;
+; Used by the routine at #R$6C31.
+@label=bit4_finish
+c$6C52 LD A,$00      ;
  $6C54 LD ($6C30),A  ;
  $6C57 LD HL,$6BB0   ;
  $6C5A RES 4,(HL)    ; Reset CONTROLS_BIT_4
