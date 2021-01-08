@@ -7,7 +7,7 @@
 > $4000 ; CONTROLS_BIT_FIRE            = 0
 > $4000 ; CONTROLS_BIT_SPEED_DECREASED = 1
 > $4000 ; CONTROLS_BIT_SPEED_ALTERED   = 2
-> $4000 ; CONTROLS_BIT_3               = 3
+> $4000 ; CONTROLS_BIT_LOW_FUEL        = 3
 > $4000 ; CONTROLS_BIT_4               = 4
 > $4000 ; CONTROLS_BIT_EXPLODING       = 5
 @ $4000 org
@@ -96,8 +96,8 @@ w $5F62 Pointer to a slot from viewport #2
 g $5F64 Current speed
 @ $5F65 label=L5F65
 b $5F65
-@ $5F66 label=L5F66
-b $5F66
+@ $5F66 label=state_fuel
+g $5F66 Fuel level
 @ $5F67 label=state_control_type
 g $5F67 Control type ($00 - Keyboard, $01 - Sinclair, $02 - Kempston, Other - Cursor)
 @ $5F68 label=state_interaction_mode_5F68
@@ -209,7 +209,8 @@ c $64E5 Print current bridge for player 2
 c $64F1 Print current bridge number for player 2
 @ $6506 label=print_space
 c $6506 Print space
-c $650A
+@ $650A label=handle_no_fuel
+c $650A Handle the no fuel situation
 c $6587
 c $65AB
 c $65BB
@@ -298,7 +299,8 @@ c $6CAD Finish rendering explosion
   $6CB5,2 Reset CONTROLS_BIT_EXPLODING
 c $6CB8
 c $6CD6
-c $6CF4
+@ $6CF4 label=do_low_fuel
+c $6CF4 Render the low fuel signal
 @ $6D17 label=demo
 c $6D17
 C $6D23,2 PAPER 1; INK 4
@@ -313,10 +315,12 @@ c $6DEB Initializes the starting bridge based on the value of #R$923A using #R$5
   $6DF7,1 Get the starting bridge number
 c $6DFF
 c $6E40
-c $6E86
-  $6E89,2 Set CONTROLS_BIT_3
-c $6E8C
-  $6E8F,2 Reset CONTROLS_BIT_3
+@ $6E86 label=register_low_fuel
+c $6E86 Register low fuel level
+  $6E89,2 Set CONTROLS_BIT_LOW_FUEL
+@ $6E8C label=register_sufficient_fuel
+c $6E8C Register sufficient fuel level
+  $6E8F,2 Reset CONTROLS_BIT_LOW_FUEL
 c $6E92
 c $6E9C
   $6E9F,2 Set CONTROLS_BIT_EXPLODING

@@ -7,7 +7,7 @@
 ; CONTROLS_BIT_FIRE            = 0
 ; CONTROLS_BIT_SPEED_DECREASED = 1
 ; CONTROLS_BIT_SPEED_ALTERED   = 2
-; CONTROLS_BIT_3               = 3
+; CONTROLS_BIT_LOW_FUEL        = 3
 ; CONTROLS_BIT_4               = 4
 ; CONTROLS_BIT_EXPLODING       = 5
 
@@ -1326,9 +1326,9 @@ g$5F64 DEFB $02
 @label=L5F65
 b$5F65 DEFB $00
 
-; Data block at 5F66
-@label=L5F66
-b$5F66 DEFB $00
+; Fuel level
+@label=state_fuel
+g$5F66 DEFB $00
 
 ; Control type ($00 - Keyboard, $01 - Sinclair, $02 - Kempston, Other - Cursor)
 @label=state_control_type
@@ -2198,9 +2198,10 @@ c$6506 LD A,$20      ;
  $6508 RST $10       ;
  $6509 RET           ;
 
-; Routine at 650A
+; Handle the no fuel situation
 ;
 ; Used by the routines at #R$6794, #R$6DFF and #R$7415.
+@label=handle_no_fuel
 c$650A LD A,($5F72)  ;
  $650D AND $F8       ;
  $650F LD C,A        ;
@@ -3382,9 +3383,10 @@ c$6CD6 LD A,(HL)     ;
  $6CEE JP NZ,$6CDC   ;
  $6CF1 JP $6C24      ;
 
-; Routine at 6CF4
+; Render the low fuel signal
 ;
 ; Used by the routine at #R$6BED.
+@label=do_low_fuel
 c$6CF4 LD C,$03      ;
 *$6CF6 LD A,($5F65)  ;
  $6CF9 DEC A         ;
@@ -3591,18 +3593,20 @@ c$6E40 LD A,($5F69)  ;
  $6E82 JP NZ,$6E7B   ;
  $6E85 RET           ;
 
-; Routine at 6E86
+; Register low fuel level
 ;
 ; Used by the routine at #R$6DFF.
+@label=register_low_fuel
 c$6E86 LD HL,$6BB0   ;
- $6E89 SET 3,(HL)    ; Set CONTROLS_BIT_3
+ $6E89 SET 3,(HL)    ; Set CONTROLS_BIT_LOW_FUEL
  $6E8B RET           ;
 
-; Routine at 6E8C
+; Register sufficient fuel level
 ;
 ; Used by the routine at #R$6E40.
+@label=register_sufficient_fuel
 c$6E8C LD HL,$6BB0   ;
- $6E8F RES 3,(HL)    ; Reset CONTROLS_BIT_3
+ $6E8F RES 3,(HL)    ; Reset CONTROLS_BIT_LOW_FUEL
  $6E91 RET           ;
 
 ; Routine at 6E92

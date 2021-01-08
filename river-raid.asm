@@ -6,7 +6,7 @@
 ; CONTROLS_BIT_FIRE            = 0
 ; CONTROLS_BIT_SPEED_DECREASED = 1
 ; CONTROLS_BIT_SPEED_ALTERED   = 2
-; CONTROLS_BIT_3               = 3
+; CONTROLS_BIT_LOW_FUEL        = 3
 ; CONTROLS_BIT_4               = 4
 ; CONTROLS_BIT_EXPLODING       = 5
 
@@ -1010,7 +1010,7 @@ L5D10:
   JP Z,L5D10_0
   CALL init_state
   JP play
-; This entry point is used by the routine at L650A.
+; This entry point is used by the routine at handle_no_fuel.
 L5D10_0:
   LD SP,(sp_5F83)
   CALL init_state
@@ -1077,7 +1077,8 @@ L5D9F:
   LD HL,L923C
   DEC (HL)
   JP L5D9F_1
-; This entry point is used by the routines at L5D10, restart, L650A and demo.
+; This entry point is used by the routines at L5D10, restart, handle_no_fuel
+; and demo.
 play:
   LD A,$10
   LD (L5EFD),A
@@ -1107,7 +1108,7 @@ play:
   LD (L5F7D),A
   LD (L5F69),A
   LD A,$FF
-  LD (L5F66),A
+  LD (state_fuel),A
   LD BC,$0010
   LD (L5F70),BC
   CALL init_current_bridge
@@ -1333,8 +1334,8 @@ state_speed:
 L5F65:
   DEFB $00
 
-; Data block at 5F66
-L5F66:
+; Fuel level
+state_fuel:
   DEFB $00
 
 ; Control type ($00 - Keyboard, $01 - Sinclair, $02 - Kempston, Other - Cursor)
@@ -2223,10 +2224,10 @@ print_space:
   RST $10
   RET
 
-; Routine at 650A
+; Handle the no fuel situation
 ;
 ; Used by the routines at L6794, L6DFF and L7415.
-L650A:
+handle_no_fuel:
   LD A,(state_x)
   AND $F8
   LD C,A
@@ -2242,28 +2243,28 @@ L650A:
   LD B,A
   CALL L6E9C
   LD A,$10
-L650A_0:
+handle_no_fuel_0:
   PUSH AF
   LD B,$40
-L650A_1:
+handle_no_fuel_1:
   LD D,$00
-L650A_2:
+handle_no_fuel_2:
   DEC D
-  JR NZ,L650A_2
-  DJNZ L650A_1
+  JR NZ,handle_no_fuel_2
+  DJNZ handle_no_fuel_1
   CALL L6EC8
   POP AF
   DEC A
-  JP NZ,L650A_0
+  JP NZ,handle_no_fuel_0
   LD D,$0C
   LD A,$00
   LD B,$00
-L650A_3:
-  DJNZ L650A_3
+handle_no_fuel_3:
+  DJNZ handle_no_fuel_3
   DEC A
-  JR NZ,L650A_3
+  JR NZ,handle_no_fuel_3
   DEC D
-  JR NZ,L650A_3
+  JR NZ,handle_no_fuel_3
   LD A,$00
   LD (state_controls),A
   LD A,(state_player)
@@ -2271,20 +2272,20 @@ L650A_3:
   JP Z,L65CB
   LD A,(L923B)
   CP $00
-  JP Z,L650A_5
+  JP Z,handle_no_fuel_5
   LD A,(state_game_mode)
   BIT 0,A
   JP NZ,L65BB
 ; This entry point is used by the routines at L65AB, L65BB and L65CB.
-L650A_4:
+handle_no_fuel_4:
   LD SP,(sp_5F83)
   JP play
-L650A_5:
+handle_no_fuel_5:
   LD A,(state_game_mode)
   BIT 0,A
   JP NZ,L65AB
 ; This entry point is used by the routines at L65AB and L65CB.
-L650A_6:
+handle_no_fuel_6:
   LD HL,L8153
   LD (L5F7E),HL
   CALL L928D_16
@@ -2316,29 +2317,29 @@ L6587:
 
 ; Routine at 65AB
 ;
-; Used by the routine at L650A.
+; Used by the routine at handle_no_fuel.
 L65AB:
   LD A,(L923C)
   CP $00
-  JP Z,L650A_6
+  JP Z,handle_no_fuel_6
   LD A,$02
   LD (state_player),A
-  JP L650A_4
+  JP handle_no_fuel_4
 
 ; Routine at 65BB
 ;
-; Used by the routine at L650A.
+; Used by the routine at handle_no_fuel.
 L65BB:
   LD A,(L923C)
   CP $00
-  JP Z,L650A_4
+  JP Z,handle_no_fuel_4
   LD A,$02
   LD (state_player),A
-  JP L650A_4
+  JP handle_no_fuel_4
 
 ; Routine at 65CB
 ;
-; Used by the routine at L650A.
+; Used by the routine at handle_no_fuel.
 L65CB:
   LD A,(L923C)
   CP $00
@@ -2346,17 +2347,17 @@ L65CB:
   LD A,(L923B)
   CP $00
   JP NZ,L65CB_0
-  JP L650A_4
+  JP handle_no_fuel_4
 L65CB_0:
   LD A,$01
   LD (state_player),A
 L65CB_1:
   LD A,(L923B)
   CP $00
-  JP Z,L650A_6
+  JP Z,handle_no_fuel_6
   LD A,$01
   LD (state_player),A
-  JP L650A_4
+  JP handle_no_fuel_4
 
 ; Routine at 65F3
 ;
@@ -2596,7 +2597,7 @@ L6794:
   CALL L72EF
   LD A,(state_interaction_mode_5F68)
   CP $06
-  JP Z,L650A
+  JP Z,handle_no_fuel
   LD A,$00
   LD (state_interaction_mode_5EF5),A
   LD A,$01
@@ -3308,7 +3309,7 @@ handle_controls:
   CALL NZ,explosion_render
   LD HL,state_controls
   BIT 3,(HL)
-  JP NZ,L6CF4
+  JP NZ,do_low_fuel
   LD A,(HL)
   AND $06                 ; Distill the state down to
                           ; CONTROLS_BIT_SPEED_DECREASED and
@@ -3322,7 +3323,7 @@ handle_controls:
 
 ; Return from the non-maskable interrupt handler
 ;
-; Used by the routines at handle_controls, L6C5D, L6CB8, L6CD6 and L6CF4.
+; Used by the routines at handle_controls, L6C5D, L6CB8, L6CD6 and do_low_fuel.
 int_return:
   POP AF
   POP BC
@@ -3495,12 +3496,12 @@ L6CD6_2:
   JP NZ,L6CD6_0
   JP int_return
 
-; Routine at 6CF4
+; Render the low fuel signal
 ;
 ; Used by the routine at handle_controls.
-L6CF4:
+do_low_fuel:
   LD C,$03
-L6CF4_0:
+do_low_fuel_0:
   LD A,(L5F65)
   DEC A
   AND $7F
@@ -3509,17 +3510,17 @@ L6CF4_0:
   LD A,$10
   OUT ($FE),A
   LD D,E
-L6CF4_1:
+do_low_fuel_1:
   DEC D
-  JR NZ,L6CF4_1
+  JR NZ,do_low_fuel_1
   LD A,$00
   OUT ($FE),A
   LD D,E
-L6CF4_2:
+do_low_fuel_2:
   DEC D
-  JR NZ,L6CF4_2
+  JR NZ,do_low_fuel_2
   DEC C
-  JP NZ,L6CF4_0
+  JP NZ,do_low_fuel_0
   JP int_return
 
 ; Routine at 6D17
@@ -3644,19 +3645,19 @@ L6DFF:
   AND $01
   CP $00
   RET NZ
-  LD A,(L5F66)
+  LD A,(state_fuel)
   DEC A
-  LD (L5F66),A
+  LD (state_fuel),A
   AND $03
   CP $00
   RET NZ
-  LD A,(L5F66)
+  LD A,(state_fuel)
   CP $00
-  JP Z,L650A
+  JP Z,handle_no_fuel
   AND $C0
   CP $00
-  CALL Z,L6E86
-  LD A,(L5F66)
+  CALL Z,register_low_fuel
+  LD A,(state_fuel)
   LD B,$A8
   SRL A
   SRL A
@@ -3681,20 +3682,20 @@ L6E40:
   LD A,(L5F69)
   CP $04
   RET Z
-  LD A,(L5F66)
+  LD A,(state_fuel)
   AND $FC
   CP $FC
   JP Z,L6E92
   LD DE,$0007
   LD HL,$0333
   CALL BEEPER
-  LD A,(L5F66)
+  LD A,(state_fuel)
   ADD A,$04
-  LD (L5F66),A
+  LD (state_fuel),A
   AND $C0
   CP $00
-  CALL NZ,L6E8C
-  LD A,(L5F66)
+  CALL NZ,register_sufficient_fuel
+  LD A,(state_fuel)
   LD B,$A8
   SRL A
   SRL A
@@ -3712,20 +3713,20 @@ L6E40_0:
   JP NZ,L6E40_0
   RET
 
-; Routine at 6E86
+; Register low fuel level
 ;
 ; Used by the routine at L6DFF.
-L6E86:
+register_low_fuel:
   LD HL,state_controls
-  SET 3,(HL)              ; Set CONTROLS_BIT_3
+  SET 3,(HL)              ; Set CONTROLS_BIT_LOW_FUEL
   RET
 
-; Routine at 6E8C
+; Register sufficient fuel level
 ;
 ; Used by the routine at L6E40.
-L6E8C:
+register_sufficient_fuel:
   LD HL,state_controls
-  RES 3,(HL)              ; Reset CONTROLS_BIT_3
+  RES 3,(HL)              ; Reset CONTROLS_BIT_LOW_FUEL
   RET
 
 ; Routine at 6E92
@@ -3740,7 +3741,7 @@ L6E92:
 ; Routine at 6E9C
 ;
 ; Used by the routines at L615E, interact_with_something, hit_helicopter_reg,
-; hit_ship, hit_balloon, interact_with_fuel, L650A and L74EE.
+; hit_ship, hit_balloon, interact_with_fuel, handle_no_fuel and L74EE.
 L6E9C:
   LD HL,state_controls
   SET 5,(HL)              ; Set CONTROLS_BIT_EXPLODING
@@ -3773,7 +3774,7 @@ L6E9C_1:
 
 ; Routine at 6EC8
 ;
-; Used by the routines at main_loop, L650A and L6F7A.
+; Used by the routines at main_loop, handle_no_fuel and L6F7A.
 L6EC8:
   LD HL,(viewport_2_ptr)
   LD C,(HL)
@@ -4685,10 +4686,10 @@ L7415:
   LD A,(state_x)
   AND $F8
   CP C
-  JP Z,L650A
+  JP Z,handle_no_fuel
   ADD A,$08
   CP C
-  JP Z,L650A
+  JP Z,handle_no_fuel
 L7415_0:
   LD BC,$0000
   LD (L5F73),BC
@@ -7316,7 +7317,7 @@ L928D_14:
 L928D_15:
   LD A,$FF
   RET
-; This entry point is used by the routine at L650A.
+; This entry point is used by the routine at handle_no_fuel.
 L928D_16:
   LD A,(state_game_mode)
   BIT 0,A
