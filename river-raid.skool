@@ -9,7 +9,7 @@
 ; CONTROLS_BIT_SPEED_ALTERED   = 2
 ; CONTROLS_BIT_3               = 3
 ; CONTROLS_BIT_4               = 4
-; CONTROLS_BIT_5               = 5
+; CONTROLS_BIT_EXPLODING       = 5
 
 @org
 @equ=KEYBOARD=$02BF
@@ -3294,12 +3294,14 @@ c$6C5D LD A,(HL)     ;
  $6C74 JP NZ,$6C63   ;
  $6C77 JP $6C24      ;
 
-; Data block at 6C7A
-b$6C7A DEFB $18
+; Explosion frame counter
+@label=explosion_counter
+g$6C7A DEFB $18
 
-; Routine at 6C7B
+; Render explosion
 ;
 ; Used by the routine at #R$6BED.
+@label=explosion_render
 c$6C7B LD A,($6C7A)  ;
  $6C7E DEC A         ;
  $6C7F LD ($6C7A),A  ;
@@ -3327,10 +3329,15 @@ c$6C7B LD A,($6C7A)  ;
  $6CA8 DEC C         ;
  $6CA9 JP NZ,$6C95   ;
  $6CAC RET           ;
-*$6CAD LD A,$18      ;
+
+; Finish rendering explosion
+;
+; Used by the routine at #R$6C7B.
+@label=explosion_render_finish
+c$6CAD LD A,$18      ;
  $6CAF LD ($6C7A),A  ;
  $6CB2 LD HL,$6BB0   ;
- $6CB5 RES 5,(HL)    ; Reset CONTROLS_BIT_5
+ $6CB5 RES 5,(HL)    ; Reset CONTROLS_BIT_EXPLODING
  $6CB7 RET           ;
 
 ; Routine at 6CB8
@@ -3611,7 +3618,7 @@ c$6E92 LD DE,$0008   ;
 ; Used by the routines at #R$615E, #R$61BB, #R$6414, #R$6423, #R$6462, #R$6478,
 ; #R$650A and #R$74EE.
 c$6E9C LD HL,$6BB0   ;
- $6E9F SET 5,(HL)    ; Set CONTROLS_BIT_5
+ $6E9F SET 5,(HL)    ; Set CONTROLS_BIT_EXPLODING
  $6EA1 RES 0,(HL)    ; Reset CONTROLS_BIT_FIRE
  $6EA3 LD A,$18      ;
  $6EA5 LD ($6C7A),A  ;
@@ -4627,7 +4634,7 @@ c$74EE LD HL,($5F60) ;
 *$7525 LD HL,($5F60) ;
  $7528 DEC HL        ;
  $7529 SET 4,(HL)    ; Set CONTROLS_BIT_4
- $752B SET 5,(HL)    ; Set CONTROLS_BIT_5
+ $752B SET 5,(HL)    ; Set CONTROLS_BIT_EXPLODING
  $752D DEC HL        ;
  $752E DEC HL        ;
  $752F LD A,($923D)  ;

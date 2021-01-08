@@ -9,7 +9,7 @@
 > $4000 ; CONTROLS_BIT_SPEED_ALTERED   = 2
 > $4000 ; CONTROLS_BIT_3               = 3
 > $4000 ; CONTROLS_BIT_4               = 4
-> $4000 ; CONTROLS_BIT_5               = 5
+> $4000 ; CONTROLS_BIT_EXPLODING       = 5
 @ $4000 org
 @ $4000 equ=KEYBOARD=$02BF
 @ $4000 equ=BEEPER=$03B5
@@ -289,9 +289,13 @@ c $6C31 Do something about bit4
 c $6C52 Finish doing something about bit4
   $6C5A,2 Reset CONTROLS_BIT_4
 c $6C5D
-b $6C7A
-c $6C7B
-  $6CB5,2 Reset CONTROLS_BIT_5
+@ $6C7A label=explosion_counter
+g $6C7A Explosion frame counter
+@ $6C7B label=explosion_render
+c $6C7B Render explosion
+@ $6CAD label=explosion_render_finish
+c $6CAD Finish rendering explosion
+  $6CB5,2 Reset CONTROLS_BIT_EXPLODING
 c $6CB8
 c $6CD6
 c $6CF4
@@ -315,7 +319,7 @@ c $6E8C
   $6E8F,2 Reset CONTROLS_BIT_3
 c $6E92
 c $6E9C
-  $6E9F,2 Set CONTROLS_BIT_5
+  $6E9F,2 Set CONTROLS_BIT_EXPLODING
   $6EA1,2 Reset CONTROLS_BIT_FIRE
 c $6EC8
 c $6F63
@@ -374,7 +378,7 @@ c $7415
 c $7441
 c $74EE
   $7529,2 Set CONTROLS_BIT_4
-  $752B,2 Set CONTROLS_BIT_5
+  $752B,2 Set CONTROLS_BIT_EXPLODING
 c $754C
 c $758A
 c $75A2

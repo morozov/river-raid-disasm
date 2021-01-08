@@ -8,7 +8,7 @@
 ; CONTROLS_BIT_SPEED_ALTERED   = 2
 ; CONTROLS_BIT_3               = 3
 ; CONTROLS_BIT_4               = 4
-; CONTROLS_BIT_5               = 5
+; CONTROLS_BIT_EXPLODING       = 5
 
 KEYBOARD EQU $02BF
 BEEPER EQU $03B5
@@ -3305,7 +3305,7 @@ handle_controls:
   CALL NZ,do_bit4
   LD HL,state_controls
   BIT 5,(HL)
-  CALL NZ,L6C7B
+  CALL NZ,explosion_render
   LD HL,state_controls
   BIT 3,(HL)
   JP NZ,L6CF4
@@ -3396,19 +3396,19 @@ L6C5D_2:
   JP NZ,L6C5D_0
   JP int_return
 
-; Data block at 6C7A
-L6C7A:
+; Explosion frame counter
+explosion_counter:
   DEFB $18
 
-; Routine at 6C7B
+; Render explosion
 ;
 ; Used by the routine at handle_controls.
-L6C7B:
-  LD A,(L6C7A)
+explosion_render:
+  LD A,(explosion_counter)
   DEC A
-  LD (L6C7A),A
+  LD (explosion_counter),A
   CP $00
-  JP Z,L6C7B_3
+  JP Z,explosion_render_finish
   LD A,(DE)
   AND $07
   SLA A
@@ -3417,28 +3417,32 @@ L6C7B:
   ADD A,$10
   LD E,A
   LD C,$04
-L6C7B_0:
+explosion_render_0:
   LD A,$10
   OUT ($FE),A
   LD D,E
-L6C7B_1:
+explosion_render_1:
   DEC D
-  JR NZ,L6C7B_1
+  JR NZ,explosion_render_1
   LD A,$00
   OUT ($FE),A
-  LD A,(L6C7A)
+  LD A,(explosion_counter)
   LD D,A
-L6C7B_2:
+explosion_render_2:
   DEC D
-  JR NZ,L6C7B_2
+  JR NZ,explosion_render_2
   DEC C
-  JP NZ,L6C7B_0
+  JP NZ,explosion_render_0
   RET
-L6C7B_3:
+
+; Finish rendering explosion
+;
+; Used by the routine at explosion_render.
+explosion_render_finish:
   LD A,$18
-  LD (L6C7A),A
+  LD (explosion_counter),A
   LD HL,state_controls
-  RES 5,(HL)              ; Reset CONTROLS_BIT_5
+  RES 5,(HL)              ; Reset CONTROLS_BIT_EXPLODING
   RET
 
 ; Routine at 6CB8
@@ -3739,10 +3743,10 @@ L6E92:
 ; hit_ship, hit_balloon, interact_with_fuel, L650A and L74EE.
 L6E9C:
   LD HL,state_controls
-  SET 5,(HL)              ; Set CONTROLS_BIT_5
+  SET 5,(HL)              ; Set CONTROLS_BIT_EXPLODING
   RES 0,(HL)              ; Reset CONTROLS_BIT_FIRE
   LD A,$18
-  LD (L6C7A),A
+  LD (explosion_counter),A
   LD HL,viewport_2
 ; This entry point is used by the routines at L6FF6, L7051, L706C and L7441.
 L6E9C_0:
@@ -4815,7 +4819,7 @@ L74EE_0:
   LD HL,(viewport_1_ptr)
   DEC HL
   SET 4,(HL)              ; Set CONTROLS_BIT_4
-  SET 5,(HL)              ; Set CONTROLS_BIT_5
+  SET 5,(HL)              ; Set CONTROLS_BIT_EXPLODING
   DEC HL
   DEC HL
   LD A,(state_player)
