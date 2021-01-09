@@ -16,9 +16,8 @@
 > $4000 ; POINTS_BALLOON       = 6
 > $4000 ; POINTS_FUEL           = 8
 > $4000 ; POINTS_FIGHTER        = 10
-> $4000 ; POINTS_10             = 10
-> $4000 ; POINTS_15             = 15
-> $4000 ; POINTS_25             = 25
+> $4000 ; POINTS_ADV_HELICOPTER = 15
+> $4000 ; POINTS_TANK           = 25
 > $4000 ; POINTS_BRIDGE         = 50
 @ $4000 org
 @ $4000 equ=KEYBOARD=$02BF
@@ -214,8 +213,12 @@ c $6414
 @ $6423 label=hit_ship
 c $6423
   $6423,2 POINTS_SHIP
-  $6444,2 POINTS_15
-  $6453,2 POINTS_10
+@ $6444 label=hit_helicopter_adv
+c $6444 Hit advanced helicopter
+  $6444,2 POINTS_ADV_HELICOPTER
+@ $6453 label=hit_fighter
+c $6453 Hit fighter
+  $6453,2 POINTS_FIGHTER
 @ $6462 label=hit_balloon
 c $6462
   $6462,2 POINTS_BALLOON
@@ -415,7 +418,7 @@ c $73DD
 c $7415
 c $7441
 c $74EE
-  $7520,2 POINTS_25
+  $7520,2 POINTS_TANK
   $7529,2 Set CONTROLS_BIT_BONUS_LIFE
   $752B,2 Set CONTROLS_BIT_EXPLODING
 c $754C

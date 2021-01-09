@@ -15,9 +15,8 @@
 ; POINTS_BALLOON       = 6
 ; POINTS_FUEL           = 8
 ; POINTS_FIGHTER        = 10
-; POINTS_10             = 10
-; POINTS_15             = 15
-; POINTS_25             = 25
+; POINTS_ADV_HELICOPTER = 15
+; POINTS_TANK           = 25
 ; POINTS_BRIDGE         = 50
 
 KEYBOARD EQU $02BF
@@ -2034,9 +2033,9 @@ interact_with_something2:
   CP $02
   JP Z,hit_ship
   CP $03
-  JP Z,hit_ship_0
+  JP Z,hit_helicopter_adv
   CP $05
-  JP Z,hit_ship_1
+  JP Z,hit_fighter
   CP $06
   JP Z,hit_balloon
   CP $07
@@ -2056,7 +2055,7 @@ interact_with_something2_0:
   CP D
   JP Z,interact_with_something2_2
 ; This entry point is used by the routines at hit_helicopter_reg, hit_ship,
-; hit_balloon and interact_with_fuel.
+; hit_helicopter_adv, hit_fighter, hit_balloon and interact_with_fuel.
 interact_with_something2_1:
   POP DE
   POP DE
@@ -2114,16 +2113,22 @@ hit_ship:
   LD B,A
   CALL explode_fragment
   JP interact_with_something2_1
-; This entry point is used by the routine at interact_with_something2.
-hit_ship_0:
-  LD A,$15                ; POINTS_15
+
+; Hit advanced helicopter
+;
+; Used by the routine at interact_with_something2.
+hit_helicopter_adv:
+  LD A,$15                ; POINTS_ADV_HELICOPTER
   CALL add_points
   LD BC,(L5F8B)
   CALL explode_fragment
   JP interact_with_something2_1
-; This entry point is used by the routine at interact_with_something2.
-hit_ship_1:
-  LD A,$10                ; POINTS_10
+
+; Hit fighter
+;
+; Used by the routine at interact_with_something2.
+hit_fighter:
+  LD A,$10                ; POINTS_FIGHTER
   CALL add_points
   LD BC,(L5F8B)
   CALL explode_fragment
@@ -3756,7 +3761,8 @@ L6E92:
 ; Explode a single fragment
 ;
 ; Used by the routines at L615E, interact_with_something, hit_helicopter_reg,
-; hit_ship, hit_balloon, interact_with_fuel, handle_no_fuel and L74EE.
+; hit_ship, hit_helicopter_adv, hit_fighter, hit_balloon, interact_with_fuel,
+; handle_no_fuel and L74EE.
 ;
 ; I:BC Pointer to the fragment to explode.
 explode_fragment:
@@ -4839,7 +4845,7 @@ L74EE:
   LD (HL),$00
   LD D,$80
   CALL explode_fragment
-  LD A,$25                ; POINTS_25
+  LD A,$25                ; POINTS_TANK
   CALL add_points
 L74EE_0:
   LD HL,(viewport_1_ptr)
@@ -6803,7 +6809,8 @@ L90CE:
 ; Add score points for a hit target
 ;
 ; Used by the routines at L615E, interact_with_something, hit_helicopter_reg,
-; hit_ship, hit_balloon, interact_with_fuel and L74EE.
+; hit_ship, hit_helicopter_adv, hit_fighter, hit_balloon, interact_with_fuel
+; and L74EE.
 ;
 ; I:A Number of points to add divided by 10.
 add_points:

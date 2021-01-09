@@ -16,9 +16,8 @@
 ; POINTS_BALLOON       = 6
 ; POINTS_FUEL           = 8
 ; POINTS_FIGHTER        = 10
-; POINTS_10             = 10
-; POINTS_15             = 15
-; POINTS_25             = 25
+; POINTS_ADV_HELICOPTER = 15
+; POINTS_TANK           = 25
 ; POINTS_BRIDGE         = 50
 
 @org
@@ -2041,8 +2040,8 @@ c$62E8 LD HL,($5F60) ;
  $63D8 LD A,B        ;
  $63D9 CP D          ;
  $63DA JP Z,$63FC    ;
-; This entry point is used by the routines at #R$6414, #R$6423, #R$6462 and
-; #R$6478.
+; This entry point is used by the routines at #R$6414, #R$6423, #R$6444,
+; #R$6453, #R$6462 and #R$6478.
 *$63DD POP DE        ;
  $63DE POP DE        ;
  $63DF POP DE        ;
@@ -2097,14 +2096,22 @@ c$6423 LD A,$03      ; POINTS_SHIP
  $643D LD B,A        ;
  $643E CALL $6E9C    ;
  $6441 JP $63DD      ;
-; This entry point is used by the routine at #R$62E8.
-*$6444 LD A,$15      ; POINTS_15
+
+; Hit advanced helicopter
+;
+; Used by the routine at #R$62E8.
+@label=hit_helicopter_adv
+c$6444 LD A,$15      ; POINTS_ADV_HELICOPTER
  $6446 CALL $90E0    ;
  $6449 LD BC,($5F8B) ;
  $644D CALL $6E9C    ;
  $6450 JP $63DD      ;
-; This entry point is used by the routine at #R$62E8.
-*$6453 LD A,$10      ; POINTS_10
+
+; Hit fighter
+;
+; Used by the routine at #R$62E8.
+@label=hit_fighter
+c$6453 LD A,$10      ; POINTS_FIGHTER
  $6455 CALL $90E0    ;
  $6458 LD BC,($5F8B) ;
  $645C CALL $6E9C    ;
@@ -3640,8 +3647,8 @@ c$6E92 LD DE,$0008   ;
 
 ; Explode a single fragment
 ;
-; Used by the routines at #R$615E, #R$61BB, #R$6414, #R$6423, #R$6462, #R$6478,
-; #R$650A and #R$74EE.
+; Used by the routines at #R$615E, #R$61BB, #R$6414, #R$6423, #R$6444, #R$6453,
+; #R$6462, #R$6478, #R$650A and #R$74EE.
 ;
 ; I:BC Pointer to the fragment to explode.
 @label=explode_fragment
@@ -4666,7 +4673,7 @@ c$74EE LD HL,($5F60) ;
  $7519 LD (HL),$00   ;
  $751B LD D,$80      ;
  $751D CALL $6E9C    ;
- $7520 LD A,$25      ; POINTS_25
+ $7520 LD A,$25      ; POINTS_TANK
  $7522 CALL $90E0    ;
 *$7525 LD HL,($5F60) ;
  $7528 DEC HL        ;
@@ -6662,8 +6669,8 @@ t$90CE DEFM "000000000000000000"
 
 ; Add score points for a hit target
 ;
-; Used by the routines at #R$615E, #R$61BB, #R$6414, #R$6423, #R$6462, #R$6478
-; and #R$74EE.
+; Used by the routines at #R$615E, #R$61BB, #R$6414, #R$6423, #R$6444, #R$6453,
+; #R$6462, #R$6478 and #R$74EE.
 ;
 ; I:A Number of points to add divided by 10.
 @label=add_points
