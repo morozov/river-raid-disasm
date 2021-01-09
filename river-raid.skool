@@ -3918,9 +3918,12 @@ c$7046 LD A,$A8      ;
  $704D LD ($8C1B),A  ;
  $7050 RET           ;
 
-; Routine at 7051
+; Render fuel station
 ;
 ; Used by the routine at #R$6F80.
+;
+; I:E X position
+@label=render_fuel
 c$7051 LD B,$00      ;
  $7053 LD C,E        ;
  $7054 LD HL,$5F00   ;
@@ -3933,9 +3936,12 @@ c$7051 LD B,$00      ;
  $7068 CALL $8B1E    ;
  $706B RET           ;
 
-; Routine at 706C
+; Render balloon
 ;
 ; Used by the routine at #R$6FF6.
+;
+; I:E X position
+@label=render_balloon
 c$706C LD B,$00      ;
  $706E LD C,E        ;
  $706F LD HL,$8972   ;

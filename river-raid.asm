@@ -3762,7 +3762,8 @@ explode_fragment:
   LD A,$18
   LD (explosion_counter),A
   LD HL,viewport_2
-; This entry point is used by the routines at L6FF6, L7051, L706C and L7441.
+; This entry point is used by the routines at L6FF6, render_fuel,
+; render_balloon and L7441.
 explode_fragment_0:
   LD A,(HL)
   CP $00
@@ -3946,7 +3947,7 @@ L6F80_0:
   LD A,D
   AND $07
   CP $07
-  JP Z,L7051
+  JP Z,render_fuel
   JP L6FF6
 L6F80_1:
   LD A,D
@@ -3980,7 +3981,7 @@ L6FE6:
 
 ; Routine at 6FEA
 ;
-; Used by the routines at L6FF6, L7051 and L706C.
+; Used by the routines at L6FF6, render_fuel and render_balloon.
 L6FEA:
   CALL advance
   LD (L8B0C),BC
@@ -3992,7 +3993,7 @@ L6FEA:
 ; Used by the routine at L6F80.
 L6FF6:
   CP $06
-  JP Z,L706C
+  JP Z,render_balloon
   CP $05
   CALL Z,L7046
   CP $04
@@ -4056,10 +4057,12 @@ L7046:
   LD (L8C1B),A
   RET
 
-; Routine at 7051
+; Render fuel station
 ;
 ; Used by the routine at L6F80.
-L7051:
+;
+; I:E X position
+render_fuel:
   LD B,$00
   LD C,E
   LD HL,viewport_1
@@ -4072,10 +4075,12 @@ L7051:
   CALL L8B1E
   RET
 
-; Routine at 706C
+; Render balloon
 ;
 ; Used by the routine at L6FF6.
-L706C:
+;
+; I:E X position
+render_balloon:
   LD B,$00
   LD C,E
   LD HL,sprite_balloon
@@ -6447,8 +6452,8 @@ L8B1B:
 
 ; Routine at 8B1E
 ;
-; Used by the routines at L673D, L6FF6, L7051, L706C, L7158, L7296, L7393,
-; L7441, L754C and L7649.
+; Used by the routines at L673D, L6FF6, render_fuel, render_balloon, L7158,
+; L7296, L7393, L7441, L754C and L7649.
 L8B1E:
   PUSH DE
   LD (L8B1A),A

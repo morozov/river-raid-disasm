@@ -365,8 +365,12 @@ c $703E
 c $7046
 @ $7048 nowarn
 @ $704D nowarn
-c $7051
-c $706C
+@ $7051 label=render_fuel
+c $7051 Render fuel station
+R $7051 I:E X position
+@ $706C label=render_balloon
+c $706C Render balloon
+R $706C I:E X position
 c $708E
 c $7155
 c $7158
