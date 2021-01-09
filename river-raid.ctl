@@ -560,6 +560,8 @@ t $811F
 b $8127
 @ $8153 label=msg_game_over
 t $8153 Game Over message.
+@ $8182 label=msg_credits
+t $8182 Credits message.
   $818D,1 Trademark UDG symbol
   $81A8,1 Copyright symbol
   $81AF,7 Activision logo UDG symbols

@@ -997,7 +997,7 @@ start_0:
   LD (sp_5F83),SP
   IM 2
   EI
-  LD HL,$8182
+  LD HL,msg_credits
   LD (L5F7E),HL
 ; This entry point is used by the routines at handle_enter and demo.
 start_1:
@@ -3285,7 +3285,7 @@ handle_enter:
   JP Z,select_controls    ;
   RET                     ;
 select_controls:
-  LD HL,$8182             ;
+  LD HL,msg_credits       ;
   LD (L5F7E),HL           ;
   JP start_1              ;
 
@@ -3624,7 +3624,7 @@ demo_0:
   CALL CHAN_OPEN
   JP demo_0
 demo_1:
-  LD HL,$8182
+  LD HL,msg_credits
   LD (L5F7E),HL
   LD A,$00
   LD (L5F6D),A
@@ -5625,7 +5625,11 @@ L8127:
 
 ; Game Over message.
 msg_game_over:
-  DEFM " .....GAME OVER.....                            RIVER RAID"
+  DEFM " .....GAME OVER.....                           "
+
+; Credits message.
+msg_credits:
+  DEFM " RIVER RAID"
   DEFM $94                ; Trademark UDG symbol
   DEFM "      by Carol Shaw       "
   DEFM $7F                ; Copyright symbol

@@ -5424,16 +5424,18 @@ b$8127 DEFB $1E,$1C,$18,$16,$12,$10,$0C,$0A
 
 ; Game Over message.
 @label=msg_game_over
-t$8153 DEFM " .....GAME OVER.....                            RIVER RAID"
- $818D DEFM $94                                                          ; Trademark
-                                                                         ; UDG symbol
+t$8153 DEFM " .....GAME OVER.....                           "
+
+; Credits message.
+@label=msg_credits
+t$8182 DEFM " RIVER RAID"
+ $818D DEFM $94                                              ; Trademark UDG
+                                                             ; symbol
  $818E DEFM "      by Carol Shaw       "
- $81A8 DEFM $7F                                                          ; Copyright
-                                                                         ; symbol
+ $81A8 DEFM $7F                                              ; Copyright symbol
  $81A9 DEFM " 1983 "
- $81AF DEFM $95,$96,$97,$98,$99,$9A,$9B                                  ; Activision
-                                                                         ; logo UDG
-                                                                         ; symbols
+ $81AF DEFM $95,$96,$97,$98,$99,$9A,$9B                      ; Activision logo
+                                                             ; UDG symbols
  $81B6 DEFM " Inc. All rights reserved                     "
 
 ; Data block at 81E4
