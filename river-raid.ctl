@@ -558,13 +558,11 @@ T $805D INK 7
 b $805F
 t $811F
 b $8127
-t $8153
-b $818D
-t $818E
-b $81A8
-t $81A9
-b $81AF
-t $81B6
+@ $8153 label=msg_game_over
+t $8153 Game Over message.
+  $818D,1 Trademark UDG symbol
+  $81A8,1 Copyright symbol
+  $81AF,7 Activision logo UDG symbols
 b $81E4
 t $81E8
 b $825C

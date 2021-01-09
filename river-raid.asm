@@ -2296,7 +2296,7 @@ handle_no_fuel_5:
   JP NZ,L65AB
 ; This entry point is used by the routines at L65AB and L65CB.
 handle_no_fuel_6:
-  LD HL,L8153
+  LD HL,msg_game_over
   LD (L5F7E),HL
   CALL L928D_16
   LD SP,(sp_5F83)
@@ -5623,32 +5623,14 @@ L8127:
   DEFB $02,$04,$04,$02,$00,$00,$00,$02
   DEFB $02,$02,$00,$00
 
-; Message at 8153
-L8153:
+; Game Over message.
+msg_game_over:
   DEFM " .....GAME OVER.....                            RIVER RAID"
-
-; Data block at 818D
-L818D:
-  DEFB $94
-
-; Message at 818E
-L818E:
+  DEFM $94                ; Trademark UDG symbol
   DEFM "      by Carol Shaw       "
-
-; Data block at 81A8
-L81A8:
-  DEFB $7F
-
-; Message at 81A9
-L81A9:
+  DEFM $7F                ; Copyright symbol
   DEFM " 1983 "
-
-; Data block at 81AF
-L81AF:
-  DEFB $95,$96,$97,$98,$99,$9A,$9B
-
-; Message at 81B6
-L81B6:
+  DEFM $95,$96,$97,$98,$99,$9A,$9B ; Activision logo UDG symbols
   DEFM " Inc. All rights reserved                     "
 
 ; Data block at 81E4
