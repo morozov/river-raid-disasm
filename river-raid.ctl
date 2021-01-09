@@ -776,14 +776,27 @@ c $91E8
 @ $923A label=state_game_mode
 b $923A The game mode storing the number of players in the first bit and the starting bridge in the next two.
   $923A,1
-@ $923B label=L923B
-  $923B,1
-@ $923C label=L923C
-  $923C,1
+@ $923B label=state_lives_player_1
+g $923B Number of player 1 lives.
+@ $923C label=state_lives_player_2
+g $923C Number of player 2 lives.
 @ $923D label=state_player
 b $923D Current player
-  $923D,1
-c $923E
+@ $923E label=print_lives
+c $923E Print lives.
+  $9246,6 INK YELLOW
+@ $924F label=print_lives_continue
+c $924F Continue printing lives after the value has been loaded into #REGa.
+R $924F I:A Number of lives.
+  $9250,9 AT 20,18
+@ $925F label=print_lives_loop
+  $925F,3 Print the ✈ UDG symbol
+@ $9264 label=print_lives_padding
+c $9264 Print six spaces
+@ $9277 label=print_lives_player_2
+c $9277 The player 2 branch of the #R$923E routine.
+R $9277 O:A Number of lives.
+  $9277,6 INK CYAN
 @ $9283 label=ptr_state_controls
 w $9283 Pointer to #R$6BB0
 s $9285

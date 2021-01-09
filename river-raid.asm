@@ -1078,13 +1078,13 @@ init_state:
   LD (L5F76),A
   LD (L5F7D),A
   LD HL,$0404
-  LD (L923B),HL
+  LD (state_lives_player_1),HL
   LD (state_player),A
   RET
 
 ; Routine at 5D9F
 L5D9F:
-  LD HL,L923C
+  LD HL,state_lives_player_2
   DEC (HL)
   JP L5D9F_1
 ; This entry point is used by the routines at L5D10, restart, handle_no_fuel
@@ -1131,7 +1131,7 @@ play:
   LD (viewport_2_ptr),HL
   LD (HL),$FF
   LD BC,$0000
-  CALL L923E
+  CALL print_lives
   LD A,$01
   CALL CHAN_OPEN
   LD A,$16
@@ -1198,10 +1198,10 @@ L5D9F_0:
   LD A,(state_player)
   CP $02
   JP Z,L5D9F
-  LD HL,L923B
+  LD HL,state_lives_player_1
   DEC (HL)
 L5D9F_1:
-  CALL L923E
+  CALL print_lives
 L5D9F_2:
   CALL KEYBOARD
   EI
@@ -2280,7 +2280,7 @@ handle_no_fuel_3:
   LD A,(state_player)
   CP $02
   JP Z,L65CB
-  LD A,(L923B)
+  LD A,(state_lives_player_1)
   CP $00
   JP Z,handle_no_fuel_5
   LD A,(state_game_mode)
@@ -2329,7 +2329,7 @@ L6587:
 ;
 ; Used by the routine at handle_no_fuel.
 L65AB:
-  LD A,(L923C)
+  LD A,(state_lives_player_2)
   CP $00
   JP Z,handle_no_fuel_6
   LD A,$02
@@ -2340,7 +2340,7 @@ L65AB:
 ;
 ; Used by the routine at handle_no_fuel.
 L65BB:
-  LD A,(L923C)
+  LD A,(state_lives_player_2)
   CP $00
   JP Z,handle_no_fuel_4
   LD A,$02
@@ -2351,10 +2351,10 @@ L65BB:
 ;
 ; Used by the routine at handle_no_fuel.
 L65CB:
-  LD A,(L923C)
+  LD A,(state_lives_player_2)
   CP $00
   JP Z,L65CB_1
-  LD A,(L923B)
+  LD A,(state_lives_player_1)
   CP $00
   JP NZ,L65CB_0
   JP handle_no_fuel_4
@@ -2362,7 +2362,7 @@ L65CB_0:
   LD A,$01
   LD (state_player),A
 L65CB_1:
-  LD A,(L923B)
+  LD A,(state_lives_player_1)
   CP $00
   JP Z,handle_no_fuel_6
   LD A,$01
@@ -6853,7 +6853,7 @@ L9109:
   INC (HL)
   LD A,$02
   CALL CHAN_OPEN
-  CALL L923E
+  CALL print_lives
   LD HL,(ptr_state_controls)
   SET 4,(HL)              ; Set CONTROLS_BIT_4
   LD A,$01
@@ -7082,43 +7082,57 @@ L91E8:
 ; bridge in the next two.
 state_game_mode:
   DEFB $00
-L923B:
+
+; Number of player 1 lives.
+state_lives_player_1:
   DEFB $00
-L923C:
+
+; Number of player 2 lives.
+state_lives_player_2:
   DEFB $00
 
 ; Current player
 state_player:
   DEFB $00
 
-; Routine at 923E
+; Print lives.
 ;
 ; Used by the routines at L5D9F and L9109.
-L923E:
+print_lives:
   LD A,(state_player)
   CP $02
-  JP Z,L923E_3
-  LD A,$10
-  RST $10
-  LD A,$06
-  RST $10
-  LD A,(L923B)
-L923E_0:
+  JP Z,print_lives_player_2
+  LD A,$10                ; INK YELLOW
+  RST $10                 ;
+  LD A,$06                ;
+  RST $10                 ;
+  LD A,(state_lives_player_1)
+
+; Continue printing lives after the value has been loaded into A.
+;
+; Used by the routine at print_lives_player_2.
+;
+; I:A Number of lives.
+print_lives_continue:
   LD B,A
-  LD A,$16
-  RST $10
-  LD A,$14
-  RST $10
-  LD A,$12
-  RST $10
+  LD A,$16                ; AT 20,18
+  RST $10                 ;
+  LD A,$14                ;
+  RST $10                 ;
+  LD A,$12                ;
+  RST $10                 ;
   LD A,B
   CP $00
-  JP Z,L923E_2
-L923E_1:
-  LD A,$9C
-  RST $10
-  DJNZ L923E_1
-L923E_2:
+  JP Z,print_lives_padding
+print_lives_loop:
+  LD A,$9C                ; Print the ✈ UDG symbol
+  RST $10                 ;
+  DJNZ print_lives_loop
+
+; Print six spaces
+;
+; Used by the routine at print_lives_continue.
+print_lives_padding:
   LD A,$20
   RST $10
   LD A,$20
@@ -7132,13 +7146,19 @@ L923E_2:
   LD A,$20
   RST $10
   RET
-L923E_3:
-  LD A,$10
-  RST $10
-  LD A,$05
-  RST $10
-  LD A,(L923C)
-  JP L923E_0
+
+; The player 2 branch of the print_lives routine.
+;
+; Used by the routine at print_lives.
+;
+; O:A Number of lives.
+print_lives_player_2:
+  LD A,$10                ; INK CYAN
+  RST $10                 ;
+  LD A,$05                ;
+  RST $10                 ;
+  LD A,(state_lives_player_2)
+  JP print_lives_continue
 
 ; Pointer to state_controls
 ptr_state_controls:
@@ -7419,11 +7439,11 @@ clear_scr_attr:
 ;
 ; Used by the routine at L9109.
 L9423:
-  LD HL,L923B
+  LD HL,state_lives_player_1
   LD A,(state_player)
   CP $02
   RET NZ
-  LD HL,L923C
+  LD HL,state_lives_player_2
   RET
 
 ; Data block at 9430

@@ -6931,40 +6931,58 @@ c$91E8 LD A,$01      ;
 ; bridge in the next two.
 @label=state_game_mode
 b$923A DEFB $00
-@label=L923B
- $923B DEFB $00
-@label=L923C
- $923C DEFB $00
+
+; Number of player 1 lives.
+@label=state_lives_player_1
+g$923B DEFB $00
+
+; Number of player 2 lives.
+@label=state_lives_player_2
+g$923C DEFB $00
 
 ; Current player
 @label=state_player
 b$923D DEFB $00
 
-; Routine at 923E
+; Print lives.
 ;
 ; Used by the routines at #R$5D9F and #R$9109.
+@label=print_lives
 c$923E LD A,($923D)  ;
  $9241 CP $02        ;
  $9243 JP Z,$9277    ;
- $9246 LD A,$10      ;
+ $9246 LD A,$10      ; {INK YELLOW
  $9248 RST $10       ;
  $9249 LD A,$06      ;
- $924B RST $10       ;
+ $924B RST $10       ; }
  $924C LD A,($923B)  ;
-*$924F LD B,A        ;
- $9250 LD A,$16      ;
+
+; Continue printing lives after the value has been loaded into #REGa.
+;
+; Used by the routine at #R$9277.
+;
+; I:A Number of lives.
+@label=print_lives_continue
+c$924F LD B,A        ;
+ $9250 LD A,$16      ; {AT 20,18
  $9252 RST $10       ;
  $9253 LD A,$14      ;
  $9255 RST $10       ;
  $9256 LD A,$12      ;
- $9258 RST $10       ;
+ $9258 RST $10       ; }
  $9259 LD A,B        ;
  $925A CP $00        ;
  $925C JP Z,$9264    ;
-*$925F LD A,$9C      ;
- $9261 RST $10       ;
+@label=print_lives_loop
+*$925F LD A,$9C      ; {Print the ✈ UDG symbol
+ $9261 RST $10       ; }
  $9262 DJNZ $925F    ;
-*$9264 LD A,$20      ;
+
+; Print six spaces
+;
+; Used by the routine at #R$924F.
+@label=print_lives_padding
+c$9264 LD A,$20      ;
  $9266 RST $10       ;
  $9267 LD A,$20      ;
  $9269 RST $10       ;
@@ -6977,10 +6995,17 @@ c$923E LD A,($923D)  ;
  $9273 LD A,$20      ;
  $9275 RST $10       ;
  $9276 RET           ;
-*$9277 LD A,$10      ;
+
+; The player 2 branch of the #R$923E routine.
+;
+; Used by the routine at #R$923E.
+;
+; O:A Number of lives.
+@label=print_lives_player_2
+c$9277 LD A,$10      ; {INK CYAN
  $9279 RST $10       ;
  $927A LD A,$05      ;
- $927C RST $10       ;
+ $927C RST $10       ; }
  $927D LD A,($923C)  ;
  $9280 JP $924F      ;
 
