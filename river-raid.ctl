@@ -8,7 +8,7 @@
 > $4000 ; CONTROLS_BIT_SPEED_DECREASED = 1
 > $4000 ; CONTROLS_BIT_SPEED_ALTERED   = 2
 > $4000 ; CONTROLS_BIT_LOW_FUEL        = 3
-> $4000 ; CONTROLS_BIT_4               = 4
+> $4000 ; CONTROLS_BIT_BONUS_LIFE      = 4
 > $4000 ; CONTROLS_BIT_EXPLODING       = 5
 > $4000 ;
 > $4000 ; POINTS_SHIP           = 3
@@ -57,7 +57,8 @@ B $5D43,1
 @ $5D44 label=init_state
 c $5D44
   $5D44,5 Initialize #R$5F72. Why isn't it $80?
-c $5D9F
+@ $5D9F label=decrease_lives_player_2
+c $5D9F Decrease player 2 lives
 @ $5DA6 label=play
 C $5DB4,2 PAPER 1; INK 4
 @ $5DBF isub=LD BC,status_line_2 - status_line_1
@@ -149,8 +150,8 @@ b $5F7A
 w $5F7B
 @ $5F7D label=L5F7D
 b $5F7D
-@ $5F7E label=L5F7E
-w $5F7E
+@ $5F7E label=ptr_scroller
+w $5F7E Pointer to the text to be displayed in the scroller.
 u $5F80
 @ $5F81 label=L5F81
 b $5F81
@@ -234,6 +235,8 @@ c $64F1 Print current bridge number for player 2
 c $6506 Print space
 @ $650A label=handle_no_fuel
 c $650A Handle the no fuel situation
+@ $6577 label=game_over
+c $6577 Game Over
 c $6587
 c $65AB
 c $65BB
@@ -311,7 +314,7 @@ g $6C30 Bit4 frame counter
 c $6C31 Do something about bit4
 @ $6C52 label=bit4_finish
 c $6C52 Finish doing something about bit4
-  $6C5A,2 Reset CONTROLS_BIT_4
+  $6C5A,2 Reset CONTROLS_BIT_BONUS_LIFE
 c $6C5D
 @ $6C7A label=explosion_counter
 g $6C7A Explosion frame counter
@@ -413,7 +416,7 @@ c $7415
 c $7441
 c $74EE
   $7520,2 POINTS_25
-  $7529,2 Set CONTROLS_BIT_4
+  $7529,2 Set CONTROLS_BIT_BONUS_LIFE
   $752B,2 Set CONTROLS_BIT_EXPLODING
 c $754C
 c $758A
@@ -730,8 +733,9 @@ t $90CE
 @ $90E0 label=add_points
 c $90E0 Add score points for a hit target
 R $90E0 I:A Number of points to add divided by 10.
-c $9109
-  $9119,2 Set CONTROLS_BIT_4
+@ $9109 label=add_life
+c $9109 Add a life to the current player
+  $9119,2 Set CONTROLS_BIT_BONUS_LIFE
 @ $9122 label=update_score
 c $9122
 R $9122 I:A (can be 1, 2 or 4)
@@ -818,7 +822,9 @@ C $9419,2 Set the $03 of 256-byte blocks (768 bytes) of attribute
 @ $941B label=clear_scr_attr
 C $941D,2 ...loop until the counter is zero
 C $9420,2 Process next block
-c $9423
+@ $9423 label=ld_lives
+c $9423 Load current player lives
+R $9423 O:HL Pointer to the current player lives
 b $9430
 @ $9500 label=L9500
 @ $C600 label=LC600

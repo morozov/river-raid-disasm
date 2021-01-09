@@ -7,7 +7,7 @@
 ; CONTROLS_BIT_SPEED_DECREASED = 1
 ; CONTROLS_BIT_SPEED_ALTERED   = 2
 ; CONTROLS_BIT_LOW_FUEL        = 3
-; CONTROLS_BIT_4               = 4
+; CONTROLS_BIT_BONUS_LIFE      = 4
 ; CONTROLS_BIT_EXPLODING       = 5
 ;
 ; POINTS_SHIP           = 3
@@ -998,7 +998,7 @@ start_0:
   IM 2
   EI
   LD HL,msg_credits
-  LD (L5F7E),HL
+  LD (ptr_scroller),HL
 ; This entry point is used by the routines at handle_enter and demo.
 start_1:
   LD A,$3F
@@ -1020,7 +1020,7 @@ L5D10:
   JP Z,L5D10_0
   CALL init_state
   JP play
-; This entry point is used by the routine at handle_no_fuel.
+; This entry point is used by the routine at game_over.
 L5D10_0:
   LD SP,(sp_5F83)
   CALL init_state
@@ -1082,11 +1082,11 @@ init_state:
   LD (state_player),A
   RET
 
-; Routine at 5D9F
-L5D9F:
+; Decrease player 2 lives
+decrease_lives_player_2:
   LD HL,state_lives_player_2
   DEC (HL)
-  JP L5D9F_1
+  JP decrease_lives_player_2_1
 ; This entry point is used by the routines at L5D10, restart, handle_no_fuel
 ; and demo.
 play:
@@ -1178,7 +1178,7 @@ play:
   CALL L91E8
   CALL init_current_bridge
   LD B,$28
-L5D9F_0:
+decrease_lives_player_2_0:
   PUSH BC
   LD HL,L5EEF
   INC (HL)
@@ -1188,7 +1188,7 @@ L5D9F_0:
   LD A,$04
   LD (state_speed),A
   POP BC
-  DJNZ L5D9F_0
+  DJNZ decrease_lives_player_2_0
   LD A,$00
   LD (state_controls),A
   LD (state_interaction_mode_5F68),A
@@ -1197,25 +1197,25 @@ L5D9F_0:
   LD (LAST_K),A
   LD A,(state_player)
   CP $02
-  JP Z,L5D9F
+  JP Z,decrease_lives_player_2
   LD HL,state_lives_player_1
   DEC (HL)
-L5D9F_1:
+decrease_lives_player_2_1:
   CALL print_lives
-L5D9F_2:
+decrease_lives_player_2_2:
   CALL KEYBOARD
   EI
   LD A,(LAST_K)
   CP $0D
-  JR NZ,L5D9F_3
+  JR NZ,decrease_lives_player_2_3
   LD A,(state_control_type)
   CP $02
-  JP NZ,L5D9F_2
+  JP NZ,decrease_lives_player_2_2
   LD A,$FE
   IN A,($1F)
   CP $00
-  JP Z,L5D9F_2
-L5D9F_3:
+  JP Z,decrease_lives_player_2_2
+decrease_lives_player_2_3:
   LD A,$00
   LD (L5F6D),A
   LD (L5F6E),A
@@ -1425,8 +1425,8 @@ L5F7B:
 L5F7D:
   DEFB $01
 
-; Data block at 5F7E
-L5F7E:
+; Pointer to the text to be displayed in the scroller.
+ptr_scroller:
   DEFW $0000
 
 ; Unused
@@ -1471,7 +1471,7 @@ L5F8F:
 
 ; Main loop
 ;
-; Used by the routine at L5D9F.
+; Used by the routine at decrease_lives_player_2.
 main_loop:
   LD A,$BF                ; Scan Enter
   IN A,($FE)              ;
@@ -1590,7 +1590,7 @@ scan_keyboard:
 
 ; Routine at 60A5
 ;
-; Used by the routines at L5D9F, main_loop and demo.
+; Used by the routines at decrease_lives_player_2, main_loop and demo.
 L60A5:
   LD A,(state_interaction_mode_5F68)
   CP $00
@@ -2180,7 +2180,8 @@ L64B4:
 
 ; Routine at 64BC
 ;
-; Used by the routines at L5D9F, interact_with_something, L6587 and demo.
+; Used by the routines at decrease_lives_player_2, interact_with_something,
+; L6587 and demo.
 print_bridge:
   LD A,(state_player)
   CP $02
@@ -2294,10 +2295,13 @@ handle_no_fuel_5:
   LD A,(state_game_mode)
   BIT 0,A
   JP NZ,L65AB
-; This entry point is used by the routines at L65AB and L65CB.
-handle_no_fuel_6:
+
+; Game Over
+;
+; Used by the routines at L65AB and L65CB.
+game_over:
   LD HL,msg_game_over
-  LD (L5F7E),HL
+  LD (ptr_scroller),HL
   CALL L928D_16
   LD SP,(sp_5F83)
   JP L5D10_0
@@ -2331,7 +2335,7 @@ L6587:
 L65AB:
   LD A,(state_lives_player_2)
   CP $00
-  JP Z,handle_no_fuel_6
+  JP Z,game_over
   LD A,$02
   LD (state_player),A
   JP handle_no_fuel_4
@@ -2364,7 +2368,7 @@ L65CB_0:
 L65CB_1:
   LD A,(state_lives_player_1)
   CP $00
-  JP Z,handle_no_fuel_6
+  JP Z,game_over
   LD A,$01
   LD (state_player),A
   JP handle_no_fuel_4
@@ -2441,7 +2445,7 @@ handle_left:
 
 ; Routine at 6682
 ;
-; Used by the routines at L5D9F and L683B.
+; Used by the routines at decrease_lives_player_2 and L683B.
 L6682:
   LD A,(state_interaction_mode_5F68)
   CP $00
@@ -2481,7 +2485,7 @@ L66CC:
 
 ; Routine at 66D0
 ;
-; Used by the routines at L5D9F, main_loop and demo.
+; Used by the routines at decrease_lives_player_2, main_loop and demo.
 L66D0:
   LD BC,(L5F70)
   LD H,$00
@@ -2795,7 +2799,7 @@ L68C5_1:
   DJNZ L68C5_1
   CALL L6F80
   RET
-; This entry point is used by the routines at L5D9F and demo.
+; This entry point is used by the routines at decrease_lives_player_2 and demo.
 init_current_bridge:
   LD HL,screen_attributes
   LD B,$20
@@ -3286,7 +3290,7 @@ handle_enter:
   RET                     ;
 select_controls:
   LD HL,msg_credits       ;
-  LD (L5F7E),HL           ;
+  LD (ptr_scroller),HL    ;
   JP start_1              ;
 
 ; Non-maskable interrupt handler
@@ -3380,7 +3384,7 @@ bit4_finish:
   LD A,$00
   LD (state_bit4_counter),A
   LD HL,state_controls
-  RES 4,(HL)              ; Reset CONTROLS_BIT_4
+  RES 4,(HL)              ; Reset CONTROLS_BIT_BONUS_LIFE
   RET
 
 ; Routine at 6C5D
@@ -3613,9 +3617,9 @@ demo_0:
   RST $10
   LD A,$1F
   RST $10
-  LD HL,(L5F7E)
+  LD HL,(ptr_scroller)
   INC HL
-  LD (L5F7E),HL
+  LD (ptr_scroller),HL
   LD A,(HL)
   CP $FF
   JP Z,demo_1
@@ -3625,7 +3629,7 @@ demo_0:
   JP demo_0
 demo_1:
   LD HL,msg_credits
-  LD (L5F7E),HL
+  LD (ptr_scroller),HL
   LD A,$00
   LD (L5F6D),A
   JP demo_0
@@ -4101,8 +4105,9 @@ render_balloon:
 
 ; Routine at 708E
 ;
-; Used by the routines at L5D9F, main_loop, demo, L7158, L71A2, L7224, L724C,
-; L7296, L7302, L7358, L74EE, L754C, L75D0, L762E, L7649 and L76DA.
+; Used by the routines at decrease_lives_player_2, main_loop, demo, L7158,
+; L71A2, L7224, L724C, L7296, L7302, L7358, L74EE, L754C, L75D0, L762E, L7649
+; and L76DA.
 L708E:
   LD A,$00
   LD (state_interaction_mode_5EF5),A
@@ -4839,7 +4844,7 @@ L74EE:
 L74EE_0:
   LD HL,(viewport_1_ptr)
   DEC HL
-  SET 4,(HL)              ; Set CONTROLS_BIT_4
+  SET 4,(HL)              ; Set CONTROLS_BIT_BONUS_LIFE
   SET 5,(HL)              ; Set CONTROLS_BIT_EXPLODING
   DEC HL
   DEC HL
@@ -6299,7 +6304,7 @@ L8A1B_1:
 
 ; Routine at 8A33
 ;
-; Used by the routines at L5D9F and demo.
+; Used by the routines at decrease_lives_player_2 and demo.
 ;
 ; Sets BORDER to BLACK, sets screen attributes to WHITE-on-BLACK and copies
 ;      udg_data to the UDG area.
@@ -6830,18 +6835,18 @@ add_points_2:
   JR NZ,add_points_2
   RET
 
-; Routine at 9109
+; Add a life to the current player
 ;
 ; Used by the routine at update_score.
-L9109:
+add_life:
   PUSH AF
-  CALL L9423
+  CALL ld_lives
   INC (HL)
   LD A,$02
   CALL CHAN_OPEN
   CALL print_lives
   LD HL,(ptr_state_controls)
-  SET 4,(HL)              ; Set CONTROLS_BIT_4
+  SET 4,(HL)              ; Set CONTROLS_BIT_BONUS_LIFE
   LD A,$01
   CALL CHAN_OPEN
   POP AF
@@ -6859,7 +6864,7 @@ update_score:
   CALL CHAN_OPEN
   POP AF
   CP $04
-  CALL Z,L9109
+  CALL Z,add_life
   LD B,A
   LD A,$06
   SUB B
@@ -7016,7 +7021,7 @@ print_score_player_2:
 
 ; Routine at 91E8
 ;
-; Used by the routine at L5D9F.
+; Used by the routine at decrease_lives_player_2.
 L91E8:
   LD A,$01
   CALL CHAN_OPEN
@@ -7083,7 +7088,7 @@ state_player:
 
 ; Print lives.
 ;
-; Used by the routines at L5D9F and L9109.
+; Used by the routines at decrease_lives_player_2 and add_life.
 print_lives:
   LD A,(state_player)
   CP $02
@@ -7352,7 +7357,7 @@ L928D_14:
 L928D_15:
   LD A,$FF
   RET
-; This entry point is used by the routine at handle_no_fuel.
+; This entry point is used by the routine at game_over.
 L928D_16:
   LD A,(state_game_mode)
   BIT 0,A
@@ -7395,8 +7400,8 @@ L928D_17:
 ; Clear the screen by setting all pixel bytes to $00 and all attributes to the
 ; value set in D.
 ;
-; Used by the routines at L5D9F, demo, clear_and_setup, controls_input and
-; game_mode_input.
+; Used by the routines at decrease_lives_player_2, demo, clear_and_setup,
+; controls_input and game_mode_input.
 ;
 ; I:D Attribute value.
 clear_screen:
@@ -7421,10 +7426,12 @@ clear_scr_attr:
   JR NZ,clear_scr_attr    ; Process next block
   RET
 
-; Routine at 9423
+; Load current player lives
 ;
-; Used by the routine at L9109.
-L9423:
+; Used by the routine at add_life.
+;
+; O:HL Pointer to the current player lives
+ld_lives:
   LD HL,state_lives_player_1
   LD A,(state_player)
   CP $02

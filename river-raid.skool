@@ -8,7 +8,7 @@
 ; CONTROLS_BIT_SPEED_DECREASED = 1
 ; CONTROLS_BIT_SPEED_ALTERED   = 2
 ; CONTROLS_BIT_LOW_FUEL        = 3
-; CONTROLS_BIT_4               = 4
+; CONTROLS_BIT_BONUS_LIFE      = 4
 ; CONTROLS_BIT_EXPLODING       = 5
 ;
 ; POINTS_SHIP           = 3
@@ -1018,7 +1018,7 @@ c$5D10 LD A,$FC      ;
  $5D22 JP Z,$5D2B    ;
  $5D25 CALL $5D44    ;
  $5D28 JP $5DA6      ;
-; This entry point is used by the routine at #R$650A.
+; This entry point is used by the routine at #R$6577.
 *$5D2B LD SP,($5F83) ;
  $5D2F CALL $5D44    ;
  $5D32 JP $6D17      ;
@@ -1081,7 +1081,8 @@ c$5D44 LD A,$78      ; {Initialize #R$5F72. Why isn't it $80?
  $5D9B LD ($923D),A  ;
  $5D9E RET           ;
 
-; Routine at 5D9F
+; Decrease player 2 lives
+@label=decrease_lives_player_2
 c$5D9F LD HL,$923C   ;
  $5DA2 DEC (HL)      ;
  $5DA3 JP $5EBC      ;
@@ -1422,8 +1423,8 @@ w$5F7B DEFW $0000
 @label=L5F7D
 b$5F7D DEFB $01
 
-; Data block at 5F7E
-@label=L5F7E
+; Pointer to the text to be displayed in the scroller.
+@label=ptr_scroller
 w$5F7E DEFW $0000
 
 ; Unused
@@ -2268,8 +2269,12 @@ c$650A LD A,($5F72)  ;
 *$656F LD A,($923A)  ;
  $6572 BIT 0,A       ;
  $6574 JP NZ,$65AB   ;
-; This entry point is used by the routines at #R$65AB and #R$65CB.
-*$6577 LD HL,$8153   ;
+
+; Game Over
+;
+; Used by the routines at #R$65AB and #R$65CB.
+@label=game_over
+c$6577 LD HL,$8153   ;
  $657A LD ($5F7E),HL ;
  $657D CALL $93BE    ;
  $6580 LD SP,($5F83) ;
@@ -3287,7 +3292,7 @@ c$6C31 LD A,($6C30)  ;
 c$6C52 LD A,$00      ;
  $6C54 LD ($6C30),A  ;
  $6C57 LD HL,$6BB0   ;
- $6C5A RES 4,(HL)    ; Reset CONTROLS_BIT_4
+ $6C5A RES 4,(HL)    ; Reset CONTROLS_BIT_BONUS_LIFE
  $6C5C RET           ;
 
 ; Routine at 6C5D
@@ -4665,7 +4670,7 @@ c$74EE LD HL,($5F60) ;
  $7522 CALL $90E0    ;
 *$7525 LD HL,($5F60) ;
  $7528 DEC HL        ;
- $7529 SET 4,(HL)    ; Set CONTROLS_BIT_4
+ $7529 SET 4,(HL)    ; Set CONTROLS_BIT_BONUS_LIFE
  $752B SET 5,(HL)    ; Set CONTROLS_BIT_EXPLODING
  $752D DEC HL        ;
  $752E DEC HL        ;
@@ -6687,9 +6692,10 @@ c$90E0 PUSH AF       ;
  $9106 JR NZ,$90FE   ;
  $9108 RET           ;
 
-; Routine at 9109
+; Add a life to the current player
 ;
 ; Used by the routine at #R$9122.
+@label=add_life
 c$9109 PUSH AF       ;
  $910A CALL $9423    ;
  $910D INC (HL)      ;
@@ -6697,7 +6703,7 @@ c$9109 PUSH AF       ;
  $9110 CALL $1601    ;
  $9113 CALL $923E    ;
  $9116 LD HL,($9283) ;
- $9119 SET 4,(HL)    ; Set CONTROLS_BIT_4
+ $9119 SET 4,(HL)    ; Set CONTROLS_BIT_BONUS_LIFE
  $911B LD A,$01      ;
  $911D CALL $1601    ;
  $9120 POP AF        ;
@@ -7194,7 +7200,7 @@ c$928D PUSH HL       ;
  $93BA RET           ;
 *$93BB LD A,$FF      ;
  $93BD RET           ;
-; This entry point is used by the routine at #R$650A.
+; This entry point is used by the routine at #R$6577.
 *$93BE LD A,($923A)  ;
  $93C1 BIT 0,A       ;
  $93C3 CALL NZ,$93F2 ;
@@ -7260,9 +7266,12 @@ c$940A LD HL,$4000   ;
  $9420 JR NZ,$941B   ; Process next block
  $9422 RET           ;
 
-; Routine at 9423
+; Load current player lives
 ;
 ; Used by the routine at #R$9109.
+;
+; O:HL Pointer to the current player lives
+@label=ld_lives
 c$9423 LD HL,$923B   ;
  $9426 LD A,($923D)  ;
  $9429 CP $02        ;
