@@ -30,6 +30,8 @@
 @ $4000 equ=UDG=$5C7B
 @ $4000 label=screen_pixels
 b $4000 Screen pixels.
+b $4000 Screen pixels.
+D $4000 #UDGTABLE { #SCR(loading) } TABLE#
 @ $5800 label=screen_attributes
 b $5800 Screen attributes.
 b $5B00
@@ -356,7 +358,9 @@ c $6F6F
 c $6F73
 c $6F7A
 c $6F80
-c $6FE6
+@ $6FE6 label=ld_enemy_sprites_right
+c $6FE6 Load array of arrays of enemy headed right sprites.
+R $6FE6 O:HL Pointer to the array of arrays of sprites.
 c $6FEA
 c $6FF6
 c $7038
@@ -414,7 +418,11 @@ c $74EE
 c $754C
 c $758A
 c $75A2
-c $75BA
+@ $75BA label=ld_enemy_sprites
+c $75BA Load array of enemy sprites.
+R $75BA I:D The four lowest bits is the enemy type, the 6th bit is direction (reset is right, set is left).
+R $75BA I:HL Pointer to the array of sprites
+@ $75CB label=ld_enemy_sprites_loop
 c $75D0
 @ $7627 label=init_current_object_ptr
 c $7627 Point #R$5F60 to the head of #R$5F00.
@@ -562,6 +570,7 @@ t $81E8
 b $825C
 @ $825D label=udg_data
 b $825D
+D $825D #UDGTABLE { #FONT$825D,13 } TABLE#
 b $82C5
 @ $82F5 label=L82F5
 b $82F5

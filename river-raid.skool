@@ -30,6 +30,10 @@
 @equ=LAST_K=$5C08
 @equ=UDG=$5C7B
 ; Screen pixels.
+;
+; #UDGTABLE
+; { #SCR(loading) }
+; TABLE#
 @label=screen_pixels
 b$4000 DEFB $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
  $4008 DEFB $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
@@ -3838,9 +3842,12 @@ c$6F80 LD A,$00      ;
  $6FE2 CALL $8B3C    ;
  $6FE5 RET           ;
 
-; Routine at 6FE6
+; Load array of arrays of enemy headed right sprites.
 ;
 ; Used by the routine at #R$75BA.
+;
+; O:HL Pointer to the array of arrays of sprites.
+@label=ld_enemy_sprites_right
 c$6FE6 LD HL,$8793   ;
  $6FE9 RET           ;
 
@@ -4741,10 +4748,15 @@ c$75A2 PUSH BC       ;
  $75B6 INC C         ;
  $75B7 JP $7128      ;
 
-; Routine at 75BA
+; Load array of enemy sprites.
 ;
 ; Used by the routines at #R$6FF6, #R$708E, #R$7158, #R$724C, #R$7296 and
 ; #R$75D0.
+;
+; I:D The four lowest bits is the enemy type, the 6th bit is direction (reset
+; .   is right, set is left).
+; I:HL Pointer to the array of sprites
+@label=ld_enemy_sprites
 c$75BA LD HL,$85B3   ;
  $75BD LD BC,$0060   ;
  $75C0 BIT 6,D       ;
@@ -4753,6 +4765,7 @@ c$75BA LD HL,$85B3   ;
  $75C6 AND $07       ;
  $75C8 OR A          ;
  $75C9 SBC HL,BC     ;
+@label=ld_enemy_sprites_loop
 *$75CB ADD HL,BC     ;
  $75CC DEC A         ;
  $75CD JR NZ,$75CB   ;
@@ -5441,6 +5454,10 @@ t$81E8 DEFM " rights reserved        Press ENTER to play or C to change contro"
 b$825C DEFB $FF
 
 ; Data block at 825D
+;
+; #UDGTABLE
+; { #FONT$825D,13 }
+; TABLE#
 @label=udg_data
 b$825D DEFB $00,$00,$00,$80,$80,$AA,$AA,$FF
  $8265 DEFB $80,$80,$80,$80,$80,$AA,$AA,$FF

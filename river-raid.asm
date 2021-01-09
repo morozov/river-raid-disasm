@@ -3972,10 +3972,12 @@ L6F80_2:
   CALL L8B1E_1
   RET
 
-; Routine at 6FE6
+; Load array of arrays of enemy headed right sprites.
 ;
-; Used by the routine at L75BA.
-L6FE6:
+; Used by the routine at ld_enemy_sprites.
+;
+; O:HL Pointer to the array of arrays of sprites.
+ld_enemy_sprites_right:
   LD HL,sprite_enemies_right
   RET
 
@@ -3998,7 +4000,7 @@ L6FF6:
   CALL Z,L7046
   CP $04
   CALL Z,L7046
-  CALL L75BA
+  CALL ld_enemy_sprites
   LD B,$00
   LD C,E
   PUSH HL
@@ -4194,7 +4196,7 @@ L708E_1:
   LD (L8B0C),BC
   LD HL,L82C5
   LD (L8B0E),HL
-  CALL L75BA
+  CALL ld_enemy_sprites
   LD BC,$0018
   LD E,$0E
   LD A,D
@@ -4236,7 +4238,7 @@ L7158_0:
   DEC HL
   LD (HL),C
   LD (L8B0C),BC
-  CALL L75BA
+  CALL ld_enemy_sprites
   LD BC,$0018
   CALL L72E6
   LD A,$03
@@ -4383,7 +4385,7 @@ L724C_0:
   LD (L8B0C),BC
   LD (L8B0A),BC
   PUSH HL
-  CALL L75BA
+  CALL ld_enemy_sprites
   LD HL,L82C5
   LD (L8B0E),HL
   POP HL
@@ -4446,7 +4448,7 @@ L7296_0:
   DEC HL
   LD (HL),C
   LD (L8B0C),BC
-  CALL L75BA
+  CALL ld_enemy_sprites
   LD BC,$0018
   CALL L72E6
   LD A,$03
@@ -4925,22 +4927,26 @@ L75A2:
   INC C
   JP L708E_1
 
-; Routine at 75BA
+; Load array of enemy sprites.
 ;
 ; Used by the routines at L6FF6, L708E, L7158, L724C, L7296 and L75D0.
-L75BA:
+;
+; I:D The four lowest bits is the enemy type, the 6th bit is direction (reset
+;     is right, set is left).
+; I:HL Pointer to the array of sprites
+ld_enemy_sprites:
   LD HL,sprite_enemies_left
   LD BC,$0060
   BIT 6,D
-  CALL Z,L6FE6
+  CALL Z,ld_enemy_sprites_right
   LD A,D
   AND $07
   OR A
   SBC HL,BC
-L75BA_0:
+ld_enemy_sprites_loop:
   ADD HL,BC
   DEC A
-  JR NZ,L75BA_0
+  JR NZ,ld_enemy_sprites_loop
   RET
 
 ; Routine at 75D0
@@ -4956,7 +4962,7 @@ L75D0:
   LD HL,(viewport_1_ptr)
   DEC HL
   LD D,(HL)
-  CALL L75BA
+  CALL ld_enemy_sprites
   LD BC,(L8B0A)
   LD A,C
   AND $07
@@ -4978,7 +4984,7 @@ L75D0_0:
   LD HL,(viewport_1_ptr)
   DEC HL
   LD (HL),A
-  CALL L75BA
+  CALL ld_enemy_sprites
   LD E,$0E
   LD A,D
   AND $07
