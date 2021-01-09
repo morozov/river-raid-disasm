@@ -10,6 +10,16 @@
 > $4000 ; CONTROLS_BIT_LOW_FUEL        = 3
 > $4000 ; CONTROLS_BIT_4               = 4
 > $4000 ; CONTROLS_BIT_EXPLODING       = 5
+> $4000 ;
+> $4000 ; POINTS_SHIP           = 3
+> $4000 ; POINTS_REG_HELICOPTER = 6
+> $4000 ; POINTS_BALLOON       = 6
+> $4000 ; POINTS_FUEL           = 8
+> $4000 ; POINTS_FIGHTER        = 10
+> $4000 ; POINTS_10             = 10
+> $4000 ; POINTS_15             = 15
+> $4000 ; POINTS_25             = 25
+> $4000 ; POINTS_BRIDGE         = 50
 @ $4000 org
 @ $4000 equ=KEYBOARD=$02BF
 @ $4000 equ=BEEPER=$03B5
@@ -50,6 +60,7 @@ c $5D9F
 C $5DB4,2 PAPER 1; INK 4
 @ $5DBF isub=LD BC,status_line_2 - status_line_1
 @ $5DD0 isub=LD BC,status_line_3 - status_line_2
+@ $5E32 isub=LD BC,state_score_player_2 - state_score_player_1
 @ $5E40 isub=LD BC,end_status_line_4 - status_line_4
 @ $5EEE label=L5EEE
 b $5EEE
@@ -175,8 +186,10 @@ c $6124
 c $6136
 @ $615E label=L615E
 c $615E
+  $61B3,2 POINTS_FIGHTER
 @ $61BB label=interact_with_something
 c $61BB
+  $61D3,2 POINTS_BRIDGE
 @ $621F keep
 @ $623F label=next_bridge_player_1
 @ $6249 label=next_bridge_player_2
@@ -194,13 +207,18 @@ c $62E0
 c $62E8 Interact with something
 @ $6414 label=hit_helicopter_reg
 c $6414
+  $6414,2 POINTS_REG_HELICOPTER
 @ $6423 label=hit_ship
 c $6423
+  $6423,2 POINTS_SHIP
+  $6444,2 POINTS_15
+  $6453,2 POINTS_10
 @ $6462 label=hit_balloon
 c $6462
+  $6462,2 POINTS_BALLOON
 @ $6478 label=interact_with_fuel
 c $6478
-b $64B4
+  $6480,2 POINTS_FUEL
 b $64B4
 @ $64BC label=print_bridge
 c $64BC
@@ -386,6 +404,7 @@ c $73DD
 c $7415
 c $7441
 c $74EE
+  $7520,2 POINTS_25
   $7529,2 Set CONTROLS_BIT_4
   $752B,2 Set CONTROLS_BIT_EXPLODING
 c $754C
@@ -694,6 +713,7 @@ t $90BC
 @ $90C2 label=state_score_player_2
 t $90C2
 t $90C8
+t $90CE
 @ $90E0 label=add_points
 c $90E0 Add score points for a hit target
 R $90E0 I:A Number of points to add divided by 10.
@@ -739,6 +759,7 @@ c $91C1
   $91D3,9 AT 1,18
   $91DC,6 "P2"
 c $91E8
+@ $9204 isub=LD BC,L90CC - L90C8
 @ $923A label=state_game_mode
 b $923A The game mode storing the number of players in the first bit and the starting bridge in the next two.
   $923A,1
@@ -756,6 +777,8 @@ s $9285
 c $928D
 @ $92F1 nowarn
 @ $934F nowarn
+@ $93EC isub=LD BC,state_score_player_2 - state_score_player_1
+@ $9404 isub=LD BC,state_score_player_2 - state_score_player_1
 @ $940A label=clear_screen
 c $940A Clear the screen by setting all pixel bytes to $00 and all attributes to the value set in #REGd.
 R $940A I:D Attribute value.

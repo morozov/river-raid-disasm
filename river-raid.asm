@@ -9,6 +9,16 @@
 ; CONTROLS_BIT_LOW_FUEL        = 3
 ; CONTROLS_BIT_4               = 4
 ; CONTROLS_BIT_EXPLODING       = 5
+;
+; POINTS_SHIP           = 3
+; POINTS_REG_HELICOPTER = 6
+; POINTS_BALLOON       = 6
+; POINTS_FUEL           = 8
+; POINTS_FIGHTER        = 10
+; POINTS_10             = 10
+; POINTS_15             = 15
+; POINTS_25             = 25
+; POINTS_BRIDGE         = 50
 
 KEYBOARD EQU $02BF
 BEEPER EQU $03B5
@@ -1135,7 +1145,7 @@ play:
   LD A,$06
   RST $10
   LD DE,state_score_player_1
-  LD BC,$0006
+  LD BC,state_score_player_2 - state_score_player_1
   CALL PR_STRING
   LD A,$02
   CALL CHAN_OPEN
@@ -1732,7 +1742,7 @@ L615E:
   DEC C
   DEC C
   CALL explode_fragment
-  LD A,$10
+  LD A,$10                ; POINTS_FIGHTER
   CALL add_points
   JP L6794
 
@@ -1751,7 +1761,7 @@ interact_with_something:
   SUB $16
   SUB B
   JP P,interact_with_something2
-  LD A,$50
+  LD A,$50                ; POINTS_BRIDGE
   CALL add_points
   LD A,$0F
   LD (L5F5F),A
@@ -2078,7 +2088,7 @@ interact_with_something2_3:
 ;
 ; Used by the routine at interact_with_something2.
 hit_helicopter_reg:
-  LD A,$06
+  LD A,$06                ; POINTS_REG_HELICOPTER
   CALL add_points
   LD BC,(L5F8B)
   CALL explode_fragment
@@ -2088,7 +2098,7 @@ hit_helicopter_reg:
 ;
 ; Used by the routine at interact_with_something2.
 hit_ship:
-  LD A,$03
+  LD A,$03                ; POINTS_SHIP
   CALL add_points
   LD BC,(L5F8B)
   CALL explode_fragment
@@ -2106,14 +2116,14 @@ hit_ship:
   JP interact_with_something2_1
 ; This entry point is used by the routine at interact_with_something2.
 hit_ship_0:
-  LD A,$15
+  LD A,$15                ; POINTS_15
   CALL add_points
   LD BC,(L5F8B)
   CALL explode_fragment
   JP interact_with_something2_1
 ; This entry point is used by the routine at interact_with_something2.
 hit_ship_1:
-  LD A,$10
+  LD A,$10                ; POINTS_10
   CALL add_points
   LD BC,(L5F8B)
   CALL explode_fragment
@@ -2123,7 +2133,7 @@ hit_ship_1:
 ;
 ; Used by the routine at interact_with_something2.
 hit_balloon:
-  LD A,$06
+  LD A,$06                ; POINTS_BALLOON
   CALL add_points
   LD BC,(L5F8B)
   CALL explode_fragment
@@ -2140,7 +2150,7 @@ interact_with_fuel:
   LD A,(state_interaction_mode_5F68)
   CP $06
   JP Z,interact_with_fuel_0
-  LD A,$08
+  LD A,$08                ; POINTS_FUEL
   CALL add_points
   LD BC,(L5F8B)
   CALL explode_fragment
@@ -4817,7 +4827,7 @@ L74EE:
   LD (HL),$00
   LD D,$80
   CALL explode_fragment
-  LD A,$25
+  LD A,$25                ; POINTS_25
   CALL add_points
 L74EE_0:
   LD HL,(viewport_1_ptr)
@@ -6782,7 +6792,11 @@ state_score_player_2:
 
 ; Message at 90C8
 L90C8:
-  DEFM "000000000000000000000000"
+  DEFM "000000"
+
+; Message at 90CE
+L90CE:
+  DEFM "000000000000000000"
 
 ; Add score points for a hit target
 ;
@@ -7022,7 +7036,7 @@ L91E8:
   RST $10
   LD A,$07
   RST $10
-  LD BC,$0006
+  LD BC,L90CC - L90C8
   LD HL,L90C8
   LD A,(state_game_mode)
   AND $FE
@@ -7346,7 +7360,7 @@ L928D_16:
   CP $01
   RET NZ
   LD HL,state_score_player_1
-  LD BC,$0006
+  LD BC,state_score_player_2 - state_score_player_1
   LDIR
   RET
 L928D_17:
@@ -7357,7 +7371,7 @@ L928D_17:
   RET NZ
   LD HL,state_score_player_2
   LD DE,state_score_player_1
-  LD BC,$0006
+  LD BC,state_score_player_2 - state_score_player_1
   LDIR
   RET
 

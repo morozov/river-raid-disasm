@@ -10,6 +10,16 @@
 ; CONTROLS_BIT_LOW_FUEL        = 3
 ; CONTROLS_BIT_4               = 4
 ; CONTROLS_BIT_EXPLODING       = 5
+;
+; POINTS_SHIP           = 3
+; POINTS_REG_HELICOPTER = 6
+; POINTS_BALLOON       = 6
+; POINTS_FUEL           = 8
+; POINTS_FIGHTER        = 10
+; POINTS_10             = 10
+; POINTS_15             = 15
+; POINTS_25             = 25
+; POINTS_BRIDGE         = 50
 
 @org
 @equ=KEYBOARD=$02BF
@@ -1131,6 +1141,7 @@ c$5D9F LD HL,$923C   ;
  $5E2C LD A,$06      ;
  $5E2E RST $10       ;
  $5E2F LD DE,$90BC   ;
+@isub=LD BC,state_score_player_2 - state_score_player_1
  $5E32 LD BC,$0006   ;
  $5E35 CALL $203C    ;
  $5E38 LD A,$02      ;
@@ -1717,7 +1728,7 @@ c$615E LD BC,($5EF3) ;
  $61AE DEC C         ;
  $61AF DEC C         ;
  $61B0 CALL $6E9C    ;
- $61B3 LD A,$10      ;
+ $61B3 LD A,$10      ; POINTS_FIGHTER
  $61B5 CALL $90E0    ;
  $61B8 JP $6794      ;
 
@@ -1736,7 +1747,7 @@ c$61BB LD BC,($5EF3) ;
  $61CD SUB $16       ;
  $61CF SUB B         ;
  $61D0 JP P,$62E8    ;
- $61D3 LD A,$50      ;
+ $61D3 LD A,$50      ; POINTS_BRIDGE
  $61D5 CALL $90E0    ;
  $61D8 LD A,$0F      ;
  $61DA LD ($5F5F),A  ;
@@ -2055,7 +2066,7 @@ c$62E8 LD HL,($5F60) ;
 ;
 ; Used by the routine at #R$62E8.
 @label=hit_helicopter_reg
-c$6414 LD A,$06      ;
+c$6414 LD A,$06      ; POINTS_REG_HELICOPTER
  $6416 CALL $90E0    ;
  $6419 LD BC,($5F8B) ;
  $641D CALL $6E9C    ;
@@ -2065,7 +2076,7 @@ c$6414 LD A,$06      ;
 ;
 ; Used by the routine at #R$62E8.
 @label=hit_ship
-c$6423 LD A,$03      ;
+c$6423 LD A,$03      ; POINTS_SHIP
  $6425 CALL $90E0    ;
  $6428 LD BC,($5F8B) ;
  $642C CALL $6E9C    ;
@@ -2082,13 +2093,13 @@ c$6423 LD A,$03      ;
  $643E CALL $6E9C    ;
  $6441 JP $63DD      ;
 ; This entry point is used by the routine at #R$62E8.
-*$6444 LD A,$15      ;
+*$6444 LD A,$15      ; POINTS_15
  $6446 CALL $90E0    ;
  $6449 LD BC,($5F8B) ;
  $644D CALL $6E9C    ;
  $6450 JP $63DD      ;
 ; This entry point is used by the routine at #R$62E8.
-*$6453 LD A,$10      ;
+*$6453 LD A,$10      ; POINTS_10
  $6455 CALL $90E0    ;
  $6458 LD BC,($5F8B) ;
  $645C CALL $6E9C    ;
@@ -2098,7 +2109,7 @@ c$6423 LD A,$03      ;
 ;
 ; Used by the routine at #R$62E8.
 @label=hit_balloon
-c$6462 LD A,$06      ;
+c$6462 LD A,$06      ; POINTS_BALLOON
  $6464 CALL $90E0    ;
  $6467 LD BC,($5F8B) ;
  $646B CALL $6E9C    ;
@@ -2115,7 +2126,7 @@ c$6462 LD A,$06      ;
 c$6478 LD A,($5F68)  ;
  $647B CP $06        ;
  $647D JP Z,$64A1    ;
- $6480 LD A,$08      ;
+ $6480 LD A,$08      ; POINTS_FUEL
  $6482 CALL $90E0    ;
  $6485 LD BC,($5F8B) ;
  $6489 CALL $6E9C    ;
@@ -4637,7 +4648,7 @@ c$74EE LD HL,($5F60) ;
  $7519 LD (HL),$00   ;
  $751B LD D,$80      ;
  $751D CALL $6E9C    ;
- $7520 LD A,$25      ;
+ $7520 LD A,$25      ; POINTS_25
  $7522 CALL $90E0    ;
 *$7525 LD HL,($5F60) ;
  $7528 DEC HL        ;
@@ -6621,7 +6632,10 @@ t$90BC DEFM "000000"
 t$90C2 DEFM "000000"
 
 ; Message at 90C8
-t$90C8 DEFM "000000000000000000000000"
+t$90C8 DEFM "000000"
+
+; Message at 90CE
+t$90CE DEFM "000000000000000000"
 
 ; Add score points for a hit target
 ;
@@ -6858,6 +6872,7 @@ c$91E8 LD A,$01      ;
  $9200 RST $10       ;
  $9201 LD A,$07      ;
  $9203 RST $10       ;
+@isub=LD BC,L90CC - L90C8
  $9204 LD BC,$0006   ;
  $9207 LD HL,$90C8   ;
  $920A LD A,($923A)  ;
@@ -7160,6 +7175,7 @@ c$928D PUSH HL       ;
  $93E6 CP $01        ;
  $93E8 RET NZ        ;
  $93E9 LD HL,$90BC   ;
+@isub=LD BC,state_score_player_2 - state_score_player_1
  $93EC LD BC,$0006   ;
  $93EF LDIR          ;
  $93F1 RET           ;
@@ -7170,6 +7186,7 @@ c$928D PUSH HL       ;
  $93FD RET NZ        ;
  $93FE LD HL,$90C2   ;
  $9401 LD DE,$90BC   ;
+@isub=LD BC,state_score_player_2 - state_score_player_1
  $9404 LD BC,$0006   ;
  $9407 LDIR          ;
  $9409 RET           ;
