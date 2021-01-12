@@ -19,6 +19,14 @@
 ; POINTS_ADV_HELICOPTER = 15
 ; POINTS_TANK           = 25
 ; POINTS_BRIDGE         = 50
+;
+; OBJECT_HELICOPTER_REG = 1
+; OBJECT_SHIP           = 2
+; OBJECT_HELICOPTER_ADV = 3
+; OBJECT_TANK           = 4
+; OBJECT_FIGHTER        = 5
+; OBJECT_BALLOON        = 6
+; OBJECT_FUEL           = 7
 
 @org
 @equ=KEYBOARD=$02BF
@@ -1383,8 +1391,9 @@ b$5F6D DEFB $00
 ; Data block at 5F6E
 w$5F6E DEFW $0000
 
-; Data block at 5F70
-w$5F70 DEFW $0000
+; Current Y coordinate
+@label=state_y
+g$5F70 DEFB $00,$00
 
 ; Current X coordinate
 @label=state_x
@@ -1903,7 +1912,7 @@ c$62D7 LD E,$11      ;
 ;
 ; Used by the routines at #R$6268, #R$62E8, #R$6682, #R$66EE, #R$673D, #R$6794,
 ; #R$6FEA, #R$708E, #R$7393 and #R$7441.
-@label=advance
+@label=L62DA
 c$62DA LD A,($5F64)  ;
  $62DD ADD A,B       ;
  $62DE LD B,A        ;
@@ -2455,9 +2464,11 @@ c$6682 LD A,($5F68)  ;
 c$66CC LD HL,$83F1   ;
  $66CF RET           ;
 
-; Routine at 66D0
+; Increase #R$5F70 by the value of #R$5F64, set #R$5F64 to the default value
+; and do something with the #R$6BB0 bits.
 ;
 ; Used by the routines at #R$5D9F, #R$5F91 and #R$6D17.
+@label=advance
 c$66D0 LD BC,($5F70) ;
  $66D4 LD H,$00      ;
  $66D6 LD A,($5F64)  ;
@@ -3800,9 +3811,10 @@ c$6F7A DEC HL        ;
  $6F7B LD (HL),$00   ;
  $6F7D JP $6EC8      ;
 
-; Routine at 6F80
+; This routine gets called when the screen scrolls by another fragment
 ;
 ; Used by the routines at #R$68C5 and #R$6927.
+@label=next_row
 c$6F80 LD A,$00      ;
  $6F82 LD ($5EF5),A  ;
  $6F85 LD HL,$C800   ;
@@ -3810,9 +3822,10 @@ c$6F80 LD A,$00      ;
  $6F8B LD A,($5EF0)  ;
  $6F8E OR A          ;
  $6F8F SBC HL,DE     ;
-*$6F91 ADD HL,DE     ;
+@label=locate_level
+*$6F91 ADD HL,DE     ; {Have #REGhl point to the level defined by #REGa
  $6F92 DEC A         ;
- $6F93 JR NZ,$6F91   ;
+ $6F93 JR NZ,$6F91   ; }
  $6F95 LD BC,($5F70) ;
  $6F99 SRL B         ;
  $6F9B RR C          ;
@@ -3833,7 +3846,15 @@ c$6F80 LD A,$00      ;
  $6FB3 CP $07        ;
  $6FB5 JP Z,$7051    ;
  $6FB8 JP $6FF6      ;
-*$6FBB LD A,D        ;
+
+; Render rock
+;
+; Used by the routine at #R$6F80.
+;
+; I:D Some info (probably, sprite array index)
+; I:E Some info (probably, position)
+@label=render_rock
+c$6FBB LD A,D        ;
  $6FBC AND $07       ;
  $6FBE OR A          ;
  $6FBF LD HL,$84A1   ;
@@ -3871,9 +3892,13 @@ c$6FEA CALL $62DA    ;
  $6FF1 LD ($8B0A),BC ;
  $6FF5 RET           ;
 
-; Routine at 6FF6
+; Render enemy
 ;
 ; Used by the routine at #R$6F80.
+;
+; I:A Enemy type (6-balloon)
+; I:D Enemy info and type as well
+@label=render_enemy
 c$6FF6 CP $06        ;
  $6FF8 JP Z,$706C    ;
  $6FFB CP $05        ;
@@ -4765,8 +4790,8 @@ c$75A2 PUSH BC       ;
 ; Used by the routines at #R$6FF6, #R$708E, #R$7158, #R$724C, #R$7296 and
 ; #R$75D0.
 ;
-; I:D The four lowest bits is the enemy type, the 6th bit is direction (reset
-; .   is right, set is left).
+; I:D The four lowest bits is the enemy type (one of the first five OBJECT_*
+; .   constants), the 6th bit is direction (reset is right, set is left).
 ; I:HL Pointer to the array of sprites
 @label=ld_enemy_sprites
 c$75BA LD HL,$85B3   ;
@@ -6354,7 +6379,7 @@ c$8B1E PUSH DE       ;
  $8B38 LD A,($8B1A)  ;
  $8B3B POP DE        ;
 ; This entry point is used by the routines at #R$60A5, #R$65F3, #R$6642,
-; #R$6682, #R$6794, #R$6F80, #R$708E, #R$71A2, #R$724C, #R$7441, #R$75D0 and
+; #R$6682, #R$6794, #R$6FBB, #R$708E, #R$71A2, #R$724C, #R$7441, #R$75D0 and
 ; #R$76DA.
 *$8B3C PUSH DE       ;
  $8B3D LD ($8B1A),A  ;
@@ -8947,8 +8972,11 @@ b$9430 DEFB $C3,$90,$EA,$30,$06,$79,$CD,$6E
  $C7E8 DEFB $00,$00,$00,$00,$00,$00,$00,$00
  $C7F0 DEFB $00,$00,$00,$00,$00,$00,$00,$00
  $C7F8 DEFB $00,$00,$00,$00,$00,$00,$00,$00
-@label=LC800
- $C800 DEFB $00,$00,$00,$00,$00,$00,$00,$00
+
+; Byte 1: lowest 3 bits - object type; Byte 2 - position. $07 - fuel station,
+; $06 - balloon, $04-05 - unknown
+@label=levels
+b$C800 DEFB $00,$00,$00,$00,$00,$00,$00,$00
  $C808 DEFB $00,$00,$00,$00,$00,$00,$00,$00
  $C810 DEFB $00,$00,$00,$00,$00,$00,$00,$00
  $C818 DEFB $87,$78,$00,$00,$01,$60,$00,$00

@@ -18,6 +18,14 @@
 ; POINTS_ADV_HELICOPTER = 15
 ; POINTS_TANK           = 25
 ; POINTS_BRIDGE         = 50
+;
+; OBJECT_HELICOPTER_REG = 1
+; OBJECT_SHIP           = 2
+; OBJECT_HELICOPTER_ADV = 3
+; OBJECT_TANK           = 4
+; OBJECT_FIGHTER        = 5
+; OBJECT_BALLOON        = 6
+; OBJECT_FUEL           = 7
 
 KEYBOARD EQU $02BF
 BEEPER EQU $03B5
@@ -1119,7 +1127,7 @@ play:
   LD A,$FF
   LD (state_fuel),A
   LD BC,$0010
-  LD (L5F70),BC
+  LD (state_y),BC
   CALL init_current_bridge
   LD A,$78
   LD (state_x),A
@@ -1183,7 +1191,7 @@ decrease_lives_player_2_0:
   INC (HL)
   CALL L60A5
   CALL L708E
-  CALL L66D0
+  CALL advance
   LD A,$04
   LD (state_speed),A
   POP BC
@@ -1384,9 +1392,9 @@ L5F6D:
 L5F6E:
   DEFW $0000
 
-; Data block at 5F70
-L5F70:
-  DEFW $0000
+; Current Y coordinate
+state_y:
+  DEFB $00,$00
 
 ; Current X coordinate
 state_x:
@@ -1489,7 +1497,7 @@ main_loop:
   CALL L673D
   CALL L7441
   CALL L7393
-  CALL L66D0
+  CALL advance
   CALL L6DFF
   LD A,$00
   LD (L5F69),A
@@ -1850,7 +1858,7 @@ hit_terrain:
   JP Z,hit_terrain
   CP $FF
   JP Z,hit_terrain_0
-  CALL advance
+  CALL L62DA
   LD DE,(L5EF3)
   LD A,D
   ADD A,$08
@@ -1915,7 +1923,7 @@ L62D7:
 ;
 ; Used by the routines at hit_terrain, interact_with_something2, L6682, L66EE,
 ; L673D, L6794, L6FEA, L708E, L7393 and L7441.
-advance:
+L62DA:
   LD A,(state_speed)
   ADD A,B
   LD B,A
@@ -1950,7 +1958,7 @@ interact_with_something2:
   JP Z,interact_with_something2_0
   LD A,(state_interaction_mode_5F68)
   CP $06
-  CALL Z,advance
+  CALL Z,L62DA
   LD DE,(L5EF3)
   LD A,D
   ADD A,$09
@@ -2463,7 +2471,7 @@ L6682:
   LD A,$01
   LD (state_interaction_mode_5EF5),A
   LD (L8B0C),BC
-  CALL advance
+  CALL L62DA
   LD (L8B0A),BC
   LD BC,$0010
   LD HL,(L5EF7)
@@ -2488,16 +2496,17 @@ L66CC:
   LD HL,L83F1
   RET
 
-; Routine at 66D0
+; Increase state_y by the value of state_speed, set state_speed to the default
+; value and do something with the state_controls bits.
 ;
 ; Used by the routines at decrease_lives_player_2, main_loop and demo.
-L66D0:
-  LD BC,(L5F70)
+advance:
+  LD BC,(state_y)
   LD H,$00
   LD A,(state_speed)
   LD L,A
   ADD HL,BC
-  LD (L5F70),HL
+  LD (state_y),HL
   CALL L66EE
   LD A,$02
   LD (state_speed),A
@@ -2508,13 +2517,13 @@ L66D0:
 
 ; Routine at 66EE
 ;
-; Used by the routine at L66D0.
+; Used by the routine at advance.
 L66EE:
   LD A,(L5F6E)
   CP $00
   RET Z
   LD B,A
-  CALL advance
+  CALL L62DA
   AND $88
   CP $88
   LD A,B
@@ -2574,7 +2583,7 @@ L673D:
   LD (L5F8D),BC
   LD A,(L673C)
   CP $01
-  CALL Z,advance
+  CALL Z,L62DA
   LD (L8B0A),BC
   LD BC,(L5EF3)
   LD A,(state_x)
@@ -2635,7 +2644,7 @@ L6794_0:
   JR NZ,L6794_0
   LD A,(L673C)
   CP $01
-  CALL Z,advance
+  CALL Z,L62DA
   LD (L8B0E),HL
   LD (L8B0C),BC
   LD (L8B0A),BC
@@ -2802,7 +2811,7 @@ L68C5_1:
   LD (DE),A
   INC DE
   DJNZ L68C5_1
-  CALL L6F80
+  CALL next_row
   RET
 ; This entry point is used by the routines at decrease_lives_player_2 and demo.
 init_current_bridge:
@@ -2851,7 +2860,7 @@ L6927:
   LDIR
   LD A,$00
   LD (L5F6C),A
-  CALL L6F80
+  CALL next_row
   RET
 
 ; Unused
@@ -2881,7 +2890,7 @@ L6947:
 ; Used by the routine at L6A4F.
 L694D:
   LD DE,$0000
-  LD (L5F70),DE
+  LD (state_y),DE
   LD A,(state_bridge_mod)
   INC A
   LD (state_bridge_mod),A
@@ -3548,7 +3557,7 @@ do_low_fuel_2:
 ; Used by the routine at L5D10.
 demo:
   LD BC,$0010
-  LD (L5F70),BC
+  LD (state_y),BC
   LD A,$10
   LD (L5EFD),A
   LD D,$0C                ; PAPER 1; INK 4
@@ -3593,7 +3602,7 @@ demo_0:
   CALL L708E
   CALL L7441
   CALL L7393
-  CALL L66D0
+  CALL advance
   CALL L8A1B
   LD HL,L5F81
   INC (HL)
@@ -3772,7 +3781,7 @@ explode_fragment:
   LD A,$18
   LD (explosion_counter),A
   LD HL,viewport_2
-; This entry point is used by the routines at L6FF6, render_fuel,
+; This entry point is used by the routines at render_enemy, render_fuel,
 ; render_balloon and L7441.
 explode_fragment_0:
   LD A,(HL)
@@ -3924,22 +3933,22 @@ L6F7A:
   LD (HL),$00
   JP L6EC8
 
-; Routine at 6F80
+; This routine gets called when the screen scrolls by another fragment
 ;
 ; Used by the routines at L68C5 and L6927.
-L6F80:
+next_row:
   LD A,$00
   LD (state_interaction_mode_5EF5),A
-  LD HL,LC800
+  LD HL,levels
   LD DE,$0100
   LD A,(state_bridge_mod)
   OR A
   SBC HL,DE
-L6F80_0:
-  ADD HL,DE
-  DEC A
-  JR NZ,L6F80_0
-  LD BC,(L5F70)
+locate_level:
+  ADD HL,DE               ; Have HL point to the level defined by A
+  DEC A                   ;
+  JR NZ,locate_level      ;
+  LD BC,(state_y)
   SRL B
   RR C
   SRL B
@@ -3953,13 +3962,20 @@ L6F80_0:
   CP $00
   RET Z
   BIT 3,D
-  JP NZ,L6F80_1
+  JP NZ,render_rock
   LD A,D
   AND $07
   CP $07
   JP Z,render_fuel
-  JP L6FF6
-L6F80_1:
+  JP render_enemy
+
+; Render rock
+;
+; Used by the routine at next_row.
+;
+; I:D Some info (probably, sprite array index)
+; I:E Some info (probably, position)
+render_rock:
   LD A,D
   AND $07
   OR A
@@ -3967,10 +3983,10 @@ L6F80_1:
   LD BC,$0030
   INC A
   SBC HL,BC
-L6F80_2:
+render_rock_0:
   ADD HL,BC
   DEC A
-  JR NZ,L6F80_2
+  JR NZ,render_rock_0
   LD B,$00
   LD C,E
   LD (L8B0E),HL
@@ -3993,17 +4009,20 @@ ld_enemy_sprites_right:
 
 ; Routine at 6FEA
 ;
-; Used by the routines at L6FF6, render_fuel and render_balloon.
+; Used by the routines at render_enemy, render_fuel and render_balloon.
 L6FEA:
-  CALL advance
+  CALL L62DA
   LD (L8B0C),BC
   LD (L8B0A),BC
   RET
 
-; Routine at 6FF6
+; Render enemy
 ;
-; Used by the routine at L6F80.
-L6FF6:
+; Used by the routine at next_row.
+;
+; I:A Enemy type (6-balloon)
+; I:D Enemy info and type as well
+render_enemy:
   CP $06
   JP Z,render_balloon
   CP $05
@@ -4036,22 +4055,22 @@ L6FF6:
 
 ; Routine at 7038
 ;
-; Used by the routines at handle_right, handle_left, L6682, L6FF6, L708E and
-; L75D0.
+; Used by the routines at handle_right, handle_left, L6682, render_enemy, L708E
+; and L75D0.
 L7038:
   LD E,$0D
   RET
 
 ; Routine at 703B
 ;
-; Used by the routine at L6FF6.
+; Used by the routine at render_enemy.
 L703B:
   LD E,$00
   RET
 
 ; Routine at 703E
 ;
-; Used by the routine at L6FF6.
+; Used by the routine at render_enemy.
 L703E:
   LD E,$00
   BIT 5,D
@@ -4061,7 +4080,7 @@ L703E:
 
 ; Routine at 7046
 ;
-; Used by the routine at L6FF6.
+; Used by the routine at render_enemy.
 L7046:
   LD A,$A8
   LD (L8C3C),A
@@ -4071,7 +4090,7 @@ L7046:
 
 ; Render fuel station
 ;
-; Used by the routine at L6F80.
+; Used by the routine at next_row.
 ;
 ; I:E X position
 render_fuel:
@@ -4089,7 +4108,7 @@ render_fuel:
 
 ; Render balloon
 ;
-; Used by the routine at L6FF6.
+; Used by the routine at render_enemy.
 ;
 ; I:E X position
 render_balloon:
@@ -4130,7 +4149,7 @@ L708E:
   JP Z,L708E
   CP $FF
   JP Z,init_current_object_ptr
-  CALL advance
+  CALL L62DA
   DEC HL
   DEC HL
   LD (HL),B
@@ -4479,7 +4498,7 @@ L72E6:
 
 ; Routine at 72EF
 ;
-; Used by the routines at L6794, L6FF6, L7158 and L7296.
+; Used by the routines at L6794, render_enemy, L7158 and L7296.
 L72EF:
   LD A,$B0
   LD (L8C1B),A
@@ -4631,7 +4650,7 @@ L7393:
   LD A,B
   CP $00
   RET Z
-  CALL advance
+  CALL L62DA
   LD (L8B0A),BC
   LD A,C
   SUB $08
@@ -4748,7 +4767,7 @@ L7441:
   LD L,$00
   CALL BEEPER
   LD BC,(L7385)
-  CALL advance
+  CALL L62DA
   LD (L8B0A),BC
   LD A,(L7383)
   LD D,A
@@ -4940,10 +4959,10 @@ L75A2:
 
 ; Load array of enemy sprites.
 ;
-; Used by the routines at L6FF6, L708E, L7158, L724C, L7296 and L75D0.
+; Used by the routines at render_enemy, L708E, L7158, L724C, L7296 and L75D0.
 ;
-; I:D The four lowest bits is the enemy type, the 6th bit is direction (reset
-;     is right, set is left).
+; I:D The four lowest bits is the enemy type (one of the first five OBJECT_*
+;     constants), the 6th bit is direction (reset is right, set is left).
 ; I:HL Pointer to the array of sprites
 ld_enemy_sprites:
   LD HL,sprite_enemies_left
@@ -6455,8 +6474,8 @@ L8B1B:
 
 ; Routine at 8B1E
 ;
-; Used by the routines at L673D, L6FF6, render_fuel, render_balloon, L7158,
-; L7296, L7393, L7441, L754C and L7649.
+; Used by the routines at L673D, render_enemy, render_fuel, render_balloon,
+; L7158, L7296, L7393, L7441, L754C and L7649.
 L8B1E:
   PUSH DE
   LD (L8B1A),A
@@ -6477,7 +6496,7 @@ L8B1E_0:
   LD A,(L8B1A)
   POP DE
 ; This entry point is used by the routines at L60A5, handle_right, handle_left,
-; L6682, L6794, L6F80, L708E, L71A2, L724C, L7441, L75D0 and L76DA.
+; L6682, L6794, render_rock, L708E, L71A2, L724C, L7441, L75D0 and L76DA.
 L8B1E_1:
   PUSH DE
   LD (L8B1A),A
@@ -9108,7 +9127,10 @@ LC600:
   DEFB $00,$00,$00,$00,$00,$00,$00,$00
   DEFB $00,$00,$00,$00,$00,$00,$00,$00
   DEFB $00,$00,$00,$00,$00,$00,$00,$00
-LC800:
+
+; Byte 1: lowest 3 bits - object type; Byte 2 - position. $07 - fuel station,
+; $06 - balloon, $04-05 - unknown
+levels:
   DEFB $00,$00,$00,$00,$00,$00,$00,$00
   DEFB $00,$00,$00,$00,$00,$00,$00,$00
   DEFB $00,$00,$00,$00,$00,$00,$00,$00

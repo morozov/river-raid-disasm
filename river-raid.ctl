@@ -19,6 +19,14 @@
 > $4000 ; POINTS_ADV_HELICOPTER = 15
 > $4000 ; POINTS_TANK           = 25
 > $4000 ; POINTS_BRIDGE         = 50
+> $4000 ;
+> $4000 ; OBJECT_HELICOPTER_REG = 1
+> $4000 ; OBJECT_SHIP           = 2
+> $4000 ; OBJECT_HELICOPTER_ADV = 3
+> $4000 ; OBJECT_TANK           = 4
+> $4000 ; OBJECT_FIGHTER        = 5
+> $4000 ; OBJECT_BALLOON        = 6
+> $4000 ; OBJECT_FUEL           = 7
 @ $4000 org
 @ $4000 equ=KEYBOARD=$02BF
 @ $4000 equ=BEEPER=$03B5
@@ -130,7 +138,8 @@ b $5F6C
 @ $5F6D label=L5F6D
 b $5F6D
 w $5F6E
-w $5F70
+@ $5F70 label=state_y
+g $5F70 Current Y coordinate
 @ $5F72 label=state_x
 g $5F72 Current X coordinate
 @ $5F73 label=L5F73
@@ -202,7 +211,7 @@ c $6256
 c $6268 Fighter hits terrain
 c $62D4
 c $62D7
-@ $62DA label=advance
+@ $62DA label=L62DA
 c $62DA Increase #REGb by the value of #R$5F64
 c $62E0
 @ $62E8 label=interact_with_something2
@@ -250,7 +259,8 @@ c $65F3
 c $6642
 c $6682
 c $66CC
-c $66D0
+@ $66D0 label=advance
+c $66D0 Increase #R$5F70 by the value of #R$5F64, set #R$5F64 to the default value and do something with the #R$6BB0 bits.
 c $66EE
 c $6704
 @ $670A label=handle_up
@@ -363,12 +373,22 @@ c $6F6B
 c $6F6F
 c $6F73
 c $6F7A
-c $6F80
+@ $6F80 label=next_row
+c $6F80 This routine gets called when the screen scrolls by another fragment
+@ $6F91 label=locate_level
+  $6F91,4 Have #REGhl point to the level defined by #REGa
+@ $6FBB label=render_rock
+c $6FBB Render rock
+R $6FBB I:D Some info (probably, sprite array index)
+R $6FBB I:E Some info (probably, position)
 @ $6FE6 label=ld_enemy_sprites_right
 c $6FE6 Load array of arrays of enemy headed right sprites.
 R $6FE6 O:HL Pointer to the array of arrays of sprites.
 c $6FEA
-c $6FF6
+@ $6FF6 label=render_enemy
+c $6FF6 Render enemy
+R $6FF6 I:A Enemy type (6-balloon)
+R $6FF6 I:D Enemy info and type as well
 c $7038
 c $703B
 c $703E
@@ -426,7 +446,7 @@ c $758A
 c $75A2
 @ $75BA label=ld_enemy_sprites
 c $75BA Load array of enemy sprites.
-R $75BA I:D The four lowest bits is the enemy type, the 6th bit is direction (reset is right, set is left).
+R $75BA I:D The four lowest bits is the enemy type (one of the first five OBJECT_* constants), the 6th bit is direction (reset is right, set is left).
 R $75BA I:HL Pointer to the array of sprites
 @ $75CB label=ld_enemy_sprites_loop
 c $75D0
@@ -831,7 +851,8 @@ R $9423 O:HL Pointer to the current player lives
 b $9430
 @ $9500 label=L9500
 @ $C600 label=LC600
-@ $C800 label=LC800
+@ $C800 label=levels
+b $C800 Byte 1: lowest 3 bits - object type; Byte 2 - position. $07 - fuel station, $06 - balloon, $04-05 - unknown
 t $D13B
 b $D13E
 t $D337
