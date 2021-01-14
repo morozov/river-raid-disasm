@@ -2413,7 +2413,7 @@ handle_right:
   CALL Z,L7038
   LD D,$08
   LD A,$02
-  LD HL,L83F1
+  LD HL,sprite_plane_banked
   CALL L8B1E_1
 ; This entry point is used by the routines at handle_left and L6682.
 handle_right_0:
@@ -2452,7 +2452,7 @@ handle_left:
   CALL Z,L7038
   LD D,$08
   LD A,$02
-  LD HL,L83F1
+  LD HL,sprite_plane_banked
   CALL L8B1E_1
   JP handle_right_0
 
@@ -2481,10 +2481,10 @@ L6682:
   CP $02
   CALL Z,L7038
   LD D,$08
-  LD HL,L83B1
+  LD HL,sprite_plane
   LD A,(L5F69)
   CP $04
-  CALL Z,L66CC
+  CALL Z,ld_sprite_plane_banked
   LD A,$02
   CALL L8B1E_1
   JP handle_right_0
@@ -2492,8 +2492,8 @@ L6682:
 ; Routine at 66CC
 ;
 ; Used by the routine at L6682.
-L66CC:
-  LD HL,L83F1
+ld_sprite_plane_banked:
+  LD HL,sprite_plane_banked
   RET
 
 ; Increase state_y by the value of state_speed, set state_speed to the default
@@ -2630,7 +2630,7 @@ L6794:
   LD A,$00
   LD (state_interaction_mode_5EF5),A
   LD A,$01
-  LD HL,$8451
+  LD HL,L8451
   LD DE,$0008
   LD A,C
   AND $07
@@ -2666,7 +2666,7 @@ L6794_0:
   LD A,(state_x)
   ADD A,$04
   LD C,A
-  LD HL,$8451
+  LD HL,L8451
   LD DE,$0008
   LD A,C
   AND $07
@@ -3893,21 +3893,21 @@ L6EC8_0:
 ;
 ; Used by the routine at L6EC8.
 L6F63:
-  LD DE,L8471
+  LD DE,sprite_explosion_f1
   RET
 
 ; Routine at 6F67
 ;
 ; Used by the routine at L6EC8.
 L6F67:
-  LD DE,L8481
+  LD DE,sprite_explosion_f2
   RET
 
 ; Routine at 6F6B
 ;
 ; Used by the routine at L6EC8.
 L6F6B:
-  LD DE,L8491
+  LD DE,sprite_explosion_f3
   RET
 
 ; Routine at 6F6F
@@ -5745,61 +5745,126 @@ L83A3:
   DEFM "??????????????"
 
 ; Data block at 83B1
-L83B1:
-  DEFB $10,$00,$10,$00,$38,$00,$7C,$00
-  DEFB $D6,$00,$82,$00,$38,$00,$54,$00
-  DEFB $04,$00,$04,$00,$0E,$00,$1F,$00
-  DEFB $35,$80,$04,$80,$0E,$00,$15,$00
-  DEFB $01,$00,$01,$00,$03,$80,$07,$C0
-  DEFB $0D,$60,$09,$20,$03,$80,$05,$40
-  DEFB $00,$40,$00,$40,$00,$E0,$01,$F0
-  DEFB $03,$58,$02,$48,$00,$E0,$01,$50
-L83F1:
-  DEFB $10,$00,$10,$00,$38,$00,$7C,$00
-  DEFB $54,$00,$10,$00,$38,$00,$28,$00
-  DEFB $04,$00,$04,$00,$0E,$00,$1F,$00
-  DEFB $15,$00,$04,$00,$0E,$00,$0A,$00
-  DEFB $01,$00,$01,$00,$03,$80,$07,$C0
-  DEFB $05,$40,$01,$00,$03,$80,$02,$80
-  DEFB $00,$40,$00,$40,$00,$E0,$01,$F0
-  DEFB $01,$50,$00,$40,$00,$E0,$00,$A0
+;
+sprite_plane:
+  DEFB $10,$00            ; Frame 1
+  DEFB $10,$00            ;
+  DEFB $38,$00            ;
+  DEFB $7C,$00            ;
+  DEFB $D6,$00            ;
+  DEFB $82,$00            ;
+  DEFB $38,$00            ;
+  DEFB $54,$00            ;
+  DEFB $04,$00            ; Frame 2
+  DEFB $04,$00            ;
+  DEFB $0E,$00            ;
+  DEFB $1F,$00            ;
+  DEFB $35,$80            ;
+  DEFB $04,$80            ;
+  DEFB $0E,$00            ;
+  DEFB $15,$00            ;
+  DEFB $01,$00            ; Frame 3
+  DEFB $01,$00            ;
+  DEFB $03,$80            ;
+  DEFB $07,$C0            ;
+  DEFB $0D,$60            ;
+  DEFB $09,$20            ;
+  DEFB $03,$80            ;
+  DEFB $05,$40            ;
+  DEFB $00,$40            ; Frame 4
+  DEFB $00,$40            ;
+  DEFB $00,$E0            ;
+  DEFB $01,$F0            ;
+  DEFB $03,$58            ;
+  DEFB $02,$48            ;
+  DEFB $00,$E0            ;
+  DEFB $01,$50            ;
+
+; Data block at 83F1
+;
+sprite_plane_banked:
+  DEFB $10,$00            ; Frame 1
+  DEFB $10,$00            ;
+  DEFB $38,$00            ;
+  DEFB $7C,$00            ;
+  DEFB $54,$00            ;
+  DEFB $10,$00            ;
+  DEFB $38,$00            ;
+  DEFB $28,$00            ;
+  DEFB $04,$00            ; Frame 2
+  DEFB $04,$00            ;
+  DEFB $0E,$00            ;
+  DEFB $1F,$00            ;
+  DEFB $15,$00            ;
+  DEFB $04,$00            ;
+  DEFB $0E,$00            ;
+  DEFB $0A,$00            ;
+  DEFB $01,$00            ; Frame 3
+  DEFB $01,$00            ;
+  DEFB $03,$80            ;
+  DEFB $07,$C0            ;
+  DEFB $05,$40            ;
+  DEFB $01,$00            ;
+  DEFB $03,$80            ;
+  DEFB $02,$80            ;
+  DEFB $00,$40            ; Frame 4
+  DEFB $00,$40            ;
+  DEFB $00,$E0            ;
+  DEFB $01,$F0            ;
+  DEFB $01,$50            ;
+  DEFB $00,$40            ;
+  DEFB $00,$E0            ;
+  DEFB $00,$A0            ;
+
+; Data block at 8431
 L8431:
   DEFB $C0,$C0,$C0,$C0,$C0,$C0,$00,$00
+  DEFB $30,$30,$30,$30,$30,$30,$00,$00
+  DEFB $0C,$0C,$0C,$0C,$0C,$0C,$00,$00
+  DEFB $03,$03,$03,$03,$03,$03,$00,$00
 
-; Message at 8439
-L8439:
-  DEFM "000000"
-
-; Data block at 843F
-L843F:
-  DEFB $00,$00,$0C,$0C,$0C,$0C,$0C,$0C
-  DEFB $00,$00,$03,$03,$03,$03,$03,$03
-  DEFB $00,$00,$C0,$C0,$C0,$C0,$C0,$C0
-  DEFB $C0,$C0
-
-; Message at 8459
-L8459:
-  DEFM "00000000"
-
-; Data block at 8461
-L8461:
+; Data block at 8451
+L8451:
+  DEFB $C0,$C0,$C0,$C0,$C0,$C0,$C0,$C0
+  DEFB $30,$30,$30,$30,$30,$30,$30,$30
   DEFB $0C,$0C,$0C,$0C,$0C,$0C,$0C,$0C
   DEFB $03,$03,$03,$03,$03,$03,$03,$03
 
 ; Data block at 8471
-L8471:
-  DEFB $02,$40,$09,$20,$05,$00,$20,$50
-  DEFB $15,$00,$08,$28,$02,$40,$00,$00
+;
+sprite_explosion_f1:
+  DEFB $02,$40
+  DEFB $09,$20
+  DEFB $05,$00
+  DEFB $20,$50
+  DEFB $15,$00
+  DEFB $08,$28
+  DEFB $02,$40
+  DEFB $00,$00
 
 ; Data block at 8481
-L8481:
-  DEFB $22,$20,$0D,$04,$90,$52,$46,$88
-  DEFB $A8,$54,$04,$40,$11,$88,$00,$00
+;
+sprite_explosion_f2:
+  DEFB $22,$20
+  DEFB $0D,$04
+  DEFB $90,$52
+  DEFB $46,$88
+  DEFB $A8,$54
+  DEFB $04,$40
+  DEFB $11,$88
+  DEFB $00,$00
 
 ; Data block at 8491
-L8491:
-  DEFB $01,$90,$64,$A6,$AA,$48,$05,$A2
-  DEFB $A8,$19,$92,$64,$49,$12,$0A,$48
+;
+sprite_explosion_f3:
+  DEFB $01,$90
+  DEFB $64,$A6
+  DEFB $AA,$48
+  DEFB $05,$A2
+  DEFB $A8,$19
+  DEFB $92,$64
+  DEFB $49,$12
+  DEFB $0A,$48
 
 ; Array [4] of rock sprites (3×2 tiles, 48 bytes).
 ;

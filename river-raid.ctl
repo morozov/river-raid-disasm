@@ -258,6 +258,7 @@ c $65F3
 @ $6642 label=handle_left
 c $6642
 c $6682
+@ $66CC label=ld_sprite_plane_banked
 c $66CC
 @ $66D0 label=advance
 c $66D0 Increase #R$5F70 by the value of #R$5F64, set #R$5F64 to the default value and do something with the #R$6BB0 bits.
@@ -605,19 +606,36 @@ b $837F
 t $8383
 b $839F
 t $83A3
+@ $83B1 label=sprite_plane
 b $83B1
-@ $83F1 label=L83F1
+N $83B1 #UDGTABLE { #UDGARRAY2,14,4,2;$83B1-$83B2-1-16(*plane-f1) | #UDGARRAY2,14,4,2;$83C1-$83C2-1-16(*plane-f2) | #UDGARRAY2,14,4,2;$83D1-$83D2-1-16(*plane-f3) | #UDGARRAY2,14,4,2;$83E1-$83E2-1-16(*plane-f4) } TABLE#
+  $83B1,16,2 Frame 1
+  $83C1,16,2 Frame 2
+  $83D1,16,2 Frame 3
+  $83E1,16,2 Frame 4
+@ $83F1 label=sprite_plane_banked
+b $83F1
+N $83F1 #UDGTABLE { #UDGARRAY2,14,4,2;$83F1-$83F2-1-16(*plane-banked-f1) | #UDGARRAY2,14,4,2;$8401-$8402-1-16(*plane-banked-f2) | #UDGARRAY2,14,4,2;$8411-$8412-1-16(*plane-banked-f3) | #UDGARRAY2,14,4,2;$8421-$8422-1-16(*plane-banked-f4) | #UDGARRAY*plane-f1,50;plane-banked-f1;plane-banked-f2;plane-banked-f3;plane-banked-f4;plane-f4;plane-banked-f4;plane-banked-f3;plane-banked-f2;plane-banked-f1(plane) } TABLE#
+  $83F1,16,2 Frame 1
+  $8401,16,2 Frame 2
+  $8411,16,2 Frame 3
+  $8421,16,2 Frame 4
 @ $8431 label=L8431
-t $8439
-b $843F
-t $8459
-b $8461
-@ $8471 label=L8471
+b $8431
+@ $8451 label=L8451
+b $8451
+@ $8471 label=sprite_explosion_f1
 b $8471
-@ $8481 label=L8481
+N $8471 #UDGTABLE { #UDGARRAY2,14,4,2;$8471-$8472-1-16(*explosion-f1) } TABLE#
+  $8471,16,2
+@ $8481 label=sprite_explosion_f2
 b $8481
-@ $8491 label=L8491
+N $8481 #UDGTABLE { #UDGARRAY2,14,4,2;$8481-$8482-1-16(*explosion-f2) } TABLE#
+  $8481,16,2
+@ $8491 label=sprite_explosion_f3
 b $8491
+N $8491 #UDGTABLE { #UDGARRAY2,14,4,2;$8491-$8492-1-16(*explosion-f3) | #UDGARRAY*explosion-f1,50;explosion-f2;explosion-f3;explosion-f2(explosion) } TABLE#
+  $8491,16,2
 @ $84A1 label=sprite_rock
 b $84A1 Array [4] of rock sprites (3×2 tiles, 48 bytes).
 N $84A1 #UDGTABLE { #UDGARRAY3,34,4,3;$84A1-$84D0-1-24(rock-1) } TABLE#

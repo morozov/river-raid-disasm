@@ -2461,6 +2461,7 @@ c$6682 LD A,($5F68)  ;
 ; Routine at 66CC
 ;
 ; Used by the routine at #R$6682.
+@label=ld_sprite_plane_banked
 c$66CC LD HL,$83F1   ;
  $66CF RET           ;
 
@@ -5548,56 +5549,170 @@ b$839F DEFB $C0,$C0,$C0,$C0
 t$83A3 DEFM "??????????????"
 
 ; Data block at 83B1
-b$83B1 DEFB $10,$00,$10,$00,$38,$00,$7C,$00
- $83B9 DEFB $D6,$00,$82,$00,$38,$00,$54,$00
- $83C1 DEFB $04,$00,$04,$00,$0E,$00,$1F,$00
- $83C9 DEFB $35,$80,$04,$80,$0E,$00,$15,$00
- $83D1 DEFB $01,$00,$01,$00,$03,$80,$07,$C0
- $83D9 DEFB $0D,$60,$09,$20,$03,$80,$05,$40
- $83E1 DEFB $00,$40,$00,$40,$00,$E0,$01,$F0
- $83E9 DEFB $03,$58,$02,$48,$00,$E0,$01,$50
-@label=L83F1
- $83F1 DEFB $10,$00,$10,$00,$38,$00,$7C,$00
- $83F9 DEFB $54,$00,$10,$00,$38,$00,$28,$00
- $8401 DEFB $04,$00,$04,$00,$0E,$00,$1F,$00
- $8409 DEFB $15,$00,$04,$00,$0E,$00,$0A,$00
- $8411 DEFB $01,$00,$01,$00,$03,$80,$07,$C0
- $8419 DEFB $05,$40,$01,$00,$03,$80,$02,$80
- $8421 DEFB $00,$40,$00,$40,$00,$E0,$01,$F0
- $8429 DEFB $01,$50,$00,$40,$00,$E0,$00,$A0
+;
+; .
+;
+; .
+;
+; #UDGTABLE
+; { #UDGARRAY2,14,4,2;$83B1-$83B2-1-16(*plane-f1) |
+; #UDGARRAY2,14,4,2;$83C1-$83C2-1-16(*plane-f2) |
+; #UDGARRAY2,14,4,2;$83D1-$83D2-1-16(*plane-f3) |
+; #UDGARRAY2,14,4,2;$83E1-$83E2-1-16(*plane-f4) }
+; TABLE#
+@label=sprite_plane
+b$83B1 DEFB $10,$00  ; {Frame 1
+ $83B3 DEFB $10,$00  ;
+ $83B5 DEFB $38,$00  ;
+ $83B7 DEFB $7C,$00  ;
+ $83B9 DEFB $D6,$00  ;
+ $83BB DEFB $82,$00  ;
+ $83BD DEFB $38,$00  ;
+ $83BF DEFB $54,$00  ; }
+ $83C1 DEFB $04,$00  ; {Frame 2
+ $83C3 DEFB $04,$00  ;
+ $83C5 DEFB $0E,$00  ;
+ $83C7 DEFB $1F,$00  ;
+ $83C9 DEFB $35,$80  ;
+ $83CB DEFB $04,$80  ;
+ $83CD DEFB $0E,$00  ;
+ $83CF DEFB $15,$00  ; }
+ $83D1 DEFB $01,$00  ; {Frame 3
+ $83D3 DEFB $01,$00  ;
+ $83D5 DEFB $03,$80  ;
+ $83D7 DEFB $07,$C0  ;
+ $83D9 DEFB $0D,$60  ;
+ $83DB DEFB $09,$20  ;
+ $83DD DEFB $03,$80  ;
+ $83DF DEFB $05,$40  ; }
+ $83E1 DEFB $00,$40  ; {Frame 4
+ $83E3 DEFB $00,$40  ;
+ $83E5 DEFB $00,$E0  ;
+ $83E7 DEFB $01,$F0  ;
+ $83E9 DEFB $03,$58  ;
+ $83EB DEFB $02,$48  ;
+ $83ED DEFB $00,$E0  ;
+ $83EF DEFB $01,$50  ; }
+
+; Data block at 83F1
+;
+; .
+;
+; .
+;
+; #UDGTABLE
+; { #UDGARRAY2,14,4,2;$83F1-$83F2-1-16(*plane-banked-f1) |
+; #UDGARRAY2,14,4,2;$8401-$8402-1-16(*plane-banked-f2) |
+; #UDGARRAY2,14,4,2;$8411-$8412-1-16(*plane-banked-f3) |
+; #UDGARRAY2,14,4,2;$8421-$8422-1-16(*plane-banked-f4) |
+; #UDGARRAY*plane-f1,50;plane-banked-f1;plane-banked-f2;plane-banked-f3;plane-banked-f4;plane-f4;plane-banked-f4;plane-banked-f3;plane-banked-f2;plane-banked-f1(plane)
+; }
+; TABLE#
+@label=sprite_plane_banked
+b$83F1 DEFB $10,$00  ; {Frame 1
+ $83F3 DEFB $10,$00  ;
+ $83F5 DEFB $38,$00  ;
+ $83F7 DEFB $7C,$00  ;
+ $83F9 DEFB $54,$00  ;
+ $83FB DEFB $10,$00  ;
+ $83FD DEFB $38,$00  ;
+ $83FF DEFB $28,$00  ; }
+ $8401 DEFB $04,$00  ; {Frame 2
+ $8403 DEFB $04,$00  ;
+ $8405 DEFB $0E,$00  ;
+ $8407 DEFB $1F,$00  ;
+ $8409 DEFB $15,$00  ;
+ $840B DEFB $04,$00  ;
+ $840D DEFB $0E,$00  ;
+ $840F DEFB $0A,$00  ; }
+ $8411 DEFB $01,$00  ; {Frame 3
+ $8413 DEFB $01,$00  ;
+ $8415 DEFB $03,$80  ;
+ $8417 DEFB $07,$C0  ;
+ $8419 DEFB $05,$40  ;
+ $841B DEFB $01,$00  ;
+ $841D DEFB $03,$80  ;
+ $841F DEFB $02,$80  ; }
+ $8421 DEFB $00,$40  ; {Frame 4
+ $8423 DEFB $00,$40  ;
+ $8425 DEFB $00,$E0  ;
+ $8427 DEFB $01,$F0  ;
+ $8429 DEFB $01,$50  ;
+ $842B DEFB $00,$40  ;
+ $842D DEFB $00,$E0  ;
+ $842F DEFB $00,$A0  ; }
+
+; Data block at 8431
 @label=L8431
- $8431 DEFB $C0,$C0,$C0,$C0,$C0,$C0,$00,$00
+b$8431 DEFB $C0,$C0,$C0,$C0,$C0,$C0,$00,$00
+ $8439 DEFB $30,$30,$30,$30,$30,$30,$00,$00
+ $8441 DEFB $0C,$0C,$0C,$0C,$0C,$0C,$00,$00
+ $8449 DEFB $03,$03,$03,$03,$03,$03,$00,$00
 
-; Message at 8439
-t$8439 DEFM "000000"
-
-; Data block at 843F
-b$843F DEFB $00,$00,$0C,$0C,$0C,$0C,$0C,$0C
- $8447 DEFB $00,$00,$03,$03,$03,$03,$03,$03
- $844F DEFB $00,$00,$C0,$C0,$C0,$C0,$C0,$C0
- $8457 DEFB $C0,$C0
-
-; Message at 8459
-t$8459 DEFM "00000000"
-
-; Data block at 8461
-b$8461 DEFB $0C,$0C,$0C,$0C,$0C,$0C,$0C,$0C
+; Data block at 8451
+@label=L8451
+b$8451 DEFB $C0,$C0,$C0,$C0,$C0,$C0,$C0,$C0
+ $8459 DEFB $30,$30,$30,$30,$30,$30,$30,$30
+ $8461 DEFB $0C,$0C,$0C,$0C,$0C,$0C,$0C,$0C
  $8469 DEFB $03,$03,$03,$03,$03,$03,$03,$03
 
 ; Data block at 8471
-@label=L8471
-b$8471 DEFB $02,$40,$09,$20,$05,$00,$20,$50
- $8479 DEFB $15,$00,$08,$28,$02,$40,$00,$00
+;
+; .
+;
+; .
+;
+; #UDGTABLE
+; { #UDGARRAY2,14,4,2;$8471-$8472-1-16(*explosion-f1) }
+; TABLE#
+@label=sprite_explosion_f1
+b$8471 DEFB $02,$40
+ $8473 DEFB $09,$20
+ $8475 DEFB $05,$00
+ $8477 DEFB $20,$50
+ $8479 DEFB $15,$00
+ $847B DEFB $08,$28
+ $847D DEFB $02,$40
+ $847F DEFB $00,$00
 
 ; Data block at 8481
-@label=L8481
-b$8481 DEFB $22,$20,$0D,$04,$90,$52,$46,$88
- $8489 DEFB $A8,$54,$04,$40,$11,$88,$00,$00
+;
+; .
+;
+; .
+;
+; #UDGTABLE
+; { #UDGARRAY2,14,4,2;$8481-$8482-1-16(*explosion-f2) }
+; TABLE#
+@label=sprite_explosion_f2
+b$8481 DEFB $22,$20
+ $8483 DEFB $0D,$04
+ $8485 DEFB $90,$52
+ $8487 DEFB $46,$88
+ $8489 DEFB $A8,$54
+ $848B DEFB $04,$40
+ $848D DEFB $11,$88
+ $848F DEFB $00,$00
 
 ; Data block at 8491
-@label=L8491
-b$8491 DEFB $01,$90,$64,$A6,$AA,$48,$05,$A2
- $8499 DEFB $A8,$19,$92,$64,$49,$12,$0A,$48
+;
+; .
+;
+; .
+;
+; #UDGTABLE
+; { #UDGARRAY2,14,4,2;$8491-$8492-1-16(*explosion-f3) |
+; #UDGARRAY*explosion-f1,50;explosion-f2;explosion-f3;explosion-f2(explosion) }
+; TABLE#
+@label=sprite_explosion_f3
+b$8491 DEFB $01,$90
+ $8493 DEFB $64,$A6
+ $8495 DEFB $AA,$48
+ $8497 DEFB $05,$A2
+ $8499 DEFB $A8,$19
+ $849B DEFB $92,$64
+ $849D DEFB $49,$12
+ $849F DEFB $0A,$48
 
 ; Array [4] of rock sprites (3×2 tiles, 48 bytes).
 ;
