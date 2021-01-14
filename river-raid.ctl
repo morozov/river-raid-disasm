@@ -618,8 +618,17 @@ b $8471
 b $8481
 @ $8491 label=L8491
 b $8491
-@ $84A1 label=L84A1
-t $8568
+@ $84A1 label=sprite_rock
+b $84A1 Array [4] of rock sprites (3×2 tiles, 48 bytes).
+N $84A1 #UDGTABLE { #UDGARRAY3,34,4,3;$84A1-$84D0-1-24(rock-1) } TABLE#
+  $84A1,48,3 Rock 1
+N $84D1 #UDGTABLE { #UDGARRAY3,34,4,3;$84D1-$8500-1-24(rock-2) } TABLE#
+  $84D1,48,3 Rock 2
+N $8501 #UDGTABLE { #UDGARRAY3,34,4,3;$8501-$8530-1-24(rock-3) } TABLE#
+  $8501,48,3 Rock 3
+N $8531 #UDGTABLE { #UDGARRAY3,34,4,3;$8531-$8560-1-24(rock-4) } TABLE#
+  $8531,48,3 Rock 4
+t $8561
 b $8579
 t $857C
 b $858C

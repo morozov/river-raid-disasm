@@ -3979,7 +3979,7 @@ render_rock:
   LD A,D
   AND $07
   OR A
-  LD HL,L84A1
+  LD HL,sprite_rock
   LD BC,$0030
   INC A
   SBC HL,BC
@@ -5800,36 +5800,78 @@ L8481:
 L8491:
   DEFB $01,$90,$64,$A6,$AA,$48,$05,$A2
   DEFB $A8,$19,$92,$64,$49,$12,$0A,$48
-L84A1:
-  DEFB $00,$00,$00,$00,$00,$00,$00,$00
-  DEFB $00,$00,$00,$00,$00,$00,$00,$00
-  DEFB $00,$00,$00,$00,$00,$00,$00,$00
-  DEFB $00,$02,$00,$00,$0D,$00,$00,$3A
-  DEFB $80,$00,$F5,$40,$03,$FA,$A0,$0F
-  DEFB $F7,$50,$3F,$FF,$A8,$FF,$FF,$54
-  DEFB $00,$02,$00,$00,$06,$00,$03,$06
-  DEFB $00,$07,$0E,$00,$07,$8F,$00,$0F
-  DEFB $8F,$10,$0F,$DF,$10,$0F,$DF,$18
-  DEFB $0F,$0F,$F8,$0F,$BF,$B8,$1F,$DE
-  DEFB $FC,$1F,$7D,$3C,$1F,$BE,$FE,$3E
-  DEFB $FE,$FE,$7F,$7D,$FF,$FD,$FD,$FF
-  DEFB $00,$00,$00,$00,$00,$00,$00,$00
-  DEFB $00,$00,$00,$00,$00,$00,$20,$00
-  DEFB $00,$D0,$00,$03,$B0,$00,$0F,$58
-  DEFB $00,$1F,$A8,$01,$BF,$54,$03,$DF
-  DEFB $AC,$17,$E7,$D6,$3B,$F3,$EA,$7D
-  DEFB $F9,$F5,$FE,$FC,$FB,$FF,$7E,$FF
-  DEFB $00,$00,$00,$00,$00,$00,$00,$00
-  DEFB $00,$00,$00,$00,$00,$00,$00,$01
-  DEFB $80,$20,$01,$E8,$50,$03,$F4,$E8
-  DEFB $07,$F3,$F4,$07,$ED,$F4,$0F,$DC
-  DEFB $FA,$1E,$BE,$FA,$1D,$7F,$7D,$3F
-  DEFB $FF,$1D,$7F,$FF,$DF,$FF,$FF,$EF
-  DEFB $11,$00,$10,$07,$16,$05,$05
 
-; Message at 8568
-L8568:
-  DEFM "0 CURSOR KEYS & 0"
+; Array [4] of rock sprites (3×2 tiles, 48 bytes).
+;
+sprite_rock:
+  DEFB $00,$00,$00        ; Rock 1
+  DEFB $00,$00,$00        ;
+  DEFB $00,$00,$00        ;
+  DEFB $00,$00,$00        ;
+  DEFB $00,$00,$00        ;
+  DEFB $00,$00,$00        ;
+  DEFB $00,$00,$00        ;
+  DEFB $00,$00,$00        ;
+  DEFB $00,$02,$00        ;
+  DEFB $00,$0D,$00        ;
+  DEFB $00,$3A,$80        ;
+  DEFB $00,$F5,$40        ;
+  DEFB $03,$FA,$A0        ;
+  DEFB $0F,$F7,$50        ;
+  DEFB $3F,$FF,$A8        ;
+  DEFB $FF,$FF,$54        ;
+  DEFB $00,$02,$00        ; Rock 2
+  DEFB $00,$06,$00        ;
+  DEFB $03,$06,$00        ;
+  DEFB $07,$0E,$00        ;
+  DEFB $07,$8F,$00        ;
+  DEFB $0F,$8F,$10        ;
+  DEFB $0F,$DF,$10        ;
+  DEFB $0F,$DF,$18        ;
+  DEFB $0F,$0F,$F8        ;
+  DEFB $0F,$BF,$B8        ;
+  DEFB $1F,$DE,$FC        ;
+  DEFB $1F,$7D,$3C        ;
+  DEFB $1F,$BE,$FE        ;
+  DEFB $3E,$FE,$FE        ;
+  DEFB $7F,$7D,$FF        ;
+  DEFB $FD,$FD,$FF        ;
+  DEFB $00,$00,$00        ; Rock 3
+  DEFB $00,$00,$00        ;
+  DEFB $00,$00,$00        ;
+  DEFB $00,$00,$00        ;
+  DEFB $00,$00,$20        ;
+  DEFB $00,$00,$D0        ;
+  DEFB $00,$03,$B0        ;
+  DEFB $00,$0F,$58        ;
+  DEFB $00,$1F,$A8        ;
+  DEFB $01,$BF,$54        ;
+  DEFB $03,$DF,$AC        ;
+  DEFB $17,$E7,$D6        ;
+  DEFB $3B,$F3,$EA        ;
+  DEFB $7D,$F9,$F5        ;
+  DEFB $FE,$FC,$FB        ;
+  DEFB $FF,$7E,$FF        ;
+  DEFB $00,$00,$00        ; Rock 4
+  DEFB $00,$00,$00        ;
+  DEFB $00,$00,$00        ;
+  DEFB $00,$00,$00        ;
+  DEFB $00,$00,$00        ;
+  DEFB $01,$80,$20        ;
+  DEFB $01,$E8,$50        ;
+  DEFB $03,$F4,$E8        ;
+  DEFB $07,$F3,$F4        ;
+  DEFB $07,$ED,$F4        ;
+  DEFB $0F,$DC,$FA        ;
+  DEFB $1E,$BE,$FA        ;
+  DEFB $1D,$7F,$7D        ;
+  DEFB $3F,$FF,$1D        ;
+  DEFB $7F,$FF,$DF        ;
+  DEFB $FF,$FF,$EF        ;
+
+; Message at 8561
+L8561:
+  DEFM $11,$00,$10,$07,$16,$05,$05,"0 CURSOR KEYS & 0"
 
 ; Data block at 8579
 L8579:
