@@ -255,9 +255,18 @@ c $65BB
 c $65CB
 @ $65F3 label=handle_right
 c $65F3
+  $6613,3 Sprite size (2×1 tiles × 8 bytes/tile)
+  $661C,2 COLOR_YELLOW_ON_BLUE
+  $6621,5 Load player 2 color
 @ $6642 label=handle_left
 c $6642
+  $6662,3 Sprite size (2×1 tiles × 8 bytes/tile)
+  $666B,2 COLOR_YELLOW_ON_BLUE
+  $6670,5 Load player 2 color
 c $6682
+  $66A4,3 Sprite size (2×1 tiles × 8 bytes/tile)
+  $66AD,2 COLOR_YELLOW_ON_BLUE
+  $66B2,5 Load player 2 color
 @ $66CC label=ld_sprite_plane_banked
 c $66CC
 @ $66D0 label=advance
@@ -382,6 +391,7 @@ c $6F80 This routine gets called when the screen scrolls by another fragment
 c $6FBB Render rock
 R $6FBB I:D Some info (probably, sprite array index)
 R $6FBB I:E Some info (probably, position)
+  $6FC2,3 Sprite size (3×2 tiles × 8 bytes/tile)
 @ $6FE6 label=ld_enemy_sprites_right
 c $6FE6 Load array of arrays of enemy headed right sprites.
 R $6FE6 O:HL Pointer to the array of arrays of sprites.
@@ -390,7 +400,11 @@ c $6FEA
 c $6FF6 Render enemy
 R $6FF6 I:A Enemy type (6-balloon)
 R $6FF6 I:D Enemy info and type as well
-c $7038
+  $7016,3 Sprite size (3×1 tiles × 8 bytes/tile)
+  $701E,5 Check if it's an OBJECT_SHIP
+@ $7038 label=ld_cyan_on_blue
+c $7038 Load COLOR_CYAN_ON_BLUE into #REGe
+R $7038 O:E Attribute value
 c $703B
 c $703E
 c $7046
@@ -404,9 +418,14 @@ R $7051 I:E X position
 @ $706C label=render_balloon
 c $706C Render balloon
 R $706C I:E X position
+  $7082,3 Sprite size (2×2 tiles × 8 bytes/tile)
 c $708E
+  $713E,3 Sprite frame size (3×1 tiles × 8 bytes/tile)
+  $7141,2 COLOR_YELLOW_ON_BLUE
+  $7146,5 Check if it's an OBJECT_SHIP
 c $7155
 c $7158
+  $717B,3 Sprite size (3×1 tiles × 8 bytes/tile)
 c $719F
 c $71A2
 c $7224
@@ -415,6 +434,7 @@ c $724C
 c $728B
 c $7290
 c $7296
+  $72D2,3 Sprite size (3×1 tiles × 8 bytes/tile)
 c $72E6
 @ $72E8 nowarn
   $72E8,3 Put "XOR B" into #R$8C1B
@@ -455,6 +475,7 @@ c $75A2
 c $75BA Load array of enemy sprites.
 R $75BA I:D The four lowest bits is the enemy type (one of the first five OBJECT_* constants), the 6th bit is direction (reset is right, set is left).
 R $75BA I:HL Pointer to the array of sprites
+  $75BD,3 Enemy sprite array size (3×1 tiles × 8 bytes/tile × 4 frames)
 @ $75CB label=ld_enemy_sprites_loop
 c $75D0
 @ $7627 label=init_current_object_ptr
@@ -773,6 +794,7 @@ t $8B18
 b $8B1A
 s $8B1B
 c $8B1E
+R $8B1E I:BC Sprite frame size
 c $8B70
 c $8C0B
 @ $8C1B label=L8C1B

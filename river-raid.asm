@@ -2404,13 +2404,13 @@ handle_right:
   DEC C
   DEC C
   LD (L8B0A),BC
-  LD BC,$0010
+  LD BC,$0010             ; Sprite size (2×1 tiles × 8 bytes/tile)
   LD HL,(L5EF7)
   LD (L8B0E),HL
-  LD E,$0E
+  LD E,$0E                ; COLOR_YELLOW_ON_BLUE
   LD A,(state_player)
-  CP $02
-  CALL Z,L7038
+  CP $02                  ; Load player 2 color
+  CALL Z,ld_cyan_on_blue  ;
   LD D,$08
   LD A,$02
   LD HL,sprite_plane_banked
@@ -2443,13 +2443,13 @@ handle_left:
   INC C
   INC C
   LD (L8B0A),BC
-  LD BC,$0010
+  LD BC,$0010             ; Sprite size (2×1 tiles × 8 bytes/tile)
   LD HL,(L5EF7)
   LD (L8B0E),HL
-  LD E,$0E
+  LD E,$0E                ; COLOR_YELLOW_ON_BLUE
   LD A,(state_player)
-  CP $02
-  CALL Z,L7038
+  CP $02                  ; Load player 2 color
+  CALL Z,ld_cyan_on_blue  ;
   LD D,$08
   LD A,$02
   LD HL,sprite_plane_banked
@@ -2473,13 +2473,13 @@ L6682:
   LD (L8B0C),BC
   CALL L62DA
   LD (L8B0A),BC
-  LD BC,$0010
+  LD BC,$0010             ; Sprite size (2×1 tiles × 8 bytes/tile)
   LD HL,(L5EF7)
   LD (L8B0E),HL
-  LD E,$0E
+  LD E,$0E                ; COLOR_YELLOW_ON_BLUE
   LD A,(state_player)
-  CP $02
-  CALL Z,L7038
+  CP $02                  ; Load player 2 color
+  CALL Z,ld_cyan_on_blue  ;
   LD D,$08
   LD HL,sprite_plane
   LD A,(L5F69)
@@ -3980,7 +3980,7 @@ render_rock:
   AND $07
   OR A
   LD HL,sprite_rock
-  LD BC,$0030
+  LD BC,$0030             ; Sprite size (3×2 tiles × 8 bytes/tile)
   INC A
   SBC HL,BC
 render_rock_0:
@@ -4037,12 +4037,12 @@ render_enemy:
   CALL explode_fragment_0
   POP HL
   CALL L6FEA
-  LD BC,$0018
+  LD BC,$0018             ; Sprite size (3×1 tiles × 8 bytes/tile)
   LD E,$0E
   LD A,D
   AND $07
-  CP $02
-  CALL Z,L7038
+  CP $02                  ; Check if it's an OBJECT_SHIP
+  CALL Z,ld_cyan_on_blue  ;
   CP $05
   CALL Z,L703B
   CP $04
@@ -4053,11 +4053,13 @@ render_enemy:
   CALL L72EF
   RET
 
-; Routine at 7038
+; Load COLOR_CYAN_ON_BLUE into E
 ;
 ; Used by the routines at handle_right, handle_left, L6682, render_enemy, L708E
 ; and L75D0.
-L7038:
+;
+; O:E Attribute value
+ld_cyan_on_blue:
   LD E,$0D
   RET
 
@@ -4122,7 +4124,7 @@ render_balloon:
   CALL explode_fragment_0
   POP HL
   CALL L6FEA
-  LD BC,$0020
+  LD BC,$0020             ; Sprite size (2×2 tiles × 8 bytes/tile)
   LD A,$02
   LD DE,$100E
   CALL L8B1E
@@ -4227,12 +4229,12 @@ L708E_1:
   LD HL,L82C5
   LD (L8B0E),HL
   CALL ld_enemy_sprites
-  LD BC,$0018
-  LD E,$0E
+  LD BC,$0018             ; Sprite frame size (3×1 tiles × 8 bytes/tile)
+  LD E,$0E                ; COLOR_YELLOW_ON_BLUE
   LD A,D
   AND $07
-  CP $02
-  CALL Z,L7038
+  CP $02                  ; Check if it's an OBJECT_SHIP
+  CALL Z,ld_cyan_on_blue  ;
   LD A,$03
   LD D,$08
   CALL L8B1E_1
@@ -4269,7 +4271,7 @@ L7158_0:
   LD (HL),C
   LD (L8B0C),BC
   CALL ld_enemy_sprites
-  LD BC,$0018
+  LD BC,$0018             ; Sprite size (3×1 tiles × 8 bytes/tile)
   CALL L72E6
   LD A,$03
   LD (state_interaction_mode_5EF5),A
@@ -4479,7 +4481,7 @@ L7296_0:
   LD (HL),C
   LD (L8B0C),BC
   CALL ld_enemy_sprites
-  LD BC,$0018
+  LD BC,$0018             ; Sprite size (3×1 tiles × 8 bytes/tile)
   CALL L72E6
   LD A,$03
   LD DE,$0800
@@ -4966,7 +4968,8 @@ L75A2:
 ; I:HL Pointer to the array of sprites
 ld_enemy_sprites:
   LD HL,sprite_enemies_left
-  LD BC,$0060
+  LD BC,$0060             ; Enemy sprite array size (3×1 tiles × 8 bytes/tile ×
+                          ; 4 frames)
   BIT 6,D
   CALL Z,ld_enemy_sprites_right
   LD A,D
@@ -5019,7 +5022,7 @@ L75D0_0:
   LD A,D
   AND $07
   CP $02
-  CALL Z,L7038
+  CALL Z,ld_cyan_on_blue
   LD D,$08
   LD A,$03
   LD BC,$0018
@@ -6583,6 +6586,8 @@ L8B1B:
 ;
 ; Used by the routines at L673D, render_enemy, render_fuel, render_balloon,
 ; L7158, L7296, L7393, L7441, L754C and L7649.
+;
+; I:BC Sprite frame size
 L8B1E:
   PUSH DE
   LD (L8B1A),A
