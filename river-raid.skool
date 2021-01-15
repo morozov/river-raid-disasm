@@ -3957,10 +3957,10 @@ c$703E LD E,$00      ;
 ; Used by the routine at #R$6FF6.
 c$7046 LD A,$A8      ;
 @nowarn
- $7048 LD ($8C3C),A  ;
+ $7048 LD ($8C3C),A  ; Put "XOR B" into #R$8C3C
  $704B LD A,$00      ;
 @nowarn
- $704D LD ($8C1B),A  ;
+ $704D LD ($8C1B),A  ; Put "NOP" into #R$8C1B
  $7050 RET           ;
 
 ; Render fuel station
@@ -4346,9 +4346,9 @@ c$7296 LD A,($5EEF)  ;
 ; Used by the routines at #R$7158 and #R$7296.
 c$72E6 LD A,$A8      ;
 @nowarn
- $72E8 LD ($8C1B),A  ;
+ $72E8 LD ($8C1B),A  ; Put "XOR B" into #R$8C1B
 @nowarn
- $72EB LD ($8C3C),A  ;
+ $72EB LD ($8C3C),A  ; Put "XOR B" into #R$8C3C
  $72EE RET           ;
 
 ; Routine at 72EF
@@ -4356,9 +4356,9 @@ c$72E6 LD A,$A8      ;
 ; Used by the routines at #R$6794, #R$6FF6, #R$7158 and #R$7296.
 c$72EF LD A,$B0      ;
 @nowarn
- $72F1 LD ($8C1B),A  ;
+ $72F1 LD ($8C1B),A  ; Put "OR B" into #R$8C1B
 @nowarn
- $72F4 LD ($8C3C),A  ;
+ $72F4 LD ($8C3C),A  ; Put "OR B" into #R$8C3C
  $72F7 RET           ;
 
 ; Routine at 72F8

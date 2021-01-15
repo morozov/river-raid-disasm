@@ -4083,9 +4083,9 @@ L703E:
 ; Used by the routine at render_enemy.
 L7046:
   LD A,$A8
-  LD (L8C3C),A
+  LD (L8C3C),A            ; Put "XOR B" into L8C3C
   LD A,$00
-  LD (L8C1B),A
+  LD (L8C1B),A            ; Put "NOP" into L8C1B
   RET
 
 ; Render fuel station
@@ -4492,8 +4492,8 @@ L7296_0:
 ; Used by the routines at L7158 and L7296.
 L72E6:
   LD A,$A8
-  LD (L8C1B),A
-  LD (L8C3C),A
+  LD (L8C1B),A            ; Put "XOR B" into L8C1B
+  LD (L8C3C),A            ; Put "XOR B" into L8C3C
   RET
 
 ; Routine at 72EF
@@ -4501,8 +4501,8 @@ L72E6:
 ; Used by the routines at L6794, render_enemy, L7158 and L7296.
 L72EF:
   LD A,$B0
-  LD (L8C1B),A
-  LD (L8C3C),A
+  LD (L8C1B),A            ; Put "OR B" into L8C1B
+  LD (L8C3C),A            ; Put "OR B" into L8C3C
   RET
 
 ; Routine at 72F8

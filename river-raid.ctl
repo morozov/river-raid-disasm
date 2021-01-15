@@ -395,7 +395,9 @@ c $703B
 c $703E
 c $7046
 @ $7048 nowarn
+  $7048,3 Put "XOR B" into #R$8C3C
 @ $704D nowarn
+  $704D,3 Put "NOP" into #R$8C1B
 @ $7051 label=render_fuel
 c $7051 Render fuel station
 R $7051 I:E X position
@@ -415,10 +417,14 @@ c $7290
 c $7296
 c $72E6
 @ $72E8 nowarn
+  $72E8,3 Put "XOR B" into #R$8C1B
 @ $72EB nowarn
+  $72EB,3 Put "XOR B" into #R$8C3C
 c $72EF
 @ $72F1 nowarn
+  $72F1,3 Put "OR B" into #R$8C1B
 @ $72F4 nowarn
+  $72F4,3 Put "OR B" into #R$8C3C
 c $72F8
 c $72FD
 c $7302
