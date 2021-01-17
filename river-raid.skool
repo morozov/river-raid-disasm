@@ -6416,7 +6416,7 @@ c$8A33 LD A,$00      ;
 ; Routine at 8A4E
 ;
 ; Used by the routines at #R$6DFF, #R$6E40, #R$708E, #R$7302, #R$75A2, #R$7649
-; and #R$8B1E.
+; and #R$8B3C.
 c$8A4E LD DE,$0800   ;
  $8A51 LD HL,$3800   ;
  $8A54 LD A,B        ;
@@ -6531,7 +6531,7 @@ w$8B16 DEFW $2020
 t$8B18 DEFM "  "
 
 ; Data block at 8B1A
-@label=L8B1A
+@label=render_object_width
 b$8B1A DEFB $00
 
 ; Unused
@@ -6560,10 +6560,19 @@ c$8B1E PUSH DE       ;
  $8B37 POP HL        ;
  $8B38 LD A,($8B1A)  ;
  $8B3B POP DE        ;
-; This entry point is used by the routines at #R$60A5, #R$65F3, #R$6642,
-; #R$6682, #R$6794, #R$6FBB, #R$708E, #R$71A2, #R$724C, #R$7441, #R$75D0 and
-; #R$76DA.
-*$8B3C PUSH DE       ;
+
+; Routine at 8B3C
+;
+; Used by the routines at #R$60A5, #R$65F3, #R$6642, #R$6682, #R$6794, #R$6FBB,
+; #R$708E, #R$71A2, #R$724C, #R$7441, #R$75D0 and #R$76DA.
+;
+; I:A Sprite width in tiles
+; I:BC Sprite size in bytes
+; I:D Frame number and some other info
+; I:E Screen attributes
+; I:HL Pointer to the sprite array
+@label=render_object
+c$8B3C PUSH DE       ;
  $8B3D LD ($8B1A),A  ;
  $8B40 NOP           ;
  $8B41 CALL $928D    ;
@@ -6632,7 +6641,7 @@ c$8B70 PUSH DE       ;
  $8BCC OR A          ;
  $8BCD SBC HL,DE     ;
  $8BCF LD ($8B14),HL ;
-; This entry point is used by the routine at #R$8B1E.
+; This entry point is used by the routine at #R$8B3C.
 *$8BD2 CALL $8C0B    ;
  $8BD5 LD A,($8B1A)  ;
  $8BD8 LD D,$00      ;
@@ -7233,7 +7242,7 @@ s$9285 DEFS $08
 
 ; Routine at 928D
 ;
-; Used by the routines at #R$6EC8 and #R$8B1E.
+; Used by the routines at #R$6EC8 and #R$8B3C.
 c$928D PUSH HL       ;
  $928E PUSH BC       ;
  $928F LD ($928B),A  ;

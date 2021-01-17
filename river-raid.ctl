@@ -790,11 +790,18 @@ w $8B14
 @ $8B16 label=L8B16
 w $8B16
 t $8B18
-@ $8B1A label=L8B1A
+@ $8B1A label=render_object_width
 b $8B1A
 s $8B1B
 c $8B1E
 R $8B1E I:BC Sprite frame size
+@ $8B3C label=render_object
+c $8B3C
+R $8B3C I:A Sprite width in tiles
+R $8B3C I:BC Sprite size in bytes
+R $8B3C I:D Frame number and some other info
+R $8B3C I:E Screen attributes
+R $8B3C I:HL Pointer to the sprite array
 c $8B70
 c $8C0B
 @ $8C1B label=L8C1B

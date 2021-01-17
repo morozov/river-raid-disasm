@@ -1626,7 +1626,7 @@ L60A5:
   LD BC,$0010
   LD A,$02
   LD HL,L82F5
-  CALL L8B1E_1
+  CALL render_object
 L60A5_0:
   CALL L683B
   LD A,(state_speed)
@@ -2414,7 +2414,7 @@ handle_right:
   LD D,$08
   LD A,$02
   LD HL,sprite_plane_banked
-  CALL L8B1E_1
+  CALL render_object
 ; This entry point is used by the routines at handle_left and L6682.
 handle_right_0:
   LD HL,(L5F8F)
@@ -2453,7 +2453,7 @@ handle_left:
   LD D,$08
   LD A,$02
   LD HL,sprite_plane_banked
-  CALL L8B1E_1
+  CALL render_object
   JP handle_right_0
 
 ; Routine at 6682
@@ -2486,7 +2486,7 @@ L6682:
   CP $04
   CALL Z,ld_sprite_plane_banked
   LD A,$02
-  CALL L8B1E_1
+  CALL render_object
   JP handle_right_0
 
 ; Routine at 66CC
@@ -2652,7 +2652,7 @@ L6794_0:
   LD BC,$0008
   LD DE,$080C
   LD HL,L82F5
-  CALL L8B1E_1
+  CALL render_object
   LD HL,state_controls
   RES 1,(HL)              ; Reset CONTROLS_BIT_SPEED_DECREASED
   LD BC,(L5EF3)
@@ -2692,7 +2692,7 @@ L6794_1:
   LD (L8B0C),BC
   LD (L8B0A),BC
   LD BC,$0000
-  CALL L8B1E_1
+  CALL render_object
   RET
 
 ; Routine at 6831
@@ -3866,7 +3866,7 @@ L6EC8:
   LD A,$00
   LD (state_interaction_mode_5EF5),A
   LD A,$02
-  LD (L8B1A),A
+  LD (render_object_width),A
   LD A,D
   LD DE,$080C
   LD (L8B0A),BC
@@ -3886,7 +3886,7 @@ L6EC8:
   POP DE
 L6EC8_0:
   LD A,$02
-  CALL L8B1E_3
+  CALL render_object_1
   JP L6EC8
 
 ; Routine at 6F63
@@ -3995,7 +3995,7 @@ render_rock_0:
   LD (L8B0A),BC
   LD A,$03
   LD DE,$1014
-  CALL L8B1E_1
+  CALL render_object
   RET
 
 ; Load array of arrays of enemy headed right sprites.
@@ -4237,7 +4237,7 @@ L708E_1:
   CALL Z,ld_cyan_on_blue  ;
   LD A,$03
   LD D,$08
-  CALL L8B1E_1
+  CALL render_object
   JP L708E
 
 ; Routine at 7155
@@ -4351,7 +4351,7 @@ L71A2_1:
   LD BC,$0000
   LD D,$10
   LD A,$02
-  CALL L8B1E_1
+  CALL render_object
   JP L708E
 L71A2_2:
   LD HL,(viewport_1_ptr)
@@ -4424,7 +4424,7 @@ L724C_0:
   LD DE,$020E
   LD BC,$0004
   LD A,$02
-  CALL L8B1E_1
+  CALL render_object
   JP L708E
 
 ; Routine at 728B
@@ -4811,7 +4811,7 @@ L7441_0:
   LD DE,$0100
   LD A,$01
   LD BC,$0008
-  CALL L8B1E_1
+  CALL render_object
   JP L7441_2
 L7441_1:
   LD D,$80
@@ -5026,7 +5026,7 @@ L75D0_0:
   LD D,$08
   LD A,$03
   LD BC,$0018
-  CALL L8B1E_1
+  CALL render_object
   JP L708E
 
 ; Point viewport_1_ptr to the head of viewport_1.
@@ -5178,7 +5178,7 @@ L76DA_0:
   LD DE,$100D
   LD A,$02
   LD BC,$0020
-  CALL L8B1E_1
+  CALL render_object
   JP L708E
 
 ; Data block at 7727
@@ -6460,7 +6460,8 @@ init_udg_loop:
 
 ; Routine at 8A4E
 ;
-; Used by the routines at L6DFF, L6E40, L708E, L7302, L75A2, L7649 and L8B1E.
+; Used by the routines at L6DFF, L6E40, L708E, L7302, L75A2, L7649 and
+; render_object.
 L8A4E:
   LD DE,$0800
   LD HL,$3800
@@ -6575,7 +6576,7 @@ L8B18:
   DEFM "  "
 
 ; Data block at 8B1A
-L8B1A:
+render_object_width:
   DEFB $00
 
 ; Unused
@@ -6590,7 +6591,7 @@ L8B1B:
 ; I:BC Sprite frame size
 L8B1E:
   PUSH DE
-  LD (L8B1A),A
+  LD (render_object_width),A
   LD DE,(L8B0A)
   LD A,E
   AND $07
@@ -6605,13 +6606,22 @@ L8B1E_0:
   JR NZ,L8B1E_0
   LD (L8B0E),HL
   POP HL
-  LD A,(L8B1A)
+  LD A,(render_object_width)
   POP DE
-; This entry point is used by the routines at L60A5, handle_right, handle_left,
-; L6682, L6794, render_rock, L708E, L71A2, L724C, L7441, L75D0 and L76DA.
-L8B1E_1:
+
+; Routine at 8B3C
+;
+; Used by the routines at L60A5, handle_right, handle_left, L6682, L6794,
+; render_rock, L708E, L71A2, L724C, L7441, L75D0 and L76DA.
+;
+; I:A Sprite width in tiles
+; I:BC Sprite size in bytes
+; I:D Frame number and some other info
+; I:E Screen attributes
+; I:HL Pointer to the sprite array
+render_object:
   PUSH DE
-  LD (L8B1A),A
+  LD (render_object_width),A
   NOP
   CALL L928D
   LD A,E
@@ -6620,15 +6630,15 @@ L8B1E_1:
   INC A
   OR A
   SBC HL,BC
-L8B1E_2:
+render_object_0:
   ADD HL,BC
   DEC A
-  JR NZ,L8B1E_2
+  JR NZ,render_object_0
   LD (L8B10),HL
   LD (L8B16),HL
   POP DE
 ; This entry point is used by the routine at L6EC8.
-L8B1E_3:
+render_object_1:
   PUSH DE
   LD BC,(L8B0C)
   CALL L8A4E
@@ -6685,10 +6695,10 @@ L8B70_2:
   OR A
   SBC HL,DE
   LD (L8B14),HL
-; This entry point is used by the routine at L8B1E.
+; This entry point is used by the routine at render_object.
 L8B70_3:
   CALL L8C0B
-  LD A,(L8B1A)
+  LD A,(render_object_width)
   LD D,$00
   LD E,A
   LD HL,(L8B0E)
@@ -6718,7 +6728,7 @@ L8B70_3:
 ;
 ; Used by the routine at L8B70.
 L8C0B:
-  LD A,(L8B1A)
+  LD A,(render_object_width)
   LD C,A
   LD HL,(L8B14)
   LD DE,(L8B0E)
@@ -6738,7 +6748,7 @@ L8C1B:
   INC HL
   DEC C
   JR NZ,L8C0B_0
-  LD A,(L8B1A)
+  LD A,(render_object_width)
   LD C,A
   LD HL,(L8B12)
   LD DE,(L8B10)
@@ -7299,7 +7309,7 @@ L9285:
 
 ; Routine at 928D
 ;
-; Used by the routines at L6EC8 and L8B1E.
+; Used by the routines at L6EC8 and render_object.
 L928D:
   PUSH HL
   PUSH BC
