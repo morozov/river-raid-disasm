@@ -2885,22 +2885,24 @@ L6947:
   LD (L5F6D),A
   RET
 
-; Routine at 694D
+; Increase bridge index and handle overflow by resetting to the first bridge.
 ;
 ; Used by the routine at L6A4F.
-L694D:
-  LD DE,$0000
-  LD (state_y),DE
-  LD A,(state_bridge_mod)
-  INC A
-  LD (state_bridge_mod),A
-  CP $31
-  JP Z,L694D_0
+;
+; O:A Always set to 0
+increase_bridge_index:
+  LD DE,$0000             ; Reset Y-position
+  LD (state_y),DE         ;
+  LD A,(state_bridge_mod) ; Increase bridge index
+  INC A                   ;
+  LD (state_bridge_mod),A ;
+  CP $31                  ; Check for overflow
+  JP Z,next_bridge_index_overflow
   LD A,$00
   RET
-L694D_0:
-  LD A,$01
-  LD (state_bridge_mod),A
+next_bridge_index_overflow:
+  LD A,$01                ; Reset bridge index
+  LD (state_bridge_mod),A ;
   LD A,$00
   RET
 
@@ -3073,7 +3075,7 @@ L6A4F_0:
   AND $3F
   LD (L5F76),A
   CP $00
-  CALL Z,L694D
+  CALL Z,increase_bridge_index
   LD DE,$0004
   INC A
   OR A

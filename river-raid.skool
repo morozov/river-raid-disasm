@@ -2829,20 +2829,24 @@ c$6947 LD A,$00      ;
  $6949 LD ($5F6D),A  ;
  $694C RET           ;
 
-; Routine at 694D
+; Increase bridge index and handle overflow by resetting to the first bridge.
 ;
 ; Used by the routine at #R$6A4F.
-c$694D LD DE,$0000   ;
- $6950 LD ($5F70),DE ;
- $6954 LD A,($5EF0)  ;
+;
+; O:A Always set to 0
+@label=increase_bridge_index
+c$694D LD DE,$0000   ; {Reset Y-position
+ $6950 LD ($5F70),DE ; }
+ $6954 LD A,($5EF0)  ; {Increase bridge index
  $6957 INC A         ;
- $6958 LD ($5EF0),A  ;
- $695B CP $31        ;
+ $6958 LD ($5EF0),A  ; }
+ $695B CP $31        ; Check for overflow
  $695D JP Z,$6963    ;
  $6960 LD A,$00      ;
  $6962 RET           ;
-*$6963 LD A,$01      ;
- $6965 LD ($5EF0),A  ;
+@label=next_bridge_index_overflow
+*$6963 LD A,$01      ; {Reset bridge index
+ $6965 LD ($5EF0),A  ; }
  $6968 LD A,$00      ;
  $696A RET           ;
 

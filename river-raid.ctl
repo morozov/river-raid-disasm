@@ -299,7 +299,14 @@ c $6927
 s $693B
 c $693C
 c $6947
-c $694D
+@ $694D label=increase_bridge_index
+c $694D Increase bridge index and handle overflow by resetting to the first bridge.
+R $694D O:A Always set to 0
+  $694D,7 Reset Y-position
+  $6954,7 Increase bridge index
+  $695B,2 Check for overflow
+@ $6963 label=next_bridge_index_overflow
+  $6963,5 Reset bridge index
 c $696B
 c $6990
 c $6A4A
