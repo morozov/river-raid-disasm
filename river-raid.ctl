@@ -919,7 +919,56 @@ C $9420,2 Process next block
 c $9423 Load current player lives
 R $9423 O:HL Pointer to the current player lives
 b $9430
-@ $9500 label=L9500
+@ $9500 label=level_terrains
+b $9500 Array [48] of level terrain data (256 bytes each).
+  $9500,256,4 Bridge 1
+  $9600,256,4 Bridge 2
+  $9700,256,4 Bridge 3
+  $9800,256,4 Bridge 4
+  $9900,256,4 Bridge 5
+  $9A00,256,4 Bridge 6
+  $9B00,256,4 Bridge 7
+  $9C00,256,4 Bridge 8
+  $9D00,256,4 Bridge 9
+  $9E00,256,4 Bridge 10
+  $9F00,256,4 Bridge 11
+  $A000,256,4 Bridge 12
+  $A100,256,4 Bridge 13
+  $A200,256,4 Bridge 14
+  $A300,256,4 Bridge 15
+  $A400,256,4 Bridge 16
+  $A500,256,4 Bridge 17
+  $A600,256,4 Bridge 18
+  $A700,256,4 Bridge 19
+  $A800,256,4 Bridge 20
+  $A900,256,4 Bridge 21
+  $AA00,256,4 Bridge 22
+  $AB00,256,4 Bridge 23
+  $AC00,256,4 Bridge 24
+  $AD00,256,4 Bridge 25
+  $AE00,256,4 Bridge 26
+  $AF00,256,4 Bridge 27
+  $B000,256,4 Bridge 28
+  $B100,256,4 Bridge 29
+  $B200,256,4 Bridge 30
+  $B300,256,4 Bridge 31
+  $B400,256,4 Bridge 32
+  $B500,256,4 Bridge 33
+  $B600,256,4 Bridge 34
+  $B700,256,4 Bridge 35
+  $B800,256,4 Bridge 36
+  $B900,256,4 Bridge 37
+  $BA00,256,4 Bridge 38
+  $BB00,256,4 Bridge 39
+  $BC00,256,4 Bridge 40
+  $BD00,256,4 Bridge 41
+  $BE00,256,4 Bridge 42
+  $BF00,256,4 Bridge 43
+  $C000,256,4 Bridge 44
+  $C100,256,4 Bridge 45
+  $C200,256,4 Bridge 46
+  $C300,256,4 Bridge 47
+  $C400,256,4 Bridge 48
 @ $C600 label=LC600
 @ $C800 label=levels
 b $C800 Byte 1: lowest 3 bits - object type; Byte 2 - position. $07 - fuel station, $06 - balloon, $04-05 - unknown
