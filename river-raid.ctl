@@ -90,13 +90,13 @@ b $5EF6
 w $5EF7
 @ $5EF9 label=L5EF9
 b $5EF9
-@ $5EFA label=L5EFA
+@ $5EFA label=state_island_byte_1
 b $5EFA
-@ $5EFB label=L5EFB
+@ $5EFB label=state_island_byte_2
 b $5EFB
-@ $5EFC label=L5EFC
+@ $5EFC label=state_island_byte_3
 b $5EFC
-@ $5EFD label=L5EFD
+@ $5EFD label=state_island_byte_4
 b $5EFD
 u $5EFE
 @ $5F00 label=viewport_1
@@ -152,7 +152,7 @@ b $5F77
 w $5F78
 @ $5F7A label=state_terrain_element_4
 b $5F7A
-@ $5F7B label=L5F7B
+@ $5F7B label=screen_ptr
 w $5F7B
 @ $5F7D label=state_terrain_sprite_element_ptr
 b $5F7D
@@ -307,8 +307,10 @@ R $694D O:A Always set to 0
   $695B,2 Check for overflow
 @ $6963 label=next_bridge_index_overflow
   $6963,5 Reset bridge index
-@ $696B label=handle_terrain_element_4_not_fc
+@ $696B label=handle_island
 c $696B
+R $696B I:A The six highest bits of the fourth byte of the terrain element.
+@ $6978 label=locate_island_element
 c $6990
 c $6A4A
 @ $6A4F label=render_terrain
@@ -975,7 +977,9 @@ b $9500 Array [48] of level terrain data (256 bytes each).
   $C200,256,4 Bridge 46
   $C300,256,4 Bridge 47
   $C400,256,4 Bridge 48
-@ $C600 label=LC600
+@ $C600 label=data_islands
+b $C600 Array [?] island data (3 bytes each).
+  $C600,108,3
 @ $C800 label=levels
 b $C800 Byte 1: lowest 3 bits - object type; Byte 2 - position. $07 - fuel station, $06 - balloon, $04-05 - unknown
   $C800,256 Bridge 1

@@ -1092,7 +1092,7 @@ decrease_lives_player_2:
 ; and demo.
 play:
   LD A,$10
-  LD (L5EFD),A
+  LD (state_island_byte_4),A
   LD A,$1F
   LD (L5F5F),A
   LD SP,(sp_5F83)
@@ -1267,19 +1267,19 @@ L5EF9:
   DEFB $00
 
 ; Data block at 5EFA
-L5EFA:
+state_island_byte_1:
   DEFB $00
 
 ; Data block at 5EFB
-L5EFB:
+state_island_byte_2:
   DEFB $00
 
 ; Data block at 5EFC
-L5EFC:
+state_island_byte_3:
   DEFB $00
 
 ; Data block at 5EFD
-L5EFD:
+state_island_byte_4:
   DEFB $10
 
 ; Unused
@@ -1419,7 +1419,7 @@ state_terrain_element_4:
   DEFB $00
 
 ; Data block at 5F7B
-L5F7B:
+screen_ptr:
   DEFW $0000
 
 ; Data block at 5F7D
@@ -1632,7 +1632,7 @@ L60A5_1:
   ADD HL,DE
   DEC A
   JR NZ,L60A5_1
-  LD (L5F7B),HL
+  LD (screen_ptr),HL
   LD A,(state_speed)
   LD B,A
   LD A,(L5EEE)
@@ -1646,10 +1646,10 @@ L60A5_2:
   CALL Z,L68B7
   CALL render_terrain_sprite
   LD DE,$0100
-  LD HL,(L5F7B)
+  LD HL,(screen_ptr)
   OR A
   SBC HL,DE
-  LD (L5F7B),HL
+  LD (screen_ptr),HL
   POP BC
   DJNZ L60A5_2
   LD A,C
@@ -2903,35 +2903,38 @@ next_bridge_index_overflow:
 ; Routine at 696B
 ;
 ; Used by the routine at render_terrain.
-handle_terrain_element_4_not_fc:
-  LD HL,LC600
+;
+; I:A The six highest bits of the fourth byte of the terrain element.
+handle_island:
+  LD HL,data_islands
   LD DE,$0003
   SRL A
   SRL A
   OR A
   SBC HL,DE
+locate_island_element:
   ADD HL,DE
   DEC A
   JR NZ,$6977
   LD A,(HL)
-  LD (L5EFA),A
+  LD (state_island_byte_1),A
   INC HL
   LD A,(HL)
-  LD (L5EFB),A
+  LD (state_island_byte_2),A
   INC HL
   LD A,(HL)
-  LD (L5EFC),A
+  LD (state_island_byte_3),A
   LD A,$00
-  LD (L5EFD),A
+  LD (state_island_byte_4),A
   RET
 
 ; Routine at 6990
 ;
 ; Used by the routine at render_terrain.
 L6990:
-  LD HL,L5EFD
+  LD HL,state_island_byte_4
   INC (HL)
-  LD A,(L5EFA)
+  LD A,(state_island_byte_1)
   LD HL,sprite_terrain
   LD DE,$0010
   OR A
@@ -2945,7 +2948,7 @@ L6990_0:
   LD D,$00
   LD E,A
   ADD HL,DE
-  LD A,(L5EFB)
+  LD A,(state_island_byte_2)
   ADD A,(HL)
   PUSH AF
   LD B,$00
@@ -2961,7 +2964,7 @@ L6990_0:
   ADD HL,BC
   EX DE,HL
   LD C,A
-  LD HL,(L5F7B)
+  LD HL,(screen_ptr)
   LD B,$00
   SRL C
   SRL C
@@ -2990,12 +2993,12 @@ L6990_2:
   LD B,$00
   LD D,A
   LD C,$3C
-  LD A,(L5EFB)
+  LD A,(state_island_byte_2)
   LD B,A
-  LD A,(L5EFC)
+  LD A,(state_island_byte_3)
   CP $01
   JP Z,L6990_5
-  LD A,(L5EFC)
+  LD A,(state_island_byte_3)
   CP $02
   JP Z,L6990_6
 L6990_3:
@@ -3009,7 +3012,7 @@ L6990_3:
   ADD HL,BC
   EX DE,HL
   LD C,A
-  LD HL,(L5F7B)
+  LD HL,(screen_ptr)
   SRL C
   SRL C
   SRL C
@@ -3094,7 +3097,7 @@ locate_level_terrain_element:
   PUSH AF
   AND $FC
   CP $00
-  CALL NZ,handle_terrain_element_4_not_fc
+  CALL NZ,handle_island
   POP AF
   AND $03
   LD (state_terrain_element_4),A
@@ -3139,7 +3142,7 @@ locate_terrain_sprite:
   ADD HL,BC
   EX DE,HL
   LD C,A
-  LD HL,(L5F7B)
+  LD HL,(screen_ptr)
   LD B,$00
   SRL C
   SRL C
@@ -3179,7 +3182,7 @@ render_terrain_1:
   ADD HL,BC
   EX DE,HL
   LD C,A
-  LD HL,(L5F7B)
+  LD HL,(screen_ptr)
   SRL C
   SRL C
   SRL C
@@ -3199,7 +3202,7 @@ render_terrain_2:
   LD (DE),A
   INC DE
   DJNZ render_terrain_2
-  LD A,(L5EFD)
+  LD A,(state_island_byte_4)
   CP $10
   CALL NZ,L6990
   RET
@@ -3251,14 +3254,14 @@ L6B7B:
   LD HL,$8351
 ; This entry point is used by the routines at L6B63, L6B6B and L6B73.
 L6B7B_0:
-  LD DE,(L5F7B)
+  LD DE,(screen_ptr)
   LD BC,$0020
   LDIR
   LD (L5F6C),A
   LD A,(L5F6D)
   CP $00
   RET Z
-  LD HL,(L5F7B)
+  LD HL,(screen_ptr)
 ; This entry point is used by the routine at interact_with_something.
 L6B7B_1:
   LD DE,$000E
@@ -3555,7 +3558,7 @@ demo:
   LD BC,$0010
   LD (state_y),BC
   LD A,$10
-  LD (L5EFD),A
+  LD (state_island_byte_4),A
   LD D,$0C                ; PAPER 1; INK 4
   CALL clear_screen
   CALL init_udg
@@ -10718,21 +10721,45 @@ level_terrains:
   DEFB $00,$00,$00,$00,$00,$00,$00,$00
   DEFB $00,$00,$00,$00,$00,$00,$00,$00
   DEFB $00,$00,$00,$00,$00,$00,$00,$00
-LC600:
-  DEFB $09,$00,$01,$0A,$00,$01,$07,$00
-  DEFB $01,$08,$00,$01,$0C,$00,$01,$0D
-  DEFB $00,$01,$0E,$10,$01,$0F,$10,$01
-  DEFB $0B,$18,$01,$0E,$18,$01,$0F,$20
-  DEFB $01,$0B,$20,$01,$05,$10,$01,$06
-  DEFB $10,$01,$05,$18,$01,$06,$18,$01
-  DEFB $05,$20,$01,$06,$20,$01,$05,$28
-  DEFB $01,$06,$28,$01,$0E,$28,$01,$0F
-  DEFB $28,$01,$01,$18,$01,$07,$20,$01
-  DEFB $08,$20,$01,$09,$20,$01,$0A,$20
-  DEFB $01,$05,$08,$01,$06,$08,$01,$07
-  DEFB $18,$01,$08,$18,$01,$0B,$08,$01
-  DEFB $0F,$08,$01,$05,$00,$01,$06,$00
-  DEFB $01,$C3,$90,$EA,$00,$00,$00,$00
+
+; Array [?] island data (3 bytes each).
+data_islands:
+  DEFB $09,$00,$01
+  DEFB $0A,$00,$01
+  DEFB $07,$00,$01
+  DEFB $08,$00,$01
+  DEFB $0C,$00,$01
+  DEFB $0D,$00,$01
+  DEFB $0E,$10,$01
+  DEFB $0F,$10,$01
+  DEFB $0B,$18,$01
+  DEFB $0E,$18,$01
+  DEFB $0F,$20,$01
+  DEFB $0B,$20,$01
+  DEFB $05,$10,$01
+  DEFB $06,$10,$01
+  DEFB $05,$18,$01
+  DEFB $06,$18,$01
+  DEFB $05,$20,$01
+  DEFB $06,$20,$01
+  DEFB $05,$28,$01
+  DEFB $06,$28,$01
+  DEFB $0E,$28,$01
+  DEFB $0F,$28,$01
+  DEFB $01,$18,$01
+  DEFB $07,$20,$01
+  DEFB $08,$20,$01
+  DEFB $09,$20,$01
+  DEFB $0A,$20,$01
+  DEFB $05,$08,$01
+  DEFB $06,$08,$01
+  DEFB $07,$18,$01
+  DEFB $08,$18,$01
+  DEFB $0B,$08,$01
+  DEFB $0F,$08,$01
+  DEFB $05,$00,$01
+  DEFB $06,$00,$01
+  DEFB $C3,$90,$EA
   DEFB $00,$00,$00,$00,$00,$00,$00,$00
   DEFB $00,$00,$00,$00,$00,$00,$00,$00
   DEFB $00,$00,$00,$00,$00,$00,$00,$00
@@ -10783,6 +10810,7 @@ LC600:
   DEFB $00,$00,$00,$00,$00,$00,$00,$00
   DEFB $00,$00,$00,$00,$00,$00,$00,$00
   DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00
 
 ; Byte 1: lowest 3 bits - object type; Byte 2 - position. $07 - fuel station,
 ; $06 - balloon, $04-05 - unknown
