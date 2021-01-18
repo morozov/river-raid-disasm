@@ -809,6 +809,7 @@ c $8C1B
 @ $8C3C label=L8C3C
 c $8C3C
 b $8C4A
+b $9062 label=sprite_explosion_6
 @ $90BC label=state_score_player_1
 t $90BC
 @ $90C2 label=state_score_player_2
