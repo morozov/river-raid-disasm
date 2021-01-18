@@ -916,34 +916,52 @@ b $9430
 @ $C600 label=LC600
 @ $C800 label=levels
 b $C800 Byte 1: lowest 3 bits - object type; Byte 2 - position. $07 - fuel station, $06 - balloon, $04-05 - unknown
-t $D13B
-b $D13E
-t $D337
-b $D33A
-t $D923
-b $D926
-t $DBE9
-b $DBEC
-t $DEC5
-b $DEC8
-t $E190
-b $E196
-t $E238
-b $E23B
-t $E26C
-b $E270
-t $E3FD
-b $E400
-t $E7BE
-b $E7C2
-t $ECA9
-b $ECAC
-t $EF6D
-b $EF70
-t $F26E
-b $F273
-t $F6A2
-b $F6A5
-t $F6AC
-b $F6B0
+  $C800,256 Bridge 1
+  $C900,256 Bridge 2
+  $CA00,256 Bridge 3
+  $CB00,256 Bridge 4
+  $CC00,256 Bridge 5
+  $CD00,256 Bridge 6
+  $CE00,256 Bridge 7
+  $CF00,256 Bridge 8
+  $D000,256 Bridge 9
+  $D100,256 Bridge 10
+  $D200,256 Bridge 11
+  $D300,256 Bridge 12
+  $D400,256 Bridge 13
+  $D500,256 Bridge 14
+  $D600,256 Bridge 15
+  $D700,256 Bridge 16
+  $D800,256 Bridge 17
+  $D900,256 Bridge 18
+  $DA00,256 Bridge 19
+  $DB00,256 Bridge 20
+  $DC00,256 Bridge 21
+  $DD00,256 Bridge 22
+  $DE00,256 Bridge 23
+  $DF00,256 Bridge 24
+  $E000,256 Bridge 25
+  $E100,256 Bridge 26
+  $E200,256 Bridge 27
+  $E300,256 Bridge 28
+  $E400,256 Bridge 29
+  $E500,256 Bridge 30
+  $E600,256 Bridge 31
+  $E700,256 Bridge 32
+  $E800,256 Bridge 33
+  $E900,256 Bridge 34
+  $EA00,256 Bridge 35
+  $EB00,256 Bridge 36
+  $EC00,256 Bridge 37
+  $ED00,256 Bridge 38
+  $EE00,256 Bridge 39
+  $EF00,256 Bridge 40
+  $F000,256 Bridge 41
+  $F100,256 Bridge 42
+  $F200,256 Bridge 43
+  $F300,256 Bridge 44
+  $F400,256 Bridge 45
+  $F500,256 Bridge 46
+  $F600,256 Bridge 47
+  $F700,256 Bridge 48
 i $F800
