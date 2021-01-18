@@ -146,17 +146,17 @@ g $5F72 Current X coordinate
 g $5F73
 @ $5F75 label=L5F75
 b $5F75
-@ $5F76 label=L5F76
-b $5F76
-@ $5F77 label=L5F77
+@ $5F76 label=state_terrain_element_index
+b $5F76 Index of the current element of current level terrain array
+@ $5F77 label=state_terrain_element_1
 b $5F77
-@ $5F78 label=L5F78
+@ $5F78 label=state_terrain_element_23
 w $5F78
-@ $5F7A label=L5F7A
+@ $5F7A label=state_terrain_element_4
 b $5F7A
 @ $5F7B label=L5F7B
 w $5F7B
-@ $5F7D label=L5F7D
+@ $5F7D label=state_terrain_sprite_element_ptr
 b $5F7D
 @ $5F7E label=ptr_scroller
 w $5F7E Pointer to the text to be displayed in the scroller.
@@ -297,7 +297,9 @@ c $68C5
 @ $68EE label=init_current_bridge_loop
 c $6927
 s $693B
+@ $693C label=handle_terrain_element_1_eq_3
 c $693C
+@ $6947 label=handle_terrain_element_1_eq_2
 c $6947
 @ $694D label=increase_bridge_index
 c $694D Increase bridge index and handle overflow by resetting to the first bridge.
@@ -307,10 +309,16 @@ R $694D O:A Always set to 0
   $695B,2 Check for overflow
 @ $6963 label=next_bridge_index_overflow
   $6963,5 Reset bridge index
+@ $696B label=handle_terrain_element_4_not_fc
 c $696B
 c $6990
 c $6A4A
+@ $6A4F label=render_terrain
 c $6A4F
+@ $6A60 label=locate_level_terrain
+@ $6A79 label=locate_level_terrain_element
+@ $6AA3 label=render_terrain_sprite
+@ $6AAF label=locate_terrain_sprite
 c $6B63
 c $6B6B
 c $6B73
@@ -617,8 +625,8 @@ T $805A AT 20,4
 T $805D INK 7
 @ $805F label=end_status_line_4
 b $805F
-t $811F
-b $8127
+@ $8063 label=sprite_terrain
+b $8063
 @ $8153 label=msg_game_over
 t $8153 Game Over message.
 @ $8182 label=msg_credits

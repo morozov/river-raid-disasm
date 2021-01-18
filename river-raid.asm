@@ -1068,9 +1068,9 @@ init_state:
   LD (L5EF2),A
   LD (state_controls),A
   LD BC,$4C83
-  LD (L5F78),BC
+  LD (state_terrain_element_23),BC
   LD A,$02
-  LD (L5F77),A
+  LD (state_terrain_element_1),A
   LD (state_interaction_mode_5F68),A
   LD (state_speed),A
   LD (L5F6D),A
@@ -1082,8 +1082,8 @@ init_state:
   LD ($90C4),HL
   LD ($90C6),HL
   LD A,$01
-  LD (L5F76),A
-  LD (L5F7D),A
+  LD (state_terrain_element_index),A
+  LD (state_terrain_sprite_element_ptr),A
   LD HL,$0404
   LD (state_lives_player_1),HL
   LD (state_player),A
@@ -1122,7 +1122,7 @@ play:
   LD A,$00
   LD (L5F6C),A
   LD ($5F6F),A
-  LD (L5F7D),A
+  LD (state_terrain_sprite_element_ptr),A
   LD (L5F69),A
   LD A,$FF
   LD (state_fuel),A
@@ -1165,12 +1165,12 @@ play:
   LD A,$01
   CALL CHAN_OPEN
   LD A,$FF
-  LD (L5F7D),A
+  LD (state_terrain_sprite_element_ptr),A
   LD A,$02
-  LD (L5F77),A
+  LD (state_terrain_element_1),A
   CALL CHAN_OPEN
   LD A,$01
-  LD (L5F76),A
+  LD (state_terrain_element_index),A
   LD (state_interaction_mode_5F68),A
   LD (L5F6D),A
   LD A,$68
@@ -1181,7 +1181,7 @@ play:
   LD A,$04
   LD (state_speed),A
   LD BC,$4C83
-  LD (L5F78),BC
+  LD (state_terrain_element_23),BC
   CALL L91E8
   CALL init_current_bridge
   LD B,$28
@@ -1408,20 +1408,20 @@ L5F73:
 L5F75:
   DEFB $00
 
-; Data block at 5F76
-L5F76:
+; Index of the current element of current level terrain array
+state_terrain_element_index:
   DEFB $00
 
 ; Data block at 5F77
-L5F77:
+state_terrain_element_1:
   DEFB $00
 
 ; Data block at 5F78
-L5F78:
+state_terrain_element_23:
   DEFW $0000
 
 ; Data block at 5F7A
-L5F7A:
+state_terrain_element_4:
   DEFB $00
 
 ; Data block at 5F7B
@@ -1429,7 +1429,7 @@ L5F7B:
   DEFW $0000
 
 ; Data block at 5F7D
-L5F7D:
+state_terrain_sprite_element_ptr:
   DEFB $01
 
 ; Pointer to the text to be displayed in the scroller.
@@ -1650,7 +1650,7 @@ L60A5_2:
   AND $07
   CP $00
   CALL Z,L68B7
-  CALL L6A4F_2
+  CALL render_terrain_sprite
   LD DE,$0100
   LD HL,(L5F7B)
   OR A
@@ -2869,8 +2869,8 @@ L693B:
 
 ; Routine at 693C
 ;
-; Used by the routine at L6A4F.
-L693C:
+; Used by the routine at render_terrain.
+handle_terrain_element_1_eq_3:
   LD A,$01
   LD (L5F6E),A
   LD A,$06
@@ -2879,15 +2879,15 @@ L693C:
 
 ; Routine at 6947
 ;
-; Used by the routine at L6A4F.
-L6947:
+; Used by the routine at render_terrain.
+handle_terrain_element_1_eq_2:
   LD A,$00
   LD (L5F6D),A
   RET
 
 ; Increase bridge index and handle overflow by resetting to the first bridge.
 ;
-; Used by the routine at L6A4F.
+; Used by the routine at render_terrain.
 ;
 ; O:A Always set to 0
 increase_bridge_index:
@@ -2908,8 +2908,8 @@ next_bridge_index_overflow:
 
 ; Routine at 696B
 ;
-; Used by the routine at L6A4F.
-L696B:
+; Used by the routine at render_terrain.
+handle_terrain_element_4_not_fc:
   LD HL,LC600
   LD DE,$0003
   SRL A
@@ -2933,12 +2933,12 @@ L696B:
 
 ; Routine at 6990
 ;
-; Used by the routine at L6A4F.
+; Used by the routine at render_terrain.
 L6990:
   LD HL,L5EFD
   INC (HL)
   LD A,(L5EFA)
-  LD HL,$8063
+  LD HL,sprite_terrain
   LD DE,$0010
   OR A
   SBC HL,DE
@@ -2946,7 +2946,7 @@ L6990_0:
   ADD HL,DE
   DEC A
   JR NZ,L6990_0
-  LD A,(L5F7D)
+  LD A,(state_terrain_sprite_element_ptr)
   AND $0F
   LD D,$00
   LD E,A
@@ -3058,73 +3058,73 @@ L6A4A:
   RET
 
 ; Routine at 6A4F
-L6A4F:
+render_terrain:
   LD A,$FF
-  LD (L5F7D),A
+  LD (state_terrain_sprite_element_ptr),A
   LD HL,level_terrains
   LD DE,$0100
   LD A,(state_bridge_mod)
   OR A
   SBC HL,DE
-L6A4F_0:
+locate_level_terrain:
   ADD HL,DE
   DEC A
-  JR NZ,L6A4F_0
-  LD A,(L5F76)
+  JR NZ,locate_level_terrain
+  LD A,(state_terrain_element_index)
   INC A
   AND $3F
-  LD (L5F76),A
+  LD (state_terrain_element_index),A
   CP $00
   CALL Z,increase_bridge_index
   LD DE,$0004
   INC A
   OR A
   SBC HL,DE
-L6A4F_1:
+locate_level_terrain_element:
   ADD HL,DE
   DEC A
-  JR NZ,L6A4F_1
+  JR NZ,locate_level_terrain_element
   LD A,(HL)
-  LD (L5F77),A
+  LD (state_terrain_element_1),A
   CP $03
-  CALL Z,L693C
+  CALL Z,handle_terrain_element_1_eq_3
   CP $02
-  CALL Z,L6947
+  CALL Z,handle_terrain_element_1_eq_2
   INC HL
   LD C,(HL)
   INC HL
   LD B,(HL)
   INC HL
-  LD (L5F78),BC
+  LD (state_terrain_element_23),BC
   LD A,(HL)
   PUSH AF
   AND $FC
   CP $00
-  CALL NZ,L696B
+  CALL NZ,handle_terrain_element_4_not_fc
   POP AF
   AND $03
-  LD (L5F7A),A
+  LD (state_terrain_element_4),A
 ; This entry point is used by the routine at L60A5.
-L6A4F_2:
-  LD A,(L5F77)
-  LD HL,$8063
+render_terrain_sprite:
+  LD A,(state_terrain_element_1)
+  LD HL,sprite_terrain
   LD DE,$0010
   OR A
   SBC HL,DE
-L6A4F_3:
+locate_terrain_sprite:
   ADD HL,DE
   DEC A
-  JR NZ,L6A4F_3
-  LD A,(L5F7D)
+  JR NZ,locate_terrain_sprite
+  LD A,(state_terrain_sprite_element_ptr)
   INC A
-  LD (L5F7D),A
+  LD (state_terrain_sprite_element_ptr),A
   CP $10
-  JP Z,L6A4F
+  JP Z,render_terrain
   AND $0F
   LD D,$00
   LD E,A
   ADD HL,DE
-  LD BC,(L5F78)
+  LD BC,(state_terrain_element_23)
   LD A,(HL)
   BIT 7,A
   JP NZ,L6B7B
@@ -3161,20 +3161,20 @@ L6A4F_3:
   SRL B
   SRL B
   LD A,$FF
-L6A4F_4:
+render_terrain_0:
   DEC DE
   LD (DE),A
-  DJNZ L6A4F_4
+  DJNZ render_terrain_0
   POP AF
   LD D,A
-  LD BC,(L5F78)
-  LD A,(L5F7A)
+  LD BC,(state_terrain_element_23)
+  LD A,(state_terrain_element_4)
   CP $01
-  JP Z,L6A4F_7
-  LD A,(L5F7A)
+  JP Z,render_terrain_3
+  LD A,(state_terrain_element_4)
   CP $02
-  JP Z,L6A4F_8
-L6A4F_5:
+  JP Z,render_terrain_4
+render_terrain_1:
   LD D,A
   LD B,$00
   LD HL,L89FA
@@ -3201,23 +3201,23 @@ L6A4F_5:
   SUB B
   LD B,A
   LD A,$FF
-L6A4F_6:
+render_terrain_2:
   LD (DE),A
   INC DE
-  DJNZ L6A4F_6
+  DJNZ render_terrain_2
   LD A,(L5EFD)
   CP $10
   CALL NZ,L6990
   RET
-L6A4F_7:
+render_terrain_3:
   LD A,C
   SUB D
   ADD A,C
-  JP L6A4F_5
-L6A4F_8:
+  JP render_terrain_1
+render_terrain_4:
   LD A,C
   ADD A,D
-  JP L6A4F_5
+  JP render_terrain_1
 
 ; Routine at 6B63
 ;
@@ -3245,7 +3245,7 @@ L6B73:
 
 ; Routine at 6B7B
 ;
-; Used by the routine at L6A4F.
+; Used by the routine at render_terrain.
 L6B7B:
   CP $80
   JP Z,L6B63
@@ -3583,7 +3583,7 @@ demo:
   LD A,$68
   LD (LAST_K),A
   LD A,$00
-  LD (L5F7D),A
+  LD (state_terrain_sprite_element_ptr),A
   LD A,(state_bridge_mod)
   LD (L5D43),A
 demo_0:
@@ -5620,43 +5620,40 @@ status_line_4:
 
 ; Data block at 805F
 end_status_line_4:
-  DEFB $01,$05,$0A,$0F,$02,$04,$04,$06
-  DEFB $08,$08,$0A,$0A,$0C,$0A,$0A,$08
-  DEFB $06,$04,$02,$00,$80,$80,$80,$80
-  DEFB $80,$80,$80,$80,$E0,$E0,$E0,$E0
-  DEFB $E0,$E0,$E0,$E0,$C0,$C0,$C0,$C0
-  DEFB $C0,$C0,$C0,$F0,$F0,$C0,$C0,$C0
-  DEFB $C0,$C0,$C0,$C0,$E0,$E0,$E0,$E0
-  DEFB $E0,$E0,$E0,$E0,$80,$80,$80,$80
-  DEFB $80,$80,$80,$80,$00,$00,$02,$02
-  DEFB $04,$04,$06,$06,$08,$08,$06,$06
-  DEFB $04,$04,$06,$06,$06,$06,$06,$06
-  DEFB $04,$04,$04,$04,$02,$02,$02,$02
-  DEFB $00,$00,$00,$00,$00,$00,$02,$02
-  DEFB $04,$04,$06,$06,$08,$08,$0A,$0A
-  DEFB $0C,$0C,$0E,$0E,$0E,$0E,$0C,$0A
-  DEFB $0A,$08,$08,$06,$06,$08,$08,$06
-  DEFB $04,$02,$02,$00,$00,$00,$02,$04
-  DEFB $04,$06,$08,$08,$0A,$0C,$0E,$0E
-  DEFB $10,$12,$14,$16,$16,$16,$14,$12
-  DEFB $10,$10,$0E,$0C,$0A,$08,$0A,$0A
-  DEFB $08,$06,$04,$02,$02,$02,$04,$04
-  DEFB $06,$06,$04,$04,$02,$02,$00,$00
-  DEFB $02,$02,$02,$02,$00,$02,$04,$06
-  DEFB $0A,$0C,$10,$12,$16,$18,$1C,$1E
+  DEFB $01,$05,$0A,$0F
 
-; Message at 811F
-L811F:
-  DEFM "\"$&((&$\""
-
-; Data block at 8127
-L8127:
-  DEFB $1E,$1C,$18,$16,$12,$10,$0C,$0A
-  DEFB $06,$04,$02,$00,$00,$02,$00,$00
-  DEFB $02,$02,$04,$02,$02,$00,$00,$02
-  DEFB $02,$04,$02,$00,$00,$02,$04,$02
-  DEFB $02,$04,$04,$02,$00,$00,$00,$02
-  DEFB $02,$02,$00,$00
+; Data block at 8063
+sprite_terrain:
+  DEFB $02,$04,$04,$06,$08,$08,$0A,$0A
+  DEFB $0C,$0A,$0A,$08,$06,$04,$02,$00
+  DEFB $80,$80,$80,$80,$80,$80,$80,$80
+  DEFB $E0,$E0,$E0,$E0,$E0,$E0,$E0,$E0
+  DEFB $C0,$C0,$C0,$C0,$C0,$C0,$C0,$F0
+  DEFB $F0,$C0,$C0,$C0,$C0,$C0,$C0,$C0
+  DEFB $E0,$E0,$E0,$E0,$E0,$E0,$E0,$E0
+  DEFB $80,$80,$80,$80,$80,$80,$80,$80
+  DEFB $00,$00,$02,$02,$04,$04,$06,$06
+  DEFB $08,$08,$06,$06,$04,$04,$06,$06
+  DEFB $06,$06,$06,$06,$04,$04,$04,$04
+  DEFB $02,$02,$02,$02,$00,$00,$00,$00
+  DEFB $00,$00,$02,$02,$04,$04,$06,$06
+  DEFB $08,$08,$0A,$0A,$0C,$0C,$0E,$0E
+  DEFB $0E,$0E,$0C,$0A,$0A,$08,$08,$06
+  DEFB $06,$08,$08,$06,$04,$02,$02,$00
+  DEFB $00,$00,$02,$04,$04,$06,$08,$08
+  DEFB $0A,$0C,$0E,$0E,$10,$12,$14,$16
+  DEFB $16,$16,$14,$12,$10,$10,$0E,$0C
+  DEFB $0A,$08,$0A,$0A,$08,$06,$04,$02
+  DEFB $02,$02,$04,$04,$06,$06,$04,$04
+  DEFB $02,$02,$00,$00,$02,$02,$02,$02
+  DEFB $00,$02,$04,$06,$0A,$0C,$10,$12
+  DEFB $16,$18,$1C,$1E,$22,$24,$26,$28
+  DEFB $28,$26,$24,$22,$1E,$1C,$18,$16
+  DEFB $12,$10,$0C,$0A,$06,$04,$02,$00
+  DEFB $00,$02,$00,$00,$02,$02,$04,$02
+  DEFB $02,$00,$00,$02,$02,$04,$02,$00
+  DEFB $00,$02,$04,$02,$02,$04,$04,$02
+  DEFB $00,$00,$00,$02,$02,$02,$00,$00
 
 ; Game Over message.
 msg_game_over:

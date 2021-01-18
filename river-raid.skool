@@ -1407,20 +1407,20 @@ g$5F73 DEFB $00,$00
 @label=L5F75
 b$5F75 DEFB $00
 
-; Data block at 5F76
-@label=L5F76
+; Index of the current element of current level terrain array
+@label=state_terrain_element_index
 b$5F76 DEFB $00
 
 ; Data block at 5F77
-@label=L5F77
+@label=state_terrain_element_1
 b$5F77 DEFB $00
 
 ; Data block at 5F78
-@label=L5F78
+@label=state_terrain_element_23
 w$5F78 DEFW $0000
 
 ; Data block at 5F7A
-@label=L5F7A
+@label=state_terrain_element_4
 b$5F7A DEFB $00
 
 ; Data block at 5F7B
@@ -1428,7 +1428,7 @@ b$5F7A DEFB $00
 w$5F7B DEFW $0000
 
 ; Data block at 5F7D
-@label=L5F7D
+@label=state_terrain_sprite_element_ptr
 b$5F7D DEFB $01
 
 ; Pointer to the text to be displayed in the scroller.
@@ -2816,6 +2816,7 @@ s$693B DEFS $01
 ; Routine at 693C
 ;
 ; Used by the routine at #R$6A4F.
+@label=handle_terrain_element_1_eq_3
 c$693C LD A,$01      ;
  $693E LD ($5F6E),A  ;
  $6941 LD A,$06      ;
@@ -2825,6 +2826,7 @@ c$693C LD A,$01      ;
 ; Routine at 6947
 ;
 ; Used by the routine at #R$6A4F.
+@label=handle_terrain_element_1_eq_2
 c$6947 LD A,$00      ;
  $6949 LD ($5F6D),A  ;
  $694C RET           ;
@@ -2853,6 +2855,7 @@ c$694D LD DE,$0000   ; {Reset Y-position
 ; Routine at 696B
 ;
 ; Used by the routine at #R$6A4F.
+@label=handle_terrain_element_4_not_fc
 c$696B LD HL,$C600   ;
  $696E LD DE,$0003   ;
  $6971 SRL A         ;
@@ -2992,6 +2995,7 @@ c$6A4A LD A,($5F6B)  ;
  $6A4E RET           ;
 
 ; Routine at 6A4F
+@label=render_terrain
 c$6A4F LD A,$FF      ;
  $6A51 LD ($5F7D),A  ;
  $6A54 LD HL,$9500   ;
@@ -2999,6 +3003,7 @@ c$6A4F LD A,$FF      ;
  $6A5A LD A,($5EF0)  ;
  $6A5D OR A          ;
  $6A5E SBC HL,DE     ;
+@label=locate_level_terrain
 *$6A60 ADD HL,DE     ;
  $6A61 DEC A         ;
  $6A62 JR NZ,$6A60   ;
@@ -3012,6 +3017,7 @@ c$6A4F LD A,$FF      ;
  $6A75 INC A         ;
  $6A76 OR A          ;
  $6A77 SBC HL,DE     ;
+@label=locate_level_terrain_element
 *$6A79 ADD HL,DE     ;
  $6A7A DEC A         ;
  $6A7B JR NZ,$6A79   ;
@@ -3036,11 +3042,13 @@ c$6A4F LD A,$FF      ;
  $6A9E AND $03       ;
  $6AA0 LD ($5F7A),A  ;
 ; This entry point is used by the routine at #R$60A5.
+@label=render_terrain_sprite
 *$6AA3 LD A,($5F77)  ;
  $6AA6 LD HL,$8063   ;
  $6AA9 LD DE,$0010   ;
  $6AAC OR A          ;
  $6AAD SBC HL,DE     ;
+@label=locate_terrain_sprite
 *$6AAF ADD HL,DE     ;
  $6AB0 DEC A         ;
  $6AB1 JR NZ,$6AAF   ;
@@ -5432,41 +5440,40 @@ b$7B57 DEFB $3E,$01,$32,$01,$78,$ED,$7B,$10
 
 ; Data block at 805F
 @label=end_status_line_4
-b$805F DEFB $01,$05,$0A,$0F,$02,$04,$04,$06
- $8067 DEFB $08,$08,$0A,$0A,$0C,$0A,$0A,$08
- $806F DEFB $06,$04,$02,$00,$80,$80,$80,$80
- $8077 DEFB $80,$80,$80,$80,$E0,$E0,$E0,$E0
- $807F DEFB $E0,$E0,$E0,$E0,$C0,$C0,$C0,$C0
- $8087 DEFB $C0,$C0,$C0,$F0,$F0,$C0,$C0,$C0
- $808F DEFB $C0,$C0,$C0,$C0,$E0,$E0,$E0,$E0
- $8097 DEFB $E0,$E0,$E0,$E0,$80,$80,$80,$80
- $809F DEFB $80,$80,$80,$80,$00,$00,$02,$02
- $80A7 DEFB $04,$04,$06,$06,$08,$08,$06,$06
- $80AF DEFB $04,$04,$06,$06,$06,$06,$06,$06
- $80B7 DEFB $04,$04,$04,$04,$02,$02,$02,$02
- $80BF DEFB $00,$00,$00,$00,$00,$00,$02,$02
- $80C7 DEFB $04,$04,$06,$06,$08,$08,$0A,$0A
- $80CF DEFB $0C,$0C,$0E,$0E,$0E,$0E,$0C,$0A
- $80D7 DEFB $0A,$08,$08,$06,$06,$08,$08,$06
- $80DF DEFB $04,$02,$02,$00,$00,$00,$02,$04
- $80E7 DEFB $04,$06,$08,$08,$0A,$0C,$0E,$0E
- $80EF DEFB $10,$12,$14,$16,$16,$16,$14,$12
- $80F7 DEFB $10,$10,$0E,$0C,$0A,$08,$0A,$0A
- $80FF DEFB $08,$06,$04,$02,$02,$02,$04,$04
- $8107 DEFB $06,$06,$04,$04,$02,$02,$00,$00
- $810F DEFB $02,$02,$02,$02,$00,$02,$04,$06
- $8117 DEFB $0A,$0C,$10,$12,$16,$18,$1C,$1E
+b$805F DEFB $01,$05,$0A,$0F
 
-; Message at 811F
-t$811F DEFM "\"$&((&$\""
-
-; Data block at 8127
-b$8127 DEFB $1E,$1C,$18,$16,$12,$10,$0C,$0A
- $812F DEFB $06,$04,$02,$00,$00,$02,$00,$00
- $8137 DEFB $02,$02,$04,$02,$02,$00,$00,$02
- $813F DEFB $02,$04,$02,$00,$00,$02,$04,$02
- $8147 DEFB $02,$04,$04,$02,$00,$00,$00,$02
- $814F DEFB $02,$02,$00,$00
+; Data block at 8063
+@label=sprite_terrain
+b$8063 DEFB $02,$04,$04,$06,$08,$08,$0A,$0A
+ $806B DEFB $0C,$0A,$0A,$08,$06,$04,$02,$00
+ $8073 DEFB $80,$80,$80,$80,$80,$80,$80,$80
+ $807B DEFB $E0,$E0,$E0,$E0,$E0,$E0,$E0,$E0
+ $8083 DEFB $C0,$C0,$C0,$C0,$C0,$C0,$C0,$F0
+ $808B DEFB $F0,$C0,$C0,$C0,$C0,$C0,$C0,$C0
+ $8093 DEFB $E0,$E0,$E0,$E0,$E0,$E0,$E0,$E0
+ $809B DEFB $80,$80,$80,$80,$80,$80,$80,$80
+ $80A3 DEFB $00,$00,$02,$02,$04,$04,$06,$06
+ $80AB DEFB $08,$08,$06,$06,$04,$04,$06,$06
+ $80B3 DEFB $06,$06,$06,$06,$04,$04,$04,$04
+ $80BB DEFB $02,$02,$02,$02,$00,$00,$00,$00
+ $80C3 DEFB $00,$00,$02,$02,$04,$04,$06,$06
+ $80CB DEFB $08,$08,$0A,$0A,$0C,$0C,$0E,$0E
+ $80D3 DEFB $0E,$0E,$0C,$0A,$0A,$08,$08,$06
+ $80DB DEFB $06,$08,$08,$06,$04,$02,$02,$00
+ $80E3 DEFB $00,$00,$02,$04,$04,$06,$08,$08
+ $80EB DEFB $0A,$0C,$0E,$0E,$10,$12,$14,$16
+ $80F3 DEFB $16,$16,$14,$12,$10,$10,$0E,$0C
+ $80FB DEFB $0A,$08,$0A,$0A,$08,$06,$04,$02
+ $8103 DEFB $02,$02,$04,$04,$06,$06,$04,$04
+ $810B DEFB $02,$02,$00,$00,$02,$02,$02,$02
+ $8113 DEFB $00,$02,$04,$06,$0A,$0C,$10,$12
+ $811B DEFB $16,$18,$1C,$1E,$22,$24,$26,$28
+ $8123 DEFB $28,$26,$24,$22,$1E,$1C,$18,$16
+ $812B DEFB $12,$10,$0C,$0A,$06,$04,$02,$00
+ $8133 DEFB $00,$02,$00,$00,$02,$02,$04,$02
+ $813B DEFB $02,$00,$00,$02,$02,$04,$02,$00
+ $8143 DEFB $00,$02,$04,$02,$02,$04,$04,$02
+ $814B DEFB $00,$00,$00,$02,$02,$02,$00,$00
 
 ; Game Over message.
 @label=msg_game_over
