@@ -911,14 +911,8 @@ screen_attributes:
 L5B00:
   DEFB $1F,$40,$1F,$41,$1F,$42,$1F,$43
   DEFB $1F,$44,$1F,$45,$1F,$46,$1F,$47
-  DEFB $3F,$40
-
-; Message at 5B12
-L5B12:
-  DEFM "?A?B?C?D?E?F?G"
-
-; Data block at 5B20
-L5B20:
+  DEFB $3F,$40,$3F,$41,$3F,$42,$3F,$43
+  DEFB $3F,$44,$3F,$45,$3F,$46,$3F,$47
   DEFB $5F,$40,$5F,$41,$5F,$42,$5F,$43
   DEFB $5F,$44,$5F,$45,$5F,$46,$5F,$47
   DEFB $7F,$40,$7F,$41,$7F,$42,$7F,$43

@@ -42,8 +42,6 @@ D $4000 #UDGTABLE { #SCR(loading) } TABLE#
 @ $5800 label=screen_attributes
 b $5800 Screen attributes.
 b $5B00
-t $5B12
-b $5B20
 @ $5C78 label=int_counter
 b $5C78 Interrupt counter
 b $5C79
