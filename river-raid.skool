@@ -1267,8 +1267,9 @@ w$5EF7 DEFW $0000
 @label=L5EF9
 b$5EF9 DEFB $00
 
-; Data block at 5EFA
-@label=state_island_byte_1
+; The value sourced from the first byte of an island definition in #R$C600 and
+; used as a #R$8063 array index.
+@label=state_island_terrain_idx
 b$5EFA DEFB $00
 
 ; Data block at 5EFB
@@ -1423,8 +1424,8 @@ b$5F7A DEFB $00
 @label=screen_ptr
 w$5F7B DEFW $0000
 
-; Data block at 5F7D
-@label=state_terrain_sprite_element_ptr
+; Inner array index in the terrain definition.
+@label=state_terrain_element_idx
 b$5F7D DEFB $01
 
 ; Pointer to the text to be displayed in the scroller.
@@ -2879,21 +2880,22 @@ c$696B LD HL,$C600   ;
 ; Routine at 6990
 ;
 ; Used by the routine at #R$6A4F.
-c$6990 LD HL,$5EFD   ;
- $6993 INC (HL)      ;
+c$6990 LD HL,$5EFD   ; {Increase state_island_byte_4
+ $6993 INC (HL)      ; }
  $6994 LD A,($5EFA)  ;
  $6997 LD HL,$8063   ;
  $699A LD DE,$0010   ;
  $699D OR A          ;
  $699E SBC HL,DE     ;
-*$69A0 ADD HL,DE     ;
- $69A1 DEC A         ;
- $69A2 JR NZ,$69A0   ;
- $69A4 LD A,($5F7D)  ;
- $69A7 AND $0F       ;
+@label=L6990_locate_sprite
+*$69A0 ADD HL,DE     ; {Point #REGhl to the element of #R$8063 with the index
+ $69A1 DEC A         ; defined by #R$5EFA
+ $69A2 JR NZ,$69A0   ; }
+ $69A4 LD A,($5F7D)  ; {Point #REGhl to the offset of the element above defined
+ $69A7 AND $0F       ; by #R$5F7D
  $69A9 LD D,$00      ;
  $69AB LD E,A        ;
- $69AC ADD HL,DE     ;
+ $69AC ADD HL,DE     ; }
  $69AD LD A,($5EFB)  ;
  $69B0 ADD A,(HL)    ;
  $69B1 PUSH AF       ;
@@ -5441,7 +5443,7 @@ b$7B57 DEFB $3E,$01,$32,$01,$78,$ED,$7B,$10
 @label=end_status_line_4
 b$805F DEFB $01,$05,$0A,$0F
 
-; Data block at 8063
+; Array [15] of terrain element definitions (16 bytes each).
 @label=sprite_terrain
 b$8063 DEFB $02,$04,$04,$06,$08,$08,$0A,$0A
  $806B DEFB $0C,$0A,$0A,$08,$06,$04,$02,$00
@@ -5478,7 +5480,7 @@ b$8063 DEFB $02,$04,$04,$06,$08,$08,$0A,$0A
 @label=msg_game_over
 t$8153 DEFM " .....GAME OVER.....                           "
 
-; Credits message.
+; L839F message.
 @label=msg_credits
 t$8182 DEFM " RIVER RAID"
  $818D DEFM $94                                              ; Trademark UDG
@@ -5537,30 +5539,31 @@ b$82F5 DEFB $00,$00,$00,$00,$00,$00,$00,$00
  $8315 DEFB $00,$00,$00,$00,$00,$00,$00,$00
  $831D DEFB $00,$00,$00,$00,$00,$00,$00,$00
  $8325 DEFB $00,$00,$00,$00,$00,$00,$00,$00
- $832D DEFB $00,$00,$00,$00,$FF,$FF,$FF,$FF
- $8335 DEFB $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
- $833D DEFB $FF,$FF,$00,$00,$00,$00,$FF,$FF
- $8345 DEFB $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
- $834D DEFB $FF,$FF,$FF,$FF,$00,$00,$00,$00
- $8355 DEFB $00,$00,$00,$00,$00,$00,$00,$00
- $835D DEFB $00,$00,$FF,$FF,$FF,$FF,$00,$00
- $8365 DEFB $00,$00,$00,$00,$00,$00,$00,$00
- $836D DEFB $00,$00,$00,$00
+ $832D DEFB $00,$00,$00,$00
 
-; Message at 8371
-t$8371 DEFM "<<<<<<<<<<<<<<"
+; Data block at 8331
+b$8331 DEFB $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+ $8339 DEFB $FF,$FF,$FF,$FF,$FF,$FF,$00,$00
+ $8341 DEFB $00,$00,$FF,$FF,$FF,$FF,$FF,$FF
+ $8349 DEFB $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
 
-; Data block at 837F
-b$837F DEFB $0E,$0E,$0E,$0E
+; Data block at 8351
+b$8351 DEFB $00,$00,$00,$00,$00,$00,$00,$00
+ $8359 DEFB $00,$00,$00,$00,$00,$00,$FF,$FF
+ $8361 DEFB $FF,$FF,$00,$00,$00,$00,$00,$00
+ $8369 DEFB $00,$00,$00,$00,$00,$00,$00,$00
 
-; Message at 8383
-t$8383 DEFM "<<<<<<<<<<<<<<??????????????"
+; Data block at 8371
+b$8371 DEFB $3C,$3C,$3C,$3C,$3C,$3C,$3C,$3C
+ $8379 DEFB $3C,$3C,$3C,$3C,$3C,$3C,$0E,$0E
+ $8381 DEFB $0E,$0E,$3C,$3C,$3C,$3C,$3C,$3C
+ $8389 DEFB $3C,$3C,$3C,$3C,$3C,$3C,$3C,$3C
 
-; Data block at 839F
-b$839F DEFB $C0,$C0,$C0,$C0
-
-; Message at 83A3
-t$83A3 DEFM "??????????????"
+; Data block at 8391
+b$8391 DEFB $3F,$3F,$3F,$3F,$3F,$3F,$3F,$3F
+ $8399 DEFB $3F,$3F,$3F,$3F,$3F,$3F,$C0,$C0
+ $83A1 DEFB $C0,$C0,$3F,$3F,$3F,$3F,$3F,$3F
+ $83A9 DEFB $3F,$3F,$3F,$3F,$3F,$3F,$3F,$3F
 
 ; Data block at 83B1
 ;
@@ -5568,6 +5571,13 @@ t$83A3 DEFM "??????????????"
 ;
 ; .
 ;
+; #UDGTABLE
+; { #UDGARRAY2,14,4,2;$83B1-$83B2-1-16(*plane-f1) |
+; #UDGARRAY2,14,4,2;$83C1-$83C2-1-16(*plane-f2) |
+; #UDGARRAY2,14,4,2;$83D1-$83D2-1-16(*plane-f3) |
+; #UDGARRAY2,14,4,2;$83E1-$83E2-1-16(*plane-f4) }
+; TABLE#
+; .
 ; #UDGTABLE
 ; { #UDGARRAY2,14,4,2;$83B1-$83B2-1-16(*plane-f1) |
 ; #UDGARRAY2,14,4,2;$83C1-$83C2-1-16(*plane-f2) |
@@ -5737,18 +5747,6 @@ b$8491 DEFB $01,$90
 ; #UDGTABLE
 ; { #UDGARRAY3,34,4,3;$84A1-$84D0-1-24(rock-1) }
 ; TABLE#
-; .
-; #UDGTABLE
-; { #UDGARRAY3,34,4,3;$84D1-$8500-1-24(rock-2) }
-; TABLE#
-; .
-; #UDGTABLE
-; { #UDGARRAY3,34,4,3;$8501-$8530-1-24(rock-3) }
-; TABLE#
-; .
-; #UDGTABLE
-; { #UDGARRAY3,34,4,3;$8531-$8560-1-24(rock-4) }
-; TABLE#
 @label=sprite_rock
 b$84A1 DEFB $00,$00,$00 ; {Rock 1
  $84A4 DEFB $00,$00,$00 ;
@@ -5766,6 +5764,9 @@ b$84A1 DEFB $00,$00,$00 ; {Rock 1
  $84C8 DEFB $0F,$F7,$50 ;
  $84CB DEFB $3F,$FF,$A8 ;
  $84CE DEFB $FF,$FF,$54 ; }
+; #UDGTABLE
+; { #UDGARRAY3,34,4,3;$84D1-$8500-1-24(rock-2) }
+; TABLE#
  $84D1 DEFB $00,$02,$00 ; {Rock 2
  $84D4 DEFB $00,$06,$00 ;
  $84D7 DEFB $03,$06,$00 ;
@@ -5782,6 +5783,9 @@ b$84A1 DEFB $00,$00,$00 ; {Rock 1
  $84F8 DEFB $3E,$FE,$FE ;
  $84FB DEFB $7F,$7D,$FF ;
  $84FE DEFB $FD,$FD,$FF ; }
+; #UDGTABLE
+; { #UDGARRAY3,34,4,3;$8501-$8530-1-24(rock-3) }
+; TABLE#
  $8501 DEFB $00,$00,$00 ; {Rock 3
  $8504 DEFB $00,$00,$00 ;
  $8507 DEFB $00,$00,$00 ;
@@ -5798,6 +5802,9 @@ b$84A1 DEFB $00,$00,$00 ; {Rock 1
  $8528 DEFB $7D,$F9,$F5 ;
  $852B DEFB $FE,$FC,$FB ;
  $852E DEFB $FF,$7E,$FF ; }
+; #UDGTABLE
+; { #UDGARRAY3,34,4,3;$8531-$8560-1-24(rock-4) }
+; TABLE#
  $8531 DEFB $00,$00,$00 ; {Rock 4
  $8534 DEFB $00,$00,$00 ;
  $8537 DEFB $00,$00,$00 ;

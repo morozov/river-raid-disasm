@@ -90,8 +90,8 @@ b $5EF6
 w $5EF7
 @ $5EF9 label=L5EF9
 b $5EF9
-@ $5EFA label=state_island_byte_1
-b $5EFA
+@ $5EFA label=state_island_terrain_idx
+b $5EFA The value sourced from the first byte of an island definition in #R$C600 and used as a #R$8063 array index.
 @ $5EFB label=state_island_byte_2
 b $5EFB
 @ $5EFC label=state_island_byte_3
@@ -154,8 +154,8 @@ w $5F78
 b $5F7A
 @ $5F7B label=screen_ptr
 w $5F7B
-@ $5F7D label=state_terrain_sprite_element_ptr
-b $5F7D
+@ $5F7D label=state_terrain_element_idx
+b $5F7D Inner array index in the terrain definition.
 @ $5F7E label=ptr_scroller
 w $5F7E Pointer to the text to be displayed in the scroller.
 u $5F80
@@ -312,6 +312,11 @@ c $696B
 R $696B I:A The six highest bits of the fourth byte of the terrain element.
 @ $6978 label=locate_island_element
 c $6990
+  $6990,7 Increase state_island_byte_4
+  $6994
+@ $69A0 label=L6990_locate_sprite
+  $69A0,4 Point #REGhl to the element of #R$8063 with the index defined by #R$5EFA
+  $69A4,9 Point #REGhl to the offset of the element above defined by #R$5F7D
 c $6A4A
 @ $6A4F label=render_terrain
 c $6A4F
@@ -626,11 +631,11 @@ T $805D INK 7
 @ $805F label=end_status_line_4
 b $805F
 @ $8063 label=sprite_terrain
-b $8063
+b $8063 Array [15] of terrain element definitions (16 bytes each).
 @ $8153 label=msg_game_over
 t $8153 Game Over message.
 @ $8182 label=msg_credits
-t $8182 Credits message.
+t $8182 L839F message.
   $818D,1 Trademark UDG symbol
   $81A8,1 Copyright symbol
   $81AF,7 Activision logo UDG symbols
@@ -641,15 +646,16 @@ b $825C
 b $825D
 D $825D #UDGTABLE { #FONT$825D,13 } TABLE#
 b $82C5
+b $82C5
 @ $82F5 label=L82F5
 b $82F5
-t $8371
-b $837F
-t $8383
-b $839F
-t $83A3
+b $8331
+b $8351
+b $8371
+b $8391
 @ $83B1 label=sprite_plane
 b $83B1
+N $83B1 #UDGTABLE { #UDGARRAY2,14,4,2;$83B1-$83B2-1-16(*plane-f1) | #UDGARRAY2,14,4,2;$83C1-$83C2-1-16(*plane-f2) | #UDGARRAY2,14,4,2;$83D1-$83D2-1-16(*plane-f3) | #UDGARRAY2,14,4,2;$83E1-$83E2-1-16(*plane-f4) } TABLE#
 N $83B1 #UDGTABLE { #UDGARRAY2,14,4,2;$83B1-$83B2-1-16(*plane-f1) | #UDGARRAY2,14,4,2;$83C1-$83C2-1-16(*plane-f2) | #UDGARRAY2,14,4,2;$83D1-$83D2-1-16(*plane-f3) | #UDGARRAY2,14,4,2;$83E1-$83E2-1-16(*plane-f4) } TABLE#
   $83B1,16,2 Frame 1
   $83C1,16,2 Frame 2

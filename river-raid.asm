@@ -1077,7 +1077,7 @@ init_state:
   LD ($90C6),HL
   LD A,$01
   LD (state_terrain_element_index),A
-  LD (state_terrain_sprite_element_ptr),A
+  LD (state_terrain_element_idx),A
   LD HL,$0404
   LD (state_lives_player_1),HL
   LD (state_player),A
@@ -1116,7 +1116,7 @@ play:
   LD A,$00
   LD (L5F6C),A
   LD ($5F6F),A
-  LD (state_terrain_sprite_element_ptr),A
+  LD (state_terrain_element_idx),A
   LD (L5F69),A
   LD A,$FF
   LD (state_fuel),A
@@ -1159,7 +1159,7 @@ play:
   LD A,$01
   CALL CHAN_OPEN
   LD A,$FF
-  LD (state_terrain_sprite_element_ptr),A
+  LD (state_terrain_element_idx),A
   LD A,$02
   LD (state_terrain_element_1),A
   CALL CHAN_OPEN
@@ -1266,8 +1266,9 @@ L5EF7:
 L5EF9:
   DEFB $00
 
-; Data block at 5EFA
-state_island_byte_1:
+; The value sourced from the first byte of an island definition in data_islands
+; and used as a sprite_terrain array index.
+state_island_terrain_idx:
   DEFB $00
 
 ; Data block at 5EFB
@@ -1422,8 +1423,8 @@ state_terrain_element_4:
 screen_ptr:
   DEFW $0000
 
-; Data block at 5F7D
-state_terrain_sprite_element_ptr:
+; Inner array index in the terrain definition.
+state_terrain_element_idx:
   DEFB $01
 
 ; Pointer to the text to be displayed in the scroller.
@@ -2917,7 +2918,7 @@ locate_island_element:
   DEC A
   JR NZ,$6977
   LD A,(HL)
-  LD (state_island_byte_1),A
+  LD (state_island_terrain_idx),A
   INC HL
   LD A,(HL)
   LD (state_island_byte_2),A
@@ -2932,22 +2933,22 @@ locate_island_element:
 ;
 ; Used by the routine at render_terrain.
 L6990:
-  LD HL,state_island_byte_4
-  INC (HL)
-  LD A,(state_island_byte_1)
+  LD HL,state_island_byte_4 ; Increase state_island_byte_4
+  INC (HL)                  ;
+  LD A,(state_island_terrain_idx)
   LD HL,sprite_terrain
   LD DE,$0010
   OR A
   SBC HL,DE
-L6990_0:
-  ADD HL,DE
-  DEC A
-  JR NZ,L6990_0
-  LD A,(state_terrain_sprite_element_ptr)
-  AND $0F
-  LD D,$00
-  LD E,A
-  ADD HL,DE
+L6990_locate_sprite:
+  ADD HL,DE                 ; Point HL to the element of sprite_terrain with
+  DEC A                     ; the index defined by state_island_terrain_idx
+  JR NZ,L6990_locate_sprite ;
+  LD A,(state_terrain_element_idx) ; Point HL to the offset of the element
+  AND $0F                          ; above defined by state_terrain_element_idx
+  LD D,$00                         ;
+  LD E,A                           ;
+  ADD HL,DE                        ;
   LD A,(state_island_byte_2)
   ADD A,(HL)
   PUSH AF
@@ -2982,13 +2983,13 @@ L6990_0:
   AND $0F
   LD B,A
   CP $00
-  JP Z,L6990_2
+  JP Z,L6990_1
   LD A,$FF
-L6990_1:
+L6990_0:
   DEC DE
   LD (DE),A
-  DJNZ L6990_1
-L6990_2:
+  DJNZ L6990_0
+L6990_1:
   POP AF
   LD B,$00
   LD D,A
@@ -2997,11 +2998,11 @@ L6990_2:
   LD B,A
   LD A,(state_island_byte_3)
   CP $01
-  JP Z,L6990_5
+  JP Z,L6990_4
   LD A,(state_island_byte_3)
   CP $02
-  JP Z,L6990_6
-L6990_3:
+  JP Z,L6990_5
+L6990_2:
   LD D,A
   LD HL,L89FA
   LD A,D
@@ -3031,20 +3032,20 @@ L6990_3:
   CP $00
   RET Z
   LD A,$FF
-L6990_4:
+L6990_3:
   LD (DE),A
   INC DE
-  DJNZ L6990_4
+  DJNZ L6990_3
   RET
-L6990_5:
+L6990_4:
   LD A,C
   SUB D
   ADD A,C
-  JP L6990_3
-L6990_6:
+  JP L6990_2
+L6990_5:
   LD A,C
   ADD A,D
-  JP L6990_3
+  JP L6990_2
 
 ; Routine at 6A4A
 ;
@@ -3057,7 +3058,7 @@ L6A4A:
 ; Routine at 6A4F
 render_terrain:
   LD A,$FF
-  LD (state_terrain_sprite_element_ptr),A
+  LD (state_terrain_element_idx),A
   LD HL,level_terrains
   LD DE,$0100
   LD A,(state_bridge_mod)
@@ -3112,9 +3113,9 @@ locate_terrain_sprite:
   ADD HL,DE
   DEC A
   JR NZ,locate_terrain_sprite
-  LD A,(state_terrain_sprite_element_ptr)
+  LD A,(state_terrain_element_idx)
   INC A
-  LD (state_terrain_sprite_element_ptr),A
+  LD (state_terrain_element_idx),A
   CP $10
   JP Z,render_terrain
   AND $0F
@@ -3221,7 +3222,7 @@ render_terrain_4:
 ; Used by the routine at L6B7B.
 L6B63:
   LD A,$00
-  LD HL,$8331
+  LD HL,L8331
   JP L6B7B_0
 
 ; Routine at 6B6B
@@ -3229,7 +3230,7 @@ L6B63:
 ; Used by the routine at L6B7B.
 L6B6B:
   LD A,$02
-  LD HL,$8331
+  LD HL,L8331
   JP L6B7B_0
 
 ; Routine at 6B73
@@ -3237,7 +3238,7 @@ L6B6B:
 ; Used by the routine at L6B7B.
 L6B73:
   LD A,$02
-  LD HL,$8351
+  LD HL,L8351
   JP L6B7B_0
 
 ; Routine at 6B7B
@@ -3251,7 +3252,7 @@ L6B7B:
   CP $F0
   JP Z,L6B73
   LD A,$01
-  LD HL,$8351
+  LD HL,L8351
 ; This entry point is used by the routines at L6B63, L6B6B and L6B73.
 L6B7B_0:
   LD DE,(screen_ptr)
@@ -3580,7 +3581,7 @@ demo:
   LD A,$68
   LD (LAST_K),A
   LD A,$00
-  LD (state_terrain_sprite_element_ptr),A
+  LD (state_terrain_element_idx),A
   LD A,(state_bridge_mod)
   LD (L5D43),A
 demo_0:
@@ -5619,7 +5620,7 @@ status_line_4:
 end_status_line_4:
   DEFB $01,$05,$0A,$0F
 
-; Data block at 8063
+; Array [15] of terrain element definitions (16 bytes each).
 sprite_terrain:
   DEFB $02,$04,$04,$06,$08,$08,$0A,$0A
   DEFB $0C,$0A,$0A,$08,$06,$04,$02,$00
@@ -5656,7 +5657,7 @@ sprite_terrain:
 msg_game_over:
   DEFM " .....GAME OVER.....                           "
 
-; Credits message.
+; L839F message.
 msg_credits:
   DEFM " RIVER RAID"
   DEFM $94                ; Trademark UDG symbol
@@ -5713,35 +5714,35 @@ L82F5:
   DEFB $00,$00,$00,$00,$00,$00,$00,$00
   DEFB $00,$00,$00,$00,$00,$00,$00,$00
   DEFB $00,$00,$00,$00,$00,$00,$00,$00
-  DEFB $00,$00,$00,$00,$FF,$FF,$FF,$FF
-  DEFB $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
-  DEFB $FF,$FF,$00,$00,$00,$00,$FF,$FF
-  DEFB $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
-  DEFB $FF,$FF,$FF,$FF,$00,$00,$00,$00
-  DEFB $00,$00,$00,$00,$00,$00,$00,$00
-  DEFB $00,$00,$FF,$FF,$FF,$FF,$00,$00
-  DEFB $00,$00,$00,$00,$00,$00,$00,$00
   DEFB $00,$00,$00,$00
 
-; Message at 8371
+; Data block at 8331
+L8331:
+  DEFB $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+  DEFB $FF,$FF,$FF,$FF,$FF,$FF,$00,$00
+  DEFB $00,$00,$FF,$FF,$FF,$FF,$FF,$FF
+  DEFB $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+
+; Data block at 8351
+L8351:
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$FF,$FF
+  DEFB $FF,$FF,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+
+; Data block at 8371
 L8371:
-  DEFM "<<<<<<<<<<<<<<"
+  DEFB $3C,$3C,$3C,$3C,$3C,$3C,$3C,$3C
+  DEFB $3C,$3C,$3C,$3C,$3C,$3C,$0E,$0E
+  DEFB $0E,$0E,$3C,$3C,$3C,$3C,$3C,$3C
+  DEFB $3C,$3C,$3C,$3C,$3C,$3C,$3C,$3C
 
-; Data block at 837F
-L837F:
-  DEFB $0E,$0E,$0E,$0E
-
-; Message at 8383
-L8383:
-  DEFM "<<<<<<<<<<<<<<??????????????"
-
-; Data block at 839F
-L839F:
-  DEFB $C0,$C0,$C0,$C0
-
-; Message at 83A3
-L83A3:
-  DEFM "??????????????"
+; Data block at 8391
+L8391:
+  DEFB $3F,$3F,$3F,$3F,$3F,$3F,$3F,$3F
+  DEFB $3F,$3F,$3F,$3F,$3F,$3F,$C0,$C0
+  DEFB $C0,$C0,$3F,$3F,$3F,$3F,$3F,$3F
+  DEFB $3F,$3F,$3F,$3F,$3F,$3F,$3F,$3F
 
 ; Data block at 83B1
 ;
