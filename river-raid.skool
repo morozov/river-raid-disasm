@@ -3875,6 +3875,7 @@ c$6FBB LD A,D        ;
  $6FC2 LD BC,$0030   ; Sprite size (3×2 tiles × 8 bytes/tile)
  $6FC5 INC A         ;
  $6FC6 SBC HL,BC     ;
+@label=locate_rock_element
 *$6FC8 ADD HL,BC     ;
  $6FC9 DEC A         ;
  $6FCA JR NZ,$6FC8   ;
@@ -3884,8 +3885,8 @@ c$6FBB LD A,D        ;
  $6FD2 LD HL,$82F5   ;
  $6FD5 LD ($8B0C),BC ;
  $6FD9 LD ($8B0A),BC ;
- $6FDD LD A,$03      ;
- $6FDF LD DE,$1014   ;
+ $6FDD LD A,$03      ; Set width to 3 tiles
+ $6FDF LD DE,$1014   ; COLOR_GREEN_ON_RED
  $6FE2 CALL $8B3C    ;
  $6FE5 RET           ;
 
@@ -5523,6 +5524,7 @@ b$825D DEFB $00,$00,$00,$80,$80,$AA,$AA,$FF
  $82BD DEFB $10,$10,$38,$7C,$D6,$92,$38,$54
 
 ; Data block at 82C5
+@label=all_ff
 b$82C5 DEFB $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
  $82CD DEFB $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
  $82D5 DEFB $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
@@ -5531,6 +5533,7 @@ b$82C5 DEFB $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
  $82ED DEFB $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
 
 ; Data block at 82F5
+@label=all_00
 @label=L82F5
 b$82F5 DEFB $00,$00,$00,$00,$00,$00,$00,$00
  $82FD DEFB $00,$00,$00,$00,$00,$00,$00,$00
@@ -6525,7 +6528,7 @@ w$8B0A DEFW $0000
 w$8B0C DEFW $0000
 
 ; Data block at 8B0E
-@label=L8B0E
+@label=render_sprite_ptr
 w$8B0E DEFW $0000
 
 ; Data block at 8B10

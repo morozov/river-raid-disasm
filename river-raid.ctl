@@ -412,6 +412,9 @@ c $6FBB Render rock
 R $6FBB I:D Some info (probably, sprite array index)
 R $6FBB I:E Some info (probably, position)
   $6FC2,3 Sprite size (3×2 tiles × 8 bytes/tile)
+@ $6FC8 label=locate_rock_element
+  $6FDD,2 Set width to 3 tiles
+  $6FDF,3 COLOR_GREEN_ON_RED
 @ $6FE6 label=ld_enemy_sprites_right
 c $6FE6 Load array of arrays of enemy headed right sprites.
 R $6FE6 O:HL Pointer to the array of arrays of sprites.
@@ -645,8 +648,9 @@ b $825C
 @ $825D label=udg_data
 b $825D
 D $825D #UDGTABLE { #FONT$825D,13 } TABLE#
+@ $82C5 label=all_ff
 b $82C5
-b $82C5
+@ $82F5 label=all_00
 @ $82F5 label=L82F5
 b $82F5
 b $8331
@@ -800,7 +804,7 @@ w $8B08 Pointer to #R$6136
 w $8B0A
 @ $8B0C label=L8B0C
 w $8B0C
-@ $8B0E label=L8B0E
+@ $8B0E label=render_sprite_ptr
 w $8B0E
 @ $8B10 label=L8B10
 w $8B10

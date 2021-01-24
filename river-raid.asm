@@ -1610,7 +1610,7 @@ L60A5:
   SLA E
   LD HL,(L5EF7)
   ADD HL,DE
-  LD (L8B0E),HL
+  LD (render_sprite_ptr),HL
   ADD A,$80
   LD B,A
   LD A,(state_speed)
@@ -2401,7 +2401,7 @@ handle_right:
   LD (L8B0A),BC
   LD BC,$0010             ; Sprite size (2×1 tiles × 8 bytes/tile)
   LD HL,(L5EF7)
-  LD (L8B0E),HL
+  LD (render_sprite_ptr),HL
   LD E,$0E                ; COLOR_YELLOW_ON_BLUE
   LD A,(state_player)
   CP $02                  ; Load player 2 color
@@ -2440,7 +2440,7 @@ handle_left:
   LD (L8B0A),BC
   LD BC,$0010             ; Sprite size (2×1 tiles × 8 bytes/tile)
   LD HL,(L5EF7)
-  LD (L8B0E),HL
+  LD (render_sprite_ptr),HL
   LD E,$0E                ; COLOR_YELLOW_ON_BLUE
   LD A,(state_player)
   CP $02                  ; Load player 2 color
@@ -2470,7 +2470,7 @@ L6682:
   LD (L8B0A),BC
   LD BC,$0010             ; Sprite size (2×1 tiles × 8 bytes/tile)
   LD HL,(L5EF7)
-  LD (L8B0E),HL
+  LD (render_sprite_ptr),HL
   LD E,$0E                ; COLOR_YELLOW_ON_BLUE
   LD A,(state_player)
   CP $02                  ; Load player 2 color
@@ -2640,7 +2640,7 @@ L6794_0:
   LD A,(L673C)
   CP $01
   CALL Z,L62DA
-  LD (L8B0E),HL
+  LD (render_sprite_ptr),HL
   LD (L8B0C),BC
   LD (L8B0A),BC
   LD A,$01
@@ -2682,7 +2682,7 @@ L6794_1:
   LD D,A
   LD E,$0C
   LD A,$01
-  LD (L8B0E),HL
+  LD (render_sprite_ptr),HL
   LD HL,L82F5
   LD (L8B0C),BC
   LD (L8B0A),BC
@@ -3859,8 +3859,8 @@ L6EC8:
   CP $06
   CALL Z,L6F6F
   LD A,(HL)
-  LD HL,L82C5
-  LD (L8B0E),HL
+  LD HL,all_ff
+  LD (render_sprite_ptr),HL
   LD (L8B10),DE
   LD D,A
   LD A,$00
@@ -3983,18 +3983,18 @@ render_rock:
   LD BC,$0030             ; Sprite size (3×2 tiles × 8 bytes/tile)
   INC A
   SBC HL,BC
-render_rock_0:
+locate_rock_element:
   ADD HL,BC
   DEC A
-  JR NZ,render_rock_0
+  JR NZ,locate_rock_element
   LD B,$00
   LD C,E
-  LD (L8B0E),HL
+  LD (render_sprite_ptr),HL
   LD HL,L82F5
   LD (L8B0C),BC
   LD (L8B0A),BC
-  LD A,$03
-  LD DE,$1014
+  LD A,$03                ; Set width to 3 tiles
+  LD DE,$1014             ; COLOR_GREEN_ON_RED
   CALL render_object
   RET
 
@@ -4226,8 +4226,8 @@ L708E_1:
   DEC HL
   LD (HL),C
   LD (L8B0C),BC
-  LD HL,L82C5
-  LD (L8B0E),HL
+  LD HL,all_ff
+  LD (render_sprite_ptr),HL
   CALL ld_enemy_sprites
   LD BC,$0018             ; Sprite frame size (3×1 tiles × 8 bytes/tile)
   LD E,$0E                ; COLOR_YELLOW_ON_BLUE
@@ -4341,8 +4341,8 @@ L71A2_0:
   DEC A
   JR NZ,L71A2_0
 L71A2_1:
-  LD BC,L82C5
-  LD (L8B0E),BC
+  LD BC,all_ff
+  LD (render_sprite_ptr),BC
   LD A,(L5EEF)
   AND $06
   SRL A
@@ -4418,8 +4418,8 @@ L724C_0:
   LD (L8B0A),BC
   PUSH HL
   CALL ld_enemy_sprites
-  LD HL,L82C5
-  LD (L8B0E),HL
+  LD HL,all_ff
+  LD (render_sprite_ptr),HL
   POP HL
   LD DE,$020E
   LD BC,$0004
@@ -4671,7 +4671,7 @@ L7393:
   LD A,$01
   LD E,$00
   LD D,$01
-  LD HL,L82C5
+  LD HL,all_ff
   CALL L8B1E
   RET
 L7393_0:
@@ -4806,7 +4806,7 @@ L7441_0:
   LD D,$00
   LD E,A
   ADD HL,DE
-  LD (L8B0E),HL
+  LD (render_sprite_ptr),HL
   LD HL,L82F5
   LD DE,$0100
   LD A,$01
@@ -5008,7 +5008,7 @@ L75D0_0:
   ADD HL,BC
   DEC A
   JR NZ,L75D0_0
-  LD (L8B0E),HL
+  LD (render_sprite_ptr),HL
   LD BC,(L8B0A)
   LD (L8B0C),BC
   LD A,D
@@ -5166,7 +5166,7 @@ L76DA_0:
   ADD HL,BC
   DEC A
   JR NZ,L76DA_0
-  LD (L8B0E),HL
+  LD (render_sprite_ptr),HL
   LD BC,(L8B0A)
   LD (L8B0C),BC
   LD A,D
@@ -5697,7 +5697,7 @@ udg_data:
   DEFB $10,$10,$38,$7C,$D6,$92,$38,$54
 
 ; Data block at 82C5
-L82C5:
+all_ff:
   DEFB $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
   DEFB $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
   DEFB $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
@@ -6549,7 +6549,7 @@ L8B0C:
   DEFW $0000
 
 ; Data block at 8B0E
-L8B0E:
+render_sprite_ptr:
   DEFW $0000
 
 ; Data block at 8B10
@@ -6601,7 +6601,7 @@ L8B1E_0:
   ADD HL,BC
   DEC A
   JR NZ,L8B1E_0
-  LD (L8B0E),HL
+  LD (render_sprite_ptr),HL
   POP HL
   LD A,(render_object_width)
   POP DE
@@ -6698,9 +6698,9 @@ L8B70_3:
   LD A,(render_object_width)
   LD D,$00
   LD E,A
-  LD HL,(L8B0E)
+  LD HL,(render_sprite_ptr)
   ADD HL,DE
-  LD (L8B0E),HL
+  LD (render_sprite_ptr),HL
   LD HL,(L8B10)
   ADD HL,DE
   LD (L8B10),HL
@@ -6728,7 +6728,7 @@ L8C0B:
   LD A,(render_object_width)
   LD C,A
   LD HL,(L8B14)
-  LD DE,(L8B0E)
+  LD DE,(render_sprite_ptr)
 ; This entry point is used by the routine at L8C1B.
 L8C0B_0:
   LD A,(DE)
