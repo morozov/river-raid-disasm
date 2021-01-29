@@ -1076,8 +1076,8 @@ init_state:
   LD ($90C4),HL
   LD ($90C6),HL
   LD A,$01
-  LD (state_terrain_element_index),A
-  LD (state_terrain_element_idx),A
+  LD (state_terrain_element_row),A
+  LD (state_terrain_row_byte_index),A
   LD HL,$0404
   LD (state_lives_player_1),HL
   LD (state_player),A
@@ -1116,7 +1116,7 @@ play:
   LD A,$00
   LD (L5F6C),A
   LD ($5F6F),A
-  LD (state_terrain_element_idx),A
+  LD (state_terrain_row_byte_index),A
   LD (L5F69),A
   LD A,$FF
   LD (state_fuel),A
@@ -1159,12 +1159,12 @@ play:
   LD A,$01
   CALL CHAN_OPEN
   LD A,$FF
-  LD (state_terrain_element_idx),A
+  LD (state_terrain_row_byte_index),A
   LD A,$02
   LD (state_terrain_element_1),A
   CALL CHAN_OPEN
   LD A,$01
-  LD (state_terrain_element_index),A
+  LD (state_terrain_element_row),A
   LD (state_interaction_mode_5F68),A
   LD (L5F6D),A
   LD A,$68
@@ -1233,8 +1233,8 @@ L5EEE:
 L5EEF:
   DEFB $00
 
-; Game status buffer entry at 5EF0
-state_bridge_mod:
+; Current player's current bridge modulo 48 (the total number of bridges).
+state_bridge_index:
   DEFB $00
 
 ; Contains the current readings of the input port (Sinclair, Kempston, Cursor,
@@ -1267,7 +1267,7 @@ L5EF9:
   DEFB $00
 
 ; The value sourced from the first byte of an island definition in data_islands
-; and used as a sprite_terrain array index.
+; and used as a data_terrain_elements array index.
 state_island_terrain_idx:
   DEFB $00
 
@@ -1404,10 +1404,11 @@ L5F75:
   DEFB $00
 
 ; Index of the current element of current level terrain array
-state_terrain_element_index:
+state_terrain_element_row:
   DEFB $00
 
-; Data block at 5F77
+; The first byte of the current level_terrains element, defines the index of
+; the terrain sprite (see data_terrain_elements).
 state_terrain_element_1:
   DEFB $00
 
@@ -1424,7 +1425,7 @@ screen_ptr:
   DEFW $0000
 
 ; Inner array index in the terrain definition.
-state_terrain_element_idx:
+state_terrain_row_byte_index:
   DEFB $01
 
 ; Pointer to the text to be displayed in the scroller.
@@ -1645,7 +1646,7 @@ L60A5_2:
   AND $07
   CP $00
   CALL Z,L68B7
-  CALL render_terrain_sprite
+  CALL render_terrain_row_sprite
   LD DE,$0100
   LD HL,(screen_ptr)
   OR A
@@ -1796,11 +1797,11 @@ interact_with_something:
   LD A,(L5F6C)
   CP $02
   LD HL,screen_pixels
-  CALL Z,L6B7B_1
+  CALL Z,handle_terrain_row_byte_bit_7_1
   LD A,(L5F6C)
   CP $02
   LD HL,$4100
-  CALL Z,L6B7B_1
+  CALL Z,handle_terrain_row_byte_bit_7_1
   LD A,$00
   LD (L5F6E),A
   LD A,$01
@@ -2842,7 +2843,7 @@ L68C5_3:
   ADD HL,DE
   LD A,L
   INC A
-  LD (state_bridge_mod),A
+  LD (state_bridge_index),A
   JP L68C5_0
 
 ; Routine at 6927
@@ -2850,7 +2851,7 @@ L68C5_3:
 ; Used by the routine at L68C5.
 L6927:
   LD DE,$5BDF
-  LD HL,L8371
+  LD HL,sprite_road_attributes
   LD BC,$0020
   LDIR
   LD A,$00
@@ -2864,7 +2865,7 @@ L693B:
 
 ; Routine at 693C
 ;
-; Used by the routine at render_terrain.
+; Used by the routine at render_terrain_row.
 handle_terrain_element_1_eq_3:
   LD A,$01
   LD (L5F6E),A
@@ -2874,7 +2875,7 @@ handle_terrain_element_1_eq_3:
 
 ; Routine at 6947
 ;
-; Used by the routine at render_terrain.
+; Used by the routine at render_terrain_row.
 handle_terrain_element_1_eq_2:
   LD A,$00
   LD (L5F6D),A
@@ -2882,28 +2883,28 @@ handle_terrain_element_1_eq_2:
 
 ; Increase bridge index and handle overflow by resetting to the first bridge.
 ;
-; Used by the routine at render_terrain.
+; Used by the routine at render_terrain_row.
 ;
 ; O:A Always set to 0
 increase_bridge_index:
   LD DE,$0000             ; Reset Y-position
   LD (state_y),DE         ;
-  LD A,(state_bridge_mod) ; Increase bridge index
-  INC A                   ;
-  LD (state_bridge_mod),A ;
+  LD A,(state_bridge_index) ; Increase bridge index
+  INC A                     ;
+  LD (state_bridge_index),A ;
   CP $31                  ; Check for overflow
   JP Z,next_bridge_index_overflow
   LD A,$00
   RET
 next_bridge_index_overflow:
-  LD A,$01                ; Reset bridge index
-  LD (state_bridge_mod),A ;
+  LD A,$01                  ; Reset bridge index
+  LD (state_bridge_index),A ;
   LD A,$00
   RET
 
 ; Routine at 696B
 ;
-; Used by the routine at render_terrain.
+; Used by the routine at render_terrain_row.
 ;
 ; I:A The six highest bits of the fourth byte of the terrain element.
 handle_island:
@@ -2931,24 +2932,24 @@ locate_island_element:
 
 ; Routine at 6990
 ;
-; Used by the routine at render_terrain.
+; Used by the routine at render_terrain_row.
 L6990:
   LD HL,state_island_byte_4 ; Increase state_island_byte_4
   INC (HL)                  ;
   LD A,(state_island_terrain_idx)
-  LD HL,sprite_terrain
+  LD HL,data_terrain_elements
   LD DE,$0010
   OR A
   SBC HL,DE
 L6990_locate_sprite:
-  ADD HL,DE                 ; Point HL to the element of sprite_terrain with
-  DEC A                     ; the index defined by state_island_terrain_idx
-  JR NZ,L6990_locate_sprite ;
-  LD A,(state_terrain_element_idx) ; Point HL to the offset of the element
-  AND $0F                          ; above defined by state_terrain_element_idx
-  LD D,$00                         ;
-  LD E,A                           ;
-  ADD HL,DE                        ;
+  ADD HL,DE                 ; Point HL to the element of data_terrain_elements
+  DEC A                     ; with the index defined by
+  JR NZ,L6990_locate_sprite ; state_island_terrain_idx
+  LD A,(state_terrain_row_byte_index) ; Point HL to the offset of the element
+  AND $0F                             ; above defined by
+  LD D,$00                            ; state_terrain_row_byte_index
+  LD E,A                              ;
+  ADD HL,DE                           ;
   LD A,(state_island_byte_2)
   ADD A,(HL)
   PUSH AF
@@ -3056,32 +3057,33 @@ L6A4A:
   RET
 
 ; Routine at 6A4F
-render_terrain:
+render_terrain_row:
   LD A,$FF
-  LD (state_terrain_element_idx),A
-  LD HL,level_terrains
-  LD DE,$0100
-  LD A,(state_bridge_mod)
+  LD (state_terrain_row_byte_index),A
+  LD HL,level_terrains    ; Point HL to the level_terrains array.
+  LD DE,$0100             ; Level terrain array size (64 elements × 4 bytes
+                          ; each)
+  LD A,(state_bridge_index)
   OR A
   SBC HL,DE
 locate_level_terrain:
-  ADD HL,DE
-  DEC A
-  JR NZ,locate_level_terrain
-  LD A,(state_terrain_element_index)
-  INC A
-  AND $3F
-  LD (state_terrain_element_index),A
-  CP $00
-  CALL Z,increase_bridge_index
-  LD DE,$0004
+  ADD HL,DE                  ; Point HL to the element of level_terrains with
+  DEC A                      ; the index defined by state_bridge_index.
+  JR NZ,locate_level_terrain ;
+  LD A,(state_terrain_element_row) ; Next row
+  INC A                            ;
+  AND $3F                          ;
+  LD (state_terrain_element_row),A ;
+  CP $00                       ; If it's the last row, advance to the next
+  CALL Z,increase_bridge_index ; bridge
+  LD DE,$0004             ; Terrain row size (4 bytes)
   INC A
   OR A
   SBC HL,DE
-locate_level_terrain_element:
-  ADD HL,DE
-  DEC A
-  JR NZ,locate_level_terrain_element
+locate_level_terrain_row:
+  ADD HL,DE                      ; Point HL to the row of the current
+  DEC A                          ; level_terrains element with the index
+  JR NZ,locate_level_terrain_row ; defined by state_terrain_element_row.
   LD A,(HL)
   LD (state_terrain_element_1),A
   CP $03
@@ -3103,29 +3105,29 @@ locate_level_terrain_element:
   AND $03
   LD (state_terrain_element_4),A
 ; This entry point is used by the routine at L60A5.
-render_terrain_sprite:
+render_terrain_row_sprite:
   LD A,(state_terrain_element_1)
-  LD HL,sprite_terrain
+  LD HL,data_terrain_elements
   LD DE,$0010
   OR A
   SBC HL,DE
-locate_terrain_sprite:
-  ADD HL,DE
-  DEC A
-  JR NZ,locate_terrain_sprite
-  LD A,(state_terrain_element_idx)
-  INC A
-  LD (state_terrain_element_idx),A
-  CP $10
-  JP Z,render_terrain
-  AND $0F
-  LD D,$00
-  LD E,A
-  ADD HL,DE
+locate_terrain_row_sprite:
+  ADD HL,DE                       ; Point HL to the element of
+  DEC A                           ; data_terrain_elements with the index
+  JR NZ,locate_terrain_row_sprite ; defined by state_terrain_element_1.
+  LD A,(state_terrain_row_byte_index) ; Next byte
+  INC A                               ;
+  LD (state_terrain_row_byte_index),A ;
+  CP $10                  ; If it's the last byte, advance to the next row.
+  JP Z,render_terrain_row ;
+  AND $0F                 ; Point HL to byte of the current terrain row defined
+  LD D,$00                ; by state_terrain_row_byte_index.
+  LD E,A                  ;
+  ADD HL,DE               ;
   LD BC,(state_terrain_element_23)
   LD A,(HL)
   BIT 7,A
-  JP NZ,L6B7B
+  JP NZ,handle_terrain_row_byte_bit_7
   ADD A,B
   PUSH AF
   LD B,$00
@@ -3159,20 +3161,22 @@ locate_terrain_sprite:
   SRL B
   SRL B
   LD A,$FF
-render_terrain_0:
+fill_terrain_left_loop:
   DEC DE
   LD (DE),A
-  DJNZ render_terrain_0
+  DJNZ fill_terrain_left_loop
   POP AF
   LD D,A
   LD BC,(state_terrain_element_23)
   LD A,(state_terrain_element_4)
   CP $01
-  JP Z,render_terrain_3
+  JP Z,state_terrain_element_4_eq_1
   LD A,(state_terrain_element_4)
   CP $02
-  JP Z,render_terrain_4
-render_terrain_1:
+  JP Z,state_terrain_element_4_eq_2
+; This entry point is used by the routines at state_terrain_element_4_eq_1 and
+; state_terrain_element_4_eq_2.
+render_terrain_row_0:
   LD D,A
   LD B,$00
   LD HL,L89FA
@@ -3199,62 +3203,71 @@ render_terrain_1:
   SUB B
   LD B,A
   LD A,$FF
-render_terrain_2:
+fill_terrain_right_loop:
   LD (DE),A
   INC DE
-  DJNZ render_terrain_2
+  DJNZ fill_terrain_right_loop
   LD A,(state_island_byte_4)
   CP $10
   CALL NZ,L6990
   RET
-render_terrain_3:
+
+; Routine at 6B58
+;
+; Used by the routine at render_terrain_row.
+state_terrain_element_4_eq_1:
   LD A,C
   SUB D
   ADD A,C
-  JP render_terrain_1
-render_terrain_4:
+  JP render_terrain_row_0
+
+; Routine at 6B5E
+;
+; Used by the routine at render_terrain_row.
+state_terrain_element_4_eq_2:
   LD A,C
   ADD A,D
-  JP render_terrain_1
+  JP render_terrain_row_0
 
 ; Routine at 6B63
 ;
-; Used by the routine at L6B7B.
-L6B63:
+; Used by the routine at handle_terrain_row_byte_bit_7.
+handle_pre_post_bridge:
   LD A,$00
-  LD HL,L8331
-  JP L6B7B_0
+  LD HL,sprite_terrain_pre_post_bridge
+  JP handle_terrain_row_byte_bit_7_0
 
 ; Routine at 6B6B
 ;
-; Used by the routine at L6B7B.
-L6B6B:
+; Used by the routine at handle_terrain_row_byte_bit_7.
+handle_terrain_row_byte_e0:
   LD A,$02
-  LD HL,L8331
-  JP L6B7B_0
+  LD HL,sprite_terrain_pre_post_bridge
+  JP handle_terrain_row_byte_bit_7_0
 
 ; Routine at 6B73
 ;
-; Used by the routine at L6B7B.
-L6B73:
+; Used by the routine at handle_terrain_row_byte_bit_7.
+handle_terrain_row_byte_f0:
   LD A,$02
-  LD HL,L8351
-  JP L6B7B_0
+  LD HL,sprite_road_pixels
+  JP handle_terrain_row_byte_bit_7_0
 
 ; Routine at 6B7B
 ;
-; Used by the routine at render_terrain.
-L6B7B:
+; Used by the routine at render_terrain_row.
+handle_terrain_row_byte_bit_7:
   CP $80
-  JP Z,L6B63
+  JP Z,handle_pre_post_bridge
   CP $E0
-  JP Z,L6B6B
+  JP Z,handle_terrain_row_byte_e0
   CP $F0
-  JP Z,L6B73
+  JP Z,handle_terrain_row_byte_f0
   LD A,$01
-  LD HL,L8351
-; This entry point is used by the routines at L6B63, L6B6B and L6B73.
-L6B7B_0:
+  LD HL,sprite_road_pixels
+; This entry point is used by the routines at handle_pre_post_bridge,
+; handle_terrain_row_byte_e0 and handle_terrain_row_byte_f0.
+handle_terrain_row_byte_bit_7_0:
   LD DE,(screen_ptr)
   LD BC,$0020
   LDIR
@@ -3264,14 +3277,14 @@ L6B7B_0:
   RET Z
   LD HL,(screen_ptr)
 ; This entry point is used by the routine at interact_with_something.
-L6B7B_1:
+handle_terrain_row_byte_bit_7_1:
   LD DE,$000E
   LD B,$04
   ADD HL,DE
-L6B7B_2:
+handle_terrain_row_byte_bit_7_2:
   LD (HL),$00
   INC HL
-  DJNZ L6B7B_2
+  DJNZ handle_terrain_row_byte_bit_7_2
   RET
 
 ; Bitmask of the CONTROLS_BIT_* bits containing the current controls and other
@@ -3581,8 +3594,8 @@ demo:
   LD A,$68
   LD (LAST_K),A
   LD A,$00
-  LD (state_terrain_element_idx),A
-  LD A,(state_bridge_mod)
+  LD (state_terrain_row_byte_index),A
+  LD A,(state_bridge_index)
   LD (L5D43),A
 demo_0:
   LD A,$BF
@@ -3591,7 +3604,7 @@ demo_0:
   CALL Z,handle_enter
   LD A,(L5D43)
   LD B,A
-  LD A,(state_bridge_mod)
+  LD A,(state_bridge_index)
   SUB B
   CP $05
   JP Z,start_1
@@ -3941,7 +3954,7 @@ next_row:
   LD (state_interaction_mode_5EF5),A
   LD HL,levels
   LD DE,$0100
-  LD A,(state_bridge_mod)
+  LD A,(state_bridge_index)
   OR A
   SBC HL,DE
 locate_level:
@@ -5621,37 +5634,39 @@ end_status_line_4:
   DEFB $01,$05,$0A,$0F
 
 ; Array [15] of terrain element definitions (16 bytes each).
-sprite_terrain:
-  DEFB $02,$04,$04,$06,$08,$08,$0A,$0A
-  DEFB $0C,$0A,$0A,$08,$06,$04,$02,$00
-  DEFB $80,$80,$80,$80,$80,$80,$80,$80
-  DEFB $E0,$E0,$E0,$E0,$E0,$E0,$E0,$E0
-  DEFB $C0,$C0,$C0,$C0,$C0,$C0,$C0,$F0
-  DEFB $F0,$C0,$C0,$C0,$C0,$C0,$C0,$C0
-  DEFB $E0,$E0,$E0,$E0,$E0,$E0,$E0,$E0
-  DEFB $80,$80,$80,$80,$80,$80,$80,$80
-  DEFB $00,$00,$02,$02,$04,$04,$06,$06
-  DEFB $08,$08,$06,$06,$04,$04,$06,$06
-  DEFB $06,$06,$06,$06,$04,$04,$04,$04
-  DEFB $02,$02,$02,$02,$00,$00,$00,$00
-  DEFB $00,$00,$02,$02,$04,$04,$06,$06
-  DEFB $08,$08,$0A,$0A,$0C,$0C,$0E,$0E
-  DEFB $0E,$0E,$0C,$0A,$0A,$08,$08,$06
-  DEFB $06,$08,$08,$06,$04,$02,$02,$00
-  DEFB $00,$00,$02,$04,$04,$06,$08,$08
-  DEFB $0A,$0C,$0E,$0E,$10,$12,$14,$16
-  DEFB $16,$16,$14,$12,$10,$10,$0E,$0C
-  DEFB $0A,$08,$0A,$0A,$08,$06,$04,$02
-  DEFB $02,$02,$04,$04,$06,$06,$04,$04
-  DEFB $02,$02,$00,$00,$02,$02,$02,$02
-  DEFB $00,$02,$04,$06,$0A,$0C,$10,$12
-  DEFB $16,$18,$1C,$1E,$22,$24,$26,$28
-  DEFB $28,$26,$24,$22,$1E,$1C,$18,$16
-  DEFB $12,$10,$0C,$0A,$06,$04,$02,$00
-  DEFB $00,$02,$00,$00,$02,$02,$04,$02
-  DEFB $02,$00,$00,$02,$02,$04,$02,$00
-  DEFB $00,$02,$04,$02,$02,$04,$04,$02
-  DEFB $00,$00,$00,$02,$02,$02,$00,$00
+;
+; Each byte of the element defines the relative terrain width
+data_terrain_elements:
+  DEFB $02,$04,$04,$06,$08,$08,$0A,$0A ; Terrain 1
+  DEFB $0C,$0A,$0A,$08,$06,$04,$02,$00 ;
+  DEFB $80,$80,$80,$80,$80,$80,$80,$80 ; Terrain 2
+  DEFB $E0,$E0,$E0,$E0,$E0,$E0,$E0,$E0 ;
+  DEFB $C0,$C0,$C0,$C0,$C0,$C0,$C0,$F0 ; Terrain 3
+  DEFB $F0,$C0,$C0,$C0,$C0,$C0,$C0,$C0 ;
+  DEFB $E0,$E0,$E0,$E0,$E0,$E0,$E0,$E0 ; Terrain 4
+  DEFB $80,$80,$80,$80,$80,$80,$80,$80 ;
+  DEFB $00,$00,$02,$02,$04,$04,$06,$06 ; Terrain 5
+  DEFB $08,$08,$06,$06,$04,$04,$06,$06 ;
+  DEFB $06,$06,$06,$06,$04,$04,$04,$04 ; Terrain 6
+  DEFB $02,$02,$02,$02,$00,$00,$00,$00 ;
+  DEFB $00,$00,$02,$02,$04,$04,$06,$06 ; Terrain 7
+  DEFB $08,$08,$0A,$0A,$0C,$0C,$0E,$0E ;
+  DEFB $0E,$0E,$0C,$0A,$0A,$08,$08,$06 ; Terrain 8
+  DEFB $06,$08,$08,$06,$04,$02,$02,$00 ;
+  DEFB $00,$00,$02,$04,$04,$06,$08,$08 ; Terrain 9
+  DEFB $0A,$0C,$0E,$0E,$10,$12,$14,$16 ;
+  DEFB $16,$16,$14,$12,$10,$10,$0E,$0C ; Terrain 10
+  DEFB $0A,$08,$0A,$0A,$08,$06,$04,$02 ;
+  DEFB $02,$02,$04,$04,$06,$06,$04,$04 ; Terrain 11
+  DEFB $02,$02,$00,$00,$02,$02,$02,$02 ;
+  DEFB $00,$02,$04,$06,$0A,$0C,$10,$12 ; Terrain 12
+  DEFB $16,$18,$1C,$1E,$22,$24,$26,$28 ;
+  DEFB $28,$26,$24,$22,$1E,$1C,$18,$16 ; Terrain 13
+  DEFB $12,$10,$0C,$0A,$06,$04,$02,$00 ;
+  DEFB $00,$02,$00,$00,$02,$02,$04,$02 ; Terrain 14
+  DEFB $02,$00,$00,$02,$02,$04,$02,$00 ;
+  DEFB $00,$02,$04,$02,$02,$04,$04,$02 ; Terrain 15
+  DEFB $00,$00,$00,$02,$02,$02,$00,$00 ;
 
 ; Game Over message.
 msg_game_over:
@@ -5717,21 +5732,21 @@ L82F5:
   DEFB $00,$00,$00,$00
 
 ; Data block at 8331
-L8331:
+sprite_terrain_pre_post_bridge:
   DEFB $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
   DEFB $FF,$FF,$FF,$FF,$FF,$FF,$00,$00
   DEFB $00,$00,$FF,$FF,$FF,$FF,$FF,$FF
   DEFB $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
 
 ; Data block at 8351
-L8351:
+sprite_road_pixels:
   DEFB $00,$00,$00,$00,$00,$00,$00,$00
   DEFB $00,$00,$00,$00,$00,$00,$FF,$FF
   DEFB $FF,$FF,$00,$00,$00,$00,$00,$00
   DEFB $00,$00,$00,$00,$00,$00,$00,$00
 
 ; Data block at 8371
-L8371:
+sprite_road_attributes:
   DEFB $3C,$3C,$3C,$3C,$3C,$3C,$3C,$3C
   DEFB $3C,$3C,$3C,$3C,$3C,$3C,$0E,$0E
   DEFB $0E,$0E,$3C,$3C,$3C,$3C,$3C,$3C
@@ -7617,6 +7632,10 @@ L9430:
   DEFB $00,$00,$00,$00,$00,$00,$00,$00
 
 ; Array [48] of level terrain data (256 bytes each).
+;
+; Array [64] of terrain rows (4 bytes each):
+;
+; Byte 1 is the terrain type (see data_terrain_elements).
 level_terrains:
   DEFB $0C,$83,$4C,$01    ; Bridge 1
   DEFB $02,$80,$50,$01    ;

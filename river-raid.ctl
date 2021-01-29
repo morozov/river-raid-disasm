@@ -74,8 +74,8 @@ C $5DB4,2 PAPER 1; INK 4
 b $5EEE
 @ $5EEF label=L5EEF
 b $5EEF
-@ $5EF0 label=state_bridge_mod
-g $5EF0
+@ $5EF0 label=state_bridge_index
+g $5EF0 Current player's current bridge modulo 48 (the total number of bridges).
 @ $5EF1 label=state_input_readings
 g $5EF1 Contains the current readings of the input port (Sinclair, Kempston, Cursor, etc.).
 @ $5EF2 label=L5EF2
@@ -144,17 +144,17 @@ g $5F72 Current X coordinate
 g $5F73
 @ $5F75 label=L5F75
 b $5F75
-@ $5F76 label=state_terrain_element_index
+@ $5F76 label=state_terrain_element_row
 b $5F76 Index of the current element of current level terrain array
 @ $5F77 label=state_terrain_element_1
-b $5F77
+b $5F77 The first byte of the current #R$9500 element, defines the index of the terrain sprite (see #R$8063).
 @ $5F78 label=state_terrain_element_23
 w $5F78
 @ $5F7A label=state_terrain_element_4
 b $5F7A
 @ $5F7B label=screen_ptr
 w $5F7B
-@ $5F7D label=state_terrain_element_idx
+@ $5F7D label=state_terrain_row_byte_index
 b $5F7D Inner array index in the terrain definition.
 @ $5F7E label=ptr_scroller
 w $5F7E Pointer to the text to be displayed in the scroller.
@@ -318,15 +318,36 @@ c $6990
   $69A0,4 Point #REGhl to the element of #R$8063 with the index defined by #R$5EFA
   $69A4,9 Point #REGhl to the offset of the element above defined by #R$5F7D
 c $6A4A
-@ $6A4F label=render_terrain
+@ $6A4F label=render_terrain_row
 c $6A4F
+  $6A54,3 Point #REGhl to the #R$9500 array.
+  $6A57,3 Level terrain array size (64 elements × 4 bytes each)
 @ $6A60 label=locate_level_terrain
-@ $6A79 label=locate_level_terrain_element
-@ $6AA3 label=render_terrain_sprite
-@ $6AAF label=locate_terrain_sprite
+  $6A60,4 Point #REGhl to the element of #R$9500 with the index defined by #R$5EF0.
+  $6A64,9 Next row
+  $6A6D,5 If it's the last row, advance to the next bridge
+  $6A72,3 Terrain row size (4 bytes)
+@ $6A79 label=locate_level_terrain_row
+  $6A79,4 Point #REGhl to the row of the current #R$9500 element with the index defined by #R$5F76.
+@ $6AA3 label=render_terrain_row_sprite
+@ $6AAF label=locate_terrain_row_sprite
+  $6AAF,4 Point #REGhl to the element of #R$8063 with the index defined by #R$5F77.
+  $6AB3,7 Next byte
+  $6ABA,5 If it's the last byte, advance to the next row.
+  $6ABF,6 Point #REGhl to byte of the current terrain row defined by #R$5F7D.
+@ $6B06 label=fill_terrain_left_loop
+@ $6B4B label=fill_terrain_right_loop
+@ $6B58 label=state_terrain_element_4_eq_1
+c $6B58
+@ $6B5E label=state_terrain_element_4_eq_2
+c $6B5E
+@ $6B63 label=handle_pre_post_bridge
 c $6B63
+@ $6B6B label=handle_terrain_row_byte_e0
 c $6B6B
+@ $6B73 label=handle_terrain_row_byte_f0
 c $6B73
+@ $6B7B label=handle_terrain_row_byte_bit_7
 c $6B7B
 @ $6BB0 label=state_controls
 g $6BB0 Bitmask of the CONTROLS_BIT_* bits containing the current controls and other information.
@@ -633,8 +654,24 @@ T $805A AT 20,4
 T $805D INK 7
 @ $805F label=end_status_line_4
 b $805F
-@ $8063 label=sprite_terrain
+@ $8063 label=data_terrain_elements
 b $8063 Array [15] of terrain element definitions (16 bytes each).
+N $8063 Each byte of the element defines the relative terrain width
+  $8063,16 Terrain 1
+  $8073,16 Terrain 2
+  $8083,16 Terrain 3
+  $8093,16 Terrain 4
+  $80A3,16 Terrain 5
+  $80B3,16 Terrain 6
+  $80C3,16 Terrain 7
+  $80D3,16 Terrain 8
+  $80E3,16 Terrain 9
+  $80F3,16 Terrain 10
+  $8103,16 Terrain 11
+  $8113,16 Terrain 12
+  $8123,16 Terrain 13
+  $8133,16 Terrain 14
+  $8143,16 Terrain 15
 @ $8153 label=msg_game_over
 t $8153 Game Over message.
 @ $8182 label=msg_credits
@@ -650,11 +687,14 @@ b $825D
 D $825D #UDGTABLE { #FONT$825D,13 } TABLE#
 @ $82C5 label=all_ff
 b $82C5
-@ $82F5 label=all_00
+@ $82F5 label=sprite_erase
 @ $82F5 label=L82F5
 b $82F5
+@ $8331 label=sprite_terrain_pre_post_bridge
 b $8331
+@ $8351 label=sprite_road_pixels
 b $8351
+@ $8371 label=sprite_road_attributes
 b $8371
 b $8391
 @ $83B1 label=sprite_plane
@@ -939,6 +979,8 @@ R $9423 O:HL Pointer to the current player lives
 b $9430
 @ $9500 label=level_terrains
 b $9500 Array [48] of level terrain data (256 bytes each).
+N $9500 Array [64] of terrain rows (4 bytes each):
+N $9500 Byte 1 is the terrain type (see #R$8063).
   $9500,256,4 Bridge 1
   $9600,256,4 Bridge 2
   $9700,256,4 Bridge 3
