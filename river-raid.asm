@@ -2956,7 +2956,7 @@ L6990_locate_sprite:
   LD B,$00
   ADD A,$80
   LD D,A
-  LD HL,L89F2
+  LD HL,terrain_edge_left
   LD A,D
   AND $07
   SRL A
@@ -3005,7 +3005,7 @@ L6990_1:
   JP Z,L6990_5
 L6990_2:
   LD D,A
-  LD HL,L89FA
+  LD HL,terrain_edge_right
   LD A,D
   AND $06
   LD C,A
@@ -3135,7 +3135,7 @@ locate_terrain_row_sprite:
   LD D,A
   LD HL,L693B
   INC (HL)
-  LD HL,L89F2
+  LD HL,terrain_edge_left
   LD A,D
   AND $07
   SRL A
@@ -3179,7 +3179,7 @@ fill_terrain_left_loop:
 render_terrain_row_0:
   LD D,A
   LD B,$00
-  LD HL,L89FA
+  LD HL,terrain_edge_right
   LD A,D
   AND $06
   LD C,A
@@ -6401,12 +6401,18 @@ sprite_balloon:
   DEFB $00,$78            ;
 
 ; Data block at 89F2
-L89F2:
-  DEFB $FF,$C0,$FF,$F0,$FF,$FC,$FF,$FF
+terrain_edge_left:
+  DEFB $FF,$C0            ; 10 pixels
+  DEFB $FF,$F0            ; 12 pixels
+  DEFB $FF,$FC            ; 14 pixels
+  DEFB $FF,$FF            ; 16 pixels
 
 ; Data block at 89FA
-L89FA:
-  DEFB $FF,$FF,$3F,$FF,$0F,$FF,$03,$FF
+terrain_edge_right:
+  DEFB $FF,$FF            ; 16 pixels
+  DEFB $3F,$FF            ; 14 pixels
+  DEFB $0F,$FF            ; 12 pixels
+  DEFB $03,$FF            ; 10 pixels
 
 ; Invoked from the interrupt handler when FIRE is pressed
 ;

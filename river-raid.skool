@@ -6395,12 +6395,18 @@ b$8972 DEFB $0C,$00  ; {Frame 1
  $89F0 DEFB $00,$78  ; }
 
 ; Data block at 89F2
-@label=L89F2
-b$89F2 DEFB $FF,$C0,$FF,$F0,$FF,$FC,$FF,$FF
+@label=terrain_edge_left
+b$89F2 DEFB $FF,$C0  ; 10 pixels
+ $89F4 DEFB $FF,$F0  ; 12 pixels
+ $89F6 DEFB $FF,$FC  ; 14 pixels
+ $89F8 DEFB $FF,$FF  ; 16 pixels
 
 ; Data block at 89FA
-@label=L89FA
-b$89FA DEFB $FF,$FF,$3F,$FF,$0F,$FF,$03,$FF
+@label=terrain_edge_right
+b$89FA DEFB $FF,$FF  ; 16 pixels
+ $89FC DEFB $3F,$FF  ; 14 pixels
+ $89FE DEFB $0F,$FF  ; 12 pixels
+ $8A00 DEFB $03,$FF  ; 10 pixels
 
 ; Invoked from the interrupt handler when FIRE is pressed
 ;

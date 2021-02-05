@@ -818,10 +818,18 @@ N $8972 #UDGTABLE { #UDGARRAY2,14,4,2;$8972-$898A-1-16(*balloon-f1) | #UDGARRAY2
   $8992,32,2 Frame 2
   $89B2,32,2 Frame 3
   $89D2,32,2 Frame 4
-@ $89F2 label=L89F2
+@ $89F2 label=terrain_edge_left
 b $89F2
-@ $89FA label=L89FA
+  $89F2,2,2 10 pixels
+  $89F4,2,2 12 pixels
+  $89F6,2,2 14 pixels
+  $89F8,2,2 16 pixels
+@ $89FA label=terrain_edge_right
 b $89FA
+  $89FA,2,2 16 pixels
+  $89FC,2,2 14 pixels
+  $89FE,2,2 12 pixels
+  $8A00,2,2 10 pixels
 @ $8A02 label=do_fire
 c $8A02 Invoked from the interrupt handler when FIRE is pressed
 c $8A1B
