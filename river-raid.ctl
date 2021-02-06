@@ -81,7 +81,8 @@ g $5EF1 Contains the current readings of the input port (Sinclair, Kempston, Cur
 @ $5EF2 label=L5EF2
 b $5EF2
 @ $5EF3 label=L5EF3
-w $5EF3
+g $5EF3
+g $5EF4
 @ $5EF5 label=state_interaction_mode_5EF5
 g $5EF5
 @ $5EF6 label=L5EF6
@@ -135,7 +136,8 @@ b $5F6B Current bridge of player 2
 b $5F6C
 @ $5F6D label=L5F6D
 b $5F6D
-w $5F6E
+g $5F6E
+g $5F6F
 @ $5F70 label=state_y
 g $5F70 Current Y coordinate
 @ $5F72 label=state_x
@@ -625,7 +627,9 @@ c $7B07 Wait until the user chooses a valid game mode.
   $7B48,5 Loop until Enter is pressed
   $7B4D,5 Switch to the non-demo mode
 @ $7B57 label=switch_to_demo_mode
-b $7B57
+c $7B57
+b $7B61
+s $7B64
 @ $8000 label=status_line_1
 T $8000 PAPER 0
 T $8002 INK 7
@@ -882,11 +886,17 @@ c $8C1B
 @ $8C3C label=L8C3C
 c $8C3C
 b $8C4A
-b $9062 label=sprite_explosion_6
+b $8FFC
+@ $9062 label=sprite_explosion_6
+b $9062
 @ $90BC label=state_score_player_1
 t $90BC
+t $90BE
+t $90C0
 @ $90C2 label=state_score_player_2
 t $90C2
+t $90C4
+t $90C6
 t $90C8
 t $90CE
 @ $90E0 label=add_points
@@ -962,7 +972,10 @@ R $9277 O:A Number of lives.
   $9277,6 INK CYAN
 @ $9283 label=ptr_state_controls
 w $9283 Pointer to #R$6BB0
-s $9285
+w $9285
+w $9287
+w $9289
+w $928B
 c $928D
 @ $92F1 nowarn
 @ $934F nowarn
