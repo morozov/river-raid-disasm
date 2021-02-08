@@ -3155,18 +3155,26 @@ c$6A4F LD A,$FF      ;
  $6B54 CALL NZ,$6990 ;
  $6B57 RET           ;
 
-; Routine at 6B58
+; A=2C-D
 ;
 ; Used by the routine at #R$6A4F.
+;
+; I:C TODO: what is the meaning of this parameter?
+; I:D Left terrain coordinate.
+; O:A Right terrain coordinate.
 @label=state_terrain_element_4_eq_1
 c$6B58 LD A,C        ;
  $6B59 SUB D         ;
  $6B5A ADD A,C       ;
  $6B5B JP $6B20      ;
 
-; Routine at 6B5E
+; A=C+D
 ;
 ; Used by the routine at #R$6A4F.
+;
+; I:C River width.
+; I:D Left terrain coordinate.
+; O:A Right terrain coordinate.
 @label=state_terrain_element_4_eq_2
 c$6B5E LD A,C        ;
  $6B5F ADD A,D       ;

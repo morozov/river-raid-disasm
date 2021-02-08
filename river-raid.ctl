@@ -340,9 +340,15 @@ c $6A4F
 @ $6B06 label=fill_terrain_left_loop
 @ $6B4B label=fill_terrain_right_loop
 @ $6B58 label=state_terrain_element_4_eq_1
-c $6B58
+c $6B58 A=2C-D
+R $6B58 I:C TODO: what is the meaning of this parameter?
+R $6B58 I:D Left terrain coordinate.
+R $6B58 O:A Right terrain coordinate.
 @ $6B5E label=state_terrain_element_4_eq_2
-c $6B5E
+c $6B5E A=C+D
+R $6B5E I:C River width.
+R $6B5E I:D Left terrain coordinate.
+R $6B5E O:A Right terrain coordinate.
 @ $6B63 label=handle_pre_post_bridge
 c $6B63
 @ $6B6B label=handle_terrain_row_byte_e0

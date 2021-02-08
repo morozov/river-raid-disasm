@@ -3220,18 +3220,26 @@ fill_terrain_right_loop:
   CALL NZ,L6990
   RET
 
-; Routine at 6B58
+; A=2C-D
 ;
 ; Used by the routine at render_terrain_row.
+;
+; I:C TODO: what is the meaning of this parameter?
+; I:D Left terrain coordinate.
+; O:A Right terrain coordinate.
 state_terrain_element_4_eq_1:
   LD A,C
   SUB D
   ADD A,C
   JP render_terrain_row_0
 
-; Routine at 6B5E
+; A=C+D
 ;
 ; Used by the routine at render_terrain_row.
+;
+; I:C River width.
+; I:D Left terrain coordinate.
+; O:A Right terrain coordinate.
 state_terrain_element_4_eq_2:
   LD A,C
   ADD A,D
