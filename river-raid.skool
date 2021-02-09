@@ -3069,42 +3069,57 @@ c$6A4F LD A,$FF      ;
  $6AC1 LD D,$00      ; by #R$5F7D.
  $6AC3 LD E,A        ;
  $6AC4 ADD HL,DE     ; }
- $6AC5 LD BC,($5F78) ;
- $6AC9 LD A,(HL)     ;
- $6ACA BIT 7,A       ;
- $6ACC JP NZ,$6B7B   ;
- $6ACF ADD A,B       ;
+ $6AC5 LD BC,($5F78) ; Load the value of the current terrain row offset into
+                     ; #REGb. The value loaded into #REGc is unused.
+ $6AC9 LD A,(HL)     ; Load the value of the current terrain profile byte into
+                     ; #REGa.
+ $6ACA BIT 7,A       ; {Jump to handling special cases.
+ $6ACC JP NZ,$6B7B   ; }
+ $6ACF ADD A,B       ; Now #REGa contains the coordinate of the left terrain
+                     ; edge.
  $6AD0 PUSH AF       ;
  $6AD1 LD B,$00      ;
- $6AD3 SUB $10       ;
- $6AD5 LD D,A        ;
+ $6AD3 SUB $10       ; For some reason, subtract 16 from the coordinate of the
+                     ; left terrain edge.
+ $6AD5 LD D,A        ; Store the result in #REGd to reuse it in multiple
+                     ; operations with #REGa.
  $6AD6 LD HL,$693B   ;
  $6AD9 INC (HL)      ;
- $6ADA LD HL,$89F2   ;
- $6ADD LD A,D        ;
- $6ADE AND $07       ;
- $6AE0 SRL A         ;
- $6AE2 LD C,A        ;
- $6AE3 SLA C         ;
- $6AE5 LD A,D        ;
- $6AE6 ADD HL,BC     ;
- $6AE7 EX DE,HL      ;
- $6AE8 LD C,A        ;
- $6AE9 LD HL,($5F7B) ;
+ $6ADA LD HL,$89F2   ; Point #REGhl to #R$89F2.
+ $6ADD LD A,D        ; Restore the coordinate of the left terrain edge into
+                     ; #REGa.
+ $6ADE AND $07       ; Use only the lowest three bits of the coordinate.
+ $6AE0 SRL A         ; {Shift the remaining bits right and left effectively
+ $6AE2 LD C,A        ; discarding the lowest bit and store the result into
+ $6AE3 SLA C         ; #REGc. Why not just make AND 6 instead of AND 7 above?}
+ $6AE5 LD A,D        ; Restore the coordinate of the left terrain edge into
+                     ; #REGa.
+ $6AE6 ADD HL,BC     ; Point #REGhl to the element of #R$89F2 defined by #REGc.
+ $6AE7 EX DE,HL      ; Temporarily store the pointer in #REGde.
+ $6AE8 LD C,A        ; Copy the coordinate of the left terrain edge into #REGc.
+ $6AE9 LD HL,($5F7B) ; Point #REGhl screen address of the beginning of the
+                     ; terrain line being currently rendered.
  $6AEC LD B,$00      ;
- $6AEE SRL C         ;
- $6AF0 SRL C         ;
- $6AF2 SRL C         ;
- $6AF4 ADD HL,BC     ;
- $6AF5 EX DE,HL      ;
- $6AF6 LD BC,$0002   ;
- $6AF9 LDIR          ;
- $6AFB DEC DE        ;
- $6AFC DEC DE        ;
- $6AFD LD B,A        ;
- $6AFE SRL B         ;
- $6B00 SRL B         ;
- $6B02 SRL B         ;
+ $6AEE SRL C         ; {Calculate the number of full tiles corresponding to the
+ $6AF0 SRL C         ; coordinate of the left terrain edge.
+ $6AF2 SRL C         ; }
+ $6AF4 ADD HL,BC     ; Calculate the address where the terrain edge needs to be
+                     ; rendered.
+ $6AF5 EX DE,HL      ; Now #REGhl points to the element of #R$89F2 to be
+                     ; rendered, and #REGde contains the address of the screen
+                     ; where it needs to be rendered.
+ $6AF6 LD BC,$0002   ; Why on earth is the edge represented by two bytes?
+ $6AF9 LDIR          ; Copy the bytes. The 0th element of #R$89F2 contains a
+                     ; 10px sprite, the 1th one contains a 12px sprite and so
+                     ; on. So effectively by extracting 16 from the edge
+                     ; coordinate earlier and adding 10 later we are rendering
+                     ; the terrain edge of the size 6px less than defined. Why?
+ $6AFB DEC DE        ; {Restore #REGde back to the screen address of beginning
+ $6AFC DEC DE        ; of the edge.}
+ $6AFD LD B,A        ; Copy the coordinate of the left terrain edge into #REGb.
+ $6AFE SRL B         ; {Again, calculate the number of full tiles corresponding
+ $6B00 SRL B         ; to the coordinate of the left edge.
+ $6B02 SRL B         ; }
  $6B04 LD A,$FF      ;
 @label=fill_terrain_left_loop
 *$6B06 DEC DE        ;

@@ -3132,42 +3132,63 @@ locate_terrain_row_sprite:
   LD D,$00                ; by state_terrain_row_byte_index.
   LD E,A                  ;
   ADD HL,DE               ;
-  LD BC,(state_terrain_element_23)
-  LD A,(HL)
-  BIT 7,A
-  JP NZ,handle_terrain_row_byte_bit_7
-  ADD A,B
+  LD BC,(state_terrain_element_23) ; Load the value of the current terrain row
+                                   ; offset into B. The value loaded into C is
+                                   ; unused.
+  LD A,(HL)               ; Load the value of the current terrain profile byte
+                          ; into A.
+  BIT 7,A                             ; Jump to handling special cases.
+  JP NZ,handle_terrain_row_byte_bit_7 ;
+  ADD A,B                 ; Now A contains the coordinate of the left terrain
+                          ; edge.
   PUSH AF
   LD B,$00
-  SUB $10
-  LD D,A
+  SUB $10                 ; For some reason, subtract 16 from the coordinate of
+                          ; the left terrain edge.
+  LD D,A                  ; Store the result in D to reuse it in multiple
+                          ; operations with A.
   LD HL,L693B
   INC (HL)
-  LD HL,terrain_edge_left
-  LD A,D
-  AND $07
-  SRL A
-  LD C,A
-  SLA C
-  LD A,D
-  ADD HL,BC
-  EX DE,HL
-  LD C,A
-  LD HL,(screen_ptr)
+  LD HL,terrain_edge_left ; Point HL to terrain_edge_left.
+  LD A,D                  ; Restore the coordinate of the left terrain edge
+                          ; into A.
+  AND $07                 ; Use only the lowest three bits of the coordinate.
+  SRL A                   ; Shift the remaining bits right and left effectively
+  LD C,A                  ; discarding the lowest bit and store the result into
+  SLA C                   ; C. Why not just make AND 6 instead of AND 7 above?
+  LD A,D                  ; Restore the coordinate of the left terrain edge
+                          ; into A.
+  ADD HL,BC               ; Point HL to the element of terrain_edge_left
+                          ; defined by C.
+  EX DE,HL                ; Temporarily store the pointer in DE.
+  LD C,A                  ; Copy the coordinate of the left terrain edge into
+                          ; C.
+  LD HL,(screen_ptr)      ; Point HL screen address of the beginning of the
+                          ; terrain line being currently rendered.
   LD B,$00
-  SRL C
-  SRL C
-  SRL C
-  ADD HL,BC
-  EX DE,HL
-  LD BC,$0002
-  LDIR
-  DEC DE
-  DEC DE
-  LD B,A
-  SRL B
-  SRL B
-  SRL B
+  SRL C                   ; Calculate the number of full tiles corresponding to
+  SRL C                   ; the coordinate of the left terrain edge.
+  SRL C                   ;
+  ADD HL,BC               ; Calculate the address where the terrain edge needs
+                          ; to be rendered.
+  EX DE,HL                ; Now HL points to the element of terrain_edge_left
+                          ; to be rendered, and DE contains the address of the
+                          ; screen where it needs to be rendered.
+  LD BC,$0002             ; Why on earth is the edge represented by two bytes?
+  LDIR                    ; Copy the bytes. The 0th element of
+                          ; terrain_edge_left contains a 10px sprite, the 1th
+                          ; one contains a 12px sprite and so on. So
+                          ; effectively by extracting 16 from the edge
+                          ; coordinate earlier and adding 10 later we are
+                          ; rendering the terrain edge of the size 6px less
+                          ; than defined. Why?
+  DEC DE                  ; Restore DE back to the screen address of beginning
+  DEC DE                  ; of the edge.
+  LD B,A                  ; Copy the coordinate of the left terrain edge into
+                          ; B.
+  SRL B                   ; Again, calculate the number of full tiles
+  SRL B                   ; corresponding to the coordinate of the left edge.
+  SRL B                   ;
   LD A,$FF
 fill_terrain_left_loop:
   DEC DE
