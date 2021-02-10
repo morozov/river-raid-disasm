@@ -1272,7 +1272,7 @@ b$5EF9 DEFB $00
 
 ; The value sourced from the first byte of an island definition in #R$C600 and
 ; used as a #R$8063 array index.
-@label=state_island_terrain_idx
+@label=state_island_profile_idx
 b$5EFA DEFB $00
 
 ; Data block at 5EFB
@@ -1284,7 +1284,7 @@ b$5EFB DEFB $00
 b$5EFC DEFB $00
 
 ; Data block at 5EFD
-@label=state_island_byte_4
+@label=state_island_line_idx
 b$5EFD DEFB $10
 
 ; Unused
@@ -1432,7 +1432,7 @@ b$5F7A DEFB $00
 w$5F7B DEFW $0000
 
 ; Inner array index in the terrain definition.
-@label=state_terrain_row_byte_index
+@label=state_terrain_row_line_idx
 b$5F7D DEFB $01
 
 ; Pointer to the text to be displayed in the scroller.
@@ -2887,7 +2887,8 @@ c$696B LD HL,$C600   ;
 ; Routine at 6990
 ;
 ; Used by the routine at #R$6A4F.
-c$6990 LD HL,$5EFD   ; {Increase state_island_byte_4
+@label=render_island_line
+c$6990 LD HL,$5EFD   ; {Next island line.
  $6993 INC (HL)      ; }
  $6994 LD A,($5EFA)  ;
  $6997 LD HL,$8063   ;
@@ -2896,10 +2897,10 @@ c$6990 LD HL,$5EFD   ; {Increase state_island_byte_4
  $699E SBC HL,DE     ;
 @label=L6990_locate_sprite
 *$69A0 ADD HL,DE     ; {Point #REGhl to the element of #R$8063 with the index
- $69A1 DEC A         ; defined by #R$5EFA
+ $69A1 DEC A         ; defined by #R$5EFA.
  $69A2 JR NZ,$69A0   ; }
- $69A4 LD A,($5F7D)  ; {Point #REGhl to the offset of the element above defined
- $69A7 AND $0F       ; by #R$5F7D
+ $69A4 LD A,($5F7D)  ; {Point #REGhl to the profile line with the index defined
+ $69A7 AND $0F       ; by #R$5F7D.
  $69A9 LD D,$00      ;
  $69AB LD E,A        ;
  $69AC ADD HL,DE     ; }
@@ -5358,7 +5359,7 @@ b$805F DEFB $01,$05,$0A,$0F
 ; .
 ;
 ; Each byte of the element defines the relative terrain width
-@label=data_terrain_elements
+@label=data_terrain_profiles
 b$8063 DEFB $02,$04,$04,$06,$08,$08,$0A,$0A ; {Terrain 1
  $806B DEFB $0C,$0A,$0A,$08,$06,$04,$02,$00 ; }
  $8073 DEFB $80,$80,$80,$80,$80,$80,$80,$80 ; {Terrain 2

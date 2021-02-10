@@ -91,13 +91,13 @@ b $5EF6
 w $5EF7
 @ $5EF9 label=L5EF9
 b $5EF9
-@ $5EFA label=state_island_terrain_idx
+@ $5EFA label=state_island_profile_idx
 b $5EFA The value sourced from the first byte of an island definition in #R$C600 and used as a #R$8063 array index.
 @ $5EFB label=state_island_byte_2
 b $5EFB
 @ $5EFC label=state_island_byte_3
 b $5EFC
-@ $5EFD label=state_island_byte_4
+@ $5EFD label=state_island_line_idx
 b $5EFD
 u $5EFE
 @ $5F00 label=viewport_1
@@ -156,7 +156,7 @@ w $5F78
 b $5F7A
 @ $5F7B label=screen_ptr
 w $5F7B
-@ $5F7D label=state_terrain_row_byte_index
+@ $5F7D label=state_terrain_row_line_idx
 b $5F7D Inner array index in the terrain definition.
 @ $5F7E label=ptr_scroller
 w $5F7E Pointer to the text to be displayed in the scroller.
@@ -313,12 +313,13 @@ R $694D O:A Always set to 0
 c $696B
 R $696B I:A The six highest bits of the fourth byte of the terrain element.
 @ $6978 label=locate_island_element
+@ $6990 label=render_island_line
 c $6990
-  $6990,7 Increase state_island_byte_4
+  $6990,7 Next island line.
   $6994
 @ $69A0 label=L6990_locate_sprite
-  $69A0,4 Point #REGhl to the element of #R$8063 with the index defined by #R$5EFA
-  $69A4,9 Point #REGhl to the offset of the element above defined by #R$5F7D
+  $69A0,4 Point #REGhl to the element of #R$8063 with the index defined by #R$5EFA.
+  $69A4,9 Point #REGhl to the profile line with the index defined by #R$5F7D.
 c $6A4A
 @ $6A4F label=render_terrain_row
 c $6A4F
@@ -687,7 +688,7 @@ T $805A AT 20,4
 T $805D INK 7
 @ $805F label=end_status_line_4
 b $805F
-@ $8063 label=data_terrain_elements
+@ $8063 label=data_terrain_profiles
 b $8063 Array [15] of terrain element definitions (16 bytes each).
 N $8063 Each byte of the element defines the relative terrain width
   $8063,16 Terrain 1

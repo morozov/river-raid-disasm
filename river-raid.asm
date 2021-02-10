@@ -1077,7 +1077,7 @@ init_state:
   LD (L90C6),HL
   LD A,$01
   LD (state_terrain_element_row),A
-  LD (state_terrain_row_byte_index),A
+  LD (state_terrain_row_line_idx),A
   LD HL,$0404
   LD (state_lives_player_1),HL
   LD (state_player),A
@@ -1092,7 +1092,7 @@ decrease_lives_player_2:
 ; and demo.
 play:
   LD A,$10
-  LD (state_island_byte_4),A
+  LD (state_island_line_idx),A
   LD A,$1F
   LD (L5F5F),A
   LD SP,(sp_5F83)
@@ -1116,7 +1116,7 @@ play:
   LD A,$00
   LD (L5F6C),A
   LD (L5F6F),A
-  LD (state_terrain_row_byte_index),A
+  LD (state_terrain_row_line_idx),A
   LD (L5F69),A
   LD A,$FF
   LD (state_fuel),A
@@ -1159,7 +1159,7 @@ play:
   LD A,$01
   CALL CHAN_OPEN
   LD A,$FF
-  LD (state_terrain_row_byte_index),A
+  LD (state_terrain_row_line_idx),A
   LD A,$02
   LD (state_terrain_element_1),A
   CALL CHAN_OPEN
@@ -1271,8 +1271,8 @@ L5EF9:
   DEFB $00
 
 ; The value sourced from the first byte of an island definition in data_islands
-; and used as a data_terrain_elements array index.
-state_island_terrain_idx:
+; and used as a data_terrain_profiles array index.
+state_island_profile_idx:
   DEFB $00
 
 ; Data block at 5EFB
@@ -1284,7 +1284,7 @@ state_island_byte_3:
   DEFB $00
 
 ; Data block at 5EFD
-state_island_byte_4:
+state_island_line_idx:
   DEFB $10
 
 ; Unused
@@ -1416,7 +1416,7 @@ state_terrain_element_row:
   DEFB $00
 
 ; The first byte of the current level_terrains element, defines the index of
-; the terrain sprite (see data_terrain_elements).
+; the terrain sprite (see data_terrain_profiles).
 state_terrain_element_1:
   DEFB $00
 
@@ -1433,7 +1433,7 @@ screen_ptr:
   DEFW $0000
 
 ; Inner array index in the terrain definition.
-state_terrain_row_byte_index:
+state_terrain_row_line_idx:
   DEFB $01
 
 ; Pointer to the text to be displayed in the scroller.
@@ -2927,7 +2927,7 @@ locate_island_element:
   DEC A
   JR NZ,$6977
   LD A,(HL)
-  LD (state_island_terrain_idx),A
+  LD (state_island_profile_idx),A
   INC HL
   LD A,(HL)
   LD (state_island_byte_2),A
@@ -2935,29 +2935,29 @@ locate_island_element:
   LD A,(HL)
   LD (state_island_byte_3),A
   LD A,$00
-  LD (state_island_byte_4),A
+  LD (state_island_line_idx),A
   RET
 
 ; Routine at 6990
 ;
 ; Used by the routine at render_terrain_row.
-L6990:
-  LD HL,state_island_byte_4 ; Increase state_island_byte_4
-  INC (HL)                  ;
-  LD A,(state_island_terrain_idx)
-  LD HL,data_terrain_elements
+render_island_line:
+  LD HL,state_island_line_idx ; Next island line.
+  INC (HL)                    ;
+  LD A,(state_island_profile_idx)
+  LD HL,data_terrain_profiles
   LD DE,$0010
   OR A
   SBC HL,DE
 L6990_locate_sprite:
-  ADD HL,DE                 ; Point HL to the element of data_terrain_elements
+  ADD HL,DE                 ; Point HL to the element of data_terrain_profiles
   DEC A                     ; with the index defined by
-  JR NZ,L6990_locate_sprite ; state_island_terrain_idx
-  LD A,(state_terrain_row_byte_index) ; Point HL to the offset of the element
-  AND $0F                             ; above defined by
-  LD D,$00                            ; state_terrain_row_byte_index
-  LD E,A                              ;
-  ADD HL,DE                           ;
+  JR NZ,L6990_locate_sprite ; state_island_profile_idx.
+  LD A,(state_terrain_row_line_idx) ; Point HL to the profile line with the
+  AND $0F                           ; index defined by
+  LD D,$00                          ; state_terrain_row_line_idx.
+  LD E,A                            ;
+  ADD HL,DE                         ;
   LD A,(state_island_byte_2)
   ADD A,(HL)
   PUSH AF
@@ -2992,13 +2992,13 @@ L6990_locate_sprite:
   AND $0F
   LD B,A
   CP $00
-  JP Z,L6990_1
+  JP Z,render_island_line_1
   LD A,$FF
-L6990_0:
+render_island_line_0:
   DEC DE
   LD (DE),A
-  DJNZ L6990_0
-L6990_1:
+  DJNZ render_island_line_0
+render_island_line_1:
   POP AF
   LD B,$00
   LD D,A
@@ -3007,11 +3007,11 @@ L6990_1:
   LD B,A
   LD A,(state_island_byte_3)
   CP $01
-  JP Z,L6990_4
+  JP Z,render_island_line_4
   LD A,(state_island_byte_3)
   CP $02
-  JP Z,L6990_5
-L6990_2:
+  JP Z,render_island_line_5
+render_island_line_2:
   LD D,A
   LD HL,terrain_edge_right
   LD A,D
@@ -3041,20 +3041,20 @@ L6990_2:
   CP $00
   RET Z
   LD A,$FF
-L6990_3:
+render_island_line_3:
   LD (DE),A
   INC DE
-  DJNZ L6990_3
+  DJNZ render_island_line_3
   RET
-L6990_4:
+render_island_line_4:
   LD A,C
   SUB D
   ADD A,C
-  JP L6990_2
-L6990_5:
+  JP render_island_line_2
+render_island_line_5:
   LD A,C
   ADD A,D
-  JP L6990_2
+  JP render_island_line_2
 
 ; Routine at 6A4A
 ;
@@ -3067,7 +3067,7 @@ L6A4A:
 ; Routine at 6A4F
 render_terrain_row:
   LD A,$FF
-  LD (state_terrain_row_byte_index),A
+  LD (state_terrain_row_line_idx),A
   LD HL,level_terrains    ; Point HL to the level_terrains array.
   LD DE,$0100             ; Level terrain array size (64 elements × 4 bytes
                           ; each)
@@ -3115,21 +3115,21 @@ locate_level_terrain_row:
 ; This entry point is used by the routine at L60A5.
 render_terrain_row_sprite:
   LD A,(state_terrain_element_1)
-  LD HL,data_terrain_elements
+  LD HL,data_terrain_profiles
   LD DE,$0010
   OR A
   SBC HL,DE
 locate_terrain_row_sprite:
   ADD HL,DE                       ; Point HL to the element of
-  DEC A                           ; data_terrain_elements with the index
+  DEC A                           ; data_terrain_profiles with the index
   JR NZ,locate_terrain_row_sprite ; defined by state_terrain_element_1.
-  LD A,(state_terrain_row_byte_index) ; Next byte
-  INC A                               ;
-  LD (state_terrain_row_byte_index),A ;
+  LD A,(state_terrain_row_line_idx) ; Next byte
+  INC A                             ;
+  LD (state_terrain_row_line_idx),A ;
   CP $10                  ; If it's the last byte, advance to the next row.
   JP Z,render_terrain_row ;
   AND $0F                 ; Point HL to byte of the current terrain row defined
-  LD D,$00                ; by state_terrain_row_byte_index.
+  LD D,$00                ; by state_terrain_row_line_idx.
   LD E,A                  ;
   ADD HL,DE               ;
   LD BC,(state_terrain_element_23) ; Load the value of the current terrain row
@@ -3236,9 +3236,9 @@ fill_terrain_right_loop:
   LD (DE),A
   INC DE
   DJNZ fill_terrain_right_loop
-  LD A,(state_island_byte_4)
+  LD A,(state_island_line_idx)
   CP $10
-  CALL NZ,L6990
+  CALL NZ,render_island_line
   RET
 
 ; A=2C-D
@@ -3609,7 +3609,7 @@ demo:
   LD BC,$0010
   LD (state_y),BC
   LD A,$10
-  LD (state_island_byte_4),A
+  LD (state_island_line_idx),A
   LD D,$0C                ; PAPER 1; INK 4
   CALL clear_screen
   CALL init_udg
@@ -3631,7 +3631,7 @@ demo:
   LD A,$68
   LD (LAST_K),A
   LD A,$00
-  LD (state_terrain_row_byte_index),A
+  LD (state_terrain_row_line_idx),A
   LD A,(state_bridge_index)
   LD (L5D43),A
 demo_0:
@@ -5535,7 +5535,7 @@ end_status_line_4:
 ; Array [15] of terrain element definitions (16 bytes each).
 ;
 ; Each byte of the element defines the relative terrain width
-data_terrain_elements:
+data_terrain_profiles:
   DEFB $02,$04,$04,$06,$08,$08,$0A,$0A ; Terrain 1
   DEFB $0C,$0A,$0A,$08,$06,$04,$02,$00 ;
   DEFB $80,$80,$80,$80,$80,$80,$80,$80 ; Terrain 2
@@ -7572,7 +7572,7 @@ L9430:
 ;
 ; Array [64] of terrain rows (4 bytes each):
 ;
-; Byte 1 is the terrain type (see data_terrain_elements).
+; Byte 1 is the terrain type (see data_terrain_profiles).
 level_terrains:
   DEFB $0C,$83,$4C,$01    ; Bridge 1
   DEFB $02,$80,$50,$01    ;
