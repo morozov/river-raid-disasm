@@ -5538,11 +5538,11 @@ end_status_line_4:
 data_terrain_profiles:
   DEFB $02,$04,$04,$06,$08,$08,$0A,$0A ; Terrain 1
   DEFB $0C,$0A,$0A,$08,$06,$04,$02,$00 ;
-  DEFB $80,$80,$80,$80,$80,$80,$80,$80 ; Terrain 2
+  DEFB $80,$80,$80,$80,$80,$80,$80,$80 ; Terrain 2 (special, pre-bridge)
   DEFB $E0,$E0,$E0,$E0,$E0,$E0,$E0,$E0 ;
-  DEFB $C0,$C0,$C0,$C0,$C0,$C0,$C0,$F0 ; Terrain 3
+  DEFB $C0,$C0,$C0,$C0,$C0,$C0,$C0,$F0 ; Terrain 3 (special, bridge)
   DEFB $F0,$C0,$C0,$C0,$C0,$C0,$C0,$C0 ;
-  DEFB $E0,$E0,$E0,$E0,$E0,$E0,$E0,$E0 ; Terrain 4
+  DEFB $E0,$E0,$E0,$E0,$E0,$E0,$E0,$E0 ; Terrain 4 (special, post-bridge)
   DEFB $80,$80,$80,$80,$80,$80,$80,$80 ;
   DEFB $00,$00,$02,$02,$04,$04,$06,$06 ; Terrain 5
   DEFB $08,$08,$06,$06,$04,$04,$06,$06 ;
@@ -5558,9 +5558,9 @@ data_terrain_profiles:
   DEFB $0A,$08,$0A,$0A,$08,$06,$04,$02 ;
   DEFB $02,$02,$04,$04,$06,$06,$04,$04 ; Terrain 11
   DEFB $02,$02,$00,$00,$02,$02,$02,$02 ;
-  DEFB $00,$02,$04,$06,$0A,$0C,$10,$12 ; Terrain 12
+  DEFB $00,$02,$04,$06,$0A,$0C,$10,$12 ; Terrain 12 (river narrows)
   DEFB $16,$18,$1C,$1E,$22,$24,$26,$28 ;
-  DEFB $28,$26,$24,$22,$1E,$1C,$18,$16 ; Terrain 13
+  DEFB $28,$26,$24,$22,$1E,$1C,$18,$16 ; Terrain 13 (river widens)
   DEFB $12,$10,$0C,$0A,$06,$04,$02,$00 ;
   DEFB $00,$02,$00,$00,$02,$02,$04,$02 ; Terrain 14
   DEFB $02,$00,$00,$02,$02,$04,$02,$00 ;

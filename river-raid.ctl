@@ -692,9 +692,9 @@ b $805F
 b $8063 Array [15] of terrain element definitions (16 bytes each).
 N $8063 Each byte of the element defines the relative terrain width
   $8063,16 Terrain 1
-  $8073,16 Terrain 2
-  $8083,16 Terrain 3
-  $8093,16 Terrain 4
+  $8073,16 Terrain 2 (special, pre-bridge)
+  $8083,16 Terrain 3 (special, bridge)
+  $8093,16 Terrain 4 (special, post-bridge)
   $80A3,16 Terrain 5
   $80B3,16 Terrain 6
   $80C3,16 Terrain 7
@@ -702,8 +702,8 @@ N $8063 Each byte of the element defines the relative terrain width
   $80E3,16 Terrain 9
   $80F3,16 Terrain 10
   $8103,16 Terrain 11
-  $8113,16 Terrain 12
-  $8123,16 Terrain 13
+  $8113,16 Terrain 12 (river narrows)
+  $8123,16 Terrain 13 (river widens)
   $8133,16 Terrain 14
   $8143,16 Terrain 15
 @ $8153 label=msg_game_over
