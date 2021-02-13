@@ -1411,12 +1411,12 @@ g$5F73 DEFB $00,$00
 b$5F75 DEFB $00
 
 ; Index of the current element of current level terrain array
-@label=state_terrain_element_row
+@label=state_level_fragment_number
 b$5F76 DEFB $00
 
 ; The first byte of the current #R$9500 element, defines the index of the
 ; terrain sprite (see #R$8063).
-@label=state_terrain_element_1
+@label=state_terrain_profile_number
 b$5F77 DEFB $00
 
 ; Data block at 5F78
@@ -1424,7 +1424,7 @@ b$5F77 DEFB $00
 w$5F78 DEFW $0000
 
 ; Data block at 5F7A
-@label=state_terrain_element_4
+@label=state_terrain_extras
 b$5F7A DEFB $00
 
 ; Data block at 5F7B
@@ -1432,7 +1432,7 @@ b$5F7A DEFB $00
 w$5F7B DEFW $0000
 
 ; Inner array index in the terrain definition.
-@label=state_terrain_row_line_idx
+@label=state_terrain_position
 b$5F7D DEFB $01
 
 ; Pointer to the text to be displayed in the scroller.
@@ -3016,19 +3016,19 @@ c$6A4F LD A,$FF      ;
 *$6A60 ADD HL,DE     ; {Point #REGhl to the element of #R$9500 with the index
  $6A61 DEC A         ; defined by #R$5EF0.
  $6A62 JR NZ,$6A60   ; }
- $6A64 LD A,($5F76)  ; {Next row
+ $6A64 LD A,($5F76)  ; {Next fragment
  $6A67 INC A         ;
  $6A68 AND $3F       ;
  $6A6A LD ($5F76),A  ; }
- $6A6D CP $00        ; {If it's the last row, advance to the next bridge
+ $6A6D CP $00        ; {If it's the last fragment, advance to the next level
  $6A6F CALL Z,$694D  ; }
- $6A72 LD DE,$0004   ; Terrain row size (4 bytes)
+ $6A72 LD DE,$0004   ; Terrain fragment size (4 bytes)
  $6A75 INC A         ;
  $6A76 OR A          ;
  $6A77 SBC HL,DE     ;
-@label=locate_level_terrain_row
-*$6A79 ADD HL,DE     ; {Point #REGhl to the row of the current #R$9500 element
- $6A7A DEC A         ; with the index defined by #R$5F76.
+@label=locate_level_terrain_fragment
+*$6A79 ADD HL,DE     ; {Point #REGhl to the fragment of the current #R$9500
+ $6A7A DEC A         ; element with the index defined by #R$5F76.
  $6A7B JR NZ,$6A79   ; }
  $6A7D LD A,(HL)     ;
  $6A7E LD ($5F77),A  ;
@@ -3051,23 +3051,23 @@ c$6A4F LD A,$FF      ;
  $6A9E AND $03       ;
  $6AA0 LD ($5F7A),A  ;
 ; This entry point is used by the routine at #R$60A5.
-@label=render_terrain_row_sprite
+@label=render_terrain_fragment
 *$6AA3 LD A,($5F77)  ;
  $6AA6 LD HL,$8063   ;
  $6AA9 LD DE,$0010   ;
  $6AAC OR A          ;
  $6AAD SBC HL,DE     ;
-@label=locate_terrain_row_sprite
+@label=locate_terrain_fragment
 *$6AAF ADD HL,DE     ; {Point #REGhl to the element of #R$8063 with the index
  $6AB0 DEC A         ; defined by #R$5F77.
  $6AB1 JR NZ,$6AAF   ; }
- $6AB3 LD A,($5F7D)  ; {Next byte
+ $6AB3 LD A,($5F7D)  ; {Next line
  $6AB6 INC A         ;
  $6AB7 LD ($5F7D),A  ; }
- $6ABA CP $10        ; {If it's the last byte, advance to the next row.
+ $6ABA CP $10        ; {If it's the last line, advance to the next fragment.
  $6ABC JP Z,$6A4F    ; }
- $6ABF AND $0F       ; {Point #REGhl to byte of the current terrain row defined
- $6AC1 LD D,$00      ; by #R$5F7D.
+ $6ABF AND $0F       ; {Point #REGhl to byte of the current terrain fragment
+ $6AC1 LD D,$00      ; defined by #R$5F7D.
  $6AC3 LD E,A        ;
  $6AC4 ADD HL,DE     ; }
  $6AC5 LD BC,($5F78) ; Load the value of the current terrain row offset into
@@ -3199,7 +3199,7 @@ c$6B5E LD A,C        ;
 ; Routine at 6B63
 ;
 ; Used by the routine at #R$6B7B.
-@label=handle_pre_post_bridge
+@label=ld_pre_post_bridge_00
 c$6B63 LD A,$00      ;
  $6B65 LD HL,$8331   ;
  $6B68 JP $6B8F      ;
@@ -3207,7 +3207,7 @@ c$6B63 LD A,$00      ;
 ; Routine at 6B6B
 ;
 ; Used by the routine at #R$6B7B.
-@label=handle_terrain_row_byte_e0
+@label=ld_pre_post_bridge_02
 c$6B6B LD A,$02      ;
  $6B6D LD HL,$8331   ;
  $6B70 JP $6B8F      ;
@@ -3215,7 +3215,7 @@ c$6B6B LD A,$02      ;
 ; Routine at 6B73
 ;
 ; Used by the routine at #R$6B7B.
-@label=handle_terrain_row_byte_f0
+@label=ld_road_02
 c$6B73 LD A,$02      ;
  $6B75 LD HL,$8351   ;
  $6B78 JP $6B8F      ;
@@ -3233,6 +3233,7 @@ c$6B7B CP $80        ;
  $6B8A LD A,$01      ;
  $6B8C LD HL,$8351   ;
 ; This entry point is used by the routines at #R$6B63, #R$6B6B and #R$6B73.
+@label=handle_terrain_row_byte_bit_7_continue
 *$6B8F LD DE,($5F7B) ;
  $6B93 LD BC,$0020   ;
  $6B96 LDIR          ;

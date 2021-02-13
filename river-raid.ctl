@@ -146,17 +146,17 @@ g $5F72 Current X coordinate
 g $5F73
 @ $5F75 label=L5F75
 b $5F75
-@ $5F76 label=state_terrain_element_row
+@ $5F76 label=state_level_fragment_number
 b $5F76 Index of the current element of current level terrain array
-@ $5F77 label=state_terrain_element_1
+@ $5F77 label=state_terrain_profile_number
 b $5F77 The first byte of the current #R$9500 element, defines the index of the terrain sprite (see #R$8063).
 @ $5F78 label=state_terrain_element_23
 w $5F78
-@ $5F7A label=state_terrain_element_4
+@ $5F7A label=state_terrain_extras
 b $5F7A
 @ $5F7B label=screen_ptr
 w $5F7B
-@ $5F7D label=state_terrain_row_line_idx
+@ $5F7D label=state_terrain_position
 b $5F7D Inner array index in the terrain definition.
 @ $5F7E label=ptr_scroller
 w $5F7E Pointer to the text to be displayed in the scroller.
@@ -327,17 +327,17 @@ c $6A4F
   $6A57,3 Level terrain array size (64 elements × 4 bytes each)
 @ $6A60 label=locate_level_terrain
   $6A60,4 Point #REGhl to the element of #R$9500 with the index defined by #R$5EF0.
-  $6A64,9 Next row
-  $6A6D,5 If it's the last row, advance to the next bridge
-  $6A72,3 Terrain row size (4 bytes)
-@ $6A79 label=locate_level_terrain_row
-  $6A79,4 Point #REGhl to the row of the current #R$9500 element with the index defined by #R$5F76.
-@ $6AA3 label=render_terrain_row_sprite
-@ $6AAF label=locate_terrain_row_sprite
+  $6A64,9 Next fragment
+  $6A6D,5 If it's the last fragment, advance to the next level
+  $6A72,3 Terrain fragment size (4 bytes)
+@ $6A79 label=locate_level_terrain_fragment
+  $6A79,4 Point #REGhl to the fragment of the current #R$9500 element with the index defined by #R$5F76.
+@ $6AA3 label=render_terrain_fragment
+@ $6AAF label=locate_terrain_fragment
   $6AAF,4 Point #REGhl to the element of #R$8063 with the index defined by #R$5F77.
-  $6AB3,7 Next byte
-  $6ABA,5 If it's the last byte, advance to the next row.
-  $6ABF,6 Point #REGhl to byte of the current terrain row defined by #R$5F7D.
+  $6AB3,7 Next line
+  $6ABA,5 If it's the last line, advance to the next fragment.
+  $6ABF,6 Point #REGhl to byte of the current terrain fragment defined by #R$5F7D.
   $6AC5,4 Load the value of the current terrain row offset into #REGb. The value loaded into #REGc is unused.
   $6AC9,1 Load the value of the current terrain profile byte into #REGa.
   $6ACA,5 Jump to handling special cases.
@@ -373,14 +373,15 @@ c $6B5E A=C+D
 R $6B5E I:C River width.
 R $6B5E I:D Left terrain coordinate.
 R $6B5E O:A Right terrain coordinate.
-@ $6B63 label=handle_pre_post_bridge
+@ $6B63 label=ld_pre_post_bridge_00
 c $6B63
-@ $6B6B label=handle_terrain_row_byte_e0
+@ $6B6B label=ld_pre_post_bridge_02
 c $6B6B
-@ $6B73 label=handle_terrain_row_byte_f0
+@ $6B73 label=ld_road_02
 c $6B73
 @ $6B7B label=handle_terrain_row_byte_bit_7
 c $6B7B
+@ $6B8F label=handle_terrain_row_byte_bit_7_continue
 @ $6BB0 label=state_controls
 g $6BB0 Bitmask of the CONTROLS_BIT_* bits containing the current controls and other information.
 @ $6BB1 label=pause
