@@ -1008,6 +1008,8 @@ w $9287
 w $9289
 w $928B
 c $928D
+R $928D I:A Sprite width in tiles
+R $928D I:E Screen attributes
 @ $92F1 nowarn
 @ $934F nowarn
 @ $93EC isub=LD BC,state_score_player_2 - state_score_player_1
@@ -1084,54 +1086,54 @@ N $9500 Byte 1 is the terrain type (see #R$8063).
 @ $C600 label=data_islands
 b $C600 Array [?] island data (3 bytes each).
   $C600,108,3
-@ $C800 label=levels
-b $C800 Byte 1: lowest 3 bits - object type; Byte 2 - position. $07 - fuel station, $06 - balloon, $04-05 - unknown
-  $C800,256 Bridge 1
-  $C900,256 Bridge 2
-  $CA00,256 Bridge 3
-  $CB00,256 Bridge 4
-  $CC00,256 Bridge 5
-  $CD00,256 Bridge 6
-  $CE00,256 Bridge 7
-  $CF00,256 Bridge 8
-  $D000,256 Bridge 9
-  $D100,256 Bridge 10
-  $D200,256 Bridge 11
-  $D300,256 Bridge 12
-  $D400,256 Bridge 13
-  $D500,256 Bridge 14
-  $D600,256 Bridge 15
-  $D700,256 Bridge 16
-  $D800,256 Bridge 17
-  $D900,256 Bridge 18
-  $DA00,256 Bridge 19
-  $DB00,256 Bridge 20
-  $DC00,256 Bridge 21
-  $DD00,256 Bridge 22
-  $DE00,256 Bridge 23
-  $DF00,256 Bridge 24
-  $E000,256 Bridge 25
-  $E100,256 Bridge 26
-  $E200,256 Bridge 27
-  $E300,256 Bridge 28
-  $E400,256 Bridge 29
-  $E500,256 Bridge 30
-  $E600,256 Bridge 31
-  $E700,256 Bridge 32
-  $E800,256 Bridge 33
-  $E900,256 Bridge 34
-  $EA00,256 Bridge 35
-  $EB00,256 Bridge 36
-  $EC00,256 Bridge 37
-  $ED00,256 Bridge 38
-  $EE00,256 Bridge 39
-  $EF00,256 Bridge 40
-  $F000,256 Bridge 41
-  $F100,256 Bridge 42
-  $F200,256 Bridge 43
-  $F300,256 Bridge 44
-  $F400,256 Bridge 45
-  $F500,256 Bridge 46
-  $F600,256 Bridge 47
-  $F700,256 Bridge 48
+@ $C800 label=level_objects
+b $C800 Byte 1: lowest 3 bits - object type (OBJECT_*), bit 3 - rock (then the 2 lowest bits are the rock number); Byte 2 - position.
+  $C800,256,2 Level 1
+  $C900,256,2 Level 2
+  $CA00,256,2 Level 3
+  $CB00,256,2 Level 4
+  $CC00,256,2 Level 5
+  $CD00,256,2 Level 6
+  $CE00,256,2 Level 7
+  $CF00,256,2 Level 8
+  $D000,256,2 Level 9
+  $D100,256,2 Level 10
+  $D200,256,2 Level 11
+  $D300,256,2 Level 12
+  $D400,256,2 Level 13
+  $D500,256,2 Level 14
+  $D600,256,2 Level 15
+  $D700,256,2 Level 16
+  $D800,256,2 Level 17
+  $D900,256,2 Level 18
+  $DA00,256,2 Level 19
+  $DB00,256,2 Level 20
+  $DC00,256,2 Level 21
+  $DD00,256,2 Level 22
+  $DE00,256,2 Level 23
+  $DF00,256,2 Level 24
+  $E000,256,2 Level 25
+  $E100,256,2 Level 26
+  $E200,256,2 Level 27
+  $E300,256,2 Level 28
+  $E400,256,2 Level 29
+  $E500,256,2 Level 30
+  $E600,256,2 Level 31
+  $E700,256,2 Level 32
+  $E800,256,2 Level 33
+  $E900,256,2 Level 34
+  $EA00,256,2 Level 35
+  $EB00,256,2 Level 36
+  $EC00,256,2 Level 37
+  $ED00,256,2 Level 38
+  $EE00,256,2 Level 39
+  $EF00,256,2 Level 40
+  $F000,256,2 Level 41
+  $F100,256,2 Level 42
+  $F200,256,2 Level 43
+  $F300,256,2 Level 44
+  $F400,256,2 Level 45
+  $F500,256,2 Level 46
+  $F600,256,2 Level 47
+  $F700,256,2 Level 48
 i $F800
