@@ -340,7 +340,7 @@ c $6A4F
   $6ABF,6 Point #REGhl to byte of the current terrain fragment defined by #R$5F7D.
   $6AC5,4 Load the value of the current terrain row offset into #REGb. The value loaded into #REGc is unused.
   $6AC9,1 Load the value of the current terrain profile byte into #REGa.
-  $6ACA,5 Jump to handling special cases.
+  $6ACA,5 Jump to handling a special terrain fragment.
   $6ACF,1 Now #REGa contains the coordinate of the left terrain edge.
   $6AD3,2 For some reason, subtract 16 from the coordinate of the left terrain edge.
   $6AD5,1 Store the result in #REGd to reuse it in multiple operations with #REGa.
@@ -373,15 +373,15 @@ c $6B5E A=C+D
 R $6B5E I:C River width.
 R $6B5E I:D Left terrain coordinate.
 R $6B5E O:A Right terrain coordinate.
-@ $6B63 label=ld_pre_post_bridge_00
-c $6B63
-@ $6B6B label=ld_pre_post_bridge_02
-c $6B6B
-@ $6B73 label=ld_road_02
-c $6B73
-@ $6B7B label=handle_terrain_row_byte_bit_7
-c $6B7B
-@ $6B8F label=handle_terrain_row_byte_bit_7_continue
+@ $6B63 label=ld_fragment_canal_adjacent_to_river
+c $6B63 Load the sprite and the attributes of the line of the half of the canal adjacent to the river.
+@ $6B6B label=ld_fragment_canal_adjacent_to_road
+c $6B6B Load the sprite and the attributes of the line of the half of the canal adjacent to the road.
+@ $6B73 label=ld_fragment_road
+c $6B73 Load the sprite and the attributes of the line of the road and bridge.
+@ $6B7B label=handle_special_terrain_fragment
+c $6B7B Handle special terrain fragments (pre and post-bridge canal and the road with the bridge) which have different color attributes than the rest of the terrain fragments.
+@ $6B8F label=handle_special_terrain_fragment_continue
 @ $6BB0 label=state_controls
 g $6BB0 Bitmask of the CONTROLS_BIT_* bits containing the current controls and other information.
 @ $6BB1 label=pause
@@ -727,7 +727,7 @@ b $82C5
 b $82F5
 @ $8331 label=sprite_terrain_pre_post_bridge
 b $8331
-@ $8351 label=sprite_road_pixels
+@ $8351 label=sprite_road_and_bridge_pixels
 b $8351
 @ $8371 label=sprite_road_attributes
 b $8371

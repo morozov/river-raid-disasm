@@ -3074,7 +3074,7 @@ c$6A4F LD A,$FF      ;
                      ; #REGb. The value loaded into #REGc is unused.
  $6AC9 LD A,(HL)     ; Load the value of the current terrain profile byte into
                      ; #REGa.
- $6ACA BIT 7,A       ; {Jump to handling special cases.
+ $6ACA BIT 7,A       ; {Jump to handling a special terrain fragment.
  $6ACC JP NZ,$6B7B   ; }
  $6ACF ADD A,B       ; Now #REGa contains the coordinate of the left terrain
                      ; edge.
@@ -3196,34 +3196,38 @@ c$6B5E LD A,C        ;
  $6B5F ADD A,D       ;
  $6B60 JP $6B20      ;
 
-; Routine at 6B63
+; Load the sprite and the attributes of the line of the half of the canal
+; adjacent to the river.
 ;
 ; Used by the routine at #R$6B7B.
-@label=ld_pre_post_bridge_00
+@label=ld_fragment_canal_adjacent_to_river
 c$6B63 LD A,$00      ;
  $6B65 LD HL,$8331   ;
  $6B68 JP $6B8F      ;
 
-; Routine at 6B6B
+; Load the sprite and the attributes of the line of the half of the canal
+; adjacent to the road.
 ;
 ; Used by the routine at #R$6B7B.
-@label=ld_pre_post_bridge_02
+@label=ld_fragment_canal_adjacent_to_road
 c$6B6B LD A,$02      ;
  $6B6D LD HL,$8331   ;
  $6B70 JP $6B8F      ;
 
-; Routine at 6B73
+; Load the sprite and the attributes of the line of the road and bridge.
 ;
 ; Used by the routine at #R$6B7B.
-@label=ld_road_02
+@label=ld_fragment_road
 c$6B73 LD A,$02      ;
  $6B75 LD HL,$8351   ;
  $6B78 JP $6B8F      ;
 
-; Routine at 6B7B
+; Handle special terrain fragments (pre and post-bridge canal and the road with
+; the bridge) which have different color attributes than the rest of the
+; terrain fragments.
 ;
 ; Used by the routine at #R$6A4F.
-@label=handle_terrain_row_byte_bit_7
+@label=handle_special_terrain_fragment
 c$6B7B CP $80        ;
  $6B7D JP Z,$6B63    ;
  $6B80 CP $E0        ;
@@ -3233,7 +3237,7 @@ c$6B7B CP $80        ;
  $6B8A LD A,$01      ;
  $6B8C LD HL,$8351   ;
 ; This entry point is used by the routines at #R$6B63, #R$6B6B and #R$6B73.
-@label=handle_terrain_row_byte_bit_7_continue
+@label=handle_special_terrain_fragment_continue
 *$6B8F LD DE,($5F7B) ;
  $6B93 LD BC,$0020   ;
  $6B96 LDIR          ;
@@ -5467,7 +5471,7 @@ b$8331 DEFB $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
  $8349 DEFB $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
 
 ; Data block at 8351
-@label=sprite_road_pixels
+@label=sprite_road_and_bridge_pixels
 b$8351 DEFB $00,$00,$00,$00,$00,$00,$00,$00
  $8359 DEFB $00,$00,$00,$00,$00,$00,$FF,$FF
  $8361 DEFB $FF,$FF,$00,$00,$00,$00,$00,$00

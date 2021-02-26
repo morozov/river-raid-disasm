@@ -1805,11 +1805,11 @@ interact_with_something:
   LD A,(L5F6C)
   CP $02
   LD HL,screen_pixels
-  CALL Z,handle_terrain_row_byte_bit_7_0
+  CALL Z,handle_special_terrain_fragment_0
   LD A,(L5F6C)
   CP $02
   LD HL,$4100
-  CALL Z,handle_terrain_row_byte_bit_7_0
+  CALL Z,handle_special_terrain_fragment_0
   LD A,$00
   LD (L5F6E),A
   LD A,$01
@@ -3137,8 +3137,8 @@ locate_terrain_fragment:
                                    ; unused.
   LD A,(HL)               ; Load the value of the current terrain profile byte
                           ; into A.
-  BIT 7,A                             ; Jump to handling special cases.
-  JP NZ,handle_terrain_row_byte_bit_7 ;
+  BIT 7,A                               ; Jump to handling a special terrain
+  JP NZ,handle_special_terrain_fragment ; fragment.
   ADD A,B                 ; Now A contains the coordinate of the left terrain
                           ; edge.
   PUSH AF
@@ -3266,45 +3266,50 @@ state_terrain_element_4_eq_2:
   ADD A,D
   JP render_terrain_row_0
 
-; Routine at 6B63
+; Load the sprite and the attributes of the line of the half of the canal
+; adjacent to the river.
 ;
-; Used by the routine at handle_terrain_row_byte_bit_7.
-ld_pre_post_bridge_00:
+; Used by the routine at handle_special_terrain_fragment.
+ld_fragment_canal_adjacent_to_river:
   LD A,$00
   LD HL,sprite_terrain_pre_post_bridge
-  JP handle_terrain_row_byte_bit_7_continue
+  JP handle_special_terrain_fragment_continue
 
-; Routine at 6B6B
+; Load the sprite and the attributes of the line of the half of the canal
+; adjacent to the road.
 ;
-; Used by the routine at handle_terrain_row_byte_bit_7.
-ld_pre_post_bridge_02:
+; Used by the routine at handle_special_terrain_fragment.
+ld_fragment_canal_adjacent_to_road:
   LD A,$02
   LD HL,sprite_terrain_pre_post_bridge
-  JP handle_terrain_row_byte_bit_7_continue
+  JP handle_special_terrain_fragment_continue
 
-; Routine at 6B73
+; Load the sprite and the attributes of the line of the road and bridge.
 ;
-; Used by the routine at handle_terrain_row_byte_bit_7.
-ld_road_02:
+; Used by the routine at handle_special_terrain_fragment.
+ld_fragment_road:
   LD A,$02
-  LD HL,sprite_road_pixels
-  JP handle_terrain_row_byte_bit_7_continue
+  LD HL,sprite_road_and_bridge_pixels
+  JP handle_special_terrain_fragment_continue
 
-; Routine at 6B7B
+; Handle special terrain fragments (pre and post-bridge canal and the road with
+; the bridge) which have different color attributes than the rest of the
+; terrain fragments.
 ;
 ; Used by the routine at render_terrain_row.
-handle_terrain_row_byte_bit_7:
+handle_special_terrain_fragment:
   CP $80
-  JP Z,ld_pre_post_bridge_00
+  JP Z,ld_fragment_canal_adjacent_to_river
   CP $E0
-  JP Z,ld_pre_post_bridge_02
+  JP Z,ld_fragment_canal_adjacent_to_road
   CP $F0
-  JP Z,ld_road_02
+  JP Z,ld_fragment_road
   LD A,$01
-  LD HL,sprite_road_pixels
-; This entry point is used by the routines at ld_pre_post_bridge_00,
-; ld_pre_post_bridge_02 and ld_road_02.
-handle_terrain_row_byte_bit_7_continue:
+  LD HL,sprite_road_and_bridge_pixels
+; This entry point is used by the routines at
+; ld_fragment_canal_adjacent_to_river, ld_fragment_canal_adjacent_to_road and
+; ld_fragment_road.
+handle_special_terrain_fragment_continue:
   LD DE,(screen_ptr)
   LD BC,$0020
   LDIR
@@ -3314,14 +3319,14 @@ handle_terrain_row_byte_bit_7_continue:
   RET Z
   LD HL,(screen_ptr)
 ; This entry point is used by the routine at interact_with_something.
-handle_terrain_row_byte_bit_7_0:
+handle_special_terrain_fragment_0:
   LD DE,$000E
   LD B,$04
   ADD HL,DE
-handle_terrain_row_byte_bit_7_1:
+handle_special_terrain_fragment_1:
   LD (HL),$00
   INC HL
-  DJNZ handle_terrain_row_byte_bit_7_1
+  DJNZ handle_special_terrain_fragment_1
   RET
 
 ; Bitmask of the CONTROLS_BIT_* bits containing the current controls and other
@@ -5638,7 +5643,7 @@ sprite_terrain_pre_post_bridge:
   DEFB $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
 
 ; Data block at 8351
-sprite_road_pixels:
+sprite_road_and_bridge_pixels:
   DEFB $00,$00,$00,$00,$00,$00,$00,$00
   DEFB $00,$00,$00,$00,$00,$00,$FF,$FF
   DEFB $FF,$FF,$00,$00,$00,$00,$00,$00
