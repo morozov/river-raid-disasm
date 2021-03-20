@@ -451,10 +451,18 @@ R $6E9C I:BC Pointer to the fragment to explode.
   $6E9F,2 Set CONTROLS_BIT_EXPLODING
   $6EA1,2 Reset CONTROLS_BIT_FIRE
 c $6EC8
-c $6F63
-c $6F67
-c $6F6B
-c $6F6F
+@ $6F63 label=ld_sprite_explosion_f1
+c $6F63 Load frame 1 of the explosion sprite.
+R $6F63 O:DE Pointer to the sprite.
+@ $6F67 label=ld_sprite_explosion_f2
+c $6F67 Load frame 2 of the explosion sprite.
+R $6F67 O:DE Pointer to the sprite.
+@ $6F6B label=ld_sprite_explosion_f3
+c $6F6B Load frame 3 of the explosion sprite.
+R $6F6B O:DE Pointer to the sprite.
+@ $6F6F label=ld_sprite_explosion_erasure
+c $6F6F Load explosion erasure sprite.
+R $6F6F O:DE Pointer to the sprite.
 c $6F73
 c $6F7A
 @ $6F80 label=next_row
@@ -722,8 +730,7 @@ b $825D
 D $825D #UDGTABLE { #FONT$825D,13 } TABLE#
 @ $82C5 label=all_ff
 b $82C5
-@ $82F5 label=sprite_erase
-@ $82F5 label=L82F5
+@ $82F5 label=sprite_erasure
 b $82F5
 @ $8331 label=sprite_terrain_pre_post_bridge
 b $8331

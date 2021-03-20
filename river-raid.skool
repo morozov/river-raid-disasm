@@ -3840,27 +3840,39 @@ c$6EC8 LD HL,($5F62) ;
  $6F5D CALL $8B58    ;
  $6F60 JP $6EC8      ;
 
-; Routine at 6F63
+; Load frame 1 of the explosion sprite.
 ;
 ; Used by the routine at #R$6EC8.
+;
+; O:DE Pointer to the sprite.
+@label=ld_sprite_explosion_f1
 c$6F63 LD DE,$8471   ;
  $6F66 RET           ;
 
-; Routine at 6F67
+; Load frame 2 of the explosion sprite.
 ;
 ; Used by the routine at #R$6EC8.
+;
+; O:DE Pointer to the sprite.
+@label=ld_sprite_explosion_f2
 c$6F67 LD DE,$8481   ;
  $6F6A RET           ;
 
-; Routine at 6F6B
+; Load frame 3 of the explosion sprite.
 ;
 ; Used by the routine at #R$6EC8.
+;
+; O:DE Pointer to the sprite.
+@label=ld_sprite_explosion_f3
 c$6F6B LD DE,$8491   ;
  $6F6E RET           ;
 
-; Routine at 6F6F
+; Load explosion erasure sprite.
 ;
 ; Used by the routine at #R$6EC8.
+;
+; O:DE Pointer to the sprite.
+@label=ld_sprite_explosion_erasure
 c$6F6F LD DE,$82F5   ;
  $6F72 RET           ;
 
@@ -5452,8 +5464,7 @@ b$82C5 DEFB $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
  $82ED DEFB $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
 
 ; Data block at 82F5
-@label=sprite_erase
-@label=L82F5
+@label=sprite_erasure
 b$82F5 DEFB $00,$00,$00,$00,$00,$00,$00,$00
  $82FD DEFB $00,$00,$00,$00,$00,$00,$00,$00
  $8305 DEFB $00,$00,$00,$00,$00,$00,$00,$00

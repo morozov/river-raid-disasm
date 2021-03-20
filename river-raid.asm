@@ -1629,7 +1629,7 @@ L60A5:
   LD E,$00
   LD BC,$0010
   LD A,$02
-  LD HL,L82F5
+  LD HL,sprite_erasure
   CALL render_object
 L60A5_0:
   CALL L683B
@@ -2655,7 +2655,7 @@ L6794_0:
   LD A,$01
   LD BC,$0008
   LD DE,$080C
-  LD HL,L82F5
+  LD HL,sprite_erasure
   CALL render_object
   LD HL,state_controls
   RES 1,(HL)              ; Reset CONTROLS_BIT_SPEED_DECREASED
@@ -2692,7 +2692,7 @@ L6794_1:
   LD E,$0C
   LD A,$01
   LD (render_sprite_ptr),HL
-  LD HL,L82F5
+  LD HL,sprite_erasure
   LD (L8B0C),BC
   LD (L8B0A),BC
   LD BC,$0000
@@ -3902,17 +3902,17 @@ L6EC8:
   LD A,(HL)
   AND $7F
   CP $01
-  CALL Z,L6F63
+  CALL Z,ld_sprite_explosion_f1
   CP $02
-  CALL Z,L6F67
+  CALL Z,ld_sprite_explosion_f2
   CP $03
-  CALL Z,L6F6B
+  CALL Z,ld_sprite_explosion_f3
   CP $04
-  CALL Z,L6F67
+  CALL Z,ld_sprite_explosion_f2
   CP $05
-  CALL Z,L6F63
+  CALL Z,ld_sprite_explosion_f1
   CP $06
-  CALL Z,L6F6F
+  CALL Z,ld_sprite_explosion_erasure
   LD A,(HL)
   LD HL,all_ff
   LD (render_sprite_ptr),HL
@@ -3944,32 +3944,40 @@ L6EC8_0:
   CALL render_object_1
   JP L6EC8
 
-; Routine at 6F63
+; Load frame 1 of the explosion sprite.
 ;
 ; Used by the routine at L6EC8.
-L6F63:
+;
+; O:DE Pointer to the sprite.
+ld_sprite_explosion_f1:
   LD DE,sprite_explosion_f1
   RET
 
-; Routine at 6F67
+; Load frame 2 of the explosion sprite.
 ;
 ; Used by the routine at L6EC8.
-L6F67:
+;
+; O:DE Pointer to the sprite.
+ld_sprite_explosion_f2:
   LD DE,sprite_explosion_f2
   RET
 
-; Routine at 6F6B
+; Load frame 3 of the explosion sprite.
 ;
 ; Used by the routine at L6EC8.
-L6F6B:
+;
+; O:DE Pointer to the sprite.
+ld_sprite_explosion_f3:
   LD DE,sprite_explosion_f3
   RET
 
-; Routine at 6F6F
+; Load explosion erasure sprite.
 ;
 ; Used by the routine at L6EC8.
-L6F6F:
-  LD DE,L82F5
+;
+; O:DE Pointer to the sprite.
+ld_sprite_explosion_erasure:
+  LD DE,sprite_erasure
   RET
 
 ; Routine at 6F73
@@ -4045,7 +4053,7 @@ locate_rock_element:
   LD B,$00
   LD C,E
   LD (render_sprite_ptr),HL
-  LD HL,L82F5
+  LD HL,sprite_erasure
   LD (L8B0C),BC
   LD (L8B0A),BC
   LD A,$03                ; Set width to 3 tiles
@@ -4414,7 +4422,7 @@ L71A2_2:
   DEC HL
   DEC HL
   LD (HL),$00
-  LD HL,L82F5
+  LD HL,sprite_erasure
   LD A,(L7383)
   RES 5,A
   LD (L7383),A
@@ -4862,7 +4870,7 @@ L7441_0:
   LD E,A
   ADD HL,DE
   LD (render_sprite_ptr),HL
-  LD HL,L82F5
+  LD HL,sprite_erasure
   LD DE,$0100
   LD A,$01
   LD BC,$0008
@@ -5625,7 +5633,7 @@ all_ff:
   DEFB $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
 
 ; Data block at 82F5
-L82F5:
+sprite_erasure:
   DEFB $00,$00,$00,$00,$00,$00,$00,$00
   DEFB $00,$00,$00,$00,$00,$00,$00,$00
   DEFB $00,$00,$00,$00,$00,$00,$00,$00
