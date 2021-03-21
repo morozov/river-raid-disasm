@@ -6037,8 +6037,8 @@ sprite_enemies_left:
 ; Array [4] of fighter headed left sprites (each element is 3×1 tiles = 24
 ; bytes).
   DEFB $00,$00,$00        ; Frame 1
-  DEFB $70,$40,$00        ;
-  DEFB $00,$C0,$00        ;
+  DEFB $00,$40,$00        ;
+  DEFB $70,$C0,$00        ;
   DEFB $FF,$C0,$00        ;
   DEFB $FC,$80,$00        ;
   DEFB $07,$00,$00        ;
@@ -6212,10 +6212,10 @@ sprite_enemies_right:
 ; Array [4] of fighter headed right sprites (each element is 3×1 tiles = 24
 ; bytes).
   DEFB $00,$00,$00        ; Frame 1
-  DEFB $80,$80,$00        ;
-  DEFB $C3,$C0,$00        ;
+  DEFB $80,$00,$00        ;
+  DEFB $C3,$80,$00        ;
   DEFB $FF,$C0,$00        ;
-  DEFB $4F,$00,$00        ;
+  DEFB $4F,$C0,$00        ;
   DEFB $38,$00,$00        ;
   DEFB $70,$00,$00        ;
   DEFB $00,$00,$00        ;
@@ -6224,7 +6224,7 @@ sprite_enemies_right:
   DEFB $30,$E0,$00        ;
   DEFB $3F,$F0,$00        ;
   DEFB $13,$F0,$00        ;
-  DEFB $07,$00,$00        ;
+  DEFB $0F,$00,$00        ;
   DEFB $1C,$00,$00        ;
   DEFB $00,$00,$00        ;
   DEFB $00,$00,$00        ; Frame 3

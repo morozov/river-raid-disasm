@@ -819,6 +819,8 @@ N $86D3 Array [4] of tank headed left sprites (each element is 3×1 tiles = 24 b
 N $8733 #UDGTABLE { #UDGARRAY3,12,4,3;$8733-$8736-1-16(*fighter-left-f1) | #UDGARRAY3,12,4,3;$874B-$874E-1-16(*fighter-left-f2) | #UDGARRAY3,12,4,3;$8763-$8766-1-16(*fighter-left-f3) | #UDGARRAY3,12,4,3;$877B-$877E-1-16(*fighter-left-f4) } TABLE#
 N $8733 Array [4] of fighter headed left sprites (each element is 3×1 tiles = 24 bytes).
   $8733,24,3 Frame 1
+@ $8736 ofix=DEFB $00,$40,$00
+@ $8739 ofix=DEFB $70,$C0,$00
   $874B,24,3 Frame 2
   $8763,24,3 Frame 3
   $877B,24,3 Frame 4
@@ -851,7 +853,11 @@ N $88B3 Array [4] of tank headed right sprites (each element is 3×1 tiles = 24 
 N $8913 #UDGTABLE { #UDGARRAY3,12,4,3;$8913-$8916-1-16(*fighter-right-f1) | #UDGARRAY3,12,4,3;$892B-$892E-1-16(*fighter-right-f2) | #UDGARRAY3,12,4,3;$8943-$8946-1-16(*fighter-right-f3) | #UDGARRAY3,12,4,3;$895B-$895E-1-16(*fighter-right-f4) | #UDGARRAY*fighter-right-f1,50;fighter-right-f2;fighter-right-f3;fighter-right-f4;fighter-left-f4;fighter-left-f3;fighter-left-f2;fighter-left-f1(fighter) } TABLE#
 N $8913 Array [4] of fighter headed right sprites (each element is 3×1 tiles = 24 bytes).
   $8913,24,3 Frame 1
+@ $8916 ofix=DEFB $80,$00,$00
+@ $8919 ofix=DEFB $C3,$80,$00
+@ $891F ofix=DEFB $4F,$C0,$00
   $892B,24,3 Frame 2
+@ $893A ofix=DEFB $0F,$00,$00
   $8943,24,3 Frame 3
   $895B,21,3 Frame 4
 @ $8972 label=sprite_balloon

@@ -5965,7 +5965,9 @@ b$85B3 DEFB $F0,$00,$00 ; {Frame 1
 ; Array [4] of fighter headed left sprites (each element is 3×1 tiles = 24
 ; bytes).
  $8733 DEFB $00,$00,$00 ; {Frame 1
+@ofix=DEFB $00,$40,$00
  $8736 DEFB $70,$40,$00 ;
+@ofix=DEFB $70,$C0,$00
  $8739 DEFB $00,$C0,$00 ;
  $873C DEFB $FF,$C0,$00 ;
  $873F DEFB $FC,$80,$00 ;
@@ -6189,9 +6191,12 @@ b$8793 DEFB $03,$C0,$00 ; {Frame 1
 ; Array [4] of fighter headed right sprites (each element is 3×1 tiles = 24
 ; bytes).
  $8913 DEFB $00,$00,$00 ; {Frame 1
+@ofix=DEFB $80,$00,$00
  $8916 DEFB $80,$80,$00 ;
+@ofix=DEFB $C3,$80,$00
  $8919 DEFB $C3,$C0,$00 ;
  $891C DEFB $FF,$C0,$00 ;
+@ofix=DEFB $4F,$C0,$00
  $891F DEFB $4F,$00,$00 ;
  $8922 DEFB $38,$00,$00 ;
  $8925 DEFB $70,$00,$00 ;
@@ -6201,6 +6206,7 @@ b$8793 DEFB $03,$C0,$00 ; {Frame 1
  $8931 DEFB $30,$E0,$00 ;
  $8934 DEFB $3F,$F0,$00 ;
  $8937 DEFB $13,$F0,$00 ;
+@ofix=DEFB $0F,$00,$00
  $893A DEFB $07,$00,$00 ;
  $893D DEFB $1C,$00,$00 ;
  $8940 DEFB $00,$00,$00 ; }
