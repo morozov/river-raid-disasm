@@ -2871,6 +2871,7 @@ c$696B LD HL,$C600   ;
 @label=locate_island_element
  $6978 ADD HL,DE     ;
  $6979 DEC A         ;
+@ofix=JR NZ,$6978
  $697A JR NZ,$6977   ;
  $697C LD A,(HL)     ;
  $697D LD ($5EFA),A  ;

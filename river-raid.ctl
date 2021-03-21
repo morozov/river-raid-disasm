@@ -313,6 +313,7 @@ R $694D O:A Always set to 0
 c $696B
 R $696B I:A The six highest bits of the fourth byte of the terrain element.
 @ $6978 label=locate_island_element
+@ $697A ofix=JR NZ,$6978
 @ $6990 label=render_island_line
 c $6990
   $6990,7 Next island line.

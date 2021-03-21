@@ -2925,7 +2925,7 @@ handle_island:
 locate_island_element:
   ADD HL,DE
   DEC A
-  JR NZ,$6977
+  JR NZ,locate_island_element
   LD A,(HL)
   LD (state_island_profile_idx),A
   INC HL

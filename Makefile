@@ -3,6 +3,7 @@ GAME=river-raid
 ASM=$(GAME).asm
 CTL=$(GAME).ctl
 PRISTINE_Z80=$(GAME).pristine.z80
+FIXED_Z80=$(GAME).fixed.z80
 SKOOL=$(GAME).skool
 T2S=$(GAME).t2s
 Z80=$(GAME).z80
@@ -11,14 +12,17 @@ PC=23762
 SP=65344
 
 .PHONY: all
-all: $(ASM) $(Z80)
+all: $(ASM) $(Z80) $(FIXED_Z80)
 
 $(ASM): $(SKOOL)
-	skool2asm.py --create-labels $< > $@
+	skool2asm.py --create-labels -f 1 $< > $@
 
 $(Z80): $(SKOOL)
 	skool2bin.py $< - | bin2sna.py --border 0 --org 16384 --start $(PC) --stack $(SP) - $@
 	diff -u $(PRISTINE_Z80) $(Z80)
+
+$(FIXED_Z80): $(SKOOL)
+	skool2bin.py --ofix $< - | bin2sna.py --border 0 --org 16384 --start $(PC) --stack $(SP) - $@
 
 $(SKOOL): $(PRISTINE_Z80) $(CTL)
 	sna2skool.py --hex $(PRISTINE_Z80) --ctl $(CTL) > $@
