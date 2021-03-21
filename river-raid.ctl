@@ -755,8 +755,12 @@ N $83F1 #UDGTABLE { #UDGARRAY2,14,4,2;$83F1-$83F2-1-16(*plane-banked-f1) | #UDGA
   $8401,16,2 Frame 2
   $8411,16,2 Frame 3
   $8421,16,2 Frame 4
-@ $8431 label=L8431
+@ $8431 label=sprite_missile
 b $8431
+  $8431,8,1 Frame 1
+  $8439,8,1 Frame 2
+  $8441,8,1 Frame 3
+  $8449,8,1 Frame 4
 @ $8451 label=L8451
 b $8451
 @ $8471 label=sprite_explosion_f1

@@ -5604,11 +5604,39 @@ b$83F1 DEFB $10,$00  ; {Frame 1
  $842F DEFB $00,$A0  ; }
 
 ; Data block at 8431
-@label=L8431
-b$8431 DEFB $C0,$C0,$C0,$C0,$C0,$C0,$00,$00
- $8439 DEFB $30,$30,$30,$30,$30,$30,$00,$00
- $8441 DEFB $0C,$0C,$0C,$0C,$0C,$0C,$00,$00
- $8449 DEFB $03,$03,$03,$03,$03,$03,$00,$00
+@label=sprite_missile
+b$8431 DEFB $C0      ; {Frame 1
+ $8432 DEFB $C0      ;
+ $8433 DEFB $C0      ;
+ $8434 DEFB $C0      ;
+ $8435 DEFB $C0      ;
+ $8436 DEFB $C0      ;
+ $8437 DEFB $00      ;
+ $8438 DEFB $00      ; }
+ $8439 DEFB $30      ; {Frame 2
+ $843A DEFB $30      ;
+ $843B DEFB $30      ;
+ $843C DEFB $30      ;
+ $843D DEFB $30      ;
+ $843E DEFB $30      ;
+ $843F DEFB $00      ;
+ $8440 DEFB $00      ; }
+ $8441 DEFB $0C      ; {Frame 3
+ $8442 DEFB $0C      ;
+ $8443 DEFB $0C      ;
+ $8444 DEFB $0C      ;
+ $8445 DEFB $0C      ;
+ $8446 DEFB $0C      ;
+ $8447 DEFB $00      ;
+ $8448 DEFB $00      ; }
+ $8449 DEFB $03      ; {Frame 4
+ $844A DEFB $03      ;
+ $844B DEFB $03      ;
+ $844C DEFB $03      ;
+ $844D DEFB $03      ;
+ $844E DEFB $03      ;
+ $844F DEFB $00      ;
+ $8450 DEFB $00      ; }
 
 ; Data block at 8451
 @label=L8451

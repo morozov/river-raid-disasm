@@ -2607,7 +2607,7 @@ L673D:
   LD A,$02
   LD (state_interaction_mode_5EF5),A
   LD DE,$080C
-  LD HL,L8431
+  LD HL,sprite_missile
   LD BC,$0008
   LD A,$01
   CALL L8B1E
@@ -4853,7 +4853,7 @@ L7441:
   AND $88
   CP $88
   JP Z,L7441_0
-  LD HL,L8431
+  LD HL,sprite_missile
   LD DE,$0100
   LD A,$01
   LD BC,$0008
@@ -4861,7 +4861,7 @@ L7441:
   RET
 L7441_0:
   LD BC,(L8B0A)
-  LD HL,L8431
+  LD HL,sprite_missile
   LD A,C
   AND $06
   SLA A
@@ -5744,11 +5744,39 @@ sprite_plane_banked:
   DEFB $00,$A0            ;
 
 ; Data block at 8431
-L8431:
-  DEFB $C0,$C0,$C0,$C0,$C0,$C0,$00,$00
-  DEFB $30,$30,$30,$30,$30,$30,$00,$00
-  DEFB $0C,$0C,$0C,$0C,$0C,$0C,$00,$00
-  DEFB $03,$03,$03,$03,$03,$03,$00,$00
+sprite_missile:
+  DEFB $C0                ; Frame 1
+  DEFB $C0                ;
+  DEFB $C0                ;
+  DEFB $C0                ;
+  DEFB $C0                ;
+  DEFB $C0                ;
+  DEFB $00                ;
+  DEFB $00                ;
+  DEFB $30                ; Frame 2
+  DEFB $30                ;
+  DEFB $30                ;
+  DEFB $30                ;
+  DEFB $30                ;
+  DEFB $30                ;
+  DEFB $00                ;
+  DEFB $00                ;
+  DEFB $0C                ; Frame 3
+  DEFB $0C                ;
+  DEFB $0C                ;
+  DEFB $0C                ;
+  DEFB $0C                ;
+  DEFB $0C                ;
+  DEFB $00                ;
+  DEFB $00                ;
+  DEFB $03                ; Frame 4
+  DEFB $03                ;
+  DEFB $03                ;
+  DEFB $03                ;
+  DEFB $03                ;
+  DEFB $03                ;
+  DEFB $00                ;
+  DEFB $00                ;
 
 ; Data block at 8451
 L8451:
