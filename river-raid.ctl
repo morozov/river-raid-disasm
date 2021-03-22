@@ -515,8 +515,13 @@ c $7158
 c $719F
 c $71A2
 c $7224
+@ $7248 label=ld_sprite_helicopter_rotor_right
 c $7248
+R $7248 O:HL Pointer to the sprite
+@ $724C label=animate_object
 c $724C
+@ $7259 label=animate_helicopter
+c $7259
 c $728B
 c $7290
 c $7296
@@ -895,8 +900,10 @@ c $8A4E
 @ $8A86 label=sprite_fuel
 b $8A86 Fuel sprite
 N $8A86 #UDGTABLE { #UDGARRAY2,11,4,2;$8A86-$8AB8-1-16{0,0,64,100}(sprite-fuel) } TABLE#
+@ $8AB8 label=sprite_helicopter_rotor_left
 b $8AB8
-@ $8AC8 label=L8AC8
+@ $8AC8 label=sprite_helicopter_rotor_right
+b $8AC8
 t $8AEA
 b $8AED
 @ $8B08 label=L8B08
@@ -935,9 +942,14 @@ c $8C1B
 @ $8C3C label=L8C3C
 c $8C3C
 b $8C4A
+@ $8FFC label=sprite_tank_shell_explosion
 b $8FFC
-@ $9062 label=sprite_explosion_6
-b $9062
+  $8FFC,32,2 Frame 1
+  $901C,32,2 Frame 2
+  $903C,32,2 Frame 3
+  $905C,32,2 Frame 4
+  $907C,32,2 Frame 5
+  $909C,32,2 Frame 6
 @ $90BC label=state_score_player_1
 t $90BC
 t $90BE

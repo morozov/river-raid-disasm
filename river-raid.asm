@@ -4196,8 +4196,8 @@ render_balloon:
 ; Routine at 708E
 ;
 ; Used by the routines at decrease_lives_player_2, main_loop, demo, L7158,
-; L71A2, L7224, L724C, L7296, L7302, L7358, L74EE, L754C, L75D0, L762E, L7649
-; and L76DA.
+; L71A2, L7224, animate_object, animate_helicopter, L7296, L7302, L7358, L74EE,
+; L754C, L75D0, L762E, L7649 and L76DA.
 L708E:
   LD A,$00
   LD (state_interaction_mode_5EF5),A
@@ -4264,7 +4264,7 @@ L708E_0:
   LD A,(L5EEF)
   AND $01
   CP $00
-  JP Z,L724C
+  JP Z,animate_object
   BIT 6,D
   JP Z,L75A2
   PUSH BC
@@ -4391,7 +4391,7 @@ L71A2:
   LD HL,(viewport_1_ptr)
   DEC HL
   LD (HL),A
-  LD HL,L8FFC
+  LD HL,sprite_tank_shell_explosion
   SRL A
   SRL A
   SRL A
@@ -4438,7 +4438,7 @@ L7224:
   LD A,(L5EEF)
   AND $01
   CP $01
-  JP Z,L724C
+  JP Z,animate_object
   LD A,D
   AND $07
   CP $01
@@ -4451,22 +4451,28 @@ L7224_0:
 
 ; Routine at 7248
 ;
-; Used by the routine at L724C.
-L7248:
-  LD HL,L8AC8
+; Used by the routine at animate_helicopter.
+;
+; O:HL Pointer to the sprite
+ld_sprite_helicopter_rotor_right:
+  LD HL,sprite_helicopter_rotor_right
   RET
 
 ; Routine at 724C
 ;
 ; Used by the routines at L708E and L7224.
-L724C:
+animate_object:
   LD A,D
   AND $07
   CP $01
-  JP Z,L724C_0
+  JP Z,animate_helicopter
   CP $03
   JP NZ,L708E
-L724C_0:
+
+; Routine at 7259
+;
+; Used by the routine at animate_object.
+animate_helicopter:
   LD HL,(viewport_1_ptr)
   DEC HL
   LD D,(HL)
@@ -4474,9 +4480,9 @@ L724C_0:
   LD B,(HL)
   DEC HL
   LD C,(HL)
-  LD HL,L8AB8
+  LD HL,sprite_helicopter_rotor_left
   BIT 6,D
-  CALL Z,L7248
+  CALL Z,ld_sprite_helicopter_rotor_right
   LD (L8B0C),BC
   LD (L8B0A),BC
   PUSH HL
@@ -5024,7 +5030,8 @@ L75A2:
 
 ; Load array of enemy sprites.
 ;
-; Used by the routines at render_enemy, L708E, L7158, L724C, L7296 and L75D0.
+; Used by the routines at render_enemy, L708E, L7158, animate_helicopter, L7296
+; and L75D0.
 ;
 ; I:D The four lowest bits is the enemy type (one of the first five OBJECT_*
 ;     constants), the 6th bit is direction (reset is right, set is left).
@@ -6476,10 +6483,12 @@ sprite_fuel:
   DEFB $0F,$F0
 
 ; Data block at 8AB8
-L8AB8:
+sprite_helicopter_rotor_left:
   DEFB $1E,$00,$F0,$00,$07,$80,$3C,$00
   DEFB $01,$E0,$0F,$00,$00,$78,$03,$C0
-L8AC8:
+
+; Data block at 8AC8
+sprite_helicopter_rotor_right:
   DEFB $1E,$00,$03,$C0,$07,$80,$00,$F0
   DEFB $01,$E0,$00,$3C,$00,$78,$00,$0F
   DEFB $00,$00,$00,$10,$00,$00,$00,$00
@@ -6570,7 +6579,7 @@ L8B1E_0:
 ; Routine at 8B3C
 ;
 ; Used by the routines at L60A5, handle_right, handle_left, L6682, L6794,
-; render_rock, L708E, L71A2, L724C, L7441, L75D0 and L76DA.
+; render_rock, L708E, L71A2, animate_helicopter, L7441, L75D0 and L76DA.
 ;
 ; I:A Sprite width in tiles
 ; I:BC Sprite size in bytes
@@ -6866,35 +6875,103 @@ L8C4A:
   DEFB $00,$00
 
 ; Data block at 8FFC
-L8FFC:
-  DEFB $00,$00,$00,$00,$00,$00,$00,$00
-  DEFB $00,$00,$00,$00,$00,$00,$01,$80
-  DEFB $01,$80,$00,$00,$00,$00,$00,$00
-  DEFB $00,$00,$00,$00,$00,$00,$00,$00
-  DEFB $00,$00,$00,$00,$00,$00,$00,$00
-  DEFB $00,$00,$00,$00,$01,$80,$03,$C0
-  DEFB $03,$C0,$01,$80,$00,$00,$00,$00
-  DEFB $00,$00,$00,$00,$00,$00,$00,$00
-  DEFB $00,$00,$00,$00,$00,$00,$00,$00
-  DEFB $00,$00,$01,$80,$03,$C0,$07,$E0
-  DEFB $07,$E0,$03,$C0,$01,$80,$00,$00
-  DEFB $00,$00,$00,$00,$00,$00,$00,$00
-  DEFB $00,$00,$00,$00,$00,$00
-
-; Data block at 9062
-sprite_explosion_6:
-  DEFB $01,$00,$07,$C0,$0F,$E0,$0F,$E0
-  DEFB $1F,$F0,$0F,$E0,$0F,$E0,$07,$C0
-  DEFB $01,$00,$00,$00,$00,$00,$00,$00
-  DEFB $00,$00,$00,$00,$00,$00,$01,$00
-  DEFB $07,$C0,$0F,$E0,$1F,$F0,$1F,$F0
-  DEFB $3F,$F8,$1F,$F0,$1F,$F0,$0F,$E0
-  DEFB $07,$C0,$01,$00,$00,$00,$00,$00
-  DEFB $00,$00,$00,$00,$01,$00,$07,$C0
-  DEFB $1F,$F0,$1F,$F0,$3F,$F8,$3F,$F8
-  DEFB $7F,$FC,$3F,$F8,$3F,$F8,$1F,$F0
-  DEFB $1F,$F0,$07,$C0,$01,$00,$00,$00
-  DEFB $00,$00
+sprite_tank_shell_explosion:
+  DEFB $00,$00            ; Frame 1
+  DEFB $00,$00            ;
+  DEFB $00,$00            ;
+  DEFB $00,$00            ;
+  DEFB $00,$00            ;
+  DEFB $00,$00            ;
+  DEFB $00,$00            ;
+  DEFB $01,$80            ;
+  DEFB $01,$80            ;
+  DEFB $00,$00            ;
+  DEFB $00,$00            ;
+  DEFB $00,$00            ;
+  DEFB $00,$00            ;
+  DEFB $00,$00            ;
+  DEFB $00,$00            ;
+  DEFB $00,$00            ;
+  DEFB $00,$00            ; Frame 2
+  DEFB $00,$00            ;
+  DEFB $00,$00            ;
+  DEFB $00,$00            ;
+  DEFB $00,$00            ;
+  DEFB $00,$00            ;
+  DEFB $01,$80            ;
+  DEFB $03,$C0            ;
+  DEFB $03,$C0            ;
+  DEFB $01,$80            ;
+  DEFB $00,$00            ;
+  DEFB $00,$00            ;
+  DEFB $00,$00            ;
+  DEFB $00,$00            ;
+  DEFB $00,$00            ;
+  DEFB $00,$00            ;
+  DEFB $00,$00            ; Frame 3
+  DEFB $00,$00            ;
+  DEFB $00,$00            ;
+  DEFB $00,$00            ;
+  DEFB $00,$00            ;
+  DEFB $01,$80            ;
+  DEFB $03,$C0            ;
+  DEFB $07,$E0            ;
+  DEFB $07,$E0            ;
+  DEFB $03,$C0            ;
+  DEFB $01,$80            ;
+  DEFB $00,$00            ;
+  DEFB $00,$00            ;
+  DEFB $00,$00            ;
+  DEFB $00,$00            ;
+  DEFB $00,$00            ;
+  DEFB $00,$00            ; Frame 4
+  DEFB $00,$00            ;
+  DEFB $00,$00            ;
+  DEFB $01,$00            ;
+  DEFB $07,$C0            ;
+  DEFB $0F,$E0            ;
+  DEFB $0F,$E0            ;
+  DEFB $1F,$F0            ;
+  DEFB $0F,$E0            ;
+  DEFB $0F,$E0            ;
+  DEFB $07,$C0            ;
+  DEFB $01,$00            ;
+  DEFB $00,$00            ;
+  DEFB $00,$00            ;
+  DEFB $00,$00            ;
+  DEFB $00,$00            ;
+  DEFB $00,$00            ; Frame 5
+  DEFB $00,$00            ;
+  DEFB $01,$00            ;
+  DEFB $07,$C0            ;
+  DEFB $0F,$E0            ;
+  DEFB $1F,$F0            ;
+  DEFB $1F,$F0            ;
+  DEFB $3F,$F8            ;
+  DEFB $1F,$F0            ;
+  DEFB $1F,$F0            ;
+  DEFB $0F,$E0            ;
+  DEFB $07,$C0            ;
+  DEFB $01,$00            ;
+  DEFB $00,$00            ;
+  DEFB $00,$00            ;
+  DEFB $00,$00            ;
+  DEFB $00,$00            ; Frame 6
+  DEFB $01,$00            ;
+  DEFB $07,$C0            ;
+  DEFB $1F,$F0            ;
+  DEFB $1F,$F0            ;
+  DEFB $3F,$F8            ;
+  DEFB $3F,$F8            ;
+  DEFB $7F,$FC            ;
+  DEFB $3F,$F8            ;
+  DEFB $3F,$F8            ;
+  DEFB $1F,$F0            ;
+  DEFB $1F,$F0            ;
+  DEFB $07,$C0            ;
+  DEFB $01,$00            ;
+  DEFB $00,$00            ;
+  DEFB $00,$00            ;
 
 ; Message at 90BC
 state_score_player_1:

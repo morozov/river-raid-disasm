@@ -4089,8 +4089,8 @@ c$706C LD B,$00      ;
 ; Routine at 708E
 ;
 ; Used by the routines at #R$5D9F, #R$5F91, #R$6D17, #R$7158, #R$71A2, #R$7224,
-; #R$724C, #R$7296, #R$7302, #R$7358, #R$74EE, #R$754C, #R$75D0, #R$762E,
-; #R$7649 and #R$76DA.
+; #R$724C, #R$7259, #R$7296, #R$7302, #R$7358, #R$74EE, #R$754C, #R$75D0,
+; #R$762E, #R$7649 and #R$76DA.
 c$708E LD A,$00      ;
  $7090 LD ($5EF5),A  ;
  $7093 LD HL,($5F60) ;
@@ -4330,20 +4330,29 @@ c$7224 LD A,D        ;
 
 ; Routine at 7248
 ;
-; Used by the routine at #R$724C.
+; Used by the routine at #R$7259.
+;
+; O:HL Pointer to the sprite
+@label=ld_sprite_helicopter_rotor_right
 c$7248 LD HL,$8AC8   ;
  $724B RET           ;
 
 ; Routine at 724C
 ;
 ; Used by the routines at #R$708E and #R$7224.
+@label=animate_object
 c$724C LD A,D        ;
  $724D AND $07       ;
  $724F CP $01        ;
  $7251 JP Z,$7259    ;
  $7254 CP $03        ;
  $7256 JP NZ,$708E   ;
-*$7259 LD HL,($5F60) ;
+
+; Routine at 7259
+;
+; Used by the routine at #R$724C.
+@label=animate_helicopter
+c$7259 LD HL,($5F60) ;
  $725C DEC HL        ;
  $725D LD D,(HL)     ;
  $725E DEC HL        ;
@@ -4871,7 +4880,7 @@ c$75A2 PUSH BC       ;
 
 ; Load array of enemy sprites.
 ;
-; Used by the routines at #R$6FF6, #R$708E, #R$7158, #R$724C, #R$7296 and
+; Used by the routines at #R$6FF6, #R$708E, #R$7158, #R$7259, #R$7296 and
 ; #R$75D0.
 ;
 ; I:D The four lowest bits is the enemy type (one of the first five OBJECT_*
@@ -6471,10 +6480,13 @@ b$8A86 DEFB $0F,$F0,$0C,$30,$0D,$F0,$0C,$70
  $8AB6 DEFB $0F,$F0
 
 ; Data block at 8AB8
+@label=sprite_helicopter_rotor_left
 b$8AB8 DEFB $1E,$00,$F0,$00,$07,$80,$3C,$00
  $8AC0 DEFB $01,$E0,$0F,$00,$00,$78,$03,$C0
-@label=L8AC8
- $8AC8 DEFB $1E,$00,$03,$C0,$07,$80,$00,$F0
+
+; Data block at 8AC8
+@label=sprite_helicopter_rotor_right
+b$8AC8 DEFB $1E,$00,$03,$C0,$07,$80,$00,$F0
  $8AD0 DEFB $01,$E0,$00,$3C,$00,$78,$00,$0F
  $8AD8 DEFB $00,$00,$00,$10,$00,$00,$00,$00
  $8AE0 DEFB $00,$00,$00,$18,$18,$00,$00,$00
@@ -6558,7 +6570,7 @@ c$8B1E PUSH DE       ;
 ; Routine at 8B3C
 ;
 ; Used by the routines at #R$60A5, #R$65F3, #R$6642, #R$6682, #R$6794, #R$6FBB,
-; #R$708E, #R$71A2, #R$724C, #R$7441, #R$75D0 and #R$76DA.
+; #R$708E, #R$71A2, #R$7259, #R$7441, #R$75D0 and #R$76DA.
 ;
 ; I:A Sprite width in tiles
 ; I:BC Sprite size in bytes
@@ -6840,34 +6852,103 @@ b$8C4A DEFB $C3,$90,$EA,$0E,$8B,$E9,$C3,$90
  $8FFA DEFB $00,$00
 
 ; Data block at 8FFC
-b$8FFC DEFB $00,$00,$00,$00,$00,$00,$00,$00
- $9004 DEFB $00,$00,$00,$00,$00,$00,$01,$80
- $900C DEFB $01,$80,$00,$00,$00,$00,$00,$00
- $9014 DEFB $00,$00,$00,$00,$00,$00,$00,$00
- $901C DEFB $00,$00,$00,$00,$00,$00,$00,$00
- $9024 DEFB $00,$00,$00,$00,$01,$80,$03,$C0
- $902C DEFB $03,$C0,$01,$80,$00,$00,$00,$00
- $9034 DEFB $00,$00,$00,$00,$00,$00,$00,$00
- $903C DEFB $00,$00,$00,$00,$00,$00,$00,$00
- $9044 DEFB $00,$00,$01,$80,$03,$C0,$07,$E0
- $904C DEFB $07,$E0,$03,$C0,$01,$80,$00,$00
- $9054 DEFB $00,$00,$00,$00,$00,$00,$00,$00
- $905C DEFB $00,$00,$00,$00,$00,$00
-
-; Data block at 9062
-@label=sprite_explosion_6
-b$9062 DEFB $01,$00,$07,$C0,$0F,$E0,$0F,$E0
- $906A DEFB $1F,$F0,$0F,$E0,$0F,$E0,$07,$C0
- $9072 DEFB $01,$00,$00,$00,$00,$00,$00,$00
- $907A DEFB $00,$00,$00,$00,$00,$00,$01,$00
- $9082 DEFB $07,$C0,$0F,$E0,$1F,$F0,$1F,$F0
- $908A DEFB $3F,$F8,$1F,$F0,$1F,$F0,$0F,$E0
- $9092 DEFB $07,$C0,$01,$00,$00,$00,$00,$00
- $909A DEFB $00,$00,$00,$00,$01,$00,$07,$C0
- $90A2 DEFB $1F,$F0,$1F,$F0,$3F,$F8,$3F,$F8
- $90AA DEFB $7F,$FC,$3F,$F8,$3F,$F8,$1F,$F0
- $90B2 DEFB $1F,$F0,$07,$C0,$01,$00,$00,$00
- $90BA DEFB $00,$00
+@label=sprite_tank_shell_explosion
+b$8FFC DEFB $00,$00  ; {Frame 1
+ $8FFE DEFB $00,$00  ;
+ $9000 DEFB $00,$00  ;
+ $9002 DEFB $00,$00  ;
+ $9004 DEFB $00,$00  ;
+ $9006 DEFB $00,$00  ;
+ $9008 DEFB $00,$00  ;
+ $900A DEFB $01,$80  ;
+ $900C DEFB $01,$80  ;
+ $900E DEFB $00,$00  ;
+ $9010 DEFB $00,$00  ;
+ $9012 DEFB $00,$00  ;
+ $9014 DEFB $00,$00  ;
+ $9016 DEFB $00,$00  ;
+ $9018 DEFB $00,$00  ;
+ $901A DEFB $00,$00  ; }
+ $901C DEFB $00,$00  ; {Frame 2
+ $901E DEFB $00,$00  ;
+ $9020 DEFB $00,$00  ;
+ $9022 DEFB $00,$00  ;
+ $9024 DEFB $00,$00  ;
+ $9026 DEFB $00,$00  ;
+ $9028 DEFB $01,$80  ;
+ $902A DEFB $03,$C0  ;
+ $902C DEFB $03,$C0  ;
+ $902E DEFB $01,$80  ;
+ $9030 DEFB $00,$00  ;
+ $9032 DEFB $00,$00  ;
+ $9034 DEFB $00,$00  ;
+ $9036 DEFB $00,$00  ;
+ $9038 DEFB $00,$00  ;
+ $903A DEFB $00,$00  ; }
+ $903C DEFB $00,$00  ; {Frame 3
+ $903E DEFB $00,$00  ;
+ $9040 DEFB $00,$00  ;
+ $9042 DEFB $00,$00  ;
+ $9044 DEFB $00,$00  ;
+ $9046 DEFB $01,$80  ;
+ $9048 DEFB $03,$C0  ;
+ $904A DEFB $07,$E0  ;
+ $904C DEFB $07,$E0  ;
+ $904E DEFB $03,$C0  ;
+ $9050 DEFB $01,$80  ;
+ $9052 DEFB $00,$00  ;
+ $9054 DEFB $00,$00  ;
+ $9056 DEFB $00,$00  ;
+ $9058 DEFB $00,$00  ;
+ $905A DEFB $00,$00  ; }
+ $905C DEFB $00,$00  ; {Frame 4
+ $905E DEFB $00,$00  ;
+ $9060 DEFB $00,$00  ;
+ $9062 DEFB $01,$00  ;
+ $9064 DEFB $07,$C0  ;
+ $9066 DEFB $0F,$E0  ;
+ $9068 DEFB $0F,$E0  ;
+ $906A DEFB $1F,$F0  ;
+ $906C DEFB $0F,$E0  ;
+ $906E DEFB $0F,$E0  ;
+ $9070 DEFB $07,$C0  ;
+ $9072 DEFB $01,$00  ;
+ $9074 DEFB $00,$00  ;
+ $9076 DEFB $00,$00  ;
+ $9078 DEFB $00,$00  ;
+ $907A DEFB $00,$00  ; }
+ $907C DEFB $00,$00  ; {Frame 5
+ $907E DEFB $00,$00  ;
+ $9080 DEFB $01,$00  ;
+ $9082 DEFB $07,$C0  ;
+ $9084 DEFB $0F,$E0  ;
+ $9086 DEFB $1F,$F0  ;
+ $9088 DEFB $1F,$F0  ;
+ $908A DEFB $3F,$F8  ;
+ $908C DEFB $1F,$F0  ;
+ $908E DEFB $1F,$F0  ;
+ $9090 DEFB $0F,$E0  ;
+ $9092 DEFB $07,$C0  ;
+ $9094 DEFB $01,$00  ;
+ $9096 DEFB $00,$00  ;
+ $9098 DEFB $00,$00  ;
+ $909A DEFB $00,$00  ; }
+ $909C DEFB $00,$00  ; {Frame 6
+ $909E DEFB $01,$00  ;
+ $90A0 DEFB $07,$C0  ;
+ $90A2 DEFB $1F,$F0  ;
+ $90A4 DEFB $1F,$F0  ;
+ $90A6 DEFB $3F,$F8  ;
+ $90A8 DEFB $3F,$F8  ;
+ $90AA DEFB $7F,$FC  ;
+ $90AC DEFB $3F,$F8  ;
+ $90AE DEFB $3F,$F8  ;
+ $90B0 DEFB $1F,$F0  ;
+ $90B2 DEFB $1F,$F0  ;
+ $90B4 DEFB $07,$C0  ;
+ $90B6 DEFB $01,$00  ;
+ $90B8 DEFB $00,$00  ;
+ $90BA DEFB $00,$00  ; }
 
 ; Message at 90BC
 @label=state_score_player_1
