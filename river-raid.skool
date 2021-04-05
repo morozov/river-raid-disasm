@@ -3737,9 +3737,17 @@ c$6E9C LD HL,$6BB0   ;
  $6EA3 LD A,$18      ;
  $6EA5 LD ($6C7A),A  ;
  $6EA8 LD HL,$5F2E   ;
-; This entry point is used by the routines at #R$6FF6, #R$7051, #R$706C and
-; #R$7441.
-*$6EAB LD A,(HL)     ;
+
+; Routine at 6EAB
+;
+; Used by the routines at #R$6FF6, #R$7051, #R$706C and #R$7441.
+;
+; I:C Byte 1
+; I:B Byte 2
+; I:D Byte 3
+; I:HL Pointer to #R$5F00
+@label=add_object_to_viewport
+c$6EAB LD A,(HL)     ;
  $6EAC CP $00        ;
  $6EAE JP Z,$6EBC    ;
  $6EB1 CP $FF        ;
@@ -3748,7 +3756,18 @@ c$6E9C LD HL,$6BB0   ;
  $6EB7 INC HL        ;
  $6EB8 INC HL        ;
  $6EB9 JP $6EAB      ;
-*$6EBC LD (HL),C     ;
+
+; Routine at 6EBC
+;
+; Used by the routine at #R$6EAB.
+;
+; I:A Current value at the address
+; I:C Byte 1
+; I:B Byte 2
+; I:D Byte 3
+; I:HL Pointer to the element of #R$5F00
+@label=write_object_to_viewport
+c$6EBC LD (HL),C     ;
  $6EBD INC HL        ;
  $6EBE LD (HL),B     ;
  $6EBF INC HL        ;

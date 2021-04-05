@@ -451,6 +451,19 @@ c $6E9C Explode a single fragment
 R $6E9C I:BC Pointer to the fragment to explode.
   $6E9F,2 Set CONTROLS_BIT_EXPLODING
   $6EA1,2 Reset CONTROLS_BIT_FIRE
+@ $6EAB label=add_object_to_viewport
+c $6EAB
+R $6EAB I:C Byte 1
+R $6EAB I:B Byte 2
+R $6EAB I:D Byte 3
+R $6EAB I:HL Pointer to #R$5F00
+@ $6EBC label=write_object_to_viewport
+c $6EBC
+R $6EBC I:A Current value at the address
+R $6EBC I:C Byte 1
+R $6EBC I:B Byte 2
+R $6EBC I:D Byte 3
+R $6EBC I:HL Pointer to the element of #R$5F00
 c $6EC8
 @ $6F63 label=ld_sprite_explosion_f1
 c $6F63 Load frame 1 of the explosion sprite.

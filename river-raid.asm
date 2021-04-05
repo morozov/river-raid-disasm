@@ -3836,19 +3836,36 @@ explode_fragment:
   LD A,$18
   LD (explosion_counter),A
   LD HL,viewport_2
-; This entry point is used by the routines at render_enemy, render_fuel,
-; render_balloon and L7441.
-explode_fragment_0:
+
+; Routine at 6EAB
+;
+; Used by the routines at render_enemy, render_fuel, render_balloon and L7441.
+;
+; I:C Byte 1
+; I:B Byte 2
+; I:D Byte 3
+; I:HL Pointer to viewport_1
+add_object_to_viewport:
   LD A,(HL)
   CP $00
-  JP Z,explode_fragment_1
+  JP Z,write_object_to_viewport
   CP $FF
-  JP Z,explode_fragment_1
+  JP Z,write_object_to_viewport
   INC HL
   INC HL
   INC HL
-  JP explode_fragment_0
-explode_fragment_1:
+  JP add_object_to_viewport
+
+; Routine at 6EBC
+;
+; Used by the routine at add_object_to_viewport.
+;
+; I:A Current value at the address
+; I:C Byte 1
+; I:B Byte 2
+; I:D Byte 3
+; I:HL Pointer to the element of viewport_1
+write_object_to_viewport:
   LD (HL),C
   INC HL
   LD (HL),B
@@ -4097,7 +4114,7 @@ render_enemy:
   LD C,E
   PUSH HL
   LD HL,viewport_1
-  CALL explode_fragment_0
+  CALL add_object_to_viewport
   POP HL
   CALL L6FEA
   LD BC,$0018             ; Sprite size (3×1 tiles × 8 bytes/tile)
@@ -4162,7 +4179,7 @@ render_fuel:
   LD B,$00
   LD C,E
   LD HL,viewport_1
-  CALL explode_fragment_0
+  CALL add_object_to_viewport
   LD HL,sprite_fuel
   CALL L6FEA
   LD BC,$0000
@@ -4184,7 +4201,7 @@ render_balloon:
   LD (state_interaction_mode_5EF5),A
   PUSH HL
   LD HL,viewport_1
-  CALL explode_fragment_0
+  CALL add_object_to_viewport
   POP HL
   CALL L6FEA
   LD BC,$0020             ; Sprite size (2×2 tiles × 8 bytes/tile)
@@ -4891,7 +4908,7 @@ L7441_1:
   SET 5,A
   LD (L7383),A
   LD HL,viewport_1
-  CALL explode_fragment_0
+  CALL add_object_to_viewport
   LD A,$00
   LD (L7384),A
   RET
