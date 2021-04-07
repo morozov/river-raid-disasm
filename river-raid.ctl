@@ -51,6 +51,7 @@ c $5CD2 The entry point invoked from the BASIC loader
 @ $5CE3 nowarn
 c $5D10
   $5D1D,5 Check if we switched to the demo mode
+c $5D2B
 @ $5D35 label=restart
 c $5D35 Restart the game
 @ $5D3F label=starting_bridges
@@ -183,8 +184,11 @@ c $5F91 Main loop
 C $5F91,9 Scan Enter
 @ $5FDA label=scan_cursor
 @ $600A label=scan_kempston
+c $600A
 @ $6039 label=scan_sinclair
+c $6039
 @ $6068 label=scan_keyboard
+c $6068
 C $6068 Scan "O" (LEFT)
 C $6071 Scan "P" (RIGHT)
 C $607A Scan "2" (UP)
@@ -204,11 +208,13 @@ c $61BB
 @ $621F keep
 @ $623F label=next_bridge_player_1
 @ $6249 label=next_bridge_player_2
+c $6249
 b $6253
 @ $6256 label=fuel
 c $6256
 @ $6268 label=hit_terrain
 c $6268 Fighter hits terrain
+c $62CE
 c $62D4
 c $62D7
 @ $62DA label=L62DA
@@ -216,6 +222,7 @@ c $62DA Increase #REGb by the value of #R$5F64
 c $62E0
 @ $62E8 label=interact_with_something2
 c $62E8 Interact with something
+c $63FC
 @ $6414 label=hit_helicopter_reg
 c $6414
   $6414,2 POINTS_REG_HELICOPTER
@@ -234,6 +241,8 @@ c $6462
 @ $6478 label=interact_with_fuel
 c $6478
   $6480,2 POINTS_FUEL
+c $649E
+c $64A1
 b $64B4
 @ $64BC label=print_bridge
 c $64BC
@@ -247,12 +256,14 @@ c $64F1 Print current bridge number for player 2
 c $6506 Print space
 @ $650A label=handle_no_fuel
 c $650A Handle the no fuel situation
+c $656F
 @ $6577 label=game_over
 c $6577 Game Over
 c $6587
 c $65AB
 c $65BB
 c $65CB
+c $65DE
 @ $65F3 label=handle_right
 c $65F3
   $6613,3 Sprite size (2×1 tiles × 8 bytes/tile)
@@ -274,12 +285,15 @@ c $66D0 Increase #R$5F70 by the value of #R$5F64, set #R$5F64 to the default val
 c $66EE
 c $6704
 @ $670A label=handle_up
+c $670A
   $6712,2 Set CONTROLS_BIT_SPEED_ALTERED
   $6714,2 Reset CONTROLS_BIT_SPEED_DECREASED
 @ $6717 label=handle_down
+c $6717
   $671F,2 Set CONTROLS_BIT_SPEED_ALTERED
   $6721,2 Set CONTROLS_BIT_SPEED_DECREASED
 @ $6724 label=handle_fire
+c $6724
   $6739,2 Set CONTROLS_BIT_FIRE
 s $673C
 c $673D
@@ -290,10 +304,12 @@ c $6794
 c $6831
 c $6836
 c $683B
+c $68A1
 c $68B7
 @ $68C5 nowarn
 c $68C5
 @ $68E9 label=init_current_bridge
+c $68E9
 @ $68EE label=init_current_bridge_loop
 c $6927
 s $693B
@@ -308,6 +324,7 @@ R $694D O:A Always set to 0
   $6954,7 Increase bridge index
   $695B,2 Check for overflow
 @ $6963 label=next_bridge_index_overflow
+c $6963
   $6963,5 Reset bridge index
 @ $696B label=handle_island
 c $696B
@@ -321,6 +338,8 @@ c $6990
 @ $69A0 label=L6990_locate_sprite
   $69A0,4 Point #REGhl to the element of #R$8063 with the index defined by #R$5EFA.
   $69A4,9 Point #REGhl to the profile line with the index defined by #R$5F7D.
+c $6A3F
+c $6A45
 c $6A4A
 @ $6A4F label=render_terrain_row
 c $6A4F
@@ -393,6 +412,7 @@ c $6BBF Handle the Enter key pressed
 C $6BBF Scan Caps Shift
 C $6BC8 Scan Symbol Shift
 @ $6BD2 label=select_controls
+c $6BD2
 @ $6BDB label=int_handler
 c $6BDB Non-maskable interrupt handler
   $6BE4,6 Check if H was pressed
@@ -430,7 +450,9 @@ c $6D17
 C $6D23,2 PAPER 1; INK 4
 @ $6D2E isub=LD BC,status_line_2 - status_line_1
 @ $6D48 isub=LD BC,end_status_line_4 - status_line_4
+c $6DDD
 @ $6DEB label=init_starting_bridge
+c $6DEB
 c $6DEB
 c $6DEB Initializes the starting bridge based on the value of #R$923A using #R$5D3F for the lookup.
   $6DEE,2 Shift the game mode right discarding the bit corresponding to the number of players and leaving the ones corresponding to the starting bridge.
@@ -525,8 +547,10 @@ c $708E
 c $7155
 c $7158
   $717B,3 Sprite size (3×1 tiles × 8 bytes/tile)
+c $7192
 c $719F
 c $71A2
+c $720E
 c $7224
 @ $7248 label=ld_sprite_helicopter_rotor_right
 c $7248
@@ -552,6 +576,7 @@ c $72EF
 c $72F8
 c $72FD
 c $7302
+c $7343
 c $7358
 c $735E
 c $7380
@@ -564,14 +589,19 @@ w $7385
 c $7387
 c $738E
 c $7393
+c $73D0
 c $73D8
 c $73DD
 c $7415
 c $7441
+c $74A0
+c $74C6
+c $74E4
 c $74EE
   $7520,2 POINTS_TANK
   $7529,2 Set CONTROLS_BIT_BONUS_LIFE
   $752B,2 Set CONTROLS_BIT_EXPLODING
+c $7546
 c $754C
 c $758A
 c $75A2
@@ -586,6 +616,8 @@ c $75D0
 c $7627 Point #R$5F60 to the head of #R$5F00.
 c $762E
 c $7649
+c $76AC
+c $76AF
 c $76DA
 b $7727
 t $7742
@@ -949,11 +981,15 @@ R $8B3C I:D Frame number and some other info
 R $8B3C I:E Screen attributes
 R $8B3C I:HL Pointer to the sprite array
 c $8B70
+c $8B94
+c $8BA3
+c $8BC6
 c $8C0B
 @ $8C1B label=L8C1B
 c $8C1B
 @ $8C3C label=L8C3C
 c $8C3C
+c $8C45
 b $8C4A
 @ $8FFC label=sprite_tank_shell_explosion
 b $8FFC
@@ -1055,7 +1091,16 @@ R $928D I:A Sprite width in tiles
 R $928D I:E Screen attributes
 @ $92F1 nowarn
 @ $934F nowarn
+c $9367
+c $936B
+c $936F
+c $9388
+c $93A1
+c $93B8
+c $93BB
+c $93BE
 @ $93EC isub=LD BC,state_score_player_2 - state_score_player_1
+c $93F2
 @ $9404 isub=LD BC,state_score_player_2 - state_score_player_1
 @ $940A label=clear_screen
 c $940A Clear the screen by setting all pixel bytes to $00 and all attributes to the value set in #REGd.

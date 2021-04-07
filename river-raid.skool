@@ -1002,7 +1002,7 @@ c$5CD2 LD HL,$6BB0   ;
  $5CFF EI            ;
  $5D00 LD HL,$8182   ;
  $5D03 LD ($5F7E),HL ;
-; This entry point is used by the routines at #R$6BBF and #R$6D17.
+; This entry point is used by the routines at #R$6BD2 and #R$6D17.
 *$5D06 LD A,$3F      ;
  $5D08 LD I,A        ;
  $5D0A IM 1          ;
@@ -1021,8 +1021,11 @@ c$5D10 LD A,$FC      ;
  $5D22 JP Z,$5D2B    ;
  $5D25 CALL $5D44    ;
  $5D28 JP $5DA6      ;
-; This entry point is used by the routine at #R$6577.
-*$5D2B LD SP,($5F83) ;
+
+; Routine at 5D2B
+;
+; Used by the routines at #R$5D10 and #R$6577.
+c$5D2B LD SP,($5F83) ;
  $5D2F CALL $5D44    ;
  $5D32 JP $6D17      ;
 
@@ -1048,7 +1051,7 @@ b$5D3F DEFB $01,$05,$14,$1E
 
 ; Routine at 5D44
 ;
-; Used by the routines at #R$5D10 and #R$5D35.
+; Used by the routines at #R$5D10, #R$5D2B and #R$5D35.
 @label=init_state
 c$5D44 LD A,$78      ; {Initialize #R$5F72. Why isn't it $80?
  $5D46 LD ($5F72),A  ; }
@@ -1479,7 +1482,7 @@ w$5F8F DEFW $0000
 
 ; Main loop
 ;
-; Used by the routine at #R$5D9F.
+; Used by the routines at #R$5D9F, #R$600A, #R$6039 and #R$6068.
 @label=main_loop
 c$5F91 LD A,$BF      ; {Scan Enter
  $5F93 IN A,($FE)    ;
@@ -1529,8 +1532,12 @@ c$5F91 LD A,$BF      ; {Scan Enter
  $6002 BIT 4,A       ;
  $6004 CALL Z,$6717  ;
  $6007 JP $5F91      ;
+
+; Routine at 600A
+;
+; Used by the routine at #R$5F91.
 @label=scan_kempston
-*$600A LD A,$FE      ;
+c$600A LD A,$FE      ;
  $600C IN A,($1F)    ;
  $600E LD ($5EF1),A  ;
  $6011 BIT 0,A       ;
@@ -1548,8 +1555,12 @@ c$5F91 LD A,$BF      ; {Scan Enter
  $6031 BIT 4,A       ;
  $6033 CALL NZ,$6724 ;
  $6036 JP $5F91      ;
+
+; Routine at 6039
+;
+; Used by the routine at #R$5F91.
 @label=scan_sinclair
-*$6039 LD A,$EF      ;
+c$6039 LD A,$EF      ;
  $603B IN A,($FE)    ;
  $603D LD ($5EF1),A  ;
  $6040 BIT 0,A       ;
@@ -1567,8 +1578,12 @@ c$5F91 LD A,$BF      ; {Scan Enter
  $6060 BIT 4,A       ;
  $6062 CALL Z,$6642  ;
  $6065 JP $5F91      ;
+
+; Routine at 6068
+;
+; Used by the routine at #R$5F91.
 @label=scan_keyboard
-*$6068 LD A,$DF      ; {Scan "O" (LEFT)
+c$6068 LD A,$DF      ; {Scan "O" (LEFT)
  $606A IN A,($FE)    ;
  $606C BIT 0,A       ;
  $606E CALL Z,$65F3  ; }
@@ -1817,8 +1832,12 @@ c$61BB LD BC,($5EF3) ;
  $6242 INC (HL)      ;
  $6243 CALL $64BC    ;
  $6246 JP $6794      ;
+
+; Routine at 6249
+;
+; Used by the routine at #R$61BB.
 @label=next_bridge_player_2
-*$6249 LD HL,$5F6B   ;
+c$6249 LD HL,$5F6B   ;
  $624C INC (HL)      ;
  $624D CALL $64BC    ;
  $6250 JP $6794      ;
@@ -1896,7 +1915,11 @@ c$6268 LD HL,($5F62) ;
  $62C8 LD A,$02      ;
  $62CA LD ($5F8B),A  ;
  $62CD RET           ;
-*$62CE LD A,$00      ;
+
+; Routine at 62CE
+;
+; Used by the routine at #R$6268.
+c$62CE LD A,$00      ;
  $62D0 LD ($5F8B),A  ;
  $62D3 RET           ;
 
@@ -2054,7 +2077,7 @@ c$62E8 LD HL,($5F60) ;
  $63D9 CP D          ;
  $63DA JP Z,$63FC    ;
 ; This entry point is used by the routines at #R$6414, #R$6423, #R$6444,
-; #R$6453, #R$6462 and #R$6478.
+; #R$6453, #R$6462 and #R$649E.
 *$63DD POP DE        ;
  $63DE POP DE        ;
  $63DF POP DE        ;
@@ -2068,8 +2091,11 @@ c$62E8 LD HL,($5F60) ;
  $63F1 LD BC,($5F8D) ;
  $63F5 LD ($5EF3),BC ;
  $63F9 JP $6794      ;
-; This entry point is used by the routine at #R$6478.
-*$63FC LD A,$00      ;
+
+; Routine at 63FC
+;
+; Used by the routines at #R$62E8 and #R$64A1.
+c$63FC LD A,$00      ;
  $63FE LD ($5F68),A  ;
 ; This entry point is used by the routine at #R$615E.
 *$6401 LD A,$00      ;
@@ -2165,8 +2191,14 @@ c$6478 LD A,($5F68)  ;
  $6497 CALL $6E9C    ;
  $649A INC B         ;
  $649B CALL $6E9C    ;
- $649E JP $63DD      ;
-*$64A1 LD (HL),C     ;
+
+; Routine at 649E
+c$649E JP $63DD      ;
+
+; Routine at 64A1
+;
+; Used by the routine at #R$6478.
+c$64A1 LD (HL),C     ;
  $64A2 LD HL,$5F00   ;
  $64A5 LD ($5F60),HL ;
  $64A8 LD HL,$5F2E   ;
@@ -2179,7 +2211,7 @@ b$64B4 DEFB $D1,$D1,$D1,$D1,$D1,$C3,$0A,$65
 
 ; Routine at 64BC
 ;
-; Used by the routines at #R$5D9F, #R$61BB, #R$6587 and #R$6D17.
+; Used by the routines at #R$5D9F, #R$61BB, #R$6249, #R$6587 and #R$6D17.
 @label=print_bridge
 c$64BC LD A,($923D)  ;
  $64BF CP $02        ;
@@ -2283,16 +2315,21 @@ c$650A LD A,($5F72)  ;
  $6560 LD A,($923A)  ;
  $6563 BIT 0,A       ;
  $6565 JP NZ,$65BB   ;
-; This entry point is used by the routines at #R$65AB, #R$65BB and #R$65CB.
+; This entry point is used by the routines at #R$65AB, #R$65BB, #R$65CB and
+; #R$65DE.
 *$6568 LD SP,($5F83) ;
  $656C JP $5DA6      ;
-*$656F LD A,($923A)  ;
+
+; Routine at 656F
+;
+; Used by the routine at #R$650A.
+c$656F LD A,($923A)  ;
  $6572 BIT 0,A       ;
  $6574 JP NZ,$65AB   ;
 
 ; Game Over
 ;
-; Used by the routines at #R$65AB and #R$65CB.
+; Used by the routines at #R$65AB and #R$65DE.
 @label=game_over
 c$6577 LD HL,$8153   ;
  $657A LD ($5F7E),HL ;
@@ -2324,7 +2361,7 @@ c$6587 LD A,($923A)  ;
 
 ; Routine at 65AB
 ;
-; Used by the routine at #R$650A.
+; Used by the routine at #R$656F.
 c$65AB LD A,($923C)  ;
  $65AE CP $00        ;
  $65B0 JP Z,$6577    ;
@@ -2352,8 +2389,13 @@ c$65CB LD A,($923C)  ;
  $65D6 CP $00        ;
  $65D8 JP NZ,$65DE   ;
  $65DB JP $6568      ;
-*$65DE LD A,$01      ;
+
+; Routine at 65DE
+;
+; Used by the routine at #R$65CB.
+c$65DE LD A,$01      ;
  $65E0 LD ($923D),A  ;
+; This entry point is used by the routine at #R$65CB.
 *$65E3 LD A,($923B)  ;
  $65E6 CP $00        ;
  $65E8 JP Z,$6577    ;
@@ -2363,7 +2405,7 @@ c$65CB LD A,($923C)  ;
 
 ; Routine at 65F3
 ;
-; Used by the routine at #R$5F91.
+; Used by the routines at #R$5F91, #R$600A, #R$6039 and #R$6068.
 @label=handle_right
 c$65F3 LD A,($5F72)  ;
  $65F6 LD HL,($5EF3) ;
@@ -2401,7 +2443,7 @@ c$65F3 LD A,($5F72)  ;
 
 ; Routine at 6642
 ;
-; Used by the routine at #R$5F91.
+; Used by the routines at #R$5F91, #R$600A, #R$6039 and #R$6068.
 @label=handle_left
 c$6642 LD A,($5F72)  ;
  $6645 LD HL,($5EF3) ;
@@ -2509,25 +2551,34 @@ c$66EE LD A,($5F6E)  ;
 c$6704 LD A,$00      ;
  $6706 LD ($5F6D),A  ;
  $6709 RET           ;
-; This entry point is used by the routine at #R$5F91.
+
+; Routine at 670A
+;
+; Used by the routines at #R$5F91, #R$600A, #R$6039 and #R$6068.
 @label=handle_up
-*$670A LD A,$04      ;
+c$670A LD A,$04      ;
  $670C LD ($5F64),A  ;
  $670F LD HL,$6BB0   ;
  $6712 SET 2,(HL)    ; Set CONTROLS_BIT_SPEED_ALTERED
  $6714 RES 1,(HL)    ; Reset CONTROLS_BIT_SPEED_DECREASED
  $6716 RET           ;
-; This entry point is used by the routine at #R$5F91.
+
+; Routine at 6717
+;
+; Used by the routines at #R$5F91, #R$600A, #R$6039 and #R$6068.
 @label=handle_down
-*$6717 LD A,$01      ;
+c$6717 LD A,$01      ;
  $6719 LD ($5F64),A  ;
  $671C LD HL,$6BB0   ;
  $671F SET 2,(HL)    ; Set CONTROLS_BIT_SPEED_ALTERED
  $6721 SET 1,(HL)    ; Set CONTROLS_BIT_SPEED_DECREASED
  $6723 RET           ;
-; This entry point is used by the routine at #R$5F91.
+
+; Routine at 6724
+;
+; Used by the routines at #R$5F91, #R$600A, #R$6039 and #R$6068.
 @label=handle_fire
-*$6724 LD A,($5EF3)  ;
+c$6724 LD A,($5EF3)  ;
  $6727 CP $00        ;
  $6729 RET NZ        ;
  $672A LD A,($5F72)  ;
@@ -2587,7 +2638,7 @@ c$678E LD HL,$6BB0   ;
 
 ; Routine at 6794
 ;
-; Used by the routines at #R$615E, #R$61BB, #R$62E8 and #R$673D.
+; Used by the routines at #R$615E, #R$61BB, #R$6249, #R$62E8 and #R$673D.
 c$6794 LD BC,($5EF3) ;
  $6798 CALL $72EF    ;
  $679B LD A,($5F68)  ;
@@ -2728,7 +2779,11 @@ c$683B LD A,$8F      ;
  $689A LD A,($5EF9)  ;
  $689D DEC A         ;
  $689E JP $683D      ;
-*$68A1 LD HL,$4000   ;
+
+; Routine at 68A1
+;
+; Used by the routine at #R$683B.
+c$68A1 LD HL,$4000   ;
  $68A4 LD DE,$00E0   ;
  $68A7 LD A,($5F64)  ;
 *$68AA LD B,$20      ;
@@ -2759,6 +2814,7 @@ c$68C5 LD DE,$5820   ;
  $68D2 JP Z,$6927    ;
  $68D5 CP $02        ;
  $68D7 JP Z,$6927    ;
+; This entry point is used by the routine at #R$68E9.
 *$68DA LD DE,$5BDF   ;
  $68DD LD A,$0C      ;
  $68DF LD B,$20      ;
@@ -2767,9 +2823,12 @@ c$68C5 LD DE,$5820   ;
  $68E3 DJNZ $68E1    ;
  $68E5 CALL $6F80    ;
  $68E8 RET           ;
-; This entry point is used by the routines at #R$5D9F and #R$6D17.
+
+; Routine at 68E9
+;
+; Used by the routines at #R$5D9F and #R$6D17.
 @label=init_current_bridge
-*$68E9 LD HL,$5800   ;
+c$68E9 LD HL,$5800   ;
  $68EC LD B,$20      ;
 @label=init_current_bridge_loop
 *$68EE LD (HL),$00   ;
@@ -2850,8 +2909,12 @@ c$694D LD DE,$0000   ; {Reset Y-position
  $695D JP Z,$6963    ;
  $6960 LD A,$00      ;
  $6962 RET           ;
+
+; Routine at 6963
+;
+; Used by the routine at #R$694D.
 @label=next_bridge_index_overflow
-*$6963 LD A,$01      ; {Reset bridge index
+c$6963 LD A,$01      ; {Reset bridge index
  $6965 LD ($5EF0),A  ; }
  $6968 LD A,$00      ;
  $696A RET           ;
@@ -2956,6 +3019,7 @@ c$6990 LD HL,$5EFD   ; {Next island line.
  $6A02 LD A,($5EFC)  ;
  $6A05 CP $02        ;
  $6A07 JP Z,$6A45    ;
+; This entry point is used by the routines at #R$6A3F and #R$6A45.
 *$6A0A LD D,A        ;
  $6A0B LD HL,$89FA   ;
  $6A0E LD A,D        ;
@@ -2989,17 +3053,25 @@ c$6990 LD HL,$5EFD   ; {Next island line.
  $6A3B INC DE        ;
  $6A3C DJNZ $6A3A    ;
  $6A3E RET           ;
-*$6A3F LD A,C        ;
+
+; Routine at 6A3F
+;
+; Used by the routine at #R$6990.
+c$6A3F LD A,C        ;
  $6A40 SUB D         ;
  $6A41 ADD A,C       ;
  $6A42 JP $6A0A      ;
-*$6A45 LD A,C        ;
+
+; Routine at 6A45
+;
+; Used by the routine at #R$6990.
+c$6A45 LD A,C        ;
  $6A46 ADD A,D       ;
  $6A47 JP $6A0A      ;
 
 ; Routine at 6A4A
 ;
-; Used by the routine at #R$68C5.
+; Used by the routine at #R$68E9.
 c$6A4A LD A,($5F6B)  ;
  $6A4D LD B,A        ;
  $6A4E RET           ;
@@ -3283,11 +3355,15 @@ c$6BBF LD A,$FE      ; {Scan Caps Shift
  $6BCA IN A,($FE)    ;
  $6BCC BIT 1,A       ;
  $6BCE JP Z,$6BD2    ;
- $6BD1 RET           ;
+ $6BD1 RET           ; }
+
+; Routine at 6BD2
+;
+; Used by the routine at #R$6BBF.
 @label=select_controls
-*$6BD2 LD HL,$8182   ;
+c$6BD2 LD HL,$8182   ;
  $6BD5 LD ($5F7E),HL ;
- $6BD8 JP $5D06      ; }
+ $6BD8 JP $5D06      ;
 
 ; Non-maskable interrupt handler
 @label=int_handler
@@ -3516,7 +3592,7 @@ c$6CF4 LD C,$03      ;
 
 ; Routine at 6D17
 ;
-; Used by the routine at #R$5D10.
+; Used by the routine at #R$5D2B.
 @label=demo
 c$6D17 LD BC,$0010   ;
  $6D1A LD ($5F70),BC ;
@@ -3548,6 +3624,7 @@ c$6D17 LD BC,$0010   ;
  $6D5B LD ($5F7D),A  ;
  $6D5E LD A,($5EF0)  ;
  $6D61 LD ($5D43),A  ;
+; This entry point is used by the routine at #R$6DDD.
 *$6D64 LD A,$BF      ;
  $6D66 IN A,($FE)    ;
  $6D68 BIT 0,A       ;
@@ -3604,7 +3681,11 @@ c$6D17 LD BC,$0010   ;
  $6DD5 LD A,$02      ;
  $6DD7 CALL $1601    ;
  $6DDA JP $6D64      ;
-*$6DDD LD HL,$8182   ;
+
+; Routine at 6DDD
+;
+; Used by the routine at #R$6D17.
+c$6DDD LD HL,$8182   ;
  $6DE0 LD ($5F7E),HL ;
  $6DE3 LD A,$00      ;
  $6DE5 LD ($5F6D),A  ;
@@ -3666,7 +3747,7 @@ c$6DFF LD A,($5EEF)  ;
 
 ; Routine at 6E40
 ;
-; Used by the routine at #R$6478.
+; Used by the routine at #R$64A1.
 c$6E40 LD A,($5F69)  ;
  $6E43 CP $04        ;
  $6E45 RET Z         ;
@@ -3740,7 +3821,7 @@ c$6E9C LD HL,$6BB0   ;
 
 ; Routine at 6EAB
 ;
-; Used by the routines at #R$6FF6, #R$7051, #R$706C and #R$7441.
+; Used by the routines at #R$6FF6, #R$7051, #R$706C and #R$74C6.
 ;
 ; I:C Byte 1
 ; I:B Byte 2
@@ -4109,7 +4190,7 @@ c$706C LD B,$00      ;
 ;
 ; Used by the routines at #R$5D9F, #R$5F91, #R$6D17, #R$7158, #R$71A2, #R$7224,
 ; #R$724C, #R$7259, #R$7296, #R$7302, #R$7358, #R$74EE, #R$754C, #R$75D0,
-; #R$762E, #R$7649 and #R$76DA.
+; #R$762E, #R$7649, #R$76AC and #R$76DA.
 c$708E LD A,$00      ;
  $7090 LD ($5EF5),A  ;
  $7093 LD HL,($5F60) ;
@@ -4231,6 +4312,7 @@ c$7158 LD ($8B0A),BC ;
  $7165 LD A,C        ;
  $7166 CP $00        ;
  $7168 CALL Z,$7155  ;
+; This entry point is used by the routine at #R$7192.
 *$716B LD HL,($5F60) ;
  $716E DEC HL        ;
  $716F LD D,(HL)     ;
@@ -4248,7 +4330,11 @@ c$7158 LD ($8B0A),BC ;
  $7189 CALL $8B1E    ;
  $718C CALL $72EF    ;
  $718F JP $708E      ;
-*$7192 INC C         ;
+
+; Routine at 7192
+;
+; Used by the routine at #R$7158.
+c$7192 INC C         ;
  $7193 INC C         ;
  $7194 INC C         ;
  $7195 INC C         ;
@@ -4259,7 +4345,7 @@ c$7158 LD ($8B0A),BC ;
 
 ; Routine at 719F
 ;
-; Used by the routine at #R$7158.
+; Used by the routine at #R$7192.
 c$719F LD C,$04      ;
  $71A1 RET           ;
 
@@ -4305,6 +4391,7 @@ c$71A2 LD A,($5EEF)  ;
 *$71EC ADD HL,BC     ;
  $71ED DEC A         ;
  $71EE JR NZ,$71EC   ;
+; This entry point is used by the routine at #R$720E.
 *$71F0 LD BC,$82C5   ;
  $71F3 LD ($8B0E),BC ;
  $71F7 LD A,($5EEF)  ;
@@ -4317,7 +4404,11 @@ c$71A2 LD A,($5EEF)  ;
  $7206 LD A,$02      ;
  $7208 CALL $8B3C    ;
  $720B JP $708E      ;
-*$720E LD HL,($5F60) ;
+
+; Routine at 720E
+;
+; Used by the routine at #R$71A2.
+c$720E LD HL,($5F60) ;
  $7211 DEC HL        ;
  $7212 DEC HL        ;
  $7213 DEC HL        ;
@@ -4511,7 +4602,7 @@ c$7302 LD BC,($8B0A) ;
  $7327 CP $00        ;
  $7329 JP Z,$7343    ;
  $732C RES 5,A       ;
-; This entry point is used by the routine at #R$735E.
+; This entry point is used by the routines at #R$7343 and #R$735E.
 *$732E SET 7,A       ;
  $7330 LD ($7383),A  ;
  $7333 LD A,C        ;
@@ -4521,7 +4612,11 @@ c$7302 LD BC,($8B0A) ;
  $7339 CALL Z,$72FD  ;
  $733C LD ($7385),BC ;
  $7340 JP $708E      ;
-*$7343 BIT 4,D       ;
+
+; Routine at 7343
+;
+; Used by the routine at #R$7302.
+c$7343 BIT 4,D       ;
  $7345 JP NZ,$735E   ;
  $7348 LD A,D        ;
  $7349 AND $40       ;
@@ -4542,7 +4637,7 @@ c$7358 CALL $74E4    ;
 
 ; Routine at 735E
 ;
-; Used by the routine at #R$7302.
+; Used by the routine at #R$7343.
 c$735E LD A,($5EF2)  ;
  $7361 CP $01        ;
  $7363 JP Z,$7358    ;
@@ -4628,7 +4723,11 @@ c$7393 LD BC,($5F73) ;
  $73C9 LD HL,$82C5   ;
  $73CC CALL $8B1E    ;
  $73CF RET           ;
-*$73D0 LD BC,$0000   ;
+
+; Routine at 73D0
+;
+; Used by the routine at #R$7393.
+c$73D0 LD BC,$0000   ;
  $73D3 LD ($5F73),BC ;
  $73D7 RET           ;
 
@@ -4744,7 +4843,11 @@ c$7441 LD A,($7383)  ;
  $7499 LD BC,$0008   ;
  $749C CALL $8B1E    ;
  $749F RET           ;
-*$74A0 LD BC,($8B0A) ;
+
+; Routine at 74A0
+;
+; Used by the routine at #R$7441.
+c$74A0 LD BC,($8B0A) ;
  $74A4 LD HL,$8431   ;
  $74A7 LD A,C        ;
  $74A8 AND $06       ;
@@ -4760,7 +4863,11 @@ c$7441 LD A,($7383)  ;
  $74BD LD BC,$0008   ;
  $74C0 CALL $8B3C    ;
  $74C3 JP $74E4      ;
-*$74C6 LD D,$80      ;
+
+; Routine at 74C6
+;
+; Used by the routine at #R$7441.
+c$74C6 LD D,$80      ;
  $74C8 LD HL,$0000   ;
  $74CB LD ($7385),HL ;
  $74CE LD A,($7383)  ;
@@ -4772,8 +4879,11 @@ c$7441 LD A,($7383)  ;
  $74DE LD A,$00      ;
  $74E0 LD ($7384),A  ;
  $74E3 RET           ;
-; This entry point is used by the routines at #R$68C5, #R$7358 and #R$762E.
-*$74E4 LD HL,$0000   ;
+
+; Routine at 74E4
+;
+; Used by the routines at #R$68E9, #R$7358, #R$74A0 and #R$762E.
+c$74E4 LD HL,$0000   ;
  $74E7 LD ($7383),HL ;
  $74EA LD ($7385),HL ;
  $74ED RET           ;
@@ -4822,13 +4932,18 @@ c$74EE LD HL,($5F60) ;
  $7532 CP $01        ;
  $7534 JP Z,$7546    ;
  $7537 LD A,($5F6B)  ;
+; This entry point is used by the routine at #R$7546.
 *$753A LD B,A        ;
  $753B LD A,$07      ;
  $753D SUB B         ;
  $753E JP M,$708E    ;
  $7541 LD (HL),$00   ;
  $7543 JP $708E      ;
-*$7546 LD A,($5F6A)  ;
+
+; Routine at 7546
+;
+; Used by the routine at #R$74EE.
+c$7546 LD A,($5F6A)  ;
  $7549 JP $753A      ;
 
 ; Routine at 754C
@@ -5025,6 +5140,7 @@ c$7649 BIT 7,B       ;
  $767F LD ($8B0A),BC ;
  $7683 DEC C         ;
  $7684 DEC C         ;
+; This entry point is used by the routine at #R$76AF.
 *$7685 LD HL,($5F60) ;
  $7688 DEC HL        ;
  $7689 LD D,(HL)     ;
@@ -5044,9 +5160,16 @@ c$7649 BIT 7,B       ;
  $76A4 LD D,$10      ;
  $76A6 CALL $8B1E    ;
  $76A9 JP $708E      ;
-; This entry point is used by the routine at #R$7224.
-*$76AC JP $708E      ;
-*$76AF PUSH BC       ;
+
+; Routine at 76AC
+;
+; Used by the routines at #R$7224 and #R$7649.
+c$76AC JP $708E      ;
+
+; Routine at 76AF
+;
+; Used by the routine at #R$7649.
+c$76AF PUSH BC       ;
  $76B0 LD A,C        ;
  $76B1 ADD A,$20     ;
  $76B3 LD C,A        ;
@@ -5074,7 +5197,7 @@ c$7649 BIT 7,B       ;
 
 ; Routine at 76DA
 ;
-; Used by the routine at #R$7649.
+; Used by the routines at #R$7649 and #R$76AF.
 c$76DA LD ($8B0A),BC ;
  $76DE LD A,B        ;
  $76DF SUB $80       ;
@@ -6437,8 +6560,8 @@ c$8A33 LD A,$00      ;
 
 ; Routine at 8A4E
 ;
-; Used by the routines at #R$6DFF, #R$6E40, #R$708E, #R$7302, #R$75A2, #R$7649
-; and #R$8B3C.
+; Used by the routines at #R$6DFF, #R$6E40, #R$708E, #R$7302, #R$75A2, #R$7649,
+; #R$76AF and #R$8B3C.
 c$8A4E LD DE,$0800   ;
  $8A51 LD HL,$3800   ;
  $8A54 LD A,B        ;
@@ -6589,7 +6712,7 @@ c$8B1E PUSH DE       ;
 ; Routine at 8B3C
 ;
 ; Used by the routines at #R$60A5, #R$65F3, #R$6642, #R$6682, #R$6794, #R$6FBB,
-; #R$708E, #R$71A2, #R$7259, #R$7441, #R$75D0 and #R$76DA.
+; #R$708E, #R$71A2, #R$7259, #R$74A0, #R$75D0 and #R$76DA.
 ;
 ; I:A Sprite width in tiles
 ; I:BC Sprite size in bytes
@@ -6624,6 +6747,8 @@ c$8B3C PUSH DE       ;
  $8B6D JP $8BD2      ;
 
 ; Routine at 8B70
+;
+; Used by the routine at #R$8BC6.
 c$8B70 PUSH DE       ;
  $8B71 LD BC,($8B0C) ;
  $8B75 LD A,B        ;
@@ -6640,13 +6765,21 @@ c$8B70 PUSH DE       ;
  $8B8C SBC HL,DE     ;
  $8B8E LD ($8B12),HL ;
  $8B91 JP $8BA3      ;
-*$8B94 LD HL,($8B12) ;
+
+; Routine at 8B94
+;
+; Used by the routine at #R$8B70.
+c$8B94 LD HL,($8B12) ;
  $8B97 LD DE,$00E0   ;
  $8B9A OR A          ;
  $8B9B SBC HL,DE     ;
  $8B9D LD ($8B12),HL ;
  $8BA0 JP $8BA3      ;
-*$8BA3 LD BC,($8B0A) ;
+
+; Routine at 8BA3
+;
+; Used by the routines at #R$8B70 and #R$8B94.
+c$8BA3 LD BC,($8B0A) ;
  $8BA7 LD A,B        ;
  $8BA8 AND $07       ;
  $8BAA CP $00        ;
@@ -6661,12 +6794,16 @@ c$8B70 PUSH DE       ;
  $8BBE SBC HL,DE     ;
  $8BC0 LD ($8B14),HL ;
  $8BC3 JP $8BD2      ;
-*$8BC6 LD HL,($8B14) ;
+
+; Routine at 8BC6
+;
+; Used by the routine at #R$8BA3.
+c$8BC6 LD HL,($8B14) ;
  $8BC9 LD DE,$00E0   ;
  $8BCC OR A          ;
  $8BCD SBC HL,DE     ;
  $8BCF LD ($8B14),HL ;
-; This entry point is used by the routine at #R$8B3C.
+; This entry point is used by the routines at #R$8B3C and #R$8BA3.
 *$8BD2 CALL $8C0B    ;
  $8BD5 LD A,($8B1A)  ;
  $8BD8 LD D,$00      ;
@@ -6696,7 +6833,7 @@ c$8B70 PUSH DE       ;
 
 ; Routine at 8C0B
 ;
-; Used by the routine at #R$8B70.
+; Used by the routine at #R$8BC6.
 c$8C0B LD A,($8B1A)  ;
  $8C0E LD C,A        ;
  $8C0F LD HL,($8B14) ;
@@ -6731,7 +6868,7 @@ c$8C1B OR B          ;
  $8C36 OR B          ;
  $8C37 CP D          ;
  $8C38 JP NZ,$8C45   ;
-; This entry point is used by the routines at #R$6136 and #R$62E8.
+; This entry point is used by the routines at #R$6136 and #R$63FC.
 *$8C3B LD A,(HL)     ;
 
 ; Routine at 8C3C
@@ -6744,8 +6881,11 @@ c$8C3C OR B          ;
  $8C41 DEC C         ;
  $8C42 JR NZ,$8C2F   ;
  $8C44 RET           ;
-; This entry point is used by the routine at #R$8C1B.
-*$8C45 PUSH HL       ;
+
+; Routine at 8C45
+;
+; Used by the routine at #R$8C1B.
+c$8C45 PUSH HL       ;
  $8C46 LD HL,($8B08) ;
  $8C49 JP (HL)       ;
 
@@ -7416,6 +7556,7 @@ c$928D PUSH HL       ;
  $92E4 LD A,$0C      ;
  $92E6 JP Z,$936F    ;
  $92E9 POP BC        ;
+; This entry point is used by the routine at #R$936F.
 *$92EA PUSH BC       ;
 *$92EB LD (HL),A     ;
  $92EC INC HL        ;
@@ -7431,6 +7572,7 @@ c$928D PUSH HL       ;
  $92FB POP BC        ;
  $92FC ADD HL,DE     ;
  $92FD DJNZ $92EA    ;
+; This entry point is used by the routine at #R$9367.
 *$92FF LD BC,($8B0C) ;
  $9303 LD A,B        ;
  $9304 AND $F8       ;
@@ -7471,6 +7613,7 @@ c$928D PUSH HL       ;
  $9343 LD A,C        ;
  $9344 JP Z,$9388    ;
  $9347 POP BC        ;
+; This entry point is used by the routine at #R$9388.
 *$9348 PUSH BC       ;
 *$9349 LD (HL),A     ;
  $934A INC HL        ;
@@ -7486,16 +7629,29 @@ c$928D PUSH HL       ;
  $9359 POP BC        ;
  $935A ADD HL,DE     ;
  $935B DJNZ $9348    ;
+; This entry point is used by the routine at #R$936B.
 *$935D LD A,($928B)  ;
  $9360 POP BC        ;
  $9361 POP HL        ;
  $9362 LD DE,($8B0C) ;
  $9366 RET           ;
-*$9367 POP BC        ;
+
+; Routine at 9367
+;
+; Used by the routine at #R$928D.
+c$9367 POP BC        ;
  $9368 JP $92FF      ;
-*$936B POP BC        ;
+
+; Routine at 936B
+;
+; Used by the routine at #R$928D.
+c$936B POP BC        ;
  $936C JP $935D      ;
-*$936F LD BC,$03DF   ;
+
+; Routine at 936F
+;
+; Used by the routine at #R$928D.
+c$936F LD BC,$03DF   ;
  $9372 ADD HL,BC     ;
  $9373 POP BC        ;
  $9374 PUSH BC       ;
@@ -7512,7 +7668,11 @@ c$928D PUSH HL       ;
  $9382 SBC HL,BC     ;
  $9384 POP BC        ;
  $9385 JP $92EA      ;
-*$9388 LD BC,$03DF   ;
+
+; Routine at 9388
+;
+; Used by the routine at #R$928D.
+c$9388 LD BC,$03DF   ;
  $938B ADD HL,BC     ;
  $938C POP BC        ;
  $938D PUSH BC       ;
@@ -7529,7 +7689,11 @@ c$928D PUSH HL       ;
  $939B SBC HL,BC     ;
  $939D POP BC        ;
  $939E JP $9348      ;
-*$93A1 LD C,$06      ;
+
+; Routine at 93A1
+;
+; Used by the routines at #R$93BE and #R$93F2.
+c$93A1 LD C,$06      ;
 *$93A3 LD A,(HL)     ;
  $93A4 LD B,A        ;
  $93A5 LD A,(DE)     ;
@@ -7543,12 +7707,23 @@ c$928D PUSH HL       ;
  $93B2 JP NZ,$93A3   ;
  $93B5 LD A,$00      ;
  $93B7 RET           ;
-*$93B8 LD A,$01      ;
+
+; Routine at 93B8
+;
+; Used by the routine at #R$93A1.
+c$93B8 LD A,$01      ;
  $93BA RET           ;
-*$93BB LD A,$FF      ;
+
+; Routine at 93BB
+;
+; Used by the routine at #R$93A1.
+c$93BB LD A,$FF      ;
  $93BD RET           ;
-; This entry point is used by the routine at #R$6577.
-*$93BE LD A,($923A)  ;
+
+; Routine at 93BE
+;
+; Used by the routine at #R$6577.
+c$93BE LD A,($923A)  ;
  $93C1 BIT 0,A       ;
  $93C3 CALL NZ,$93F2 ;
  $93C6 LD HL,$90C8   ;
@@ -7575,7 +7750,11 @@ c$928D PUSH HL       ;
  $93EC LD BC,$0006   ;
  $93EF LDIR          ;
  $93F1 RET           ;
-*$93F2 LD HL,$90BC   ;
+
+; Routine at 93F2
+;
+; Used by the routine at #R$93BE.
+c$93F2 LD HL,$90BC   ;
  $93F5 LD DE,$90C2   ;
  $93F8 CALL $93A1    ;
  $93FB CP $FF        ;

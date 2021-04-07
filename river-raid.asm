@@ -1000,7 +1000,7 @@ start_0:
   EI
   LD HL,msg_credits
   LD (ptr_scroller),HL
-; This entry point is used by the routines at handle_enter and demo.
+; This entry point is used by the routines at select_controls and demo.
 start_1:
   LD A,$3F
   LD I,A
@@ -1018,11 +1018,14 @@ L5D10:
   LD (state_control_type),A
   LD A,(state_demo_mode)  ; Check if we switched to the demo mode
   CP $01                  ;
-  JP Z,L5D10_0
+  JP Z,L5D2B
   CALL init_state
   JP play
-; This entry point is used by the routine at game_over.
-L5D10_0:
+
+; Routine at 5D2B
+;
+; Used by the routines at L5D10 and game_over.
+L5D2B:
   LD SP,(sp_5F83)
   CALL init_state
   JP demo
@@ -1047,7 +1050,7 @@ L5D43:
 
 ; Routine at 5D44
 ;
-; Used by the routines at L5D10 and restart.
+; Used by the routines at L5D10, L5D2B and restart.
 init_state:
   LD A,$78                ; Initialize state_x. Why isn't it $80?
   LD (state_x),A          ;
@@ -1482,7 +1485,8 @@ L5F8F:
 
 ; Main loop
 ;
-; Used by the routine at decrease_lives_player_2.
+; Used by the routines at decrease_lives_player_2, scan_kempston, scan_sinclair
+; and scan_keyboard.
 main_loop:
   LD A,$BF                ; Scan Enter
   IN A,($FE)              ;
@@ -1532,6 +1536,10 @@ scan_cursor:
   BIT 4,A
   CALL Z,handle_down
   JP main_loop
+
+; Routine at 600A
+;
+; Used by the routine at main_loop.
 scan_kempston:
   LD A,$FE
   IN A,($1F)
@@ -1551,6 +1559,10 @@ scan_kempston:
   BIT 4,A
   CALL NZ,handle_fire
   JP main_loop
+
+; Routine at 6039
+;
+; Used by the routine at main_loop.
 scan_sinclair:
   LD A,$EF
   IN A,($FE)
@@ -1570,6 +1582,10 @@ scan_sinclair:
   BIT 4,A
   CALL Z,handle_left
   JP main_loop
+
+; Routine at 6068
+;
+; Used by the routine at main_loop.
 scan_keyboard:
   LD A,$DF                ; Scan "O" (LEFT)
   IN A,($FE)              ;
@@ -1709,11 +1725,11 @@ L615E:
   LD A,B
   ADD A,$06
   SUB D
-  JP M,interact_with_something2_3
+  JP M,L63FC_0
   LD A,D
   ADD A,$06
   SUB B
-  JP M,interact_with_something2_3
+  JP M,L63FC_0
   LD H,$00
   LD A,E
   ADD A,$0A
@@ -1721,7 +1737,7 @@ L615E:
   LD B,$00
   OR A
   SBC HL,BC
-  JP M,interact_with_something2_3
+  JP M,L63FC_0
   LD H,$00
   LD BC,(L5EF3)
   LD A,C
@@ -1731,7 +1747,7 @@ L615E:
   LD C,E
   OR A
   SBC HL,BC
-  JP M,interact_with_something2_3
+  JP M,L63FC_0
   POP DE
   POP DE
   POP DE
@@ -1824,6 +1840,10 @@ next_bridge_player_1:
   INC (HL)
   CALL print_bridge
   JP L6794
+
+; Routine at 6249
+;
+; Used by the routine at interact_with_something.
 next_bridge_player_2:
   LD HL,state_bridge_player_2
   INC (HL)
@@ -1861,7 +1881,7 @@ hit_terrain:
   CP $00
   JP Z,hit_terrain
   CP $FF
-  JP Z,hit_terrain_0
+  JP Z,L62CE
   CALL L62DA
   LD DE,(L5EF3)
   LD A,D
@@ -1904,7 +1924,11 @@ hit_terrain:
   LD A,$02
   LD (L5F8B),A
   RET
-hit_terrain_0:
+
+; Routine at 62CE
+;
+; Used by the routine at hit_terrain.
+L62CE:
   LD A,$00
   LD (L5F8B),A
   RET
@@ -2060,14 +2084,14 @@ interact_with_something2_0:
   LD (viewport_2_ptr),HL
   LD A,(L5F8B)
   CP $02
-  JP Z,interact_with_something2_2
+  JP Z,L63FC
   LD BC,(L7385)
   LD DE,(L8B0C)
   LD A,B
   CP D
-  JP Z,interact_with_something2_2
+  JP Z,L63FC
 ; This entry point is used by the routines at hit_helicopter_reg, hit_ship,
-; hit_helicopter_adv, hit_fighter, hit_balloon and interact_with_fuel.
+; hit_helicopter_adv, hit_fighter, hit_balloon and L649E.
 interact_with_something2_1:
   POP DE
   POP DE
@@ -2082,12 +2106,15 @@ interact_with_something2_1:
   LD BC,(L5F8D)
   LD (L5EF3),BC
   JP L6794
-; This entry point is used by the routine at interact_with_fuel.
-interact_with_something2_2:
+
+; Routine at 63FC
+;
+; Used by the routines at interact_with_something2 and L64A1.
+L63FC:
   LD A,$00
   LD (state_interaction_mode_5F68),A
 ; This entry point is used by the routine at L615E.
-interact_with_something2_3:
+L63FC_0:
   LD A,$00
   LD (state_interaction_mode_5EF5),A
   LD HL,(L5F85)
@@ -2166,7 +2193,7 @@ hit_balloon:
 interact_with_fuel:
   LD A,(state_interaction_mode_5F68)
   CP $06
-  JP Z,interact_with_fuel_0
+  JP Z,L64A1
   LD A,$08                ; POINTS_FUEL
   CALL add_points
   LD BC,(L5F8B)
@@ -2181,15 +2208,22 @@ interact_with_fuel:
   CALL explode_fragment
   INC B
   CALL explode_fragment
+
+; Routine at 649E
+L649E:
   JP interact_with_something2_1
-interact_with_fuel_0:
+
+; Routine at 64A1
+;
+; Used by the routine at interact_with_fuel.
+L64A1:
   LD (HL),C
   LD HL,viewport_1
   LD (viewport_1_ptr),HL
   LD HL,viewport_2
   LD (viewport_2_ptr),HL
   CALL L6E40
-  JP interact_with_something2_2
+  JP L63FC
 
 ; Data block at 64B4
 L64B4:
@@ -2198,7 +2232,7 @@ L64B4:
 ; Routine at 64BC
 ;
 ; Used by the routines at decrease_lives_player_2, interact_with_something,
-; L6587 and demo.
+; next_bridge_player_2, L6587 and demo.
 print_bridge:
   LD A,(state_player)
   CP $02
@@ -2300,28 +2334,32 @@ handle_no_fuel_3:
   JP Z,L65CB
   LD A,(state_lives_player_1)
   CP $00
-  JP Z,handle_no_fuel_5
+  JP Z,L656F
   LD A,(state_game_mode)
   BIT 0,A
   JP NZ,L65BB
-; This entry point is used by the routines at L65AB, L65BB and L65CB.
+; This entry point is used by the routines at L65AB, L65BB, L65CB and L65DE.
 handle_no_fuel_4:
   LD SP,(sp_5F83)
   JP play
-handle_no_fuel_5:
+
+; Routine at 656F
+;
+; Used by the routine at handle_no_fuel.
+L656F:
   LD A,(state_game_mode)
   BIT 0,A
   JP NZ,L65AB
 
 ; Game Over
 ;
-; Used by the routines at L65AB and L65CB.
+; Used by the routines at L65AB and L65DE.
 game_over:
   LD HL,msg_game_over
   LD (ptr_scroller),HL
-  CALL L928D_16
+  CALL L93BE
   LD SP,(sp_5F83)
-  JP L5D10_0
+  JP L5D2B
 
 ; Routine at 6587
 ;
@@ -2348,7 +2386,7 @@ L6587:
 
 ; Routine at 65AB
 ;
-; Used by the routine at handle_no_fuel.
+; Used by the routine at L656F.
 L65AB:
   LD A,(state_lives_player_2)
   CP $00
@@ -2374,15 +2412,20 @@ L65BB:
 L65CB:
   LD A,(state_lives_player_2)
   CP $00
-  JP Z,L65CB_1
+  JP Z,L65DE_0
   LD A,(state_lives_player_1)
   CP $00
-  JP NZ,L65CB_0
+  JP NZ,L65DE
   JP handle_no_fuel_4
-L65CB_0:
+
+; Routine at 65DE
+;
+; Used by the routine at L65CB.
+L65DE:
   LD A,$01
   LD (state_player),A
-L65CB_1:
+; This entry point is used by the routine at L65CB.
+L65DE_0:
   LD A,(state_lives_player_1)
   CP $00
   JP Z,game_over
@@ -2392,7 +2435,8 @@ L65CB_1:
 
 ; Routine at 65F3
 ;
-; Used by the routine at main_loop.
+; Used by the routines at main_loop, scan_kempston, scan_sinclair and
+; scan_keyboard.
 handle_right:
   LD A,(state_x)
   LD HL,(L5EF3)
@@ -2431,7 +2475,8 @@ handle_right_0:
 
 ; Routine at 6642
 ;
-; Used by the routine at main_loop.
+; Used by the routines at main_loop, scan_kempston, scan_sinclair and
+; scan_keyboard.
 handle_left:
   LD A,(state_x)
   LD HL,(L5EF3)
@@ -2542,7 +2587,11 @@ L6704:
   LD A,$00
   LD (L5F6D),A
   RET
-; This entry point is used by the routine at main_loop.
+
+; Routine at 670A
+;
+; Used by the routines at main_loop, scan_kempston, scan_sinclair and
+; scan_keyboard.
 handle_up:
   LD A,$04
   LD (state_speed),A
@@ -2550,7 +2599,11 @@ handle_up:
   SET 2,(HL)              ; Set CONTROLS_BIT_SPEED_ALTERED
   RES 1,(HL)              ; Reset CONTROLS_BIT_SPEED_DECREASED
   RET
-; This entry point is used by the routine at main_loop.
+
+; Routine at 6717
+;
+; Used by the routines at main_loop, scan_kempston, scan_sinclair and
+; scan_keyboard.
 handle_down:
   LD A,$01
   LD (state_speed),A
@@ -2558,7 +2611,11 @@ handle_down:
   SET 2,(HL)              ; Set CONTROLS_BIT_SPEED_ALTERED
   SET 1,(HL)              ; Set CONTROLS_BIT_SPEED_DECREASED
   RET
-; This entry point is used by the routine at main_loop.
+
+; Routine at 6724
+;
+; Used by the routines at main_loop, scan_kempston, scan_sinclair and
+; scan_keyboard.
 handle_fire:
   LD A,(L5EF3)
   CP $00
@@ -2623,7 +2680,7 @@ L678E:
 
 ; Routine at 6794
 ;
-; Used by the routines at L615E, interact_with_something,
+; Used by the routines at L615E, interact_with_something, next_bridge_player_2,
 ; interact_with_something2 and L673D.
 L6794:
   LD BC,(L5EF3)
@@ -2766,25 +2823,29 @@ L683B_0:
   LD A,(L5EF9)
   DEC A
   CP $00
-  JP Z,L683B_1
+  JP Z,L68A1
   CP $7F
   CALL Z,L6682
   LD A,(L5EF9)
   DEC A
   JP L683B_0
-L683B_1:
+
+; Routine at 68A1
+;
+; Used by the routine at L683B.
+L68A1:
   LD HL,screen_pixels
   LD DE,$00E0
   LD A,(state_speed)
-L683B_2:
+L68A1_0:
   LD B,$20
-L683B_3:
+L68A1_1:
   LD (HL),$00
   INC HL
-  DJNZ L683B_3
+  DJNZ L68A1_1
   ADD HL,DE
   DEC A
-  JP NZ,L683B_2
+  JP NZ,L68A1_0
   RET
 
 ; Routine at 68B7
@@ -2807,6 +2868,7 @@ L68C5:
   JP Z,L6927
   CP $02
   JP Z,L6927
+; This entry point is used by the routine at init_current_bridge.
 L68C5_0:
   LD DE,$5BDF
   LD A,$0C
@@ -2817,7 +2879,10 @@ L68C5_1:
   DJNZ L68C5_1
   CALL next_row
   RET
-; This entry point is used by the routines at decrease_lives_player_2 and demo.
+
+; Routine at 68E9
+;
+; Used by the routines at decrease_lives_player_2 and demo.
 init_current_bridge:
   LD HL,screen_attributes
   LD B,$20
@@ -2825,7 +2890,7 @@ init_current_bridge_loop:
   LD (HL),$00
   INC HL
   DJNZ init_current_bridge_loop
-  CALL L7441_2
+  CALL L74E4
   LD (L5F73),HL
   LD A,(state_bridge_player_1)
   LD B,A
@@ -2839,15 +2904,15 @@ init_current_bridge_loop:
   LD L,A
   OR A
   SBC HL,DE
-  JP M,L68C5_3
+  JP M,init_current_bridge_1
   LD E,$0F
-L68C5_2:
+init_current_bridge_0:
   OR A
   SBC HL,DE
-  JP P,L68C5_2
+  JP P,init_current_bridge_0
   ADD HL,DE
   LD E,$21
-L68C5_3:
+init_current_bridge_1:
   ADD HL,DE
   LD A,L
   INC A
@@ -2904,6 +2969,10 @@ increase_bridge_index:
   JP Z,next_bridge_index_overflow
   LD A,$00
   RET
+
+; Routine at 6963
+;
+; Used by the routine at increase_bridge_index.
 next_bridge_index_overflow:
   LD A,$01                  ; Reset bridge index
   LD (state_bridge_index),A ;
@@ -3007,10 +3076,11 @@ render_island_line_1:
   LD B,A
   LD A,(state_island_byte_3)
   CP $01
-  JP Z,render_island_line_4
+  JP Z,L6A3F
   LD A,(state_island_byte_3)
   CP $02
-  JP Z,render_island_line_5
+  JP Z,L6A45
+; This entry point is used by the routines at L6A3F and L6A45.
 render_island_line_2:
   LD D,A
   LD HL,terrain_edge_right
@@ -3046,19 +3116,27 @@ render_island_line_3:
   INC DE
   DJNZ render_island_line_3
   RET
-render_island_line_4:
+
+; Routine at 6A3F
+;
+; Used by the routine at render_island_line.
+L6A3F:
   LD A,C
   SUB D
   ADD A,C
   JP render_island_line_2
-render_island_line_5:
+
+; Routine at 6A45
+;
+; Used by the routine at render_island_line.
+L6A45:
   LD A,C
   ADD A,D
   JP render_island_line_2
 
 ; Routine at 6A4A
 ;
-; Used by the routine at L68C5.
+; Used by the routine at init_current_bridge.
 L6A4A:
   LD A,(state_bridge_player_2)
   LD B,A
@@ -3357,10 +3435,14 @@ handle_enter:
   BIT 1,A                 ;
   JP Z,select_controls    ;
   RET                     ;
+
+; Routine at 6BD2
+;
+; Used by the routine at handle_enter.
 select_controls:
-  LD HL,msg_credits       ;
-  LD (ptr_scroller),HL    ;
-  JP start_1              ;
+  LD HL,msg_credits
+  LD (ptr_scroller),HL
+  JP start_1
 
 ; Non-maskable interrupt handler
 int_handler:
@@ -3609,7 +3691,7 @@ do_low_fuel_2:
 
 ; Routine at 6D17
 ;
-; Used by the routine at L5D10.
+; Used by the routine at L5D2B.
 demo:
   LD BC,$0010
   LD (state_y),BC
@@ -3639,6 +3721,7 @@ demo:
   LD (state_terrain_position),A
   LD A,(state_bridge_index)
   LD (L5D43),A
+; This entry point is used by the routine at L6DDD.
 demo_0:
   LD A,$BF
   IN A,($FE)
@@ -3691,12 +3774,16 @@ demo_0:
   LD (ptr_scroller),HL
   LD A,(HL)
   CP $FF
-  JP Z,demo_1
+  JP Z,L6DDD
   RST $10
   LD A,$02
   CALL CHAN_OPEN
   JP demo_0
-demo_1:
+
+; Routine at 6DDD
+;
+; Used by the routine at demo.
+L6DDD:
   LD HL,msg_credits
   LD (ptr_scroller),HL
   LD A,$00
@@ -3761,7 +3848,7 @@ L6DFF_0:
 
 ; Routine at 6E40
 ;
-; Used by the routine at interact_with_fuel.
+; Used by the routine at L64A1.
 L6E40:
   LD A,(L5F69)
   CP $04
@@ -3839,7 +3926,7 @@ explode_fragment:
 
 ; Routine at 6EAB
 ;
-; Used by the routines at render_enemy, render_fuel, render_balloon and L7441.
+; Used by the routines at render_enemy, render_fuel, render_balloon and L74C6.
 ;
 ; I:C Byte 1
 ; I:B Byte 2
@@ -4214,7 +4301,7 @@ render_balloon:
 ;
 ; Used by the routines at decrease_lives_player_2, main_loop, demo, L7158,
 ; L71A2, L7224, animate_object, animate_helicopter, L7296, L7302, L7358, L74EE,
-; L754C, L75D0, L762E, L7649 and L76DA.
+; L754C, L75D0, L762E, L7649, L76AC and L76DA.
 L708E:
   LD A,$00
   LD (state_interaction_mode_5EF5),A
@@ -4333,7 +4420,7 @@ L7155:
 L7158:
   LD (L8B0A),BC
   BIT 6,D
-  JP Z,L7158_1
+  JP Z,L7192
   DEC C
   DEC C
   DEC C
@@ -4341,6 +4428,7 @@ L7158:
   LD A,C
   CP $00
   CALL Z,L7155
+; This entry point is used by the routine at L7192.
 L7158_0:
   LD HL,(viewport_1_ptr)
   DEC HL
@@ -4359,7 +4447,11 @@ L7158_0:
   CALL L8B1E
   CALL L72EF
   JP L708E
-L7158_1:
+
+; Routine at 7192
+;
+; Used by the routine at L7158.
+L7192:
   INC C
   INC C
   INC C
@@ -4371,7 +4463,7 @@ L7158_1:
 
 ; Routine at 719F
 ;
-; Used by the routine at L7158.
+; Used by the routine at L7192.
 L719F:
   LD C,$04
   RET
@@ -4389,7 +4481,7 @@ L71A2:
   LD A,B
   AND $80
   CP $80
-  JP Z,L71A2_2
+  JP Z,L720E
   LD A,D
   SRL A
   SRL A
@@ -4397,7 +4489,7 @@ L71A2:
   AND $07
   INC A
   CP $07
-  JP Z,L71A2_2
+  JP Z,L720E
   SLA A
   SLA A
   SLA A
@@ -4420,6 +4512,7 @@ L71A2_0:
   ADD HL,BC
   DEC A
   JR NZ,L71A2_0
+; This entry point is used by the routine at L720E.
 L71A2_1:
   LD BC,all_ff
   LD (render_sprite_ptr),BC
@@ -4433,7 +4526,11 @@ L71A2_1:
   LD A,$02
   CALL render_object
   JP L708E
-L71A2_2:
+
+; Routine at 720E
+;
+; Used by the routine at L71A2.
+L720E:
   LD HL,(viewport_1_ptr)
   DEC HL
   DEC HL
@@ -4451,7 +4548,7 @@ L71A2_2:
 L7224:
   LD A,D
   CP $06
-  JP Z,L7649_1
+  JP Z,L76AC
   LD A,(L5EEF)
   AND $01
   CP $01
@@ -4633,9 +4730,9 @@ L7302:
   BIT 5,A
   JP NZ,L708E
   CP $00
-  JP Z,L7302_1
+  JP Z,L7343
   RES 5,A
-; This entry point is used by the routine at L735E.
+; This entry point is used by the routines at L7343 and L735E.
 L7302_0:
   SET 7,A
   LD (L7383),A
@@ -4646,7 +4743,11 @@ L7302_0:
   CALL Z,L72FD
   LD (L7385),BC
   JP L708E
-L7302_1:
+
+; Routine at 7343
+;
+; Used by the routine at L7302.
+L7343:
   BIT 4,D
   JP NZ,L735E
   LD A,D
@@ -4664,12 +4765,12 @@ L7302_1:
 ;
 ; Used by the routine at L735E.
 L7358:
-  CALL L7441_2
+  CALL L74E4
   JP L708E
 
 ; Routine at 735E
 ;
-; Used by the routine at L7302.
+; Used by the routine at L7343.
 L735E:
   LD A,(L5EF2)
   CP $01
@@ -4746,7 +4847,7 @@ L7393:
   LD A,B
   AND $88
   CP $88
-  JP Z,L7393_0
+  JP Z,L73D0
   LD A,(L5F75)
   BIT 6,A
   CALL Z,L738E
@@ -4760,7 +4861,11 @@ L7393:
   LD HL,all_ff
   CALL L8B1E
   RET
-L7393_0:
+
+; Routine at 73D0
+;
+; Used by the routine at L7393.
+L73D0:
   LD BC,$0000
   LD (L5F73),BC
   RET
@@ -4849,7 +4954,7 @@ L7441:
   INC A
   LD (L7384),A
   CP $08
-  JP Z,L7441_1
+  JP Z,L74C6
   LD DE,$0002
   LD H,A
   LD L,$00
@@ -4875,14 +4980,18 @@ L7441:
   LD A,B
   AND $88
   CP $88
-  JP Z,L7441_0
+  JP Z,L74A0
   LD HL,sprite_missile
   LD DE,$0100
   LD A,$01
   LD BC,$0008
   CALL L8B1E
   RET
-L7441_0:
+
+; Routine at 74A0
+;
+; Used by the routine at L7441.
+L74A0:
   LD BC,(L8B0A)
   LD HL,sprite_missile
   LD A,C
@@ -4898,8 +5007,12 @@ L7441_0:
   LD A,$01
   LD BC,$0008
   CALL render_object
-  JP L7441_2
-L7441_1:
+  JP L74E4
+
+; Routine at 74C6
+;
+; Used by the routine at L7441.
+L74C6:
   LD D,$80
   LD HL,$0000
   LD (L7385),HL
@@ -4912,8 +5025,11 @@ L7441_1:
   LD A,$00
   LD (L7384),A
   RET
-; This entry point is used by the routines at L68C5, L7358 and L762E.
-L7441_2:
+
+; Routine at 74E4
+;
+; Used by the routines at init_current_bridge, L7358, L74A0 and L762E.
+L74E4:
   LD HL,$0000
   LD (L7383),HL
   LD (L7385),HL
@@ -4963,8 +5079,9 @@ L74EE_0:
   DEC HL
   LD A,(state_player)
   CP $01
-  JP Z,L74EE_2
+  JP Z,L7546
   LD A,(state_bridge_player_2)
+; This entry point is used by the routine at L7546.
 L74EE_1:
   LD B,A
   LD A,$07
@@ -4972,7 +5089,11 @@ L74EE_1:
   JP M,L708E
   LD (HL),$00
   JP L708E
-L74EE_2:
+
+; Routine at 7546
+;
+; Used by the routine at L74EE.
+L7546:
   LD A,(state_bridge_player_1)
   JP L74EE_1
 
@@ -5138,7 +5259,7 @@ L762E:
   LD (L5EF2),A
   BIT 5,D
   JP Z,L708E
-  CALL L7441_2
+  CALL L74E4
   JP L708E
 
 ; Routine at 7649
@@ -5146,13 +5267,13 @@ L762E:
 ; Used by the routine at L708E.
 L7649:
   BIT 7,B
-  JP NZ,L7649_1
+  JP NZ,L76AC
   LD A,(L5EEF)
   AND $03
   CP $01
-  JP NZ,L7649_1
+  JP NZ,L76AC
   BIT 6,D
-  JP Z,L7649_2
+  JP Z,L76AF
   PUSH BC
   LD A,C
   SUB $10
@@ -5177,6 +5298,7 @@ L7649:
   LD (L8B0A),BC
   DEC C
   DEC C
+; This entry point is used by the routine at L76AF.
 L7649_0:
   LD HL,(viewport_1_ptr)
   DEC HL
@@ -5197,10 +5319,17 @@ L7649_0:
   LD D,$10
   CALL L8B1E
   JP L708E
-; This entry point is used by the routine at L7224.
-L7649_1:
+
+; Routine at 76AC
+;
+; Used by the routines at L7224 and L7649.
+L76AC:
   JP L708E
-L7649_2:
+
+; Routine at 76AF
+;
+; Used by the routine at L7649.
+L76AF:
   PUSH BC
   LD A,C
   ADD A,$20
@@ -5229,7 +5358,7 @@ L7649_2:
 
 ; Routine at 76DA
 ;
-; Used by the routine at L7649.
+; Used by the routines at L7649 and L76AF.
 L76DA:
   LD (L8B0A),BC
   LD A,B
@@ -6442,7 +6571,7 @@ init_udg_loop:
 
 ; Routine at 8A4E
 ;
-; Used by the routines at L6DFF, L6E40, L708E, L7302, L75A2, L7649 and
+; Used by the routines at L6DFF, L6E40, L708E, L7302, L75A2, L7649, L76AF and
 ; render_object.
 L8A4E:
   LD DE,$0800
@@ -6596,7 +6725,7 @@ L8B1E_0:
 ; Routine at 8B3C
 ;
 ; Used by the routines at L60A5, handle_right, handle_left, L6682, L6794,
-; render_rock, L708E, L71A2, animate_helicopter, L7441, L75D0 and L76DA.
+; render_rock, L708E, L71A2, animate_helicopter, L74A0, L75D0 and L76DA.
 ;
 ; I:A Sprite width in tiles
 ; I:BC Sprite size in bytes
@@ -6630,57 +6759,71 @@ render_object_1:
   LD BC,(L8B0A)
   CALL L8A4E
   LD (L8B14),HL
-  JP L8B70_3
+  JP L8BC6_0
 
 ; Routine at 8B70
+;
+; Used by the routine at L8BC6.
 L8B70:
   PUSH DE
   LD BC,(L8B0C)
   LD A,B
   AND $07
   CP $00
-  JP NZ,L8B70_1
+  JP NZ,L8BA3
   LD A,B
   AND $3F
   CP $00
-  JP Z,L8B70_0
+  JP Z,L8B94
   LD HL,(L8B12)
   LD DE,$07E0
   OR A
   SBC HL,DE
   LD (L8B12),HL
-  JP L8B70_1
-L8B70_0:
+  JP L8BA3
+
+; Routine at 8B94
+;
+; Used by the routine at L8B70.
+L8B94:
   LD HL,(L8B12)
   LD DE,$00E0
   OR A
   SBC HL,DE
   LD (L8B12),HL
-  JP L8B70_1
-L8B70_1:
+  JP L8BA3
+
+; Routine at 8BA3
+;
+; Used by the routines at L8B70 and L8B94.
+L8BA3:
   LD BC,(L8B0A)
   LD A,B
   AND $07
   CP $00
-  JP NZ,L8B70_3
+  JP NZ,L8BC6_0
   LD A,B
   AND $3F
   CP $00
-  JP Z,L8B70_2
+  JP Z,L8BC6
   LD HL,(L8B14)
   LD DE,$07E0
   OR A
   SBC HL,DE
   LD (L8B14),HL
-  JP L8B70_3
-L8B70_2:
+  JP L8BC6_0
+
+; Routine at 8BC6
+;
+; Used by the routine at L8BA3.
+L8BC6:
   LD HL,(L8B14)
   LD DE,$00E0
   OR A
   SBC HL,DE
   LD (L8B14),HL
-; This entry point is used by the routine at render_object.
-L8B70_3:
+; This entry point is used by the routines at render_object and L8BA3.
+L8BC6_0:
   CALL L8C0B
   LD A,(render_object_width)
   LD D,$00
@@ -6710,7 +6853,7 @@ L8B70_3:
 
 ; Routine at 8C0B
 ;
-; Used by the routine at L8B70.
+; Used by the routine at L8BC6.
 L8C0B:
   LD A,(render_object_width)
   LD C,A
@@ -6747,9 +6890,8 @@ L8C1B_0:
   XOR B
   OR B
   CP D
-  JP NZ,L8C3C_0
-; This entry point is used by the routines at L6136 and
-; interact_with_something2.
+  JP NZ,L8C45
+; This entry point is used by the routines at L6136 and L63FC.
 L8C1B_1:
   LD A,(HL)
 
@@ -6763,8 +6905,11 @@ L8C3C:
   DEC C
   JR NZ,L8C1B_0
   RET
-; This entry point is used by the routine at L8C1B.
-L8C3C_0:
+
+; Routine at 8C45
+;
+; Used by the routine at L8C1B.
+L8C45:
   PUSH HL
   LD HL,(L8B08)
   JP (HL)
@@ -7448,8 +7593,9 @@ L928D:
   AND $F8
   CP $00
   LD A,$0C
-  JP Z,L928D_8
+  JP Z,L936F
   POP BC
+; This entry point is used by the routine at L936F.
 L928D_0:
   PUSH BC
 L928D_1:
@@ -7462,10 +7608,11 @@ L928D_1:
   OR A
   SBC HL,BC
   POP HL
-  JP P,L928D_6
+  JP P,L9367
   POP BC
   ADD HL,DE
   DJNZ L928D_0
+; This entry point is used by the routine at L9367.
 L928D_2:
   LD BC,(L8B0C)
   LD A,B
@@ -7505,8 +7652,9 @@ L928D_2:
   CP $00
   LD BC,(L9287)
   LD A,C
-  JP Z,L928D_10
+  JP Z,L9388
   POP BC
+; This entry point is used by the routine at L9388.
 L928D_3:
   PUSH BC
 L928D_4:
@@ -7519,32 +7667,45 @@ L928D_4:
   OR A
   SBC HL,BC
   POP HL
-  JP P,L928D_7
+  JP P,L936B
   POP BC
   ADD HL,DE
   DJNZ L928D_3
+; This entry point is used by the routine at L936B.
 L928D_5:
   LD A,(L928B)
   POP BC
   POP HL
   LD DE,(L8B0C)
   RET
-L928D_6:
+
+; Routine at 9367
+;
+; Used by the routine at L928D.
+L9367:
   POP BC
   JP L928D_2
-L928D_7:
+
+; Routine at 936B
+;
+; Used by the routine at L928D.
+L936B:
   POP BC
   JP L928D_5
-L928D_8:
+
+; Routine at 936F
+;
+; Used by the routine at L928D.
+L936F:
   LD BC,$03DF
   ADD HL,BC
   POP BC
   PUSH BC
-L928D_9:
+L936F_0:
   LD (HL),A
   INC HL
   DEC C
-  JR NZ,L928D_9
+  JR NZ,L936F_0
   POP BC
   ADD HL,DE
   DEC B
@@ -7554,16 +7715,20 @@ L928D_9:
   SBC HL,BC
   POP BC
   JP L928D_0
-L928D_10:
+
+; Routine at 9388
+;
+; Used by the routine at L928D.
+L9388:
   LD BC,$03DF
   ADD HL,BC
   POP BC
   PUSH BC
-L928D_11:
+L9388_0:
   LD (HL),A
   INC HL
   DEC C
-  JR NZ,L928D_11
+  JR NZ,L9388_0
   POP BC
   ADD HL,DE
   DEC B
@@ -7573,33 +7738,48 @@ L928D_11:
   SBC HL,BC
   POP BC
   JP L928D_3
-L928D_12:
+
+; Routine at 93A1
+;
+; Used by the routines at L93BE and L93F2.
+L93A1:
   LD C,$06
-L928D_13:
+L93A1_0:
   LD A,(HL)
   LD B,A
   LD A,(DE)
   SUB B
-  JP M,L928D_14
+  JP M,L93B8
   CP $00
-  JP NZ,L928D_15
+  JP NZ,L93BB
   INC HL
   INC DE
   DEC C
-  JP NZ,L928D_13
+  JP NZ,L93A1_0
   LD A,$00
   RET
-L928D_14:
+
+; Routine at 93B8
+;
+; Used by the routine at L93A1.
+L93B8:
   LD A,$01
   RET
-L928D_15:
+
+; Routine at 93BB
+;
+; Used by the routine at L93A1.
+L93BB:
   LD A,$FF
   RET
-; This entry point is used by the routine at game_over.
-L928D_16:
+
+; Routine at 93BE
+;
+; Used by the routine at game_over.
+L93BE:
   LD A,(state_game_mode)
   BIT 0,A
-  CALL NZ,L928D_17
+  CALL NZ,L93F2
   LD HL,L90C8
   LD A,(state_game_mode)
   AND $FE
@@ -7615,7 +7795,7 @@ L928D_16:
   EX DE,HL
   LD HL,state_score_player_1
   PUSH DE
-  CALL L928D_12
+  CALL L93A1
   POP DE
   CP $01
   RET NZ
@@ -7623,10 +7803,14 @@ L928D_16:
   LD BC,state_score_player_2 - state_score_player_1
   LDIR
   RET
-L928D_17:
+
+; Routine at 93F2
+;
+; Used by the routine at L93BE.
+L93F2:
   LD HL,state_score_player_1
   LD DE,state_score_player_2
-  CALL L928D_12
+  CALL L93A1
   CP $FF
   RET NZ
   LD HL,state_score_player_2
