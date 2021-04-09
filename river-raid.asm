@@ -1,31 +1,57 @@
-; CONSTANTS
-;
-; These are here for information only and are not used by any of the assembly
-; directives.
-;
-; CONTROLS_BIT_FIRE            = 0
-; CONTROLS_BIT_SPEED_DECREASED = 1
-; CONTROLS_BIT_SPEED_ALTERED   = 2
-; CONTROLS_BIT_LOW_FUEL        = 3
-; CONTROLS_BIT_BONUS_LIFE      = 4
-; CONTROLS_BIT_EXPLODING       = 5
-;
-; POINTS_SHIP           = 3
-; POINTS_REG_HELICOPTER = 6
-; POINTS_BALLOON       = 6
-; POINTS_FUEL           = 8
-; POINTS_FIGHTER        = 10
-; POINTS_ADV_HELICOPTER = 15
-; POINTS_TANK           = 25
-; POINTS_BRIDGE         = 50
-;
-; OBJECT_HELICOPTER_REG = 1
-; OBJECT_SHIP           = 2
-; OBJECT_HELICOPTER_ADV = 3
-; OBJECT_TANK           = 4
-; OBJECT_FIGHTER        = 5
-; OBJECT_BALLOON        = 6
-; OBJECT_FUEL           = 7
+COLOR_BLACK   EQU $00
+COLOR_BLUE    EQU $01
+COLOR_RED     EQU $02
+COLOR_MAGENTA EQU $03
+COLOR_GREEN   EQU $04
+COLOR_CYAN    EQU $05
+COLOR_YELLOW  EQU $06
+COLOR_WHITE   EQU $07
+
+INPUT_INTERFACE_KEYBOARD EQU $00
+INPUT_INTERFACE_SINCLAIR EQU $01
+INPUT_INTERFACE_KEMPSTON EQU $02
+INPUT_INTERFACE_CURSOR   EQU $03
+
+DEMO_MODE_OFF EQU $00
+DEMO_MODE_ON  EQU $01
+
+GAME_MODE_BIT_TWO_PLAYERS EQU 0
+
+PLAYER_1 EQU $01
+PLAYER_2 EQU $02
+
+SPEED_STOP   EQU $01
+SPEED_SLOW   EQU $01
+SPEED_NORMAL EQU $02
+SPEED_FAST   EQU $04
+
+CONTROLS_BIT_FIRE            EQU 0
+CONTROLS_BIT_SPEED_DECREASED EQU 1
+CONTROLS_BIT_SPEED_ALTERED   EQU 2
+CONTROLS_BIT_LOW_FUEL        EQU 3
+CONTROLS_BIT_BONUS_LIFE      EQU 4
+CONTROLS_BIT_EXPLODING       EQU 5
+
+POINTS_SHIP           EQU $03
+POINTS_HELICOPTER_REG EQU $06
+POINTS_BALLOON        EQU $06
+POINTS_FUEL           EQU $08
+POINTS_FIGHTER        EQU $10
+POINTS_HELICOPTER_ADV EQU $15
+POINTS_TANK           EQU $25
+POINTS_BRIDGE         EQU $50
+
+OBJECT_HELICOPTER_REG EQU $01
+OBJECT_SHIP           EQU $02
+OBJECT_HELICOPTER_ADV EQU $03
+OBJECT_TANK           EQU $04
+OBJECT_FIGHTER        EQU $05
+OBJECT_BALLOON        EQU $06
+OBJECT_FUEL           EQU $07
+
+SLOT_BIT_ROCK         EQU $03
+SLOT_BIT_TANK_ON_BANK EQU $05
+SLOT_BIT_ORIENTATION  EQU $06
 
 KEYBOARD EQU $02BF
 BEEPER EQU $03B5
@@ -1015,9 +1041,9 @@ L5D10:
   IM 2
   EI
   LD A,(tmp_control_type)
-  LD (state_control_type),A
-  LD A,(state_demo_mode)  ; Check if we switched to the demo mode
-  CP $01                  ;
+  LD (state_input_interface),A
+  LD A,(state_demo_mode)
+  CP DEMO_MODE_ON
   JP Z,L5D2B
   CALL init_state
   JP play
@@ -1200,7 +1226,7 @@ decrease_lives_player_2_0:
   LD A,$0D
   LD (LAST_K),A
   LD A,(state_player)
-  CP $02
+  CP PLAYER_2
   JP Z,decrease_lives_player_2
   LD HL,state_lives_player_1
   DEC (HL)
@@ -1212,8 +1238,8 @@ decrease_lives_player_2_2:
   LD A,(LAST_K)
   CP $0D
   JR NZ,decrease_lives_player_2_3
-  LD A,(state_control_type)
-  CP $02
+  LD A,(state_input_interface)
+  CP INPUT_INTERFACE_KEMPSTON
   JP NZ,decrease_lives_player_2_2
   LD A,$FE
   IN A,($1F)
@@ -1358,7 +1384,7 @@ state_fuel:
   DEFB $00
 
 ; Control type ($00 - Keyboard, $01 - Sinclair, $02 - Kempston, Other - Cursor)
-state_control_type:
+state_input_interface:
   DEFB $00
 
 ; Game status buffer entry at 5F68
@@ -1509,12 +1535,12 @@ main_loop:
   CALL L6DFF
   LD A,$00
   LD (L5F69),A
-  LD A,(state_control_type)
-  CP $02
+  LD A,(state_input_interface)
+  CP INPUT_INTERFACE_KEMPSTON
   JP Z,scan_kempston
-  CP $01
+  CP INPUT_INTERFACE_SINCLAIR
   JP Z,scan_sinclair
-  CP $00
+  CP INPUT_INTERFACE_KEYBOARD
   JP Z,scan_keyboard
 scan_cursor:
   LD A,$EF
@@ -1769,7 +1795,7 @@ L615E:
   DEC C
   DEC C
   CALL explode_fragment
-  LD A,$10                ; POINTS_FIGHTER
+  LD A,POINTS_FIGHTER
   CALL add_points
   JP L6794
 
@@ -1788,7 +1814,7 @@ interact_with_something:
   SUB $16
   SUB B
   JP P,interact_with_something2
-  LD A,$50                ; POINTS_BRIDGE
+  LD A,POINTS_BRIDGE
   CALL add_points
   LD A,$0F
   LD (L5F5F),A
@@ -1833,7 +1859,7 @@ interact_with_something:
   LD BC,(L5F8D)
   LD (L5EF3),BC
   LD A,(state_player)
-  CP $02
+  CP PLAYER_2
   JP Z,next_bridge_player_2
 next_bridge_player_1:
   LD HL,state_bridge_player_1
@@ -2064,17 +2090,17 @@ interact_with_something2:
   DEC HL
   LD (HL),$00
   LD D,$00
-  CP $01
+  CP OBJECT_HELICOPTER_REG
   JP Z,hit_helicopter_reg
-  CP $02
+  CP OBJECT_SHIP
   JP Z,hit_ship
-  CP $03
+  CP OBJECT_HELICOPTER_ADV
   JP Z,hit_helicopter_adv
-  CP $05
+  CP OBJECT_FIGHTER
   JP Z,hit_fighter
-  CP $06
+  CP OBJECT_BALLOON
   JP Z,hit_balloon
-  CP $07
+  CP OBJECT_FUEL
   JP Z,interact_with_fuel
 interact_with_something2_0:
   CALL hit_terrain
@@ -2126,7 +2152,7 @@ L63FC_0:
 ;
 ; Used by the routine at interact_with_something2.
 hit_helicopter_reg:
-  LD A,$06                ; POINTS_REG_HELICOPTER
+  LD A,POINTS_HELICOPTER_REG
   CALL add_points
   LD BC,(L5F8B)
   CALL explode_fragment
@@ -2136,7 +2162,7 @@ hit_helicopter_reg:
 ;
 ; Used by the routine at interact_with_something2.
 hit_ship:
-  LD A,$03                ; POINTS_SHIP
+  LD A,POINTS_SHIP
   CALL add_points
   LD BC,(L5F8B)
   CALL explode_fragment
@@ -2157,7 +2183,7 @@ hit_ship:
 ;
 ; Used by the routine at interact_with_something2.
 hit_helicopter_adv:
-  LD A,$15                ; POINTS_ADV_HELICOPTER
+  LD A,POINTS_HELICOPTER_ADV
   CALL add_points
   LD BC,(L5F8B)
   CALL explode_fragment
@@ -2167,7 +2193,7 @@ hit_helicopter_adv:
 ;
 ; Used by the routine at interact_with_something2.
 hit_fighter:
-  LD A,$10                ; POINTS_FIGHTER
+  LD A,POINTS_FIGHTER
   CALL add_points
   LD BC,(L5F8B)
   CALL explode_fragment
@@ -2177,7 +2203,7 @@ hit_fighter:
 ;
 ; Used by the routine at interact_with_something2.
 hit_balloon:
-  LD A,$06                ; POINTS_BALLOON
+  LD A,POINTS_BALLOON
   CALL add_points
   LD BC,(L5F8B)
   CALL explode_fragment
@@ -2194,7 +2220,7 @@ interact_with_fuel:
   LD A,(state_interaction_mode_5F68)
   CP $06
   JP Z,L64A1
-  LD A,$08                ; POINTS_FUEL
+  LD A,POINTS_FUEL
   CALL add_points
   LD BC,(L5F8B)
   CALL explode_fragment
@@ -2235,7 +2261,7 @@ L64B4:
 ; next_bridge_player_2, L6587 and demo.
 print_bridge:
   LD A,(state_player)
-  CP $02
+  CP PLAYER_2
   JP Z,print_bridge_player_2
   LD A,$10
   RST $10
@@ -2330,13 +2356,13 @@ handle_no_fuel_3:
   LD A,$00
   LD (state_controls),A
   LD A,(state_player)
-  CP $02
+  CP PLAYER_2
   JP Z,L65CB
   LD A,(state_lives_player_1)
   CP $00
   JP Z,L656F
   LD A,(state_game_mode)
-  BIT 0,A
+  BIT GAME_MODE_BIT_TWO_PLAYERS,A
   JP NZ,L65BB
 ; This entry point is used by the routines at L65AB, L65BB, L65CB and L65DE.
 handle_no_fuel_4:
@@ -2348,7 +2374,7 @@ handle_no_fuel_4:
 ; Used by the routine at handle_no_fuel.
 L656F:
   LD A,(state_game_mode)
-  BIT 0,A
+  BIT GAME_MODE_BIT_TWO_PLAYERS,A
   JP NZ,L65AB
 
 ; Game Over
@@ -2366,7 +2392,7 @@ game_over:
 ; Used by the routine at demo.
 L6587:
   LD A,(state_game_mode)
-  BIT 0,A
+  BIT GAME_MODE_BIT_TWO_PLAYERS,A
   RET Z
   LD A,$01
   LD (state_player),A
@@ -2455,10 +2481,10 @@ handle_right:
   LD BC,$0010             ; Sprite size (2×1 tiles × 8 bytes/tile)
   LD HL,(L5EF7)
   LD (render_sprite_ptr),HL
-  LD E,$0E                ; COLOR_YELLOW_ON_BLUE
+  LD E,COLOR_BLUE<<3|COLOR_YELLOW
   LD A,(state_player)
-  CP $02                  ; Load player 2 color
-  CALL Z,ld_cyan_on_blue  ;
+  CP PLAYER_2               ; Load player 2 color
+  CALL Z,ld_attributes_ship ;
   LD D,$08
   LD A,$02
   LD HL,sprite_plane_banked
@@ -2497,8 +2523,8 @@ handle_left:
   LD (render_sprite_ptr),HL
   LD E,$0E                ; COLOR_YELLOW_ON_BLUE
   LD A,(state_player)
-  CP $02                  ; Load player 2 color
-  CALL Z,ld_cyan_on_blue  ;
+  CP PLAYER_2               ; Load player 2 color
+  CALL Z,ld_attributes_ship ;
   LD D,$08
   LD A,$02
   LD HL,sprite_plane_banked
@@ -2527,8 +2553,8 @@ L6682:
   LD (render_sprite_ptr),HL
   LD E,$0E                ; COLOR_YELLOW_ON_BLUE
   LD A,(state_player)
-  CP $02                  ; Load player 2 color
-  CALL Z,ld_cyan_on_blue  ;
+  CP PLAYER_2               ; Load player 2 color
+  CALL Z,ld_attributes_ship ;
   LD D,$08
   LD HL,sprite_plane
   LD A,(L5F69)
@@ -2596,8 +2622,8 @@ handle_up:
   LD A,$04
   LD (state_speed),A
   LD HL,state_controls
-  SET 2,(HL)              ; Set CONTROLS_BIT_SPEED_ALTERED
-  RES 1,(HL)              ; Reset CONTROLS_BIT_SPEED_DECREASED
+  SET CONTROLS_BIT_SPEED_ALTERED,(HL)
+  RES CONTROLS_BIT_SPEED_DECREASED,(HL)
   RET
 
 ; Routine at 6717
@@ -2608,8 +2634,8 @@ handle_down:
   LD A,$01
   LD (state_speed),A
   LD HL,state_controls
-  SET 2,(HL)              ; Set CONTROLS_BIT_SPEED_ALTERED
-  SET 1,(HL)              ; Set CONTROLS_BIT_SPEED_DECREASED
+  SET CONTROLS_BIT_SPEED_ALTERED,(HL)
+  SET CONTROLS_BIT_SPEED_DECREASED,(HL)
   RET
 
 ; Routine at 6724
@@ -2895,7 +2921,7 @@ init_current_bridge_loop:
   LD A,(state_bridge_player_1)
   LD B,A
   LD A,(state_player)
-  CP $02
+  CP PLAYER_2
   CALL Z,L6A4A
   LD A,B
   DEC A
@@ -3466,15 +3492,15 @@ handle_controls:
   CP $68                  ;
   JP Z,int_return
   LD HL,state_controls
-  BIT 0,(HL)
+  BIT CONTROLS_BIT_FIRE,(HL)
   CALL NZ,do_fire
-  BIT 4,(HL)
-  CALL NZ,do_bit4
+  BIT CONTROLS_BIT_BONUS_LIFE,(HL)
+  CALL NZ,do_bonus_life
   LD HL,state_controls
-  BIT 5,(HL)
+  BIT CONTROLS_BIT_EXPLODING,(HL)
   CALL NZ,explosion_render
   LD HL,state_controls
-  BIT 3,(HL)
+  BIT CONTROLS_BIT_LOW_FUEL,(HL)
   JP NZ,do_low_fuel
   LD A,(HL)
   AND $06                 ; Distill the state down to
@@ -3509,7 +3535,7 @@ state_bit4_counter:
 ; Do something about bit4
 ;
 ; Used by the routine at handle_controls.
-do_bit4:
+do_bonus_life:
   LD A,(state_bit4_counter)
   INC A
   LD (state_bit4_counter),A
@@ -3530,7 +3556,7 @@ do_bit4:
 
 ; Finish doing something about bit4
 ;
-; Used by the routine at do_bit4.
+; Used by the routine at do_bonus_life.
 bit4_finish:
   LD A,$00
   LD (state_bit4_counter),A
@@ -4128,7 +4154,7 @@ locate_level:
   LD A,E
   CP $00
   RET Z
-  BIT 3,D
+  BIT SLOT_BIT_ROCK,D
   JP NZ,render_rock
   LD A,D
   AND $07
@@ -4187,14 +4213,14 @@ L6FEA:
 ;
 ; Used by the routine at next_row.
 ;
-; I:A Enemy type (6-balloon)
+; I:A Enemy type
 ; I:D Enemy info and type as well
 render_enemy:
-  CP $06
+  CP OBJECT_BALLOON
   JP Z,render_balloon
-  CP $05
+  CP OBJECT_FIGHTER
   CALL Z,L7046
-  CP $04
+  CP OBJECT_TANK
   CALL Z,L7046
   CALL ld_enemy_sprites
   LD B,$00
@@ -4208,41 +4234,45 @@ render_enemy:
   LD E,$0E
   LD A,D
   AND $07
-  CP $02                  ; Check if it's an OBJECT_SHIP
-  CALL Z,ld_cyan_on_blue  ;
-  CP $05
-  CALL Z,L703B
-  CP $04
-  CALL Z,L703E
+  CP OBJECT_SHIP
+  CALL Z,ld_attributes_ship
+  CP OBJECT_FIGHTER
+  CALL Z,ld_attributes_fighter
+  CP OBJECT_TANK
+  CALL Z,ld_attributes_tank
   LD A,$03
   LD D,$08
   CALL L8B1E
   CALL L72EF
   RET
 
-; Load COLOR_CYAN_ON_BLUE into E
+; Load ship screen attributes.
 ;
 ; Used by the routines at handle_right, handle_left, L6682, render_enemy, L708E
 ; and L75D0.
 ;
-; O:E Attribute value
-ld_cyan_on_blue:
+; O:E Attributes
+ld_attributes_ship:
   LD E,$0D
   RET
 
-; Routine at 703B
+; Load fighter screen attributes.
 ;
 ; Used by the routine at render_enemy.
-L703B:
+;
+; O:E Attributes
+ld_attributes_fighter:
   LD E,$00
   RET
 
-; Routine at 703E
+; Load tank screen attributes.
 ;
 ; Used by the routine at render_enemy.
-L703E:
+;
+; O:E Attributes
+ld_attributes_tank:
   LD E,$00
-  BIT 5,D
+  BIT SLOT_BIT_TANK_ON_BANK,D
   RET Z
   LD E,$04
   RET
@@ -4400,8 +4430,8 @@ L708E_1:
   LD E,$0E                ; COLOR_YELLOW_ON_BLUE
   LD A,D
   AND $07
-  CP $02                  ; Check if it's an OBJECT_SHIP
-  CALL Z,ld_cyan_on_blue  ;
+  CP OBJECT_SHIP
+  CALL Z,ld_attributes_ship
   LD A,$03
   LD D,$08
   CALL render_object
@@ -4547,7 +4577,7 @@ L720E:
 ; Used by the routine at L708E.
 L7224:
   LD A,D
-  CP $06
+  CP OBJECT_BALLOON
   JP Z,L76AC
   LD A,(L5EEF)
   AND $01
@@ -4555,9 +4585,9 @@ L7224:
   JP Z,animate_object
   LD A,D
   AND $07
-  CP $01
+  CP OBJECT_HELICOPTER_REG
   JP Z,L7224_0
-  CP $03
+  CP OBJECT_HELICOPTER_ADV
   JP NZ,L708E
 L7224_0:
   LD (L8B0A),BC
@@ -4578,9 +4608,9 @@ ld_sprite_helicopter_rotor_right:
 animate_object:
   LD A,D
   AND $07
-  CP $01
+  CP OBJECT_HELICOPTER_REG
   JP Z,animate_helicopter
-  CP $03
+  CP OBJECT_HELICOPTER_ADV
   JP NZ,L708E
 
 ; Routine at 7259
@@ -4595,7 +4625,7 @@ animate_helicopter:
   DEC HL
   LD C,(HL)
   LD HL,sprite_helicopter_rotor_left
-  BIT 6,D
+  BIT SLOT_BIT_ORIENTATION,D
   CALL Z,ld_sprite_helicopter_rotor_right
   LD (L8B0C),BC
   LD (L8B0A),BC
@@ -5068,7 +5098,7 @@ L74EE:
   LD (HL),$00
   LD D,$80
   CALL explode_fragment
-  LD A,$25                ; POINTS_TANK
+  LD A,POINTS_TANK
   CALL add_points
 L74EE_0:
   LD HL,(viewport_1_ptr)
@@ -5178,7 +5208,7 @@ ld_enemy_sprites:
   LD HL,sprite_enemies_left
   LD BC,$0060             ; Enemy sprite array size (3×1 tiles × 8 bytes/tile ×
                           ; 4 frames)
-  BIT 6,D
+  BIT SLOT_BIT_ORIENTATION,D
   CALL Z,ld_enemy_sprites_right
   LD A,D
   AND $07
@@ -5230,7 +5260,7 @@ L75D0_0:
   LD A,D
   AND $07
   CP $02
-  CALL Z,ld_cyan_on_blue
+  CALL Z,ld_attributes_ship
   LD D,$08
   LD A,$03
   LD BC,$0018
@@ -7238,7 +7268,7 @@ update_score:
   SUB B
   LD C,A
   LD A,(state_player)
-  CP $02
+  CP PLAYER_2
   JP Z,inc_player_2_score_digit
 
 ; Increase a digit in the player 1's score.
@@ -7400,13 +7430,13 @@ L91E8:
   LD A,$15
   RST $10
   LD A,(state_game_mode)
-  BIT 0,A
+  BIT GAME_MODE_BIT_TWO_PLAYERS,A
   JP NZ,print_score_player_2
   LD A,$10
   RST $10
   LD A,$07
   RST $10
-  LD BC,L90CC - L90C8
+  LD BC,$0006
   LD HL,L90C8
   LD A,(state_game_mode)
   AND $FE
@@ -7459,7 +7489,7 @@ state_player:
 ; Used by the routines at decrease_lives_player_2 and add_life.
 print_lives:
   LD A,(state_player)
-  CP $02
+  CP PLAYER_2
   JP Z,print_lives_player_2
   LD A,$10                ; INK YELLOW
   RST $10                 ;
@@ -7551,7 +7581,7 @@ L928D:
   LD (L928B),A
   LD A,E
   CP $00
-  JP Z,L928D_5
+  JP Z,handle_zero_attributes
   LD (L9287),DE
   LD (L9285),BC
   LD (L9289),HL
@@ -7672,7 +7702,7 @@ L928D_4:
   ADD HL,DE
   DJNZ L928D_3
 ; This entry point is used by the routine at L936B.
-L928D_5:
+handle_zero_attributes:
   LD A,(L928B)
   POP BC
   POP HL
@@ -7691,7 +7721,7 @@ L9367:
 ; Used by the routine at L928D.
 L936B:
   POP BC
-  JP L928D_5
+  JP handle_zero_attributes
 
 ; Routine at 936F
 ;
@@ -7778,7 +7808,7 @@ L93BB:
 ; Used by the routine at game_over.
 L93BE:
   LD A,(state_game_mode)
-  BIT 0,A
+  BIT GAME_MODE_BIT_TWO_PLAYERS,A
   CALL NZ,L93F2
   LD HL,L90C8
   LD A,(state_game_mode)
@@ -7856,7 +7886,7 @@ clear_scr_attr:
 ld_lives:
   LD HL,state_lives_player_1
   LD A,(state_player)
-  CP $02
+  CP PLAYER_2
   RET NZ
   LD HL,state_lives_player_2
   RET

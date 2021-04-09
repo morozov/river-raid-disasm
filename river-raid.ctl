@@ -1,32 +1,60 @@
 > $4000 @start
-> $4000 ; CONSTANTS
-> $4000 ;
-> $4000 ; These are here for information only and are not used by any of the assembly
-> $4000 ; directives.
-> $4000 ;
-> $4000 ; CONTROLS_BIT_FIRE            = 0
-> $4000 ; CONTROLS_BIT_SPEED_DECREASED = 1
-> $4000 ; CONTROLS_BIT_SPEED_ALTERED   = 2
-> $4000 ; CONTROLS_BIT_LOW_FUEL        = 3
-> $4000 ; CONTROLS_BIT_BONUS_LIFE      = 4
-> $4000 ; CONTROLS_BIT_EXPLODING       = 5
-> $4000 ;
-> $4000 ; POINTS_SHIP           = 3
-> $4000 ; POINTS_REG_HELICOPTER = 6
-> $4000 ; POINTS_BALLOON       = 6
-> $4000 ; POINTS_FUEL           = 8
-> $4000 ; POINTS_FIGHTER        = 10
-> $4000 ; POINTS_ADV_HELICOPTER = 15
-> $4000 ; POINTS_TANK           = 25
-> $4000 ; POINTS_BRIDGE         = 50
-> $4000 ;
-> $4000 ; OBJECT_HELICOPTER_REG = 1
-> $4000 ; OBJECT_SHIP           = 2
-> $4000 ; OBJECT_HELICOPTER_ADV = 3
-> $4000 ; OBJECT_TANK           = 4
-> $4000 ; OBJECT_FIGHTER        = 5
-> $4000 ; OBJECT_BALLOON        = 6
-> $4000 ; OBJECT_FUEL           = 7
+> $4000
+> $4000 COLOR_BLACK   EQU $00
+> $4000 COLOR_BLUE    EQU $01
+> $4000 COLOR_RED     EQU $02
+> $4000 COLOR_MAGENTA EQU $03
+> $4000 COLOR_GREEN   EQU $04
+> $4000 COLOR_CYAN    EQU $05
+> $4000 COLOR_YELLOW  EQU $06
+> $4000 COLOR_WHITE   EQU $07
+> $4000
+> $4000 INPUT_INTERFACE_KEYBOARD EQU $00
+> $4000 INPUT_INTERFACE_SINCLAIR EQU $01
+> $4000 INPUT_INTERFACE_KEMPSTON EQU $02
+> $4000 INPUT_INTERFACE_CURSOR   EQU $03
+> $4000
+> $4000 DEMO_MODE_OFF EQU $00
+> $4000 DEMO_MODE_ON  EQU $01
+> $4000
+> $4000 GAME_MODE_BIT_TWO_PLAYERS EQU 0
+> $4000
+> $4000 PLAYER_1 EQU $01
+> $4000 PLAYER_2 EQU $02
+> $4000
+> $4000 SPEED_STOP   EQU $01
+> $4000 SPEED_SLOW   EQU $01
+> $4000 SPEED_NORMAL EQU $02
+> $4000 SPEED_FAST   EQU $04
+> $4000
+> $4000 CONTROLS_BIT_FIRE            EQU 0
+> $4000 CONTROLS_BIT_SPEED_DECREASED EQU 1
+> $4000 CONTROLS_BIT_SPEED_ALTERED   EQU 2
+> $4000 CONTROLS_BIT_LOW_FUEL        EQU 3
+> $4000 CONTROLS_BIT_BONUS_LIFE      EQU 4
+> $4000 CONTROLS_BIT_EXPLODING       EQU 5
+> $4000
+> $4000 POINTS_SHIP           EQU $03
+> $4000 POINTS_HELICOPTER_REG EQU $06
+> $4000 POINTS_BALLOON        EQU $06
+> $4000 POINTS_FUEL           EQU $08
+> $4000 POINTS_FIGHTER        EQU $10
+> $4000 POINTS_HELICOPTER_ADV EQU $15
+> $4000 POINTS_TANK           EQU $25
+> $4000 POINTS_BRIDGE         EQU $50
+> $4000
+> $4000 OBJECT_HELICOPTER_REG EQU $01
+> $4000 OBJECT_SHIP           EQU $02
+> $4000 OBJECT_HELICOPTER_ADV EQU $03
+> $4000 OBJECT_TANK           EQU $04
+> $4000 OBJECT_FIGHTER        EQU $05
+> $4000 OBJECT_BALLOON        EQU $06
+> $4000 OBJECT_FUEL           EQU $07
+> $4000
+> $4000 SLOT_BIT_ROCK         EQU $03
+> $4000 SLOT_BIT_TANK_ON_BANK EQU $05
+> $4000 SLOT_BIT_ORIENTATION  EQU $06
+> $4000
 @ $4000 org
 @ $4000 equ=KEYBOARD=$02BF
 @ $4000 equ=BEEPER=$03B5
@@ -50,7 +78,7 @@ c $5CD2 The entry point invoked from the BASIC loader
 @ $5CD8 nowarn
 @ $5CE3 nowarn
 c $5D10
-  $5D1D,5 Check if we switched to the demo mode
+@ $5D20 isub=CP DEMO_MODE_ON
 c $5D2B
 @ $5D35 label=restart
 c $5D35 Restart the game
@@ -71,6 +99,8 @@ C $5DB4,2 PAPER 1; INK 4
 @ $5DD0 isub=LD BC,status_line_3 - status_line_2
 @ $5E32 isub=LD BC,state_score_player_2 - state_score_player_1
 @ $5E40 isub=LD BC,end_status_line_4 - status_line_4
+@ $5EB3 isub=CP PLAYER_2
+@ $5ECD isub=CP INPUT_INTERFACE_KEMPSTON
 @ $5EEE label=L5EEE
 b $5EEE
 @ $5EEF label=L5EEF
@@ -119,7 +149,7 @@ g $5F64 Current speed
 b $5F65
 @ $5F66 label=state_fuel
 g $5F66 Fuel level
-@ $5F67 label=state_control_type
+@ $5F67 label=state_input_interface
 g $5F67 Control type ($00 - Keyboard, $01 - Sinclair, $02 - Kempston, Other - Cursor)
 @ $5F68 label=state_interaction_mode_5F68
 g $5F68
@@ -182,6 +212,9 @@ w $5F8F
 @ $5F91 label=main_loop
 c $5F91 Main loop
 C $5F91,9 Scan Enter
+@ $5FCB isub=CP INPUT_INTERFACE_KEMPSTON
+@ $5FD0 isub=CP INPUT_INTERFACE_SINCLAIR
+@ $5FD5 isub=CP INPUT_INTERFACE_KEYBOARD
 @ $5FDA label=scan_cursor
 @ $600A label=scan_kempston
 c $600A
@@ -201,11 +234,12 @@ c $6124
 c $6136
 @ $615E label=L615E
 c $615E
-  $61B3,2 POINTS_FIGHTER
+@ $61B3 isub=LD A,POINTS_FIGHTER
 @ $61BB label=interact_with_something
 c $61BB
-  $61D3,2 POINTS_BRIDGE
+@ $61D3 isub=LD A,POINTS_BRIDGE
 @ $621F keep
+@ $623A isub=CP PLAYER_2
 @ $623F label=next_bridge_player_1
 @ $6249 label=next_bridge_player_2
 c $6249
@@ -222,30 +256,37 @@ c $62DA Increase #REGb by the value of #R$5F64
 c $62E0
 @ $62E8 label=interact_with_something2
 c $62E8 Interact with something
+@ $639B isub=CP OBJECT_HELICOPTER_REG
+@ $63A0 isub=CP OBJECT_SHIP
+@ $63A5 isub=CP OBJECT_HELICOPTER_ADV
+@ $63AA isub=CP OBJECT_FIGHTER
+@ $63AF isub=CP OBJECT_BALLOON
+@ $63B4 isub=CP OBJECT_FUEL
 c $63FC
 @ $6414 label=hit_helicopter_reg
+@ $6414 isub=LD A,POINTS_HELICOPTER_REG
 c $6414
-  $6414,2 POINTS_REG_HELICOPTER
 @ $6423 label=hit_ship
+@ $6423 isub=LD A,POINTS_SHIP
 c $6423
-  $6423,2 POINTS_SHIP
 @ $6444 label=hit_helicopter_adv
+@ $6444 isub=LD A,POINTS_HELICOPTER_ADV
 c $6444 Hit advanced helicopter
-  $6444,2 POINTS_ADV_HELICOPTER
 @ $6453 label=hit_fighter
+@ $6453 isub=LD A,POINTS_FIGHTER
 c $6453 Hit fighter
-  $6453,2 POINTS_FIGHTER
 @ $6462 label=hit_balloon
+@ $6462 isub=LD A,POINTS_BALLOON
 c $6462
-  $6462,2 POINTS_BALLOON
 @ $6478 label=interact_with_fuel
 c $6478
-  $6480,2 POINTS_FUEL
+@ $6480 isub=LD A,POINTS_FUEL
 c $649E
 c $64A1
 b $64B4
 @ $64BC label=print_bridge
 c $64BC
+@ $64BF isub=CP PLAYER_2
 @ $64CD isub=LD BC,status_line_4 - status_line_3
 @ $64E5 label=print_bridge_player_2
 c $64E5 Print current bridge for player 2
@@ -256,10 +297,14 @@ c $64F1 Print current bridge number for player 2
 c $6506 Print space
 @ $650A label=handle_no_fuel
 c $650A Handle the no fuel situation
+@ $6553 isub=CP PLAYER_2
+@ $6563 isub=BIT GAME_MODE_BIT_TWO_PLAYERS,A
 c $656F
+@ $6572 isub=BIT GAME_MODE_BIT_TWO_PLAYERS,A
 @ $6577 label=game_over
 c $6577 Game Over
 c $6587
+@ $658A isub=BIT GAME_MODE_BIT_TWO_PLAYERS,A
 c $65AB
 c $65BB
 c $65CB
@@ -267,16 +312,19 @@ c $65DE
 @ $65F3 label=handle_right
 c $65F3
   $6613,3 Sprite size (2×1 tiles × 8 bytes/tile)
-  $661C,2 COLOR_YELLOW_ON_BLUE
+@ $661C isub=LD E,COLOR_BLUE<<3|COLOR_YELLOW
+@ $6621 isub=CP PLAYER_2
   $6621,5 Load player 2 color
 @ $6642 label=handle_left
 c $6642
   $6662,3 Sprite size (2×1 tiles × 8 bytes/tile)
   $666B,2 COLOR_YELLOW_ON_BLUE
+@ $6670 isub=CP PLAYER_2
   $6670,5 Load player 2 color
 c $6682
   $66A4,3 Sprite size (2×1 tiles × 8 bytes/tile)
   $66AD,2 COLOR_YELLOW_ON_BLUE
+@ $66B2 isub=CP PLAYER_2
   $66B2,5 Load player 2 color
 @ $66CC label=ld_sprite_plane_banked
 c $66CC
@@ -286,12 +334,12 @@ c $66EE
 c $6704
 @ $670A label=handle_up
 c $670A
-  $6712,2 Set CONTROLS_BIT_SPEED_ALTERED
-  $6714,2 Reset CONTROLS_BIT_SPEED_DECREASED
+@ $6712 isub=SET CONTROLS_BIT_SPEED_ALTERED,(HL)
+@ $6714 isub=RES CONTROLS_BIT_SPEED_DECREASED,(HL)
 @ $6717 label=handle_down
 c $6717
-  $671F,2 Set CONTROLS_BIT_SPEED_ALTERED
-  $6721,2 Set CONTROLS_BIT_SPEED_DECREASED
+@ $671F isub=SET CONTROLS_BIT_SPEED_ALTERED,(HL)
+@ $6721 isub=SET CONTROLS_BIT_SPEED_DECREASED,(HL)
 @ $6724 label=handle_fire
 c $6724
   $6739,2 Set CONTROLS_BIT_FIRE
@@ -311,6 +359,7 @@ c $68C5
 @ $68E9 label=init_current_bridge
 c $68E9
 @ $68EE label=init_current_bridge_loop
+@ $6900 isub=CP PLAYER_2
 c $6927
 s $693B
 @ $693C label=handle_terrain_element_1_eq_3
@@ -419,6 +468,10 @@ c $6BDB Non-maskable interrupt handler
 @ $6BED label=handle_controls
 c $6BED
   $6BED,5 Check if H was pressed
+@ $6BF8 isub=BIT CONTROLS_BIT_FIRE,(HL)
+@ $6BFD isub=BIT CONTROLS_BIT_BONUS_LIFE,(HL)
+@ $6C05 isub=BIT CONTROLS_BIT_EXPLODING,(HL)
+@ $6C0D isub=BIT CONTROLS_BIT_LOW_FUEL,(HL)
   $6C13,2 Distill the state down to CONTROLS_BIT_SPEED_DECREASED and CONTROLS_BIT_SPEED_ALTERED.
   $6C15,5 Check if only CONTROLS_BIT_SPEED_DECREASED is set.
   $6C1A,5 Check if only CONTROLS_BIT_SPEED_ALTERED is set.
@@ -428,7 +481,7 @@ c $6C24 Return from the non-maskable interrupt handler
 b $6C2B
 @ $6C30 label=state_bit4_counter
 g $6C30 Bit4 frame counter
-@ $6C31 label=do_bit4
+@ $6C31 label=do_bonus_life
 c $6C31 Do something about bit4
 @ $6C52 label=bit4_finish
 c $6C52 Finish doing something about bit4
@@ -505,6 +558,7 @@ c $6F7A
 c $6F80 This routine gets called when the screen scrolls by another fragment
 @ $6F91 label=locate_level
   $6F91,4 Have #REGhl point to the level defined by #REGa
+@ $6FAB isub=BIT SLOT_BIT_ROCK,D
 @ $6FBB label=render_rock
 c $6FBB Render rock
 R $6FBB I:D Some info (probably, sprite array index)
@@ -518,16 +572,26 @@ c $6FE6 Load array of arrays of enemy headed right sprites.
 R $6FE6 O:HL Pointer to the array of arrays of sprites.
 c $6FEA
 @ $6FF6 label=render_enemy
+@ $6FF6 isub=CP OBJECT_BALLOON
 c $6FF6 Render enemy
-R $6FF6 I:A Enemy type (6-balloon)
+R $6FF6 I:A Enemy type
 R $6FF6 I:D Enemy info and type as well
+@ $6FFB isub=CP OBJECT_FIGHTER
+@ $7000 isub=CP OBJECT_TANK
   $7016,3 Sprite size (3×1 tiles × 8 bytes/tile)
-  $701E,5 Check if it's an OBJECT_SHIP
-@ $7038 label=ld_cyan_on_blue
-c $7038 Load COLOR_CYAN_ON_BLUE into #REGe
-R $7038 O:E Attribute value
-c $703B
-c $703E
+@ $701E isub=CP OBJECT_SHIP
+@ $7023 isub=CP OBJECT_FIGHTER
+@ $7028 isub=CP OBJECT_TANK
+@ $7038 label=ld_attributes_ship
+c $7038 Load ship screen attributes.
+R $7038 O:E Attributes
+@ $703B label=ld_attributes_fighter
+c $703B Load fighter screen attributes.
+R $703B O:E Attributes
+@ $703E label=ld_attributes_tank
+c $703E Load tank screen attributes.
+R $703E O:E Attributes
+@ $7040 isub=BIT SLOT_BIT_TANK_ON_BANK,D
 c $7046
 @ $7048 nowarn
   $7048,3 Put "XOR B" into #R$8C3C
@@ -543,7 +607,7 @@ R $706C I:E X position
 c $708E
   $713E,3 Sprite frame size (3×1 tiles × 8 bytes/tile)
   $7141,2 COLOR_YELLOW_ON_BLUE
-  $7146,5 Check if it's an OBJECT_SHIP
+@ $7146 isub=CP OBJECT_SHIP
 c $7155
 c $7158
   $717B,3 Sprite size (3×1 tiles × 8 bytes/tile)
@@ -552,13 +616,19 @@ c $719F
 c $71A2
 c $720E
 c $7224
+@ $7225 isub=CP OBJECT_BALLOON
+@ $7237 isub=CP OBJECT_HELICOPTER_REG
+@ $723C isub=CP OBJECT_HELICOPTER_ADV
 @ $7248 label=ld_sprite_helicopter_rotor_right
 c $7248
 R $7248 O:HL Pointer to the sprite
 @ $724C label=animate_object
 c $724C
+@ $724F isub=CP OBJECT_HELICOPTER_REG
+@ $7254 isub=CP OBJECT_HELICOPTER_ADV
 @ $7259 label=animate_helicopter
 c $7259
+@ $7265 isub=BIT SLOT_BIT_ORIENTATION,D
 c $728B
 c $7290
 c $7296
@@ -598,7 +668,7 @@ c $74A0
 c $74C6
 c $74E4
 c $74EE
-  $7520,2 POINTS_TANK
+@ $7520 isub=LD A,POINTS_TANK
   $7529,2 Set CONTROLS_BIT_BONUS_LIFE
   $752B,2 Set CONTROLS_BIT_EXPLODING
 c $7546
@@ -610,6 +680,7 @@ c $75BA Load array of enemy sprites.
 R $75BA I:D The four lowest bits is the enemy type (one of the first five OBJECT_* constants), the 6th bit is direction (reset is right, set is left).
 R $75BA I:HL Pointer to the array of sprites
   $75BD,3 Enemy sprite array size (3×1 tiles × 8 bytes/tile × 4 frames)
+@ $75C0 isub=BIT SLOT_BIT_ORIENTATION,D
 @ $75CB label=ld_enemy_sprites_loop
 c $75D0
 @ $7627 label=init_current_object_ptr
@@ -1015,9 +1086,11 @@ R $90E0 I:A Number of points to add divided by 10.
 @ $9109 label=add_life
 c $9109 Add a life to the current player
   $9119,2 Set CONTROLS_BIT_BONUS_LIFE
+  $9119,2 Set CONTROLS_BIT_BONUS_LIFE
 @ $9122 label=update_score
 c $9122
 R $9122 I:A (can be 1, 2 or 4)
+@ $9136 isub=CP PLAYER_2
 @ $913B label=inc_player_1_score_digit
 c $913B Increase a digit in the player 1's score.
 R $913B I:C Offset of the digit to increase.
@@ -1055,7 +1128,7 @@ c $91C1
   $91D3,9 AT 1,18
   $91DC,6 "P2"
 c $91E8
-@ $9204 isub=LD BC,L90CC - L90C8
+@ $91F9 isub=BIT GAME_MODE_BIT_TWO_PLAYERS,A
 @ $923A label=state_game_mode
 b $923A The game mode storing the number of players in the first bit and the starting bridge in the next two.
   $923A,1
@@ -1067,6 +1140,7 @@ g $923C Number of player 2 lives.
 b $923D Current player
 @ $923E label=print_lives
 c $923E Print lives.
+@ $9241 isub=CP PLAYER_2
   $9246,6 INK YELLOW
 @ $924F label=print_lives_continue
 c $924F Continue printing lives after the value has been loaded into #REGa.
@@ -1091,6 +1165,7 @@ R $928D I:A Sprite width in tiles
 R $928D I:E Screen attributes
 @ $92F1 nowarn
 @ $934F nowarn
+@ $935D label=handle_zero_attributes
 c $9367
 c $936B
 c $936F
@@ -1099,6 +1174,7 @@ c $93A1
 c $93B8
 c $93BB
 c $93BE
+@ $93C1 isub=BIT GAME_MODE_BIT_TWO_PLAYERS,A
 @ $93EC isub=LD BC,state_score_player_2 - state_score_player_1
 c $93F2
 @ $9404 isub=LD BC,state_score_player_2 - state_score_player_1
@@ -1118,6 +1194,7 @@ C $9420,2 Process next block
 @ $9423 label=ld_lives
 c $9423 Load current player lives
 R $9423 O:HL Pointer to the current player lives
+@ $9429 isub=CP PLAYER_2
 b $9430
 @ $9500 label=level_terrains
 b $9500 Array [48] of level terrain data (256 bytes each).

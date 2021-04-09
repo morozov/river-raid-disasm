@@ -1,32 +1,60 @@
 @start
-; CONSTANTS
-;
-; These are here for information only and are not used by any of the assembly
-; directives.
-;
-; CONTROLS_BIT_FIRE            = 0
-; CONTROLS_BIT_SPEED_DECREASED = 1
-; CONTROLS_BIT_SPEED_ALTERED   = 2
-; CONTROLS_BIT_LOW_FUEL        = 3
-; CONTROLS_BIT_BONUS_LIFE      = 4
-; CONTROLS_BIT_EXPLODING       = 5
-;
-; POINTS_SHIP           = 3
-; POINTS_REG_HELICOPTER = 6
-; POINTS_BALLOON       = 6
-; POINTS_FUEL           = 8
-; POINTS_FIGHTER        = 10
-; POINTS_ADV_HELICOPTER = 15
-; POINTS_TANK           = 25
-; POINTS_BRIDGE         = 50
-;
-; OBJECT_HELICOPTER_REG = 1
-; OBJECT_SHIP           = 2
-; OBJECT_HELICOPTER_ADV = 3
-; OBJECT_TANK           = 4
-; OBJECT_FIGHTER        = 5
-; OBJECT_BALLOON        = 6
-; OBJECT_FUEL           = 7
+
+COLOR_BLACK   EQU $00
+COLOR_BLUE    EQU $01
+COLOR_RED     EQU $02
+COLOR_MAGENTA EQU $03
+COLOR_GREEN   EQU $04
+COLOR_CYAN    EQU $05
+COLOR_YELLOW  EQU $06
+COLOR_WHITE   EQU $07
+
+INPUT_INTERFACE_KEYBOARD EQU $00
+INPUT_INTERFACE_SINCLAIR EQU $01
+INPUT_INTERFACE_KEMPSTON EQU $02
+INPUT_INTERFACE_CURSOR   EQU $03
+
+DEMO_MODE_OFF EQU $00
+DEMO_MODE_ON  EQU $01
+
+GAME_MODE_BIT_TWO_PLAYERS EQU 0
+
+PLAYER_1 EQU $01
+PLAYER_2 EQU $02
+
+SPEED_STOP   EQU $01
+SPEED_SLOW   EQU $01
+SPEED_NORMAL EQU $02
+SPEED_FAST   EQU $04
+
+CONTROLS_BIT_FIRE            EQU 0
+CONTROLS_BIT_SPEED_DECREASED EQU 1
+CONTROLS_BIT_SPEED_ALTERED   EQU 2
+CONTROLS_BIT_LOW_FUEL        EQU 3
+CONTROLS_BIT_BONUS_LIFE      EQU 4
+CONTROLS_BIT_EXPLODING       EQU 5
+
+POINTS_SHIP           EQU $03
+POINTS_HELICOPTER_REG EQU $06
+POINTS_BALLOON        EQU $06
+POINTS_FUEL           EQU $08
+POINTS_FIGHTER        EQU $10
+POINTS_HELICOPTER_ADV EQU $15
+POINTS_TANK           EQU $25
+POINTS_BRIDGE         EQU $50
+
+OBJECT_HELICOPTER_REG EQU $01
+OBJECT_SHIP           EQU $02
+OBJECT_HELICOPTER_ADV EQU $03
+OBJECT_TANK           EQU $04
+OBJECT_FIGHTER        EQU $05
+OBJECT_BALLOON        EQU $06
+OBJECT_FUEL           EQU $07
+
+SLOT_BIT_ROCK         EQU $03
+SLOT_BIT_TANK_ON_BANK EQU $05
+SLOT_BIT_ORIENTATION  EQU $06
+
 
 @org
 @equ=KEYBOARD=$02BF
@@ -1016,8 +1044,9 @@ c$5D10 LD A,$FC      ;
  $5D16 EI            ;
  $5D17 LD A,($7800)  ;
  $5D1A LD ($5F67),A  ;
- $5D1D LD A,($7801)  ; {Check if we switched to the demo mode
- $5D20 CP $01        ; }
+ $5D1D LD A,($7801)  ;
+@isub=CP DEMO_MODE_ON
+ $5D20 CP $01        ;
  $5D22 JP Z,$5D2B    ;
  $5D25 CALL $5D44    ;
  $5D28 JP $5DA6      ;
@@ -1204,6 +1233,7 @@ c$5D9F LD HL,$923C   ;
  $5EAB LD A,$0D      ;
  $5EAD LD ($5C08),A  ;
  $5EB0 LD A,($923D)  ;
+@isub=CP PLAYER_2
  $5EB3 CP $02        ;
  $5EB5 JP Z,$5D9F    ;
  $5EB8 LD HL,$923B   ;
@@ -1215,6 +1245,7 @@ c$5D9F LD HL,$923C   ;
  $5EC6 CP $0D        ;
  $5EC8 JR NZ,$5EDB   ;
  $5ECA LD A,($5F67)  ;
+@isub=CP INPUT_INTERFACE_KEMPSTON
  $5ECD CP $02        ;
  $5ECF JP NZ,$5EBF   ;
  $5ED2 LD A,$FE      ;
@@ -1357,7 +1388,7 @@ b$5F65 DEFB $00
 g$5F66 DEFB $00
 
 ; Control type ($00 - Keyboard, $01 - Sinclair, $02 - Kempston, Other - Cursor)
-@label=state_control_type
+@label=state_input_interface
 g$5F67 DEFB $00
 
 ; Game status buffer entry at 5F68
@@ -1506,10 +1537,13 @@ c$5F91 LD A,$BF      ; {Scan Enter
  $5FC3 LD A,$00      ;
  $5FC5 LD ($5F69),A  ;
  $5FC8 LD A,($5F67)  ;
+@isub=CP INPUT_INTERFACE_KEMPSTON
  $5FCB CP $02        ;
  $5FCD JP Z,$600A    ;
+@isub=CP INPUT_INTERFACE_SINCLAIR
  $5FD0 CP $01        ;
  $5FD2 JP Z,$6039    ;
+@isub=CP INPUT_INTERFACE_KEYBOARD
  $5FD5 CP $00        ;
  $5FD7 JP Z,$6068    ;
 @label=scan_cursor
@@ -1760,7 +1794,8 @@ c$615E LD BC,($5EF3) ;
  $61AE DEC C         ;
  $61AF DEC C         ;
  $61B0 CALL $6E9C    ;
- $61B3 LD A,$10      ; POINTS_FIGHTER
+@isub=LD A,POINTS_FIGHTER
+ $61B3 LD A,$10      ;
  $61B5 CALL $90E0    ;
  $61B8 JP $6794      ;
 
@@ -1779,7 +1814,8 @@ c$61BB LD BC,($5EF3) ;
  $61CD SUB $16       ;
  $61CF SUB B         ;
  $61D0 JP P,$62E8    ;
- $61D3 LD A,$50      ; POINTS_BRIDGE
+@isub=LD A,POINTS_BRIDGE
+ $61D3 LD A,$50      ;
  $61D5 CALL $90E0    ;
  $61D8 LD A,$0F      ;
  $61DA LD ($5F5F),A  ;
@@ -1825,6 +1861,7 @@ c$61BB LD BC,($5EF3) ;
  $622F LD BC,($5F8D) ;
  $6233 LD ($5EF3),BC ;
  $6237 LD A,($923D)  ;
+@isub=CP PLAYER_2
  $623A CP $02        ;
  $623C JP Z,$6249    ;
 @label=next_bridge_player_1
@@ -2051,16 +2088,22 @@ c$62E8 LD HL,($5F60) ;
  $6396 DEC HL        ;
  $6397 LD (HL),$00   ;
  $6399 LD D,$00      ;
+@isub=CP OBJECT_HELICOPTER_REG
  $639B CP $01        ;
  $639D JP Z,$6414    ;
+@isub=CP OBJECT_SHIP
  $63A0 CP $02        ;
  $63A2 JP Z,$6423    ;
+@isub=CP OBJECT_HELICOPTER_ADV
  $63A5 CP $03        ;
  $63A7 JP Z,$6444    ;
+@isub=CP OBJECT_FIGHTER
  $63AA CP $05        ;
  $63AC JP Z,$6453    ;
+@isub=CP OBJECT_BALLOON
  $63AF CP $06        ;
  $63B1 JP Z,$6462    ;
+@isub=CP OBJECT_FUEL
  $63B4 CP $07        ;
  $63B6 JP Z,$6478    ;
 *$63B9 CALL $6268    ;
@@ -2109,7 +2152,8 @@ c$63FC LD A,$00      ;
 ;
 ; Used by the routine at #R$62E8.
 @label=hit_helicopter_reg
-c$6414 LD A,$06      ; POINTS_REG_HELICOPTER
+@isub=LD A,POINTS_HELICOPTER_REG
+c$6414 LD A,$06      ;
  $6416 CALL $90E0    ;
  $6419 LD BC,($5F8B) ;
  $641D CALL $6E9C    ;
@@ -2119,7 +2163,8 @@ c$6414 LD A,$06      ; POINTS_REG_HELICOPTER
 ;
 ; Used by the routine at #R$62E8.
 @label=hit_ship
-c$6423 LD A,$03      ; POINTS_SHIP
+@isub=LD A,POINTS_SHIP
+c$6423 LD A,$03      ;
  $6425 CALL $90E0    ;
  $6428 LD BC,($5F8B) ;
  $642C CALL $6E9C    ;
@@ -2140,7 +2185,8 @@ c$6423 LD A,$03      ; POINTS_SHIP
 ;
 ; Used by the routine at #R$62E8.
 @label=hit_helicopter_adv
-c$6444 LD A,$15      ; POINTS_ADV_HELICOPTER
+@isub=LD A,POINTS_HELICOPTER_ADV
+c$6444 LD A,$15      ;
  $6446 CALL $90E0    ;
  $6449 LD BC,($5F8B) ;
  $644D CALL $6E9C    ;
@@ -2150,7 +2196,8 @@ c$6444 LD A,$15      ; POINTS_ADV_HELICOPTER
 ;
 ; Used by the routine at #R$62E8.
 @label=hit_fighter
-c$6453 LD A,$10      ; POINTS_FIGHTER
+@isub=LD A,POINTS_FIGHTER
+c$6453 LD A,$10      ;
  $6455 CALL $90E0    ;
  $6458 LD BC,($5F8B) ;
  $645C CALL $6E9C    ;
@@ -2160,7 +2207,8 @@ c$6453 LD A,$10      ; POINTS_FIGHTER
 ;
 ; Used by the routine at #R$62E8.
 @label=hit_balloon
-c$6462 LD A,$06      ; POINTS_BALLOON
+@isub=LD A,POINTS_BALLOON
+c$6462 LD A,$06      ;
  $6464 CALL $90E0    ;
  $6467 LD BC,($5F8B) ;
  $646B CALL $6E9C    ;
@@ -2177,7 +2225,8 @@ c$6462 LD A,$06      ; POINTS_BALLOON
 c$6478 LD A,($5F68)  ;
  $647B CP $06        ;
  $647D JP Z,$64A1    ;
- $6480 LD A,$08      ; POINTS_FUEL
+@isub=LD A,POINTS_FUEL
+ $6480 LD A,$08      ;
  $6482 CALL $90E0    ;
  $6485 LD BC,($5F8B) ;
  $6489 CALL $6E9C    ;
@@ -2214,6 +2263,7 @@ b$64B4 DEFB $D1,$D1,$D1,$D1,$D1,$C3,$0A,$65
 ; Used by the routines at #R$5D9F, #R$61BB, #R$6249, #R$6587 and #R$6D17.
 @label=print_bridge
 c$64BC LD A,($923D)  ;
+@isub=CP PLAYER_2
  $64BF CP $02        ;
  $64C1 JP Z,$64E5    ;
  $64C4 LD A,$10      ;
@@ -2307,12 +2357,14 @@ c$650A LD A,($5F72)  ;
  $654B LD A,$00      ;
  $654D LD ($6BB0),A  ;
  $6550 LD A,($923D)  ;
+@isub=CP PLAYER_2
  $6553 CP $02        ;
  $6555 JP Z,$65CB    ;
  $6558 LD A,($923B)  ;
  $655B CP $00        ;
  $655D JP Z,$656F    ;
  $6560 LD A,($923A)  ;
+@isub=BIT GAME_MODE_BIT_TWO_PLAYERS,A
  $6563 BIT 0,A       ;
  $6565 JP NZ,$65BB   ;
 ; This entry point is used by the routines at #R$65AB, #R$65BB, #R$65CB and
@@ -2324,6 +2376,7 @@ c$650A LD A,($5F72)  ;
 ;
 ; Used by the routine at #R$650A.
 c$656F LD A,($923A)  ;
+@isub=BIT GAME_MODE_BIT_TWO_PLAYERS,A
  $6572 BIT 0,A       ;
  $6574 JP NZ,$65AB   ;
 
@@ -2341,6 +2394,7 @@ c$6577 LD HL,$8153   ;
 ;
 ; Used by the routine at #R$6D17.
 c$6587 LD A,($923A)  ;
+@isub=BIT GAME_MODE_BIT_TWO_PLAYERS,A
  $658A BIT 0,A       ;
  $658C RET Z         ;
  $658D LD A,$01      ;
@@ -2424,8 +2478,10 @@ c$65F3 LD A,($5F72)  ;
  $6613 LD BC,$0010   ; Sprite size (2×1 tiles × 8 bytes/tile)
  $6616 LD HL,($5EF7) ;
  $6619 LD ($8B0E),HL ;
- $661C LD E,$0E      ; COLOR_YELLOW_ON_BLUE
+@isub=LD E,COLOR_BLUE<<3|COLOR_YELLOW
+ $661C LD E,$0E      ;
  $661E LD A,($923D)  ;
+@isub=CP PLAYER_2
  $6621 CP $02        ; {Load player 2 color
  $6623 CALL Z,$7038  ; }
  $6626 LD D,$08      ;
@@ -2464,6 +2520,7 @@ c$6642 LD A,($5F72)  ;
  $6668 LD ($8B0E),HL ;
  $666B LD E,$0E      ; COLOR_YELLOW_ON_BLUE
  $666D LD A,($923D)  ;
+@isub=CP PLAYER_2
  $6670 CP $02        ; {Load player 2 color
  $6672 CALL Z,$7038  ; }
  $6675 LD D,$08      ;
@@ -2493,6 +2550,7 @@ c$6682 LD A,($5F68)  ;
  $66AA LD ($8B0E),HL ;
  $66AD LD E,$0E      ; COLOR_YELLOW_ON_BLUE
  $66AF LD A,($923D)  ;
+@isub=CP PLAYER_2
  $66B2 CP $02        ; {Load player 2 color
  $66B4 CALL Z,$7038  ; }
  $66B7 LD D,$08      ;
@@ -2559,8 +2617,10 @@ c$6704 LD A,$00      ;
 c$670A LD A,$04      ;
  $670C LD ($5F64),A  ;
  $670F LD HL,$6BB0   ;
- $6712 SET 2,(HL)    ; Set CONTROLS_BIT_SPEED_ALTERED
- $6714 RES 1,(HL)    ; Reset CONTROLS_BIT_SPEED_DECREASED
+@isub=SET CONTROLS_BIT_SPEED_ALTERED,(HL)
+ $6712 SET 2,(HL)    ;
+@isub=RES CONTROLS_BIT_SPEED_DECREASED,(HL)
+ $6714 RES 1,(HL)    ;
  $6716 RET           ;
 
 ; Routine at 6717
@@ -2570,8 +2630,10 @@ c$670A LD A,$04      ;
 c$6717 LD A,$01      ;
  $6719 LD ($5F64),A  ;
  $671C LD HL,$6BB0   ;
- $671F SET 2,(HL)    ; Set CONTROLS_BIT_SPEED_ALTERED
- $6721 SET 1,(HL)    ; Set CONTROLS_BIT_SPEED_DECREASED
+@isub=SET CONTROLS_BIT_SPEED_ALTERED,(HL)
+ $671F SET 2,(HL)    ;
+@isub=SET CONTROLS_BIT_SPEED_DECREASED,(HL)
+ $6721 SET 1,(HL)    ;
  $6723 RET           ;
 
 ; Routine at 6724
@@ -2839,6 +2901,7 @@ c$68E9 LD HL,$5800   ;
  $68F9 LD A,($5F6A)  ;
  $68FC LD B,A        ;
  $68FD LD A,($923D)  ;
+@isub=CP PLAYER_2
  $6900 CP $02        ;
  $6902 CALL Z,$6A4A  ;
  $6905 LD A,B        ;
@@ -3387,14 +3450,18 @@ c$6BED LD A,($5C08)  ; {Check if H was pressed
  $6BF0 CP $68        ; }
  $6BF2 JP Z,$6C24    ;
  $6BF5 LD HL,$6BB0   ;
+@isub=BIT CONTROLS_BIT_FIRE,(HL)
  $6BF8 BIT 0,(HL)    ;
  $6BFA CALL NZ,$8A02 ;
+@isub=BIT CONTROLS_BIT_BONUS_LIFE,(HL)
  $6BFD BIT 4,(HL)    ;
  $6BFF CALL NZ,$6C31 ;
  $6C02 LD HL,$6BB0   ;
+@isub=BIT CONTROLS_BIT_EXPLODING,(HL)
  $6C05 BIT 5,(HL)    ;
  $6C07 CALL NZ,$6C7B ;
  $6C0A LD HL,$6BB0   ;
+@isub=BIT CONTROLS_BIT_LOW_FUEL,(HL)
  $6C0D BIT 3,(HL)    ;
  $6C0F JP NZ,$6CF4   ;
  $6C12 LD A,(HL)     ;
@@ -3428,7 +3495,7 @@ g$6C30 DEFB $00
 ; Do something about bit4
 ;
 ; Used by the routine at #R$6BED.
-@label=do_bit4
+@label=do_bonus_life
 c$6C31 LD A,($6C30)  ;
  $6C34 INC A         ;
  $6C35 LD ($6C30),A  ;
@@ -4019,6 +4086,7 @@ c$6F80 LD A,$00      ;
  $6FA7 LD A,E        ;
  $6FA8 CP $00        ;
  $6FAA RET Z         ;
+@isub=BIT SLOT_BIT_ROCK,D
  $6FAB BIT 3,D       ;
  $6FAD JP NZ,$6FBB   ;
  $6FB0 LD A,D        ;
@@ -4077,13 +4145,16 @@ c$6FEA CALL $62DA    ;
 ;
 ; Used by the routine at #R$6F80.
 ;
-; I:A Enemy type (6-balloon)
+; I:A Enemy type
 ; I:D Enemy info and type as well
 @label=render_enemy
+@isub=CP OBJECT_BALLOON
 c$6FF6 CP $06        ;
  $6FF8 JP Z,$706C    ;
+@isub=CP OBJECT_FIGHTER
  $6FFB CP $05        ;
  $6FFD CALL Z,$7046  ;
+@isub=CP OBJECT_TANK
  $7000 CP $04        ;
  $7002 CALL Z,$7046  ;
  $7005 CALL $75BA    ;
@@ -4098,10 +4169,13 @@ c$6FF6 CP $06        ;
  $7019 LD E,$0E      ;
  $701B LD A,D        ;
  $701C AND $07       ;
- $701E CP $02        ; {Check if it's an OBJECT_SHIP
- $7020 CALL Z,$7038  ; }
+@isub=CP OBJECT_SHIP
+ $701E CP $02        ;
+ $7020 CALL Z,$7038  ;
+@isub=CP OBJECT_FIGHTER
  $7023 CP $05        ;
  $7025 CALL Z,$703B  ;
+@isub=CP OBJECT_TANK
  $7028 CP $04        ;
  $702A CALL Z,$703E  ;
  $702D LD A,$03      ;
@@ -4110,26 +4184,33 @@ c$6FF6 CP $06        ;
  $7034 CALL $72EF    ;
  $7037 RET           ;
 
-; Load COLOR_CYAN_ON_BLUE into #REGe
+; Load ship screen attributes.
 ;
 ; Used by the routines at #R$65F3, #R$6642, #R$6682, #R$6FF6, #R$708E and
 ; #R$75D0.
 ;
-; O:E Attribute value
-@label=ld_cyan_on_blue
+; O:E Attributes
+@label=ld_attributes_ship
 c$7038 LD E,$0D      ;
  $703A RET           ;
 
-; Routine at 703B
+; Load fighter screen attributes.
 ;
 ; Used by the routine at #R$6FF6.
+;
+; O:E Attributes
+@label=ld_attributes_fighter
 c$703B LD E,$00      ;
  $703D RET           ;
 
-; Routine at 703E
+; Load tank screen attributes.
 ;
 ; Used by the routine at #R$6FF6.
+;
+; O:E Attributes
+@label=ld_attributes_tank
 c$703E LD E,$00      ;
+@isub=BIT SLOT_BIT_TANK_ON_BANK,D
  $7040 BIT 5,D       ;
  $7042 RET Z         ;
  $7043 LD E,$04      ;
@@ -4286,8 +4367,9 @@ c$708E LD A,$00      ;
  $7141 LD E,$0E      ; COLOR_YELLOW_ON_BLUE
  $7143 LD A,D        ;
  $7144 AND $07       ;
- $7146 CP $02        ; {Check if it's an OBJECT_SHIP
- $7148 CALL Z,$7038  ; }
+@isub=CP OBJECT_SHIP
+ $7146 CP $02        ;
+ $7148 CALL Z,$7038  ;
  $714B LD A,$03      ;
  $714D LD D,$08      ;
  $714F CALL $8B3C    ;
@@ -4423,6 +4505,7 @@ c$720E LD HL,($5F60) ;
 ;
 ; Used by the routine at #R$708E.
 c$7224 LD A,D        ;
+@isub=CP OBJECT_BALLOON
  $7225 CP $06        ;
  $7227 JP Z,$76AC    ;
  $722A LD A,($5EEF)  ;
@@ -4431,8 +4514,10 @@ c$7224 LD A,D        ;
  $7231 JP Z,$724C    ;
  $7234 LD A,D        ;
  $7235 AND $07       ;
+@isub=CP OBJECT_HELICOPTER_REG
  $7237 CP $01        ;
  $7239 JP Z,$7241    ;
+@isub=CP OBJECT_HELICOPTER_ADV
  $723C CP $03        ;
  $723E JP NZ,$708E   ;
 *$7241 LD ($8B0A),BC ;
@@ -4453,8 +4538,10 @@ c$7248 LD HL,$8AC8   ;
 @label=animate_object
 c$724C LD A,D        ;
  $724D AND $07       ;
+@isub=CP OBJECT_HELICOPTER_REG
  $724F CP $01        ;
  $7251 JP Z,$7259    ;
+@isub=CP OBJECT_HELICOPTER_ADV
  $7254 CP $03        ;
  $7256 JP NZ,$708E   ;
 
@@ -4470,6 +4557,7 @@ c$7259 LD HL,($5F60) ;
  $7260 DEC HL        ;
  $7261 LD C,(HL)     ;
  $7262 LD HL,$8AB8   ;
+@isub=BIT SLOT_BIT_ORIENTATION,D
  $7265 BIT 6,D       ;
  $7267 CALL Z,$7248  ;
  $726A LD ($8B0C),BC ;
@@ -4920,7 +5008,8 @@ c$74EE LD HL,($5F60) ;
  $7519 LD (HL),$00   ;
  $751B LD D,$80      ;
  $751D CALL $6E9C    ;
- $7520 LD A,$25      ; POINTS_TANK
+@isub=LD A,POINTS_TANK
+ $7520 LD A,$25      ;
  $7522 CALL $90E0    ;
 *$7525 LD HL,($5F60) ;
  $7528 DEC HL        ;
@@ -5024,6 +5113,7 @@ c$75A2 PUSH BC       ;
 c$75BA LD HL,$85B3   ;
  $75BD LD BC,$0060   ; Enemy sprite array size (3×1 tiles × 8 bytes/tile × 4
                      ; frames)
+@isub=BIT SLOT_BIT_ORIENTATION,D
  $75C0 BIT 6,D       ;
  $75C2 CALL Z,$6FE6  ;
  $75C5 LD A,D        ;
@@ -7201,6 +7291,7 @@ c$9122 PUSH AF       ;
  $9131 SUB B         ;
  $9132 LD C,A        ;
  $9133 LD A,($923D)  ;
+@isub=CP PLAYER_2
  $9136 CP $02        ;
  $9138 JP Z,$9169    ;
 
@@ -7365,13 +7456,13 @@ c$91E8 LD A,$01      ;
  $91F3 LD A,$15      ;
  $91F5 RST $10       ;
  $91F6 LD A,($923A)  ;
+@isub=BIT GAME_MODE_BIT_TWO_PLAYERS,A
  $91F9 BIT 0,A       ;
  $91FB JP NZ,$91C1   ;
  $91FE LD A,$10      ;
  $9200 RST $10       ;
  $9201 LD A,$07      ;
  $9203 RST $10       ;
-@isub=LD BC,L90CC - L90C8
  $9204 LD BC,$0006   ;
  $9207 LD HL,$90C8   ;
  $920A LD A,($923A)  ;
@@ -7425,6 +7516,7 @@ b$923D DEFB $00
 ; Used by the routines at #R$5D9F and #R$9109.
 @label=print_lives
 c$923E LD A,($923D)  ;
+@isub=CP PLAYER_2
  $9241 CP $02        ;
  $9243 JP Z,$9277    ;
  $9246 LD A,$10      ; {INK YELLOW
@@ -7630,6 +7722,7 @@ c$928D PUSH HL       ;
  $935A ADD HL,DE     ;
  $935B DJNZ $9348    ;
 ; This entry point is used by the routine at #R$936B.
+@label=handle_zero_attributes
 *$935D LD A,($928B)  ;
  $9360 POP BC        ;
  $9361 POP HL        ;
@@ -7724,6 +7817,7 @@ c$93BB LD A,$FF      ;
 ;
 ; Used by the routine at #R$6577.
 c$93BE LD A,($923A)  ;
+@isub=BIT GAME_MODE_BIT_TWO_PLAYERS,A
  $93C1 BIT 0,A       ;
  $93C3 CALL NZ,$93F2 ;
  $93C6 LD HL,$90C8   ;
@@ -7800,6 +7894,7 @@ c$940A LD HL,$4000   ;
 @label=ld_lives
 c$9423 LD HL,$923B   ;
  $9426 LD A,($923D)  ;
+@isub=CP PLAYER_2
  $9429 CP $02        ;
  $942B RET NZ        ;
  $942C LD HL,$923C   ;
