@@ -55,6 +55,35 @@ SLOT_BIT_ROCK         EQU $03
 SLOT_BIT_TANK_ON_BANK EQU $05
 SLOT_BIT_ORIENTATION  EQU $06
 
+VIEWPORT_MARKER_EMPTY_SLOT EQU $00
+VIEWPORT_MARKER_END_OF_SET EQU $FF
+
+FUEL_LOW_THRESHOLD EQU $C0
+
+; STRUCTURES
+; ----------
+;
+; OBJECT_DEFINITION ::
+;
+; Bits 0..2 represent an interactive object type.
+; OBJECT_DEFINITION_MASK_INTERACTIVE_TYPE = $07,
+;
+; Bits 0..1 represent a rock type type.
+; OBJECT_DEFINITION_MASK_ROCK_TYPE        = $03,
+;
+; Bit 3 defines whether the slot contains an interactive object (reset)
+; or a rock (set).
+; OBJECT_DEFINITION_BIT_ROCK              = 3,
+;
+; Bit 4 is unused.
+;
+; Bit 5 defines a tank location: bridge (unset) or river bank (set).
+; OBJECT_DEFINITION_BIT_TANK_LOCATION     = 5,
+;
+; Bit 6 defines object origntation: left (unset) or right (set).
+; OBJECT_DEFINITION_BIT_TANK_ORIENTATION  = 6,
+;
+; Bit 7 is unused.
 
 @org
 @equ=KEYBOARD=$02BF
@@ -1087,6 +1116,7 @@ c$5D44 LD A,$78      ; {Initialize #R$5F72. Why isn't it $80?
  $5D49 CALL $6DEB    ;
  $5D4C LD HL,$5F00   ;
  $5D4F LD ($5F60),HL ;
+@isub=LD (HL),VIEWPORT_MARKER_END_OF_SET
  $5D52 LD (HL),$FF   ;
  $5D54 LD A,$1F      ;
  $5D56 LD ($5F5F),A  ;
@@ -1162,6 +1192,7 @@ c$5D9F LD HL,$923C   ;
  $5E02 LD ($5F72),A  ;
  $5E05 LD HL,$5F00   ;
  $5E08 LD ($5F60),HL ;
+@isub=LD (HL),VIEWPORT_MARKER_END_OF_SET
  $5E0B LD (HL),$FF   ;
  $5E0D LD HL,$5F2E   ;
  $5E10 LD ($5F62),HL ;
@@ -1784,6 +1815,7 @@ c$615E LD BC,($5EF3) ;
  $61A0 LD B,(HL)     ;
  $61A1 DEC HL        ;
  $61A2 LD C,(HL)     ;
+@isub=LD (HL),VIEWPORT_MARKER_EMPTY_SLOT
  $61A3 LD (HL),$00   ;
  $61A5 LD D,$00      ;
  $61A7 CALL $6E9C    ;
@@ -3886,18 +3918,20 @@ c$6E9C LD HL,$6BB0   ;
  $6EA5 LD ($6C7A),A  ;
  $6EA8 LD HL,$5F2E   ;
 
-; Routine at 6EAB
+; Adds object bytes to the viewport list in thefollowing order: C, B, D.
 ;
 ; Used by the routines at #R$6FF6, #R$7051, #R$706C and #R$74C6.
 ;
-; I:C Byte 1
-; I:B Byte 2
-; I:D Byte 3
+; I:B Mostly $00
+; I:C Object X-position
+; I:D Object definition
 ; I:HL Pointer to #R$5F00
 @label=add_object_to_viewport
 c$6EAB LD A,(HL)     ;
+@isub=CP VIEWPORT_MARKER_EMPTY_SLOT
  $6EAC CP $00        ;
  $6EAE JP Z,$6EBC    ;
+@isub=CP VIEWPORT_MARKER_END_OF_SET
  $6EB1 CP $FF        ;
  $6EB3 JP Z,$6EBC    ;
  $6EB6 INC HL        ;
@@ -3910,9 +3944,9 @@ c$6EAB LD A,(HL)     ;
 ; Used by the routine at #R$6EAB.
 ;
 ; I:A Current value at the address
-; I:C Byte 1
-; I:B Byte 2
-; I:D Byte 3
+; I:B Mostly $00
+; I:C Object X-position
+; I:D Object definition
 ; I:HL Pointer to the element of #R$5F00
 @label=write_object_to_viewport
 c$6EBC LD (HL),C     ;
@@ -3920,9 +3954,11 @@ c$6EBC LD (HL),C     ;
  $6EBE LD (HL),B     ;
  $6EBF INC HL        ;
  $6EC0 LD (HL),D     ;
+@isub=CP VIEWPORT_MARKER_END_OF_SET
  $6EC1 CP $FF        ;
  $6EC3 RET NZ        ;
  $6EC4 INC HL        ;
+@isub=LD (HL),VIEWPORT_MARKER_END_OF_SET
  $6EC5 LD (HL),$FF   ;
  $6EC7 RET           ;
 
@@ -4145,8 +4181,9 @@ c$6FEA CALL $62DA    ;
 ;
 ; Used by the routine at #R$6F80.
 ;
-; I:A Enemy type
-; I:D Enemy info and type as well
+; I:A Object type
+; I:D Object definition
+; I:E Object X-position
 @label=render_enemy
 @isub=CP OBJECT_BALLOON
 c$6FF6 CP $06        ;
@@ -4752,7 +4789,7 @@ c$7380 XOR $7F       ;
  $7382 RET           ;
 
 ; Data block at 7383
-@label=L7383
+@label=state_tank_shell
 b$7383 DEFB $00
 
 ; Data block at 7384
@@ -4890,6 +4927,7 @@ c$7415 LD BC,($5F73) ;
 ; Routine at 7441
 ;
 ; Used by the routines at #R$5F91 and #R$6D17.
+@label=render_tank_shell_frame
 c$7441 LD A,($7383)  ;
  $7444 BIT 7,A       ;
  $7446 RET Z         ;
@@ -4955,6 +4993,7 @@ c$74A0 LD BC,($8B0A) ;
 ; Routine at 74C6
 ;
 ; Used by the routine at #R$7441.
+@label=render_tank_shell_explosion
 c$74C6 LD D,$80      ;
  $74C8 LD HL,$0000   ;
  $74CB LD ($7385),HL ;
@@ -5106,8 +5145,7 @@ c$75A2 PUSH BC       ;
 ; Used by the routines at #R$6FF6, #R$708E, #R$7158, #R$7259, #R$7296 and
 ; #R$75D0.
 ;
-; I:D The four lowest bits is the enemy type (one of the first five OBJECT_*
-; .   constants), the 6th bit is direction (reset is right, set is left).
+; I:D OBJECT_DEFINITION
 ; I:HL Pointer to the array of sprites
 @label=ld_enemy_sprites
 c$75BA LD HL,$85B3   ;

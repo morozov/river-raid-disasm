@@ -53,6 +53,36 @@ SLOT_BIT_ROCK         EQU $03
 SLOT_BIT_TANK_ON_BANK EQU $05
 SLOT_BIT_ORIENTATION  EQU $06
 
+VIEWPORT_MARKER_EMPTY_SLOT EQU $00
+VIEWPORT_MARKER_END_OF_SET EQU $FF
+
+FUEL_LOW_THRESHOLD EQU $C0
+
+; STRUCTURES
+; ----------
+;
+; OBJECT_DEFINITION ::
+;
+; Bits 0..2 represent an interactive object type.
+; OBJECT_DEFINITION_MASK_INTERACTIVE_TYPE = $07,
+;
+; Bits 0..1 represent a rock type type.
+; OBJECT_DEFINITION_MASK_ROCK_TYPE        = $03,
+;
+; Bit 3 defines whether the slot contains an interactive object (reset)
+; or a rock (set).
+; OBJECT_DEFINITION_BIT_ROCK              = 3,
+;
+; Bit 4 is unused.
+;
+; Bit 5 defines a tank location: bridge (unset) or river bank (set).
+; OBJECT_DEFINITION_BIT_TANK_LOCATION     = 5,
+;
+; Bit 6 defines object origntation: left (unset) or right (set).
+; OBJECT_DEFINITION_BIT_TANK_ORIENTATION  = 6,
+;
+; Bit 7 is unused.
+
 KEYBOARD EQU $02BF
 BEEPER EQU $03B5
 CHAN_OPEN EQU $1601
@@ -1083,7 +1113,7 @@ init_state:
   CALL init_starting_bridge
   LD HL,viewport_1
   LD (viewport_1_ptr),HL
-  LD (HL),$FF
+  LD (HL),VIEWPORT_MARKER_END_OF_SET
   LD A,$1F
   LD (L5F5F),A
   LD A,$00
@@ -1156,7 +1186,7 @@ play:
   LD (state_x),A
   LD HL,viewport_1
   LD (viewport_1_ptr),HL
-  LD (HL),$FF
+  LD (HL),VIEWPORT_MARKER_END_OF_SET
   LD HL,viewport_2
   LD (viewport_2_ptr),HL
   LD (HL),$FF
@@ -1529,7 +1559,7 @@ main_loop:
   LD A,$00
   LD (L673C),A
   CALL L673D
-  CALL L7441
+  CALL render_tank_shell_frame
   CALL L7393
   CALL advance
   CALL L6DFF
@@ -1785,7 +1815,7 @@ L615E:
   LD B,(HL)
   DEC HL
   LD C,(HL)
-  LD (HL),$00
+  LD (HL),VIEWPORT_MARKER_EMPTY_SLOT
   LD D,$00
   CALL explode_fragment
   DEC C
@@ -1976,7 +2006,7 @@ L62D7:
 ; Increase B by the value of state_speed
 ;
 ; Used by the routines at hit_terrain, interact_with_something2, L6682, L66EE,
-; L673D, L6794, L6FEA, L708E, L7393 and L7441.
+; L673D, L6794, L6FEA, L708E, L7393 and render_tank_shell_frame.
 L62DA:
   LD A,(state_speed)
   ADD A,B
@@ -3764,7 +3794,7 @@ demo_0:
   LD HL,L5EEF
   INC (HL)
   CALL L708E
-  CALL L7441
+  CALL render_tank_shell_frame
   CALL L7393
   CALL advance
   CALL L8A1B
@@ -3950,19 +3980,20 @@ explode_fragment:
   LD (explosion_counter),A
   LD HL,viewport_2
 
-; Routine at 6EAB
+; Adds object bytes to the viewport list in thefollowing order: C, B, D.
 ;
-; Used by the routines at render_enemy, render_fuel, render_balloon and L74C6.
+; Used by the routines at render_enemy, render_fuel, render_balloon and
+; render_tank_shell_explosion.
 ;
-; I:C Byte 1
-; I:B Byte 2
-; I:D Byte 3
+; I:B Mostly $00
+; I:C Object X-position
+; I:D Object definition
 ; I:HL Pointer to viewport_1
 add_object_to_viewport:
   LD A,(HL)
-  CP $00
+  CP VIEWPORT_MARKER_EMPTY_SLOT
   JP Z,write_object_to_viewport
-  CP $FF
+  CP VIEWPORT_MARKER_END_OF_SET
   JP Z,write_object_to_viewport
   INC HL
   INC HL
@@ -3974,9 +4005,9 @@ add_object_to_viewport:
 ; Used by the routine at add_object_to_viewport.
 ;
 ; I:A Current value at the address
-; I:C Byte 1
-; I:B Byte 2
-; I:D Byte 3
+; I:B Mostly $00
+; I:C Object X-position
+; I:D Object definition
 ; I:HL Pointer to the element of viewport_1
 write_object_to_viewport:
   LD (HL),C
@@ -3984,10 +4015,10 @@ write_object_to_viewport:
   LD (HL),B
   INC HL
   LD (HL),D
-  CP $FF
+  CP VIEWPORT_MARKER_END_OF_SET
   RET NZ
   INC HL
-  LD (HL),$FF
+  LD (HL),VIEWPORT_MARKER_END_OF_SET
   RET
 
 ; Routine at 6EC8
@@ -4213,8 +4244,9 @@ L6FEA:
 ;
 ; Used by the routine at next_row.
 ;
-; I:A Enemy type
-; I:D Enemy info and type as well
+; I:A Object type
+; I:D Object definition
+; I:E Object X-position
 render_enemy:
   CP OBJECT_BALLOON
   JP Z,render_balloon
@@ -4567,9 +4599,9 @@ L720E:
   DEC HL
   LD (HL),$00
   LD HL,sprite_erasure
-  LD A,(L7383)
+  LD A,(state_tank_shell)
   RES 5,A
-  LD (L7383),A
+  LD (state_tank_shell),A
   JP L71A2_1
 
 ; Routine at 7224
@@ -4754,7 +4786,7 @@ L7302:
   POP BC
   POP DE
   JP Z,L7296_0
-  LD A,(L7383)
+  LD A,(state_tank_shell)
   BIT 7,A
   JP NZ,L708E
   BIT 5,A
@@ -4765,7 +4797,7 @@ L7302:
 ; This entry point is used by the routines at L7343 and L735E.
 L7302_0:
   SET 7,A
-  LD (L7383),A
+  LD (state_tank_shell),A
   LD A,C
   SUB $10
   LD C,A
@@ -4829,7 +4861,7 @@ L7380:
   RET
 
 ; Data block at 7383
-L7383:
+state_tank_shell:
   DEFB $00
 
 ; Data block at 7384
@@ -4842,7 +4874,7 @@ L7385:
 
 ; Routine at 7387
 ;
-; Used by the routine at L7441.
+; Used by the routine at render_tank_shell_frame.
 L7387:
   LD A,C
   SUB E
@@ -4975,8 +5007,8 @@ L7415_0:
 ; Routine at 7441
 ;
 ; Used by the routines at main_loop and demo.
-L7441:
-  LD A,(L7383)
+render_tank_shell_frame:
+  LD A,(state_tank_shell)
   BIT 7,A
   RET Z
   LD BC,(L7385)
@@ -4984,7 +5016,7 @@ L7441:
   INC A
   LD (L7384),A
   CP $08
-  JP Z,L74C6
+  JP Z,render_tank_shell_explosion
   LD DE,$0002
   LD H,A
   LD L,$00
@@ -4992,7 +5024,7 @@ L7441:
   LD BC,(L7385)
   CALL L62DA
   LD (L8B0A),BC
-  LD A,(L7383)
+  LD A,(state_tank_shell)
   LD D,A
   AND $07
   LD E,A
@@ -5020,7 +5052,7 @@ L7441:
 
 ; Routine at 74A0
 ;
-; Used by the routine at L7441.
+; Used by the routine at render_tank_shell_frame.
 L74A0:
   LD BC,(L8B0A)
   LD HL,sprite_missile
@@ -5041,15 +5073,15 @@ L74A0:
 
 ; Routine at 74C6
 ;
-; Used by the routine at L7441.
-L74C6:
+; Used by the routine at render_tank_shell_frame.
+render_tank_shell_explosion:
   LD D,$80
   LD HL,$0000
   LD (L7385),HL
-  LD A,(L7383)
+  LD A,(state_tank_shell)
   RES 7,A
   SET 5,A
-  LD (L7383),A
+  LD (state_tank_shell),A
   LD HL,viewport_1
   CALL add_object_to_viewport
   LD A,$00
@@ -5061,7 +5093,7 @@ L74C6:
 ; Used by the routines at init_current_bridge, L7358, L74A0 and L762E.
 L74E4:
   LD HL,$0000
-  LD (L7383),HL
+  LD (state_tank_shell),HL
   LD (L7385),HL
   RET
 
@@ -5201,8 +5233,7 @@ L75A2:
 ; Used by the routines at render_enemy, L708E, L7158, animate_helicopter, L7296
 ; and L75D0.
 ;
-; I:D The four lowest bits is the enemy type (one of the first five OBJECT_*
-;     constants), the 6th bit is direction (reset is right, set is left).
+; I:D OBJECT_DEFINITION
 ; I:HL Pointer to the array of sprites
 ld_enemy_sprites:
   LD HL,sprite_enemies_left
@@ -6729,7 +6760,7 @@ L8B1B:
 ; Routine at 8B1E
 ;
 ; Used by the routines at L673D, render_enemy, render_fuel, render_balloon,
-; L7158, L7296, L7393, L7441, L754C and L7649.
+; L7158, L7296, L7393, render_tank_shell_frame, L754C and L7649.
 ;
 ; I:BC Sprite frame size
 L8B1E:

@@ -55,6 +55,35 @@
 > $4000 SLOT_BIT_TANK_ON_BANK EQU $05
 > $4000 SLOT_BIT_ORIENTATION  EQU $06
 > $4000
+> $4000 VIEWPORT_MARKER_EMPTY_SLOT EQU $00
+> $4000 VIEWPORT_MARKER_END_OF_SET EQU $FF
+> $4000
+> $4000 FUEL_LOW_THRESHOLD EQU $C0
+> $4000
+> $4000 ; STRUCTURES
+> $4000 ; ----------
+> $4000 ;
+> $4000 ; OBJECT_DEFINITION ::
+> $4000 ;
+> $4000 ; Bits 0..2 represent an interactive object type.
+> $4000 ; OBJECT_DEFINITION_MASK_INTERACTIVE_TYPE = $07,
+> $4000 ;
+> $4000 ; Bits 0..1 represent a rock type type.
+> $4000 ; OBJECT_DEFINITION_MASK_ROCK_TYPE        = $03,
+> $4000 ;
+> $4000 ; Bit 3 defines whether the slot contains an interactive object (reset)
+> $4000 ; or a rock (set).
+> $4000 ; OBJECT_DEFINITION_BIT_ROCK              = 3,
+> $4000 ;
+> $4000 ; Bit 4 is unused.
+> $4000 ;
+> $4000 ; Bit 5 defines a tank location: bridge (unset) or river bank (set).
+> $4000 ; OBJECT_DEFINITION_BIT_TANK_LOCATION     = 5,
+> $4000 ;
+> $4000 ; Bit 6 defines object origntation: left (unset) or right (set).
+> $4000 ; OBJECT_DEFINITION_BIT_TANK_ORIENTATION  = 6,
+> $4000 ;
+> $4000 ; Bit 7 is unused.
 @ $4000 org
 @ $4000 equ=KEYBOARD=$02BF
 @ $4000 equ=BEEPER=$03B5
@@ -91,12 +120,14 @@ B $5D43,1
 @ $5D44 label=init_state
 c $5D44
   $5D44,5 Initialize #R$5F72. Why isn't it $80?
+@ $5D52 isub=LD (HL),VIEWPORT_MARKER_END_OF_SET
 @ $5D9F label=decrease_lives_player_2
 c $5D9F Decrease player 2 lives
 @ $5DA6 label=play
 C $5DB4,2 PAPER 1; INK 4
 @ $5DBF isub=LD BC,status_line_2 - status_line_1
 @ $5DD0 isub=LD BC,status_line_3 - status_line_2
+@ $5E0B isub=LD (HL),VIEWPORT_MARKER_END_OF_SET
 @ $5E32 isub=LD BC,state_score_player_2 - state_score_player_1
 @ $5E40 isub=LD BC,end_status_line_4 - status_line_4
 @ $5EB3 isub=CP PLAYER_2
@@ -234,6 +265,7 @@ c $6124
 c $6136
 @ $615E label=L615E
 c $615E
+@ $61A3 isub=LD (HL),VIEWPORT_MARKER_EMPTY_SLOT
 @ $61B3 isub=LD A,POINTS_FIGHTER
 @ $61BB label=interact_with_something
 c $61BB
@@ -528,17 +560,23 @@ R $6E9C I:BC Pointer to the fragment to explode.
   $6EA1,2 Reset CONTROLS_BIT_FIRE
 @ $6EAB label=add_object_to_viewport
 c $6EAB
-R $6EAB I:C Byte 1
-R $6EAB I:B Byte 2
-R $6EAB I:D Byte 3
+c $6EAB Adds object bytes to the viewport list in thefollowing order: C, B, D.
+R $6EAB I:B Mostly $00
+R $6EAB I:C Object X-position
+R $6EAB I:D Object definition
 R $6EAB I:HL Pointer to #R$5F00
+@ $6EAC isub=CP VIEWPORT_MARKER_EMPTY_SLOT
+@ $6EB1 isub=CP VIEWPORT_MARKER_END_OF_SET
 @ $6EBC label=write_object_to_viewport
 c $6EBC
+c $6EBC
 R $6EBC I:A Current value at the address
-R $6EBC I:C Byte 1
-R $6EBC I:B Byte 2
-R $6EBC I:D Byte 3
+R $6EBC I:B Mostly $00
+R $6EBC I:C Object X-position
+R $6EBC I:D Object definition
 R $6EBC I:HL Pointer to the element of #R$5F00
+@ $6EC1 isub=CP VIEWPORT_MARKER_END_OF_SET
+@ $6EC5 isub=LD (HL),VIEWPORT_MARKER_END_OF_SET
 c $6EC8
 @ $6F63 label=ld_sprite_explosion_f1
 c $6F63 Load frame 1 of the explosion sprite.
@@ -574,8 +612,9 @@ c $6FEA
 @ $6FF6 label=render_enemy
 @ $6FF6 isub=CP OBJECT_BALLOON
 c $6FF6 Render enemy
-R $6FF6 I:A Enemy type
-R $6FF6 I:D Enemy info and type as well
+R $6FF6 I:A Object type
+R $6FF6 I:D Object definition
+R $6FF6 I:E Object X-position
 @ $6FFB isub=CP OBJECT_FIGHTER
 @ $7000 isub=CP OBJECT_TANK
   $7016,3 Sprite size (3×1 tiles × 8 bytes/tile)
@@ -650,7 +689,7 @@ c $7343
 c $7358
 c $735E
 c $7380
-@ $7383 label=L7383
+@ $7383 label=state_tank_shell
 b $7383
 @ $7384 label=L7384
 b $7384
@@ -663,8 +702,10 @@ c $73D0
 c $73D8
 c $73DD
 c $7415
+@ $7441 label=render_tank_shell_frame
 c $7441
 c $74A0
+@ $74C6 label=render_tank_shell_explosion
 c $74C6
 c $74E4
 c $74EE
@@ -677,7 +718,7 @@ c $758A
 c $75A2
 @ $75BA label=ld_enemy_sprites
 c $75BA Load array of enemy sprites.
-R $75BA I:D The four lowest bits is the enemy type (one of the first five OBJECT_* constants), the 6th bit is direction (reset is right, set is left).
+R $75BA I:D OBJECT_DEFINITION
 R $75BA I:HL Pointer to the array of sprites
   $75BD,3 Enemy sprite array size (3×1 tiles × 8 bytes/tile × 4 frames)
 @ $75C0 isub=BIT SLOT_BIT_ORIENTATION,D
