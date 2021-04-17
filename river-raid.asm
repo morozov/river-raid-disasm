@@ -66,6 +66,11 @@ FUEL_LEVEL_FULL        EQU $FF
 METRONOME_INTERVAL_CONSUME_FUEL EQU $01
 METRONOME_INTERVAL_1            EQU $01
 
+INTERACTION_MODE_00   EQU $00
+INTERACTION_MODE_01   EQU $01
+INTERACTION_MODE_02   EQU $02
+INTERACTION_MODE_FUEL EQU $06
+
 ; STRUCTURES
 ; ----------
 ;
@@ -1426,11 +1431,6 @@ state_input_interface:
   DEFB $00
 
 ; Game status buffer entry at 5F68
-;
-; $00 - TODO
-; $01 - TODO
-; $02 - TODO
-; $06 - fueling
 state_interaction_mode_5F68:
   DEFB $00
 
@@ -1684,7 +1684,7 @@ scan_keyboard:
 ; Used by the routines at decrease_lives_player_2, main_loop and demo.
 L60A5:
   LD A,(state_interaction_mode_5F68)
-  CP $00
+  CP INTERACTION_MODE_00
   JP NZ,L60A5_0
   LD A,$00
   LD (state_interaction_mode_5EF5),A
@@ -1922,7 +1922,7 @@ L6253:
 ;
 ; Used by the routine at L6136.
 fuel:
-  LD A,$06
+  LD A,INTERACTION_MODE_FUEL
   LD (state_interaction_mode_5F68),A
   LD B,$80
   LD A,(state_x)
@@ -2049,7 +2049,7 @@ interact_with_something2:
   CP $FF
   JP Z,interact_with_something2_0
   LD A,(state_interaction_mode_5F68)
-  CP $06
+  CP INTERACTION_MODE_FUEL
   CALL Z,L62DA
   LD DE,(L5EF3)
   LD A,D
@@ -2115,7 +2115,7 @@ interact_with_something2:
   SBC HL,DE
   JP M,interact_with_something2
   LD A,(state_interaction_mode_5F68)
-  CP $06
+  CP INTERACTION_MODE_FUEL
   CALL Z,L62E0
   LD (L5F8B),BC
   LD HL,(viewport_1_ptr)
@@ -2175,7 +2175,7 @@ interact_with_something2_1:
 ;
 ; Used by the routines at interact_with_something2 and L64A1.
 L63FC:
-  LD A,$00
+  LD A,INTERACTION_MODE_00
   LD (state_interaction_mode_5F68),A
 ; This entry point is used by the routine at L615E.
 L63FC_0:
@@ -2256,7 +2256,7 @@ hit_balloon:
 ; Used by the routine at interact_with_something2.
 interact_with_fuel:
   LD A,(state_interaction_mode_5F68)
-  CP $06
+  CP INTERACTION_MODE_FUEL
   JP Z,L64A1
   LD A,POINTS_FUEL
   CALL add_points
@@ -2574,7 +2574,7 @@ handle_left:
 ; Used by the routines at decrease_lives_player_2 and L683B.
 L6682:
   LD A,(state_interaction_mode_5F68)
-  CP $00
+  CP INTERACTION_MODE_00
   RET NZ
   LD A,(state_x)
   LD HL,(L5EF3)
@@ -2750,7 +2750,7 @@ L6794:
   LD BC,(L5EF3)
   CALL L72EF
   LD A,(state_interaction_mode_5F68)
-  CP $06
+  CP INTERACTION_MODE_FUEL
   JP Z,handle_no_fuel
   LD A,$00
   LD (state_interaction_mode_5EF5),A
@@ -4407,7 +4407,7 @@ L708E:
   POP HL
   POP DE
   LD A,(state_interaction_mode_5F68)
-  CP $01
+  CP INTERACTION_MODE_01
   JP Z,L708E
   BIT 7,D
   JP NZ,L708E_0
@@ -4954,7 +4954,7 @@ L73D8:
 ; Used by the routine at L708E.
 L73DD:
   LD A,(state_interaction_mode_5F68)
-  CP $01
+  CP INTERACTION_MODE_01
   RET Z
   LD BC,(L5F73)
   LD A,B

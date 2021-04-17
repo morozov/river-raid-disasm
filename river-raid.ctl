@@ -68,6 +68,11 @@
 > $4000 METRONOME_INTERVAL_CONSUME_FUEL EQU $01
 > $4000 METRONOME_INTERVAL_1            EQU $01
 > $4000
+> $4000 INTERACTION_MODE_00   EQU $00
+> $4000 INTERACTION_MODE_01   EQU $01
+> $4000 INTERACTION_MODE_02   EQU $02
+> $4000 INTERACTION_MODE_FUEL EQU $06
+> $4000
 > $4000 ; STRUCTURES
 > $4000 ; ----------
 > $4000 ;
@@ -193,10 +198,6 @@ g $5F66 Fuel level
 g $5F67 Control type ($00 - Keyboard, $01 - Sinclair, $02 - Kempston, Other - Cursor)
 @ $5F68 label=state_interaction_mode_5F68
 g $5F68
-R $5F68 $00 - TODO
-R $5F68 $01 - TODO
-R $5F68 $02 - TODO
-R $5F68 $06 - fueling
 @ $5F69 label=L5F69
 b $5F69
 @ $5F6A label=state_bridge_player_1
@@ -269,6 +270,7 @@ C $6083 Scan "W" (DOWN)
 C $608C Scan lower row right (FIRE)
 C $6097 Scan lower row left (FIRE)
 c $60A5
+@ $60A8 isub=CP INTERACTION_MODE_00
 c $6124
 @ $6136 label=L6136
 c $6136
@@ -286,6 +288,7 @@ c $61BB
 c $6249
 b $6253
 @ $6256 label=fuel
+@ $6256 isub=LD A,INTERACTION_MODE_FUEL
 c $6256
 @ $6268 label=hit_terrain
 c $6268 Fighter hits terrain
@@ -297,12 +300,15 @@ c $62DA Increase #REGb by the value of #R$5F64
 c $62E0
 @ $62E8 label=interact_with_something2
 c $62E8 Interact with something
+@ $6301 isub=CP INTERACTION_MODE_FUEL
+@ $6380 isub=CP INTERACTION_MODE_FUEL
 @ $639B isub=CP OBJECT_HELICOPTER_REG
 @ $63A0 isub=CP OBJECT_SHIP
 @ $63A5 isub=CP OBJECT_HELICOPTER_ADV
 @ $63AA isub=CP OBJECT_FIGHTER
 @ $63AF isub=CP OBJECT_BALLOON
 @ $63B4 isub=CP OBJECT_FUEL
+@ $63FC isub=LD A,INTERACTION_MODE_00
 c $63FC
 @ $6414 label=hit_helicopter_reg
 @ $6414 isub=LD A,POINTS_HELICOPTER_REG
@@ -321,6 +327,7 @@ c $6453 Hit fighter
 c $6462
 @ $6478 label=interact_with_fuel
 c $6478
+@ $647B isub=CP INTERACTION_MODE_FUEL
 @ $6480 isub=LD A,POINTS_FUEL
 c $649E
 c $64A1
@@ -363,6 +370,7 @@ c $6642
 @ $6670 isub=CP PLAYER_2
   $6670,5 Load player 2 color
 c $6682
+@ $6685 isub=CP INTERACTION_MODE_00
   $66A4,3 Sprite size (2×1 tiles × 8 bytes/tile)
   $66AD,2 COLOR_YELLOW_ON_BLUE
 @ $66B2 isub=CP PLAYER_2
@@ -389,6 +397,7 @@ c $673D
 c $678E
   $6791,2 Reset CONTROLS_BIT_FIRE
 c $6794
+@ $679E isub=CP INTERACTION_MODE_FUEL
   $67E1,2 Reset CONTROLS_BIT_SPEED_DECREASED
 c $6831
 c $6836
@@ -664,6 +673,7 @@ c $706C Render balloon
 R $706C I:E X position
   $7082,3 Sprite size (2×2 tiles × 8 bytes/tile)
 c $708E
+@ $70C9 isub=CP INTERACTION_MODE_01
 @ $7107 isub=AND METRONOME_INTERVAL_1
   $713E,3 Sprite frame size (3×1 tiles × 8 bytes/tile)
   $7141,2 COLOR_YELLOW_ON_BLUE
@@ -728,6 +738,7 @@ c $7393
 c $73D0
 c $73D8
 c $73DD
+@ $73E0 isub=CP INTERACTION_MODE_01
 c $7415
 @ $7441 label=render_tank_shell_frame
 c $7441
