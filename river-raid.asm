@@ -56,7 +56,12 @@ SLOT_BIT_ORIENTATION  EQU $06
 VIEWPORT_MARKER_EMPTY_SLOT EQU $00
 VIEWPORT_MARKER_END_OF_SET EQU $FF
 
-FUEL_LOW_THRESHOLD EQU $C0
+FUEL_CHECK_INTERVAL    EQU $03
+FUEL_INTAKE_AMOUNT     EQU $04
+FUEL_LEVEL_EMPTY       EQU $00
+FUEL_LEVEL_LOW         EQU $C0
+FUEL_LEVEL_ALMOST_FULL EQU $FC
+FUEL_LEVEL_FULL        EQU $FF
 
 ; STRUCTURES
 ; ----------
@@ -1177,7 +1182,7 @@ play:
   LD (L5F6F),A
   LD (state_terrain_position),A
   LD (L5F69),A
-  LD A,$FF
+  LD A,FUEL_LEVEL_FULL
   LD (state_fuel),A
   LD BC,$0010
   LD (state_y),BC
@@ -1562,7 +1567,7 @@ main_loop:
   CALL render_tank_shell_frame
   CALL L7393
   CALL advance
-  CALL L6DFF
+  CALL consume_fuel
   LD A,$00
   LD (L5F69),A
   LD A,(state_input_interface)
@@ -1740,7 +1745,7 @@ L60A5_2:
 
 ; Routine at 6124
 ;
-; Used by the routines at L6DFF and L6E40.
+; Used by the routines at consume_fuel and add_fuel.
 L6124:
   LD A,$07
   PUSH DE
@@ -2278,7 +2283,7 @@ L64A1:
   LD (viewport_1_ptr),HL
   LD HL,viewport_2
   LD (viewport_2_ptr),HL
-  CALL L6E40
+  CALL add_fuel
   JP L63FC
 
 ; Data block at 64B4
@@ -2344,7 +2349,7 @@ print_space:
 
 ; Handle the no fuel situation
 ;
-; Used by the routines at L6794, L6DFF and L7415.
+; Used by the routines at L6794, consume_fuel and L7415.
 handle_no_fuel:
   LD A,(state_x)
   AND $F8
@@ -3867,7 +3872,7 @@ init_starting_bridge:
 ; Routine at 6DFF
 ;
 ; Used by the routine at main_loop.
-L6DFF:
+consume_fuel:
   LD A,(L5EEF)
   AND $01
   CP $00
@@ -3875,13 +3880,13 @@ L6DFF:
   LD A,(state_fuel)
   DEC A
   LD (state_fuel),A
-  AND $03
+  AND FUEL_CHECK_INTERVAL
   CP $00
   RET NZ
   LD A,(state_fuel)
-  CP $00
+  CP FUEL_LEVEL_EMPTY
   JP Z,handle_no_fuel
-  AND $C0
+  AND FUEL_LEVEL_LOW
   CP $00
   CALL Z,register_low_fuel
   LD A,(state_fuel)
@@ -3893,33 +3898,33 @@ L6DFF:
   CALL L8A4E
   LD A,$08
   LD D,$86
-L6DFF_0:
+consume_fuel_0:
   PUSH AF
   CALL L6124
   INC H
   POP AF
   DEC A
-  JP NZ,L6DFF_0
+  JP NZ,consume_fuel_0
   RET
 
 ; Routine at 6E40
 ;
 ; Used by the routine at L64A1.
-L6E40:
+add_fuel:
   LD A,(L5F69)
   CP $04
   RET Z
   LD A,(state_fuel)
-  AND $FC
-  CP $FC
-  JP Z,L6E92
+  AND FUEL_LEVEL_ALMOST_FULL
+  CP FUEL_LEVEL_ALMOST_FULL
+  JP Z,signal_fuel_level_excessive
   LD DE,$0007
   LD HL,$0333
   CALL BEEPER
   LD A,(state_fuel)
-  ADD A,$04
+  ADD A,FUEL_INTAKE_AMOUNT
   LD (state_fuel),A
-  AND $C0
+  AND FUEL_LEVEL_LOW
   CP $00
   CALL NZ,register_sufficient_fuel
   LD A,(state_fuel)
@@ -3931,18 +3936,18 @@ L6E40:
   CALL L8A4E
   LD A,$08
   LD D,$C6
-L6E40_0:
+add_fuel_0:
   PUSH AF
   CALL L6124
   INC H
   POP AF
   DEC A
-  JP NZ,L6E40_0
+  JP NZ,add_fuel_0
   RET
 
 ; Register low fuel level
 ;
-; Used by the routine at L6DFF.
+; Used by the routine at consume_fuel.
 register_low_fuel:
   LD HL,state_controls
   SET 3,(HL)              ; Set CONTROLS_BIT_LOW_FUEL
@@ -3950,7 +3955,7 @@ register_low_fuel:
 
 ; Register sufficient fuel level
 ;
-; Used by the routine at L6E40.
+; Used by the routine at add_fuel.
 register_sufficient_fuel:
   LD HL,state_controls
   RES 3,(HL)              ; Reset CONTROLS_BIT_LOW_FUEL
@@ -3958,8 +3963,8 @@ register_sufficient_fuel:
 
 ; Routine at 6E92
 ;
-; Used by the routine at L6E40.
-L6E92:
+; Used by the routine at add_fuel.
+signal_fuel_level_excessive:
   LD DE,$0008
   LD HL,$0111
   CALL BEEPER
@@ -6632,8 +6637,8 @@ init_udg_loop:
 
 ; Routine at 8A4E
 ;
-; Used by the routines at L6DFF, L6E40, L708E, L7302, L75A2, L7649, L76AF and
-; render_object.
+; Used by the routines at consume_fuel, add_fuel, L708E, L7302, L75A2, L7649,
+; L76AF and render_object.
 L8A4E:
   LD DE,$0800
   LD HL,$3800

@@ -58,7 +58,12 @@ SLOT_BIT_ORIENTATION  EQU $06
 VIEWPORT_MARKER_EMPTY_SLOT EQU $00
 VIEWPORT_MARKER_END_OF_SET EQU $FF
 
-FUEL_LOW_THRESHOLD EQU $C0
+FUEL_CHECK_INTERVAL    EQU $03
+FUEL_INTAKE_AMOUNT     EQU $04
+FUEL_LEVEL_EMPTY       EQU $00
+FUEL_LEVEL_LOW         EQU $C0
+FUEL_LEVEL_ALMOST_FULL EQU $FC
+FUEL_LEVEL_FULL        EQU $FF
 
 ; STRUCTURES
 ; ----------
@@ -1183,6 +1188,7 @@ c$5D9F LD HL,$923C   ;
  $5DE8 LD ($5F6F),A  ;
  $5DEB LD ($5F7D),A  ;
  $5DEE LD ($5F69),A  ;
+@isub=LD A,FUEL_LEVEL_FULL
  $5DF1 LD A,$FF      ;
  $5DF3 LD ($5F66),A  ;
  $5DF6 LD BC,$0010   ;
@@ -3811,6 +3817,7 @@ c$6DEB LD A,($923A)  ;
 ; Routine at 6DFF
 ;
 ; Used by the routine at #R$5F91.
+@label=consume_fuel
 c$6DFF LD A,($5EEF)  ;
  $6E02 AND $01       ;
  $6E04 CP $00        ;
@@ -3818,12 +3825,15 @@ c$6DFF LD A,($5EEF)  ;
  $6E07 LD A,($5F66)  ;
  $6E0A DEC A         ;
  $6E0B LD ($5F66),A  ;
+@isub=AND FUEL_CHECK_INTERVAL
  $6E0E AND $03       ;
  $6E10 CP $00        ;
  $6E12 RET NZ        ;
  $6E13 LD A,($5F66)  ;
+@isub=CP FUEL_LEVEL_EMPTY
  $6E16 CP $00        ;
  $6E18 JP Z,$650A    ;
+@isub=AND FUEL_LEVEL_LOW
  $6E1B AND $C0       ;
  $6E1D CP $00        ;
  $6E1F CALL Z,$6E86  ;
@@ -3847,19 +3857,24 @@ c$6DFF LD A,($5EEF)  ;
 ; Routine at 6E40
 ;
 ; Used by the routine at #R$64A1.
+@label=add_fuel
 c$6E40 LD A,($5F69)  ;
  $6E43 CP $04        ;
  $6E45 RET Z         ;
  $6E46 LD A,($5F66)  ;
+@isub=AND FUEL_LEVEL_ALMOST_FULL
  $6E49 AND $FC       ;
+@isub=CP FUEL_LEVEL_ALMOST_FULL
  $6E4B CP $FC        ;
  $6E4D JP Z,$6E92    ;
  $6E50 LD DE,$0007   ;
  $6E53 LD HL,$0333   ;
  $6E56 CALL $03B5    ;
  $6E59 LD A,($5F66)  ;
+@isub=ADD A,FUEL_INTAKE_AMOUNT
  $6E5C ADD A,$04     ;
  $6E5E LD ($5F66),A  ;
+@isub=AND FUEL_LEVEL_LOW
  $6E61 AND $C0       ;
  $6E63 CP $00        ;
  $6E65 CALL NZ,$6E8C ;
@@ -3899,6 +3914,7 @@ c$6E8C LD HL,$6BB0   ;
 ; Routine at 6E92
 ;
 ; Used by the routine at #R$6E40.
+@label=signal_fuel_level_excessive
 c$6E92 LD DE,$0008   ;
  $6E95 LD HL,$0111   ;
  $6E98 CALL $03B5    ;

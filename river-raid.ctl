@@ -58,7 +58,12 @@
 > $4000 VIEWPORT_MARKER_EMPTY_SLOT EQU $00
 > $4000 VIEWPORT_MARKER_END_OF_SET EQU $FF
 > $4000
-> $4000 FUEL_LOW_THRESHOLD EQU $C0
+> $4000 FUEL_CHECK_INTERVAL    EQU $03
+> $4000 FUEL_INTAKE_AMOUNT     EQU $04
+> $4000 FUEL_LEVEL_EMPTY       EQU $00
+> $4000 FUEL_LEVEL_LOW         EQU $C0
+> $4000 FUEL_LEVEL_ALMOST_FULL EQU $FC
+> $4000 FUEL_LEVEL_FULL        EQU $FF
 > $4000
 > $4000 ; STRUCTURES
 > $4000 ; ----------
@@ -127,6 +132,7 @@ c $5D9F Decrease player 2 lives
 C $5DB4,2 PAPER 1; INK 4
 @ $5DBF isub=LD BC,status_line_2 - status_line_1
 @ $5DD0 isub=LD BC,status_line_3 - status_line_2
+@ $5DF1 isub=LD A,FUEL_LEVEL_FULL
 @ $5E0B isub=LD (HL),VIEWPORT_MARKER_END_OF_SET
 @ $5E32 isub=LD BC,state_score_player_2 - state_score_player_1
 @ $5E40 isub=LD BC,end_status_line_4 - status_line_4
@@ -544,14 +550,24 @@ c $6DEB Initializes the starting bridge based on the value of #R$923A using #R$5
   $6DF0,3 Point to the beginning of the list
   $6DF3,4 Advance to the element corresponding to the game mode.
   $6DF7,1 Get the starting bridge number
+@ $6DFF label=consume_fuel
 c $6DFF
+@ $6E0E isub=AND FUEL_CHECK_INTERVAL
+@ $6E16 isub=CP FUEL_LEVEL_EMPTY
+@ $6E1B isub=AND FUEL_LEVEL_LOW
+@ $6E40 label=add_fuel
 c $6E40
+@ $6E49 isub=AND FUEL_LEVEL_ALMOST_FULL
+@ $6E4B isub=CP FUEL_LEVEL_ALMOST_FULL
+@ $6E5C isub=ADD A,FUEL_INTAKE_AMOUNT
+@ $6E61 isub=AND FUEL_LEVEL_LOW
 @ $6E86 label=register_low_fuel
 c $6E86 Register low fuel level
   $6E89,2 Set CONTROLS_BIT_LOW_FUEL
 @ $6E8C label=register_sufficient_fuel
 c $6E8C Register sufficient fuel level
   $6E8F,2 Reset CONTROLS_BIT_LOW_FUEL
+@ $6E92 label=signal_fuel_level_excessive
 c $6E92
 @ $6E9C label=explode_fragment
 c $6E9C Explode a single fragment
