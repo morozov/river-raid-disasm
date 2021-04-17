@@ -65,6 +65,9 @@ FUEL_LEVEL_LOW         EQU $C0
 FUEL_LEVEL_ALMOST_FULL EQU $FC
 FUEL_LEVEL_FULL        EQU $FF
 
+METRONOME_INTERVAL_CONSUME_FUEL EQU $01
+METRONOME_INTERVAL_1            EQU $01
+
 ; STRUCTURES
 ; ----------
 ;
@@ -1301,9 +1304,9 @@ c$5D9F LD HL,$923C   ;
 @label=L5EEE
 b$5EEE DEFB $00
 
-; Data block at 5EEF
-@label=L5EEF
-b$5EEF DEFB $00
+; Game status buffer entry at 5EEF
+@label=state_metronome
+g$5EEF DEFB $00
 
 ; Current player's current bridge modulo 48 (the total number of bridges).
 @label=state_bridge_index
@@ -3819,6 +3822,7 @@ c$6DEB LD A,($923A)  ;
 ; Used by the routine at #R$5F91.
 @label=consume_fuel
 c$6DFF LD A,($5EEF)  ;
+@isub=AND METRONOME_INTERVAL_CONSUME_FUEL
  $6E02 AND $01       ;
  $6E04 CP $00        ;
  $6E06 RET NZ        ;
@@ -4387,6 +4391,7 @@ c$708E LD A,$00      ;
  $70FF CP $00        ;
  $7101 JP Z,$71A2    ;
  $7104 LD A,($5EEF)  ;
+@isub=AND METRONOME_INTERVAL_1
  $7107 AND $01       ;
  $7109 CP $00        ;
  $710B JP Z,$724C    ;
@@ -4488,7 +4493,9 @@ c$719F LD C,$04      ;
 ;
 ; Used by the routine at #R$708E.
 c$71A2 LD A,($5EEF)  ;
+@isub=AND METRONOME_INTERVAL_1
  $71A5 AND $01       ;
+@isub=CP METRONOME_INTERVAL_1
  $71A7 CP $01        ;
  $71A9 JP NZ,$708E   ;
  $71AC LD ($8B0A),BC ;
@@ -4562,7 +4569,9 @@ c$7224 LD A,D        ;
  $7225 CP $06        ;
  $7227 JP Z,$76AC    ;
  $722A LD A,($5EEF)  ;
+@isub=AND METRONOME_INTERVAL_1
  $722D AND $01       ;
+@isub=CP METRONOME_INTERVAL_1
  $722F CP $01        ;
  $7231 JP Z,$724C    ;
  $7234 LD A,D        ;
@@ -4646,7 +4655,9 @@ c$7290 LD A,$01      ;
 ;
 ; Used by the routine at #R$708E.
 c$7296 LD A,($5EEF)  ;
+@isub=AND METRONOME_INTERVAL_1
  $7299 AND $01       ;
+@isub=CP METRONOME_INTERVAL_1
  $729B CP $01        ;
  $729D JP Z,$708E    ;
  $72A0 LD ($8B0A),BC ;

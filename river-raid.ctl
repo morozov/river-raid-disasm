@@ -65,6 +65,9 @@
 > $4000 FUEL_LEVEL_ALMOST_FULL EQU $FC
 > $4000 FUEL_LEVEL_FULL        EQU $FF
 > $4000
+> $4000 METRONOME_INTERVAL_CONSUME_FUEL EQU $01
+> $4000 METRONOME_INTERVAL_1            EQU $01
+> $4000
 > $4000 ; STRUCTURES
 > $4000 ; ----------
 > $4000 ;
@@ -140,8 +143,8 @@ C $5DB4,2 PAPER 1; INK 4
 @ $5ECD isub=CP INPUT_INTERFACE_KEMPSTON
 @ $5EEE label=L5EEE
 b $5EEE
-@ $5EEF label=L5EEF
-b $5EEF
+@ $5EEF label=state_metronome
+g $5EEF
 @ $5EF0 label=state_bridge_index
 g $5EF0 Current player's current bridge modulo 48 (the total number of bridges).
 @ $5EF1 label=state_input_readings
@@ -552,6 +555,7 @@ c $6DEB Initializes the starting bridge based on the value of #R$923A using #R$5
   $6DF7,1 Get the starting bridge number
 @ $6DFF label=consume_fuel
 c $6DFF
+@ $6E02 isub=AND METRONOME_INTERVAL_CONSUME_FUEL
 @ $6E0E isub=AND FUEL_CHECK_INTERVAL
 @ $6E16 isub=CP FUEL_LEVEL_EMPTY
 @ $6E1B isub=AND FUEL_LEVEL_LOW
@@ -660,6 +664,7 @@ c $706C Render balloon
 R $706C I:E X position
   $7082,3 Sprite size (2×2 tiles × 8 bytes/tile)
 c $708E
+@ $7107 isub=AND METRONOME_INTERVAL_1
   $713E,3 Sprite frame size (3×1 tiles × 8 bytes/tile)
   $7141,2 COLOR_YELLOW_ON_BLUE
 @ $7146 isub=CP OBJECT_SHIP
@@ -669,9 +674,13 @@ c $7158
 c $7192
 c $719F
 c $71A2
+@ $71A5 isub=AND METRONOME_INTERVAL_1
+@ $71A7 isub=CP METRONOME_INTERVAL_1
 c $720E
 c $7224
 @ $7225 isub=CP OBJECT_BALLOON
+@ $722D isub=AND METRONOME_INTERVAL_1
+@ $722F isub=CP METRONOME_INTERVAL_1
 @ $7237 isub=CP OBJECT_HELICOPTER_REG
 @ $723C isub=CP OBJECT_HELICOPTER_ADV
 @ $7248 label=ld_sprite_helicopter_rotor_right
@@ -687,6 +696,8 @@ c $7259
 c $728B
 c $7290
 c $7296
+@ $7299 isub=AND METRONOME_INTERVAL_1
+@ $729B isub=CP METRONOME_INTERVAL_1
   $72D2,3 Sprite size (3×1 tiles × 8 bytes/tile)
 c $72E6
 @ $72E8 nowarn

@@ -63,6 +63,9 @@ FUEL_LEVEL_LOW         EQU $C0
 FUEL_LEVEL_ALMOST_FULL EQU $FC
 FUEL_LEVEL_FULL        EQU $FF
 
+METRONOME_INTERVAL_CONSUME_FUEL EQU $01
+METRONOME_INTERVAL_1            EQU $01
+
 ; STRUCTURES
 ; ----------
 ;
@@ -1167,7 +1170,7 @@ play:
   LD BC,status_line_2 - status_line_1
   CALL PR_STRING
   LD A,$01
-  LD (L5EEF),A
+  LD (state_metronome),A
   CALL CHAN_OPEN
   LD DE,status_line_2
   LD BC,status_line_3 - status_line_2
@@ -1245,7 +1248,7 @@ play:
   LD B,$28
 decrease_lives_player_2_0:
   PUSH BC
-  LD HL,L5EEF
+  LD HL,state_metronome
   INC (HL)
   CALL L60A5
   CALL L708E
@@ -1286,15 +1289,15 @@ decrease_lives_player_2_3:
   LD (L5F6E),A
   LD A,$02
   LD (state_speed),A
-  LD (L5EEF),A
+  LD (state_metronome),A
   JP main_loop
 
 ; Data block at 5EEE
 L5EEE:
   DEFB $00
 
-; Data block at 5EEF
-L5EEF:
+; Game status buffer entry at 5EEF
+state_metronome:
   DEFB $00
 
 ; Current player's current bridge modulo 48 (the total number of bridges).
@@ -1553,7 +1556,7 @@ main_loop:
   IN A,($FE)              ;
   BIT 0,A                 ;
   CALL Z,handle_enter     ;
-  LD HL,L5EEF
+  LD HL,state_metronome
   INC (HL)
   CALL L6EC8
   CALL L60A5
@@ -3796,7 +3799,7 @@ demo_0:
   JP Z,start_1
   CALL L8A1B
   CALL L60A5
-  LD HL,L5EEF
+  LD HL,state_metronome
   INC (HL)
   CALL L708E
   CALL render_tank_shell_frame
@@ -3873,8 +3876,8 @@ init_starting_bridge:
 ;
 ; Used by the routine at main_loop.
 consume_fuel:
-  LD A,(L5EEF)
-  AND $01
+  LD A,(state_metronome)
+  AND METRONOME_INTERVAL_CONSUME_FUEL
   CP $00
   RET NZ
   LD A,(state_fuel)
@@ -4432,8 +4435,8 @@ L708E_0:
   JP Z,L7296
   CP $00
   JP Z,L71A2
-  LD A,(L5EEF)
-  AND $01
+  LD A,(state_metronome)
+  AND METRONOME_INTERVAL_1
   CP $00
   JP Z,animate_object
   BIT 6,D
@@ -4539,9 +4542,9 @@ L719F:
 ;
 ; Used by the routine at L708E.
 L71A2:
-  LD A,(L5EEF)
-  AND $01
-  CP $01
+  LD A,(state_metronome)
+  AND METRONOME_INTERVAL_1
+  CP METRONOME_INTERVAL_1
   JP NZ,L708E
   LD (L8B0A),BC
   LD (L8B0C),BC
@@ -4583,7 +4586,7 @@ L71A2_0:
 L71A2_1:
   LD BC,all_ff
   LD (render_sprite_ptr),BC
-  LD A,(L5EEF)
+  LD A,(state_metronome)
   AND $06
   SRL A
   ADD A,$0C
@@ -4616,9 +4619,9 @@ L7224:
   LD A,D
   CP OBJECT_BALLOON
   JP Z,L76AC
-  LD A,(L5EEF)
-  AND $01
-  CP $01
+  LD A,(state_metronome)
+  AND METRONOME_INTERVAL_1
+  CP METRONOME_INTERVAL_1
   JP Z,animate_object
   LD A,D
   AND $07
@@ -4699,9 +4702,9 @@ L7290:
 ;
 ; Used by the routine at L708E.
 L7296:
-  LD A,(L5EEF)
-  AND $01
-  CP $01
+  LD A,(state_metronome)
+  AND METRONOME_INTERVAL_1
+  CP METRONOME_INTERVAL_1
   JP Z,L708E
   LD (L8B0A),BC
   PUSH DE
@@ -5187,7 +5190,7 @@ L754C:
   JP Z,L708E
   LD HL,sprite_fuel
   LD BC,$0000
-  LD A,(L5EEF)
+  LD A,(state_metronome)
   AND $04
   ADD A,$0B
   LD E,A
@@ -5334,7 +5337,7 @@ L762E:
 L7649:
   BIT 7,B
   JP NZ,L76AC
-  LD A,(L5EEF)
+  LD A,(state_metronome)
   AND $03
   CP $01
   JP NZ,L76AC
@@ -5375,7 +5378,7 @@ L7649_0:
   LD (HL),C
   LD (L8B0C),BC
   LD HL,sprite_balloon
-  LD A,(L5EEF)
+  LD A,(state_metronome)
   AND $03
   ADD A,$0C
   LD E,A
