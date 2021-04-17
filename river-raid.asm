@@ -71,6 +71,12 @@ INTERACTION_MODE_01   EQU $01
 INTERACTION_MODE_02   EQU $02
 INTERACTION_MODE_FUEL EQU $06
 
+OTHER_MODE_00             EQU $00
+OTHER_MODE_FUEL           EQU $01
+OTHER_MODE_HIT            EQU $02
+OTHER_MODE_XOR            EQU $03
+OTHER_MODE_HELICOPTER_ADV EQU $04
+
 ; STRUCTURES
 ; ----------
 ;
@@ -1327,7 +1333,7 @@ L5EF4:
   DEFB $00
 
 ; Game status buffer entry at 5EF5
-state_interaction_mode_5EF5:
+state_other_mode:
   DEFB $00
 
 ; Data block at 5EF6
@@ -1686,8 +1692,8 @@ L60A5:
   LD A,(state_interaction_mode_5F68)
   CP INTERACTION_MODE_00
   JP NZ,L60A5_0
-  LD A,$00
-  LD (state_interaction_mode_5EF5),A
+  LD A,OTHER_MODE_00
+  LD (state_other_mode),A
   LD A,(state_x)
   LD C,A
   LD A,(state_speed)
@@ -1768,16 +1774,16 @@ L6136:
   LD (L5F85),HL
   LD (L5F87),DE
   LD (L5F89),BC
-  LD A,(state_interaction_mode_5EF5)
-  CP $00
+  LD A,(state_other_mode)
+  CP OTHER_MODE_00
   JP Z,L8C1B_1
-  CP $01
+  CP OTHER_MODE_FUEL
   JP Z,fuel
-  CP $02
+  CP OTHER_MODE_HIT
   JP Z,interact_with_something
-  CP $03
+  CP OTHER_MODE_XOR
   JP Z,L615E
-  CP $04
+  CP OTHER_MODE_HELICOPTER_ADV
   JP Z,L7415
 
 ; Routine at 615E
@@ -2179,8 +2185,8 @@ L63FC:
   LD (state_interaction_mode_5F68),A
 ; This entry point is used by the routine at L615E.
 L63FC_0:
-  LD A,$00
-  LD (state_interaction_mode_5EF5),A
+  LD A,OTHER_MODE_00
+  LD (state_other_mode),A
   LD HL,(L5F85)
   LD DE,(L5F87)
   LD BC,(L5F89)
@@ -2510,8 +2516,8 @@ handle_right:
   LD (state_x),A
   LD C,A
   LD B,$80
-  LD A,$01
-  LD (state_interaction_mode_5EF5),A
+  LD A,OTHER_MODE_FUEL
+  LD (state_other_mode),A
   LD (L8B0C),BC
   DEC C
   DEC C
@@ -2550,8 +2556,8 @@ handle_left:
   LD (state_x),A
   LD C,A
   LD B,$80
-  LD A,$01
-  LD (state_interaction_mode_5EF5),A
+  LD A,OTHER_MODE_FUEL
+  LD (state_other_mode),A
   LD (L8B0C),BC
   INC C
   INC C
@@ -2581,8 +2587,8 @@ L6682:
   LD (L5F8F),HL
   LD C,A
   LD B,$80
-  LD A,$01
-  LD (state_interaction_mode_5EF5),A
+  LD A,OTHER_MODE_FUEL
+  LD (state_other_mode),A
   LD (L8B0C),BC
   CALL L62DA
   LD (L8B0A),BC
@@ -2725,8 +2731,8 @@ L673D:
   SUB B
   CALL P,L678E
   LD (L8B0C),BC
-  LD A,$02
-  LD (state_interaction_mode_5EF5),A
+  LD A,OTHER_MODE_HIT
+  LD (state_other_mode),A
   LD DE,$080C
   LD HL,sprite_missile
   LD BC,$0008
@@ -2752,8 +2758,8 @@ L6794:
   LD A,(state_interaction_mode_5F68)
   CP INTERACTION_MODE_FUEL
   JP Z,handle_no_fuel
-  LD A,$00
-  LD (state_interaction_mode_5EF5),A
+  LD A,OTHER_MODE_00
+  LD (state_other_mode),A
   LD A,$01
   LD HL,L8451
   LD DE,$0008
@@ -4087,8 +4093,8 @@ L6EC8:
   LD (render_sprite_ptr),HL
   LD (L8B10),DE
   LD D,A
-  LD A,$00
-  LD (state_interaction_mode_5EF5),A
+  LD A,OTHER_MODE_00
+  LD (state_other_mode),A
   LD A,$02
   LD (render_object_width),A
   LD A,D
@@ -4169,8 +4175,8 @@ L6F7A:
 ;
 ; Used by the routines at L68C5 and L6927.
 next_row:
-  LD A,$00
-  LD (state_interaction_mode_5EF5),A
+  LD A,OTHER_MODE_00
+  LD (state_other_mode),A
   LD HL,level_objects
   LD DE,$0100
   LD A,(state_bridge_index)
@@ -4354,8 +4360,8 @@ render_balloon:
   LD B,$00
   LD C,E
   LD HL,sprite_balloon
-  LD A,$00
-  LD (state_interaction_mode_5EF5),A
+  LD A,OTHER_MODE_00
+  LD (state_other_mode),A
   PUSH HL
   LD HL,viewport_1
   CALL add_object_to_viewport
@@ -4373,8 +4379,8 @@ render_balloon:
 ; L71A2, L7224, animate_object, animate_helicopter, L7296, L7302, L7358, L74EE,
 ; L754C, L75D0, L762E, L7649, L76AC and L76DA.
 L708E:
-  LD A,$00
-  LD (state_interaction_mode_5EF5),A
+  LD A,OTHER_MODE_00
+  LD (state_other_mode),A
   LD HL,(viewport_1_ptr)
   LD C,(HL)
   INC HL
@@ -4511,8 +4517,8 @@ L7158_0:
   CALL ld_enemy_sprites
   LD BC,$0018             ; Sprite size (3×1 tiles × 8 bytes/tile)
   CALL L72E6
-  LD A,$03
-  LD (state_interaction_mode_5EF5),A
+  LD A,OTHER_MODE_XOR
+  LD (state_other_mode),A
   LD DE,$0800
   CALL L8B1E
   CALL L72EF
@@ -4923,8 +4929,8 @@ L7393:
   CALL Z,L738E
   LD (L8B0C),BC
   LD (L5F73),BC
-  LD A,$04
-  LD (state_interaction_mode_5EF5),A
+  LD A,OTHER_MODE_HELICOPTER_ADV
+  LD (state_other_mode),A
   LD A,$01
   LD E,$00
   LD D,$01
@@ -5045,8 +5051,8 @@ render_tank_shell_frame:
   INC B
   LD (L8B0C),BC
   LD (L7385),BC
-  LD A,$00
-  LD (state_interaction_mode_5EF5),A
+  LD A,OTHER_MODE_00
+  LD (state_other_mode),A
   LD A,B
   AND $88
   CP $88

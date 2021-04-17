@@ -73,6 +73,12 @@
 > $4000 INTERACTION_MODE_02   EQU $02
 > $4000 INTERACTION_MODE_FUEL EQU $06
 > $4000
+> $4000 OTHER_MODE_00             EQU $00
+> $4000 OTHER_MODE_FUEL           EQU $01
+> $4000 OTHER_MODE_HIT            EQU $02
+> $4000 OTHER_MODE_XOR            EQU $03
+> $4000 OTHER_MODE_HELICOPTER_ADV EQU $04
+> $4000
 > $4000 ; STRUCTURES
 > $4000 ; ----------
 > $4000 ;
@@ -159,7 +165,7 @@ b $5EF2
 @ $5EF3 label=L5EF3
 g $5EF3
 g $5EF4
-@ $5EF5 label=state_interaction_mode_5EF5
+@ $5EF5 label=state_other_mode
 g $5EF5
 @ $5EF6 label=L5EF6
 b $5EF6
@@ -271,9 +277,15 @@ C $608C Scan lower row right (FIRE)
 C $6097 Scan lower row left (FIRE)
 c $60A5
 @ $60A8 isub=CP INTERACTION_MODE_00
+@ $60AD isub=LD A,OTHER_MODE_00
 c $6124
 @ $6136 label=L6136
 c $6136
+@ $6145 isub=CP OTHER_MODE_00
+@ $614A isub=CP OTHER_MODE_FUEL
+@ $614F isub=CP OTHER_MODE_HIT
+@ $6154 isub=CP OTHER_MODE_XOR
+@ $6159 isub=CP OTHER_MODE_HELICOPTER_ADV
 @ $615E label=L615E
 c $615E
 @ $61A3 isub=LD (HL),VIEWPORT_MARKER_EMPTY_SLOT
@@ -310,6 +322,7 @@ c $62E8 Interact with something
 @ $63B4 isub=CP OBJECT_FUEL
 @ $63FC isub=LD A,INTERACTION_MODE_00
 c $63FC
+@ $6401 isub=LD A,OTHER_MODE_00
 @ $6414 label=hit_helicopter_reg
 @ $6414 isub=LD A,POINTS_HELICOPTER_REG
 c $6414
@@ -359,18 +372,21 @@ c $65CB
 c $65DE
 @ $65F3 label=handle_right
 c $65F3
+@ $6604 isub=LD A,OTHER_MODE_FUEL
   $6613,3 Sprite size (2×1 tiles × 8 bytes/tile)
 @ $661C isub=LD E,COLOR_BLUE<<3|COLOR_YELLOW
 @ $6621 isub=CP PLAYER_2
   $6621,5 Load player 2 color
 @ $6642 label=handle_left
 c $6642
+@ $6653 isub=LD A,OTHER_MODE_FUEL
   $6662,3 Sprite size (2×1 tiles × 8 bytes/tile)
   $666B,2 COLOR_YELLOW_ON_BLUE
 @ $6670 isub=CP PLAYER_2
   $6670,5 Load player 2 color
 c $6682
 @ $6685 isub=CP INTERACTION_MODE_00
+@ $6694 isub=LD A,OTHER_MODE_FUEL
   $66A4,3 Sprite size (2×1 tiles × 8 bytes/tile)
   $66AD,2 COLOR_YELLOW_ON_BLUE
 @ $66B2 isub=CP PLAYER_2
@@ -394,10 +410,12 @@ c $6724
   $6739,2 Set CONTROLS_BIT_FIRE
 s $673C
 c $673D
+@ $677A isub=LD A,OTHER_MODE_HIT
 c $678E
   $6791,2 Reset CONTROLS_BIT_FIRE
 c $6794
 @ $679E isub=CP INTERACTION_MODE_FUEL
+@ $67A3 isub=LD A,OTHER_MODE_00
   $67E1,2 Reset CONTROLS_BIT_SPEED_DECREASED
 c $6831
 c $6836
@@ -607,6 +625,7 @@ R $6EBC I:HL Pointer to the element of #R$5F00
 @ $6EC1 isub=CP VIEWPORT_MARKER_END_OF_SET
 @ $6EC5 isub=LD (HL),VIEWPORT_MARKER_END_OF_SET
 c $6EC8
+@ $6F30 isub=LD A,OTHER_MODE_00
 @ $6F63 label=ld_sprite_explosion_f1
 c $6F63 Load frame 1 of the explosion sprite.
 R $6F63 O:DE Pointer to the sprite.
@@ -621,6 +640,7 @@ c $6F6F Load explosion erasure sprite.
 R $6F6F O:DE Pointer to the sprite.
 c $6F73
 c $6F7A
+@ $6F80 isub=LD A,OTHER_MODE_00
 @ $6F80 label=next_row
 c $6F80 This routine gets called when the screen scrolls by another fragment
 @ $6F91 label=locate_level
@@ -671,7 +691,9 @@ R $7051 I:E X position
 @ $706C label=render_balloon
 c $706C Render balloon
 R $706C I:E X position
+@ $7072 isub=LD A,OTHER_MODE_00
   $7082,3 Sprite size (2×2 tiles × 8 bytes/tile)
+@ $708E isub=LD A,OTHER_MODE_00
 c $708E
 @ $70C9 isub=CP INTERACTION_MODE_01
 @ $7107 isub=AND METRONOME_INTERVAL_1
@@ -681,6 +703,7 @@ c $708E
 c $7155
 c $7158
   $717B,3 Sprite size (3×1 tiles × 8 bytes/tile)
+@ $7181 isub=LD A,OTHER_MODE_XOR
 c $7192
 c $719F
 c $71A2
@@ -735,6 +758,7 @@ w $7385
 c $7387
 c $738E
 c $7393
+@ $73BE isub=LD A,OTHER_MODE_HELICOPTER_ADV
 c $73D0
 c $73D8
 c $73DD
@@ -742,6 +766,7 @@ c $73DD
 c $7415
 @ $7441 label=render_tank_shell_frame
 c $7441
+@ $7484 isub=LD A,OTHER_MODE_00
 c $74A0
 @ $74C6 label=render_tank_shell_explosion
 c $74C6

@@ -73,6 +73,12 @@ INTERACTION_MODE_01   EQU $01
 INTERACTION_MODE_02   EQU $02
 INTERACTION_MODE_FUEL EQU $06
 
+OTHER_MODE_00             EQU $00
+OTHER_MODE_FUEL           EQU $01
+OTHER_MODE_HIT            EQU $02
+OTHER_MODE_XOR            EQU $03
+OTHER_MODE_HELICOPTER_ADV EQU $04
+
 ; STRUCTURES
 ; ----------
 ;
@@ -1334,7 +1340,7 @@ g$5EF3 DEFB $00
 g$5EF4 DEFB $00
 
 ; Game status buffer entry at 5EF5
-@label=state_interaction_mode_5EF5
+@label=state_other_mode
 g$5EF5 DEFB $00
 
 ; Data block at 5EF6
@@ -1690,6 +1696,7 @@ c$60A5 LD A,($5F68)  ;
 @isub=CP INTERACTION_MODE_00
  $60A8 CP $00        ;
  $60AA JP NZ,$60E5   ;
+@isub=LD A,OTHER_MODE_00
  $60AD LD A,$00      ;
  $60AF LD ($5EF5),A  ;
  $60B2 LD A,($5F72)  ;
@@ -1769,14 +1776,19 @@ c$6136 POP HL        ;
  $613A LD ($5F87),DE ;
  $613E LD ($5F89),BC ;
  $6142 LD A,($5EF5)  ;
+@isub=CP OTHER_MODE_00
  $6145 CP $00        ;
  $6147 JP Z,$8C3B    ;
+@isub=CP OTHER_MODE_FUEL
  $614A CP $01        ;
  $614C JP Z,$6256    ;
+@isub=CP OTHER_MODE_HIT
  $614F CP $02        ;
  $6151 JP Z,$61BB    ;
+@isub=CP OTHER_MODE_XOR
  $6154 CP $03        ;
  $6156 JP Z,$615E    ;
+@isub=CP OTHER_MODE_HELICOPTER_ADV
  $6159 CP $04        ;
  $615B JP Z,$7415    ;
 
@@ -2185,6 +2197,7 @@ c$62E8 LD HL,($5F60) ;
 c$63FC LD A,$00      ;
  $63FE LD ($5F68),A  ;
 ; This entry point is used by the routine at #R$615E.
+@isub=LD A,OTHER_MODE_00
 *$6401 LD A,$00      ;
  $6403 LD ($5EF5),A  ;
  $6406 LD HL,($5F85) ;
@@ -2514,6 +2527,7 @@ c$65F3 LD A,($5F72)  ;
  $65FE LD ($5F72),A  ;
  $6601 LD C,A        ;
  $6602 LD B,$80      ;
+@isub=LD A,OTHER_MODE_FUEL
  $6604 LD A,$01      ;
  $6606 LD ($5EF5),A  ;
  $6609 LD ($8B0C),BC ;
@@ -2554,6 +2568,7 @@ c$6642 LD A,($5F72)  ;
  $664D LD ($5F72),A  ;
  $6650 LD C,A        ;
  $6651 LD B,$80      ;
+@isub=LD A,OTHER_MODE_FUEL
  $6653 LD A,$01      ;
  $6655 LD ($5EF5),A  ;
  $6658 LD ($8B0C),BC ;
@@ -2586,6 +2601,7 @@ c$6682 LD A,($5F68)  ;
  $668E LD ($5F8F),HL ;
  $6691 LD C,A        ;
  $6692 LD B,$80      ;
+@isub=LD A,OTHER_MODE_FUEL
  $6694 LD A,$01      ;
  $6696 LD ($5EF5),A  ;
  $6699 LD ($8B0C),BC ;
@@ -2728,6 +2744,7 @@ c$673D LD A,($5EF3)  ;
  $6772 SUB B         ;
  $6773 CALL P,$678E  ;
  $6776 LD ($8B0C),BC ;
+@isub=LD A,OTHER_MODE_HIT
  $677A LD A,$02      ;
  $677C LD ($5EF5),A  ;
  $677F LD DE,$080C   ;
@@ -2753,6 +2770,7 @@ c$6794 LD BC,($5EF3) ;
 @isub=CP INTERACTION_MODE_FUEL
  $679E CP $06        ;
  $67A0 JP Z,$650A    ;
+@isub=LD A,OTHER_MODE_00
  $67A3 LD A,$00      ;
  $67A5 LD ($5EF5),A  ;
  $67A8 LD A,$01      ;
@@ -4045,6 +4063,7 @@ c$6EC8 LD HL,($5F62) ;
  $6F28 LD ($8B0E),HL ;
  $6F2B LD ($8B10),DE ;
  $6F2F LD D,A        ;
+@isub=LD A,OTHER_MODE_00
  $6F30 LD A,$00      ;
  $6F32 LD ($5EF5),A  ;
  $6F35 LD A,$02      ;
@@ -4123,6 +4142,7 @@ c$6F7A DEC HL        ;
 ; This routine gets called when the screen scrolls by another fragment
 ;
 ; Used by the routines at #R$68C5 and #R$6927.
+@isub=LD A,OTHER_MODE_00
 @label=next_row
 c$6F80 LD A,$00      ;
  $6F82 LD ($5EF5),A  ;
@@ -4317,6 +4337,7 @@ c$7051 LD B,$00      ;
 c$706C LD B,$00      ;
  $706E LD C,E        ;
  $706F LD HL,$8972   ;
+@isub=LD A,OTHER_MODE_00
  $7072 LD A,$00      ;
  $7074 LD ($5EF5),A  ;
  $7077 PUSH HL       ;
@@ -4335,6 +4356,7 @@ c$706C LD B,$00      ;
 ; Used by the routines at #R$5D9F, #R$5F91, #R$6D17, #R$7158, #R$71A2, #R$7224,
 ; #R$724C, #R$7259, #R$7296, #R$7302, #R$7358, #R$74EE, #R$754C, #R$75D0,
 ; #R$762E, #R$7649, #R$76AC and #R$76DA.
+@isub=LD A,OTHER_MODE_00
 c$708E LD A,$00      ;
  $7090 LD ($5EF5),A  ;
  $7093 LD HL,($5F60) ;
@@ -4471,6 +4493,7 @@ c$7158 LD ($8B0A),BC ;
  $7178 CALL $75BA    ;
  $717B LD BC,$0018   ; Sprite size (3×1 tiles × 8 bytes/tile)
  $717E CALL $72E6    ;
+@isub=LD A,OTHER_MODE_XOR
  $7181 LD A,$03      ;
  $7183 LD ($5EF5),A  ;
  $7186 LD DE,$0800   ;
@@ -4874,6 +4897,7 @@ c$7393 LD BC,($5F73) ;
  $73B3 CALL Z,$738E  ;
  $73B6 LD ($8B0C),BC ;
  $73BA LD ($5F73),BC ;
+@isub=LD A,OTHER_MODE_HELICOPTER_ADV
  $73BE LD A,$04      ;
  $73C0 LD ($5EF5),A  ;
  $73C3 LD A,$01      ;
@@ -4992,6 +5016,7 @@ c$7441 LD A,($7383)  ;
  $747B INC B         ;
  $747C LD ($8B0C),BC ;
  $7480 LD ($7385),BC ;
+@isub=LD A,OTHER_MODE_00
  $7484 LD A,$00      ;
  $7486 LD ($5EF5),A  ;
  $7489 LD A,B        ;
