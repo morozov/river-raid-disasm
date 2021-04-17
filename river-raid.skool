@@ -1532,15 +1532,15 @@ u$5F82 DEFB $00
 w$5F83 DEFW $0000
 
 ; Data block at 5F85
-@label=L5F85
+@label=tmp_HL
 w$5F85 DEFW $0000
 
 ; Data block at 5F87
-@label=L5F87
+@label=tmp_DE
 w$5F87 DEFW $0000
 
 ; Data block at 5F89
-@label=L5F89
+@label=tmp_BC
 w$5F89 DEFW $0000
 
 ; Data block at 5F8B
@@ -1795,7 +1795,7 @@ c$6136 POP HL        ;
 ; Routine at 615E
 ;
 ; Used by the routine at #R$6136.
-@label=L615E
+@label=handle_other_mode_xor
 c$615E LD BC,($5EF3) ;
  $6162 LD DE,($8B0C) ;
  $6166 LD A,B        ;
@@ -4961,6 +4961,7 @@ c$73DD LD A,($5F68)  ;
 ; Routine at 7415
 ;
 ; Used by the routine at #R$6136.
+@label=handle_other_mode_helicopter_missile
 c$7415 LD BC,($5F73) ;
  $7419 BIT 7,B       ;
  $741B JP Z,$7435    ;
@@ -6832,7 +6833,7 @@ b$8AED DEFB $00,$00,$00,$00,$10,$38,$7C,$38
  $8B05 DEFB $7E,$3C,$18
 
 ; Pointer to #R$6136
-@label=L8B08
+@label=L6136_ptr
 w$8B08 DEFW $0000
 
 ; Data block at 8B0A
@@ -7057,6 +7058,7 @@ c$8C1B OR B          ;
  $8C37 CP D          ;
  $8C38 JP NZ,$8C45   ;
 ; This entry point is used by the routines at #R$6136 and #R$63FC.
+@label=handle_other_mode_00
 *$8C3B LD A,(HL)     ;
 
 ; Routine at 8C3C
@@ -7073,6 +7075,7 @@ c$8C3C OR B          ;
 ; Routine at 8C45
 ;
 ; Used by the routine at #R$8C1B.
+@label=jp_L6136
 c$8C45 PUSH HL       ;
  $8C46 LD HL,($8B08) ;
  $8C49 JP (HL)       ;

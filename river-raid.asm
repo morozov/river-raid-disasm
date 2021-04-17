@@ -1056,7 +1056,7 @@ start:
   LD HL,state_controls
   LD (ptr_state_controls),HL
   LD HL,L6136
-  LD (L8B08),HL
+  LD (L6136_ptr),HL
   LD A,$C3
   LD ($FEFE),A
   LD HL,int_handler
@@ -1530,15 +1530,15 @@ sp_5F83:
   DEFW $0000
 
 ; Data block at 5F85
-L5F85:
+tmp_HL:
   DEFW $0000
 
 ; Data block at 5F87
-L5F87:
+tmp_DE:
   DEFW $0000
 
 ; Data block at 5F89
-L5F89:
+tmp_BC:
   DEFW $0000
 
 ; Data block at 5F8B
@@ -1771,25 +1771,25 @@ L6124:
 ; Routine at 6136
 L6136:
   POP HL
-  LD (L5F85),HL
-  LD (L5F87),DE
-  LD (L5F89),BC
+  LD (tmp_HL),HL
+  LD (tmp_DE),DE
+  LD (tmp_BC),BC
   LD A,(state_other_mode)
   CP OTHER_MODE_00
-  JP Z,L8C1B_1
+  JP Z,handle_other_mode_00
   CP OTHER_MODE_FUEL
   JP Z,fuel
   CP OTHER_MODE_HIT
   JP Z,interact_with_something
   CP OTHER_MODE_XOR
-  JP Z,L615E
+  JP Z,handle_other_mode_xor
   CP OTHER_MODE_HELICOPTER_ADV
-  JP Z,L7415
+  JP Z,handle_other_mode_helicopter_missile
 
 ; Routine at 615E
 ;
 ; Used by the routine at L6136.
-L615E:
+handle_other_mode_xor:
   LD BC,(L5EF3)
   LD DE,(L8B0C)
   LD A,B
@@ -2183,14 +2183,14 @@ interact_with_something2_1:
 L63FC:
   LD A,INTERACTION_MODE_00
   LD (state_interaction_mode_5F68),A
-; This entry point is used by the routine at L615E.
+; This entry point is used by the routine at handle_other_mode_xor.
 L63FC_0:
   LD A,OTHER_MODE_00
   LD (state_other_mode),A
-  LD HL,(L5F85)
-  LD DE,(L5F87)
-  LD BC,(L5F89)
-  JP L8C1B_1
+  LD HL,(tmp_HL)
+  LD DE,(tmp_DE)
+  LD BC,(tmp_BC)
+  JP handle_other_mode_00
 
 ; Routine at 6414
 ;
@@ -2358,7 +2358,8 @@ print_space:
 
 ; Handle the no fuel situation
 ;
-; Used by the routines at L6794, consume_fuel and L7415.
+; Used by the routines at L6794, consume_fuel and
+; handle_other_mode_helicopter_missile.
 handle_no_fuel:
   LD A,(state_x)
   AND $F8
@@ -2750,8 +2751,8 @@ L678E:
 
 ; Routine at 6794
 ;
-; Used by the routines at L615E, interact_with_something, next_bridge_player_2,
-; interact_with_something2 and L673D.
+; Used by the routines at handle_other_mode_xor, interact_with_something,
+; next_bridge_player_2, interact_with_something2 and L673D.
 L6794:
   LD BC,(L5EF3)
   CALL L72EF
@@ -3981,9 +3982,9 @@ signal_fuel_level_excessive:
 
 ; Explode a single fragment
 ;
-; Used by the routines at L615E, interact_with_something, hit_helicopter_reg,
-; hit_ship, hit_helicopter_adv, hit_fighter, hit_balloon, interact_with_fuel,
-; handle_no_fuel and L74EE.
+; Used by the routines at handle_other_mode_xor, interact_with_something,
+; hit_helicopter_reg, hit_ship, hit_helicopter_adv, hit_fighter, hit_balloon,
+; interact_with_fuel, handle_no_fuel and L74EE.
 ;
 ; I:BC Pointer to the fragment to explode.
 explode_fragment:
@@ -4994,14 +4995,14 @@ L73DD:
 ; Routine at 7415
 ;
 ; Used by the routine at L6136.
-L7415:
+handle_other_mode_helicopter_missile:
   LD BC,(L5F73)
   BIT 7,B
-  JP Z,L7415_0
+  JP Z,handle_other_mode_helicopter_missile_0
   RES 7,B
   LD A,B
   SUB $08
-  JP P,L7415_0
+  JP P,handle_other_mode_helicopter_missile_0
   LD A,(state_x)
   AND $F8
   CP C
@@ -5009,7 +5010,7 @@ L7415:
   ADD A,$08
   CP C
   JP Z,handle_no_fuel
-L7415_0:
+handle_other_mode_helicopter_missile_0:
   LD BC,$0000
   LD (L5F73),BC
   POP DE
@@ -6728,7 +6729,7 @@ L8AED:
   DEFB $7E,$3C,$18
 
 ; Pointer to L6136
-L8B08:
+L6136_ptr:
   DEFW $0000
 
 ; Data block at 8B0A
@@ -6965,9 +6966,9 @@ L8C1B_0:
   XOR B
   OR B
   CP D
-  JP NZ,L8C45
+  JP NZ,jp_L6136
 ; This entry point is used by the routines at L6136 and L63FC.
-L8C1B_1:
+handle_other_mode_00:
   LD A,(HL)
 
 ; Routine at 8C3C
@@ -6984,9 +6985,9 @@ L8C3C:
 ; Routine at 8C45
 ;
 ; Used by the routine at L8C1B.
-L8C45:
+jp_L6136:
   PUSH HL
-  LD HL,(L8B08)
+  LD HL,(L6136_ptr)
   JP (HL)
 
 ; Data block at 8C4A
@@ -7244,9 +7245,9 @@ L90CE:
 
 ; Add score points for a hit target
 ;
-; Used by the routines at L615E, interact_with_something, hit_helicopter_reg,
-; hit_ship, hit_helicopter_adv, hit_fighter, hit_balloon, interact_with_fuel
-; and L74EE.
+; Used by the routines at handle_other_mode_xor, interact_with_something,
+; hit_helicopter_reg, hit_ship, hit_helicopter_adv, hit_fighter, hit_balloon,
+; interact_with_fuel and L74EE.
 ;
 ; I:A Number of points to add divided by 10.
 add_points:

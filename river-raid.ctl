@@ -244,11 +244,11 @@ b $5F81
 u $5F82
 @ $5F83 label=sp_5F83
 w $5F83
-@ $5F85 label=L5F85
+@ $5F85 label=tmp_HL
 w $5F85
-@ $5F87 label=L5F87
+@ $5F87 label=tmp_DE
 w $5F87
-@ $5F89 label=L5F89
+@ $5F89 label=tmp_BC
 w $5F89
 @ $5F8B label=L5F8B
 w $5F8B
@@ -286,7 +286,7 @@ c $6136
 @ $614F isub=CP OTHER_MODE_HIT
 @ $6154 isub=CP OTHER_MODE_XOR
 @ $6159 isub=CP OTHER_MODE_HELICOPTER_ADV
-@ $615E label=L615E
+@ $615E label=handle_other_mode_xor
 c $615E
 @ $61A3 isub=LD (HL),VIEWPORT_MARKER_EMPTY_SLOT
 @ $61B3 isub=LD A,POINTS_FIGHTER
@@ -763,6 +763,7 @@ c $73D0
 c $73D8
 c $73DD
 @ $73E0 isub=CP INTERACTION_MODE_01
+@ $7415 label=handle_other_mode_helicopter_missile
 c $7415
 @ $7441 label=render_tank_shell_frame
 c $7441
@@ -1126,7 +1127,7 @@ b $8AB8
 b $8AC8
 t $8AEA
 b $8AED
-@ $8B08 label=L8B08
+@ $8B08 label=L6136_ptr
 w $8B08 Pointer to #R$6136
 @ $8B0A label=L8B0A
 w $8B0A
@@ -1162,8 +1163,10 @@ c $8BC6
 c $8C0B
 @ $8C1B label=L8C1B
 c $8C1B
+@ $8C3B label=handle_other_mode_00
 @ $8C3C label=L8C3C
 c $8C3C
+@ $8C45 label=jp_L6136
 c $8C45
 b $8C4A
 @ $8FFC label=sprite_tank_shell_explosion
