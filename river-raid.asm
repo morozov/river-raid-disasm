@@ -1250,7 +1250,7 @@ play:
   LD A,$00
   LD (state_controls),A
   LD (L5EF2),A
-  LD A,$04
+  LD A,SPEED_FAST
   LD (state_speed),A
   LD BC,$4C83
   LD (state_terrain_element_23),BC
@@ -1264,7 +1264,7 @@ decrease_lives_player_2_0:
   CALL L60A5
   CALL L708E
   CALL advance
-  LD A,$04
+  LD A,SPEED_FAST
   LD (state_speed),A
   POP BC
   DJNZ decrease_lives_player_2_0
@@ -2628,7 +2628,7 @@ advance:
   ADD HL,BC
   LD (state_y),HL
   CALL L66EE
-  LD A,$02
+  LD A,SPEED_NORMAL
   LD (state_speed),A
   LD HL,state_controls
   RES 2,(HL)
@@ -2664,7 +2664,7 @@ L6704:
 ; Used by the routines at main_loop, scan_kempston, scan_sinclair and
 ; scan_keyboard.
 handle_up:
-  LD A,$04
+  LD A,SPEED_FAST
   LD (state_speed),A
   LD HL,state_controls
   SET CONTROLS_BIT_SPEED_ALTERED,(HL)
@@ -2676,7 +2676,7 @@ handle_up:
 ; Used by the routines at main_loop, scan_kempston, scan_sinclair and
 ; scan_keyboard.
 handle_down:
-  LD A,$01
+  LD A,SPEED_SLOW
   LD (state_speed),A
   LD HL,state_controls
   SET CONTROLS_BIT_SPEED_ALTERED,(HL)

@@ -1260,6 +1260,7 @@ c$5D9F LD HL,$923C   ;
  $5E6E LD A,$00      ;
  $5E70 LD ($6BB0),A  ;
  $5E73 LD ($5EF2),A  ;
+@isub=LD A,SPEED_FAST
  $5E76 LD A,$04      ;
  $5E78 LD ($5F64),A  ;
  $5E7B LD BC,$4C83   ;
@@ -1273,6 +1274,7 @@ c$5D9F LD HL,$923C   ;
  $5E8F CALL $60A5    ;
  $5E92 CALL $708E    ;
  $5E95 CALL $66D0    ;
+@isub=LD A,SPEED_FAST
  $5E98 LD A,$04      ;
  $5E9A LD ($5F64),A  ;
  $5E9D POP BC        ;
@@ -2643,6 +2645,7 @@ c$66D0 LD BC,($5F70) ;
  $66DA ADD HL,BC     ;
  $66DB LD ($5F70),HL ;
  $66DE CALL $66EE    ;
+@isub=LD A,SPEED_NORMAL
  $66E1 LD A,$02      ;
  $66E3 LD ($5F64),A  ;
  $66E6 LD HL,$6BB0   ;
@@ -2675,6 +2678,7 @@ c$6704 LD A,$00      ;
 ; Routine at 670A
 ;
 ; Used by the routines at #R$5F91, #R$600A, #R$6039 and #R$6068.
+@isub=LD A,SPEED_FAST
 @label=handle_up
 c$670A LD A,$04      ;
  $670C LD ($5F64),A  ;
@@ -2688,6 +2692,7 @@ c$670A LD A,$04      ;
 ; Routine at 6717
 ;
 ; Used by the routines at #R$5F91, #R$600A, #R$6039 and #R$6068.
+@isub=LD A,SPEED_SLOW
 @label=handle_down
 c$6717 LD A,$01      ;
  $6719 LD ($5F64),A  ;

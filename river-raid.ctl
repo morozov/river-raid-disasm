@@ -150,6 +150,8 @@ C $5DB4,2 PAPER 1; INK 4
 @ $5E0B isub=LD (HL),VIEWPORT_MARKER_END_OF_SET
 @ $5E32 isub=LD BC,state_score_player_2 - state_score_player_1
 @ $5E40 isub=LD BC,end_status_line_4 - status_line_4
+@ $5E76 isub=LD A,SPEED_FAST
+@ $5E98 isub=LD A,SPEED_FAST
 @ $5EB3 isub=CP PLAYER_2
 @ $5ECD isub=CP INPUT_INTERFACE_KEMPSTON
 @ $5EEE label=L5EEE
@@ -395,12 +397,15 @@ c $6682
 c $66CC
 @ $66D0 label=advance
 c $66D0 Increase #R$5F70 by the value of #R$5F64, set #R$5F64 to the default value and do something with the #R$6BB0 bits.
+@ $66E1 isub=LD A,SPEED_NORMAL
 c $66EE
 c $6704
+@ $670A isub=LD A,SPEED_FAST
 @ $670A label=handle_up
 c $670A
 @ $6712 isub=SET CONTROLS_BIT_SPEED_ALTERED,(HL)
 @ $6714 isub=RES CONTROLS_BIT_SPEED_DECREASED,(HL)
+@ $6717 isub=LD A,SPEED_SLOW
 @ $6717 label=handle_down
 c $6717
 @ $671F isub=SET CONTROLS_BIT_SPEED_ALTERED,(HL)
