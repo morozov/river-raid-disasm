@@ -54,6 +54,9 @@
 > $4000 SLOT_BIT_ROCK         EQU $03
 > $4000 SLOT_BIT_TANK_ON_BANK EQU $05
 > $4000 SLOT_BIT_ORIENTATION  EQU $06
+> $4000 SLOT_MASK_OBJECT_TYPE EQU $07
+> $4000
+> $4000 SIZE_LEVEL_SLOTS      EQU $0100
 > $4000
 > $4000 VIEWPORT_MARKER_EMPTY_SLOT EQU $00
 > $4000 VIEWPORT_MARKER_END_OF_SET EQU $FF
@@ -630,6 +633,8 @@ R $6EBC I:HL Pointer to the element of #R$5F00
 @ $6EC1 isub=CP VIEWPORT_MARKER_END_OF_SET
 @ $6EC5 isub=LD (HL),VIEWPORT_MARKER_END_OF_SET
 c $6EC8
+@ $6ED5 isub=CP VIEWPORT_MARKER_EMPTY_SLOT
+@ $6EDA isub=CP VIEWPORT_MARKER_END_OF_SET
 @ $6F30 isub=LD A,OTHER_MODE_00
 @ $6F63 label=ld_sprite_explosion_f1
 c $6F63 Load frame 1 of the explosion sprite.
@@ -643,18 +648,23 @@ R $6F6B O:DE Pointer to the sprite.
 @ $6F6F label=ld_sprite_explosion_erasure
 c $6F6F Load explosion erasure sprite.
 R $6F6F O:DE Pointer to the sprite.
+@ $6F73 label=init_viewport_2_ptr
 c $6F73
 c $6F7A
 @ $6F80 isub=LD A,OTHER_MODE_00
 @ $6F80 label=next_row
 c $6F80 This routine gets called when the screen scrolls by another fragment
+@ $6F88 isub=LD DE,SIZE_LEVEL_SLOTS
 @ $6F91 label=locate_level
   $6F91,4 Have #REGhl point to the level defined by #REGa
 @ $6FAB isub=BIT SLOT_BIT_ROCK,D
+@ $6FB1 isub=AND SLOT_MASK_OBJECT_TYPE
+@ $6FB3 isub=CP OBJECT_FUEL
 @ $6FBB label=render_rock
 c $6FBB Render rock
 R $6FBB I:D Some info (probably, sprite array index)
 R $6FBB I:E Some info (probably, position)
+@ $6FBC isub=AND SLOT_MASK_OBJECT_TYPE
   $6FC2,3 Sprite size (3×2 tiles × 8 bytes/tile)
 @ $6FC8 label=locate_rock_element
   $6FDD,2 Set width to 3 tiles
@@ -685,6 +695,7 @@ R $703B O:E Attributes
 c $703E Load tank screen attributes.
 R $703E O:E Attributes
 @ $7040 isub=BIT SLOT_BIT_TANK_ON_BANK,D
+@ $7046 label=blending_mode_xor_nop
 c $7046
 @ $7048 nowarn
   $7048,3 Put "XOR B" into #R$8C3C
@@ -701,11 +712,17 @@ R $706C I:E X position
 @ $708E isub=LD A,OTHER_MODE_00
 c $708E
 @ $70C9 isub=CP INTERACTION_MODE_01
+@ $70E9 isub=AND SLOT_MASK_OBJECT_TYPE
+@ $70EB isub=CP OBJECT_FIGHTER
+@ $70F0 isub=CP OBJECT_BALLOON
+@ $70F5 isub=CP OBJECT_FUEL
+@ $70FA isub=CP OBJECT_TANK
 @ $7107 isub=AND METRONOME_INTERVAL_1
   $713E,3 Sprite frame size (3×1 tiles × 8 bytes/tile)
   $7141,2 COLOR_YELLOW_ON_BLUE
 @ $7146 isub=CP OBJECT_SHIP
 c $7155
+@ $7158 label=operate_fighter
 c $7158
   $717B,3 Sprite size (3×1 tiles × 8 bytes/tile)
 @ $7181 isub=LD A,OTHER_MODE_XOR
@@ -733,15 +750,18 @@ c $7259
 @ $7265 isub=BIT SLOT_BIT_ORIENTATION,D
 c $728B
 c $7290
+@ $7296 label=operate_tank
 c $7296
 @ $7299 isub=AND METRONOME_INTERVAL_1
 @ $729B isub=CP METRONOME_INTERVAL_1
   $72D2,3 Sprite size (3×1 tiles × 8 bytes/tile)
+@ $72E6 label=blenging_mode_xor_xor
 c $72E6
 @ $72E8 nowarn
   $72E8,3 Put "XOR B" into #R$8C1B
 @ $72EB nowarn
   $72EB,3 Put "XOR B" into #R$8C3C
+@ $72EF label=blenging_mode_or_or
 c $72EF
 @ $72F1 nowarn
   $72F1,3 Put "OR B" into #R$8C1B
@@ -782,6 +802,7 @@ c $74EE
   $7529,2 Set CONTROLS_BIT_BONUS_LIFE
   $752B,2 Set CONTROLS_BIT_EXPLODING
 c $7546
+@ $754C label=operate_fuel
 c $754C
 c $758A
 c $75A2
@@ -793,9 +814,10 @@ R $75BA I:HL Pointer to the array of sprites
 @ $75C0 isub=BIT SLOT_BIT_ORIENTATION,D
 @ $75CB label=ld_enemy_sprites_loop
 c $75D0
-@ $7627 label=init_current_object_ptr
+@ $7627 label=init_viewport_1_ptr
 c $7627 Point #R$5F60 to the head of #R$5F00.
 c $762E
+@ $7649 label=operate_baloon
 c $7649
 c $76AC
 c $76AF

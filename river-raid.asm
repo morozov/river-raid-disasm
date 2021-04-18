@@ -52,6 +52,9 @@ OBJECT_FUEL           EQU $07
 SLOT_BIT_ROCK         EQU $03
 SLOT_BIT_TANK_ON_BANK EQU $05
 SLOT_BIT_ORIENTATION  EQU $06
+SLOT_MASK_OBJECT_TYPE EQU $07
+
+SIZE_LEVEL_SLOTS      EQU $0100
 
 VIEWPORT_MARKER_EMPTY_SLOT EQU $00
 VIEWPORT_MARKER_END_OF_SET EQU $FF
@@ -2755,7 +2758,7 @@ L678E:
 ; next_bridge_player_2, interact_with_something2 and L673D.
 L6794:
   LD BC,(L5EF3)
-  CALL L72EF
+  CALL blenging_mode_or_or
   LD A,(state_interaction_mode_5F68)
   CP INTERACTION_MODE_FUEL
   JP Z,handle_no_fuel
@@ -4049,10 +4052,10 @@ L6EC8:
   INC HL
   LD (viewport_2_ptr),HL
   LD A,C
-  CP $00
+  CP VIEWPORT_MARKER_EMPTY_SLOT
   JP Z,L6EC8
-  CP $FF
-  JP Z,L6F73
+  CP VIEWPORT_MARKER_END_OF_SET
+  JP Z,init_viewport_2_ptr
   LD A,(state_speed)
   ADD A,B
   DEC HL
@@ -4159,7 +4162,7 @@ ld_sprite_explosion_erasure:
 ; Routine at 6F73
 ;
 ; Used by the routine at L6EC8.
-L6F73:
+init_viewport_2_ptr:
   LD HL,viewport_2
   LD (viewport_2_ptr),HL
   RET
@@ -4179,7 +4182,7 @@ next_row:
   LD A,OTHER_MODE_00
   LD (state_other_mode),A
   LD HL,level_objects
-  LD DE,$0100
+  LD DE,SIZE_LEVEL_SLOTS
   LD A,(state_bridge_index)
   OR A
   SBC HL,DE
@@ -4203,8 +4206,8 @@ locate_level:
   BIT SLOT_BIT_ROCK,D
   JP NZ,render_rock
   LD A,D
-  AND $07
-  CP $07
+  AND SLOT_MASK_OBJECT_TYPE
+  CP OBJECT_FUEL
   JP Z,render_fuel
   JP render_enemy
 
@@ -4216,7 +4219,7 @@ locate_level:
 ; I:E Some info (probably, position)
 render_rock:
   LD A,D
-  AND $07
+  AND SLOT_MASK_OBJECT_TYPE
   OR A
   LD HL,sprite_rock
   LD BC,$0030             ; Sprite size (3×2 tiles × 8 bytes/tile)
@@ -4266,9 +4269,9 @@ render_enemy:
   CP OBJECT_BALLOON
   JP Z,render_balloon
   CP OBJECT_FIGHTER
-  CALL Z,L7046
+  CALL Z,blending_mode_xor_nop
   CP OBJECT_TANK
-  CALL Z,L7046
+  CALL Z,blending_mode_xor_nop
   CALL ld_enemy_sprites
   LD B,$00
   LD C,E
@@ -4290,7 +4293,7 @@ render_enemy:
   LD A,$03
   LD D,$08
   CALL L8B1E
-  CALL L72EF
+  CALL blenging_mode_or_or
   RET
 
 ; Load ship screen attributes.
@@ -4327,7 +4330,7 @@ ld_attributes_tank:
 ; Routine at 7046
 ;
 ; Used by the routine at render_enemy.
-L7046:
+blending_mode_xor_nop:
   LD A,$A8
   LD (L8C3C),A            ; Put "XOR B" into L8C3C
   LD A,$00
@@ -4376,9 +4379,10 @@ render_balloon:
 
 ; Routine at 708E
 ;
-; Used by the routines at decrease_lives_player_2, main_loop, demo, L7158,
-; L71A2, L7224, animate_object, animate_helicopter, L7296, L7302, L7358, L74EE,
-; L754C, L75D0, L762E, L7649, L76AC and L76DA.
+; Used by the routines at decrease_lives_player_2, main_loop, demo,
+; operate_fighter, L71A2, L7224, animate_object, animate_helicopter,
+; operate_tank, L7302, L7358, L74EE, operate_fuel, L75D0, L762E,
+; operate_baloon, L76AC and L76DA.
 L708E:
   LD A,OTHER_MODE_00
   LD (state_other_mode),A
@@ -4394,7 +4398,7 @@ L708E:
   CP $00
   JP Z,L708E
   CP $FF
-  JP Z,init_current_object_ptr
+  JP Z,init_viewport_1_ptr
   CALL L62DA
   DEC HL
   DEC HL
@@ -4431,15 +4435,15 @@ L708E:
   INC (HL)
 L708E_0:
   LD A,D
-  AND $07
-  CP $05
-  JP Z,L7158
-  CP $06
-  JP Z,L7649
-  CP $07
-  JP Z,L754C
-  CP $04
-  JP Z,L7296
+  AND SLOT_MASK_OBJECT_TYPE
+  CP OBJECT_FIGHTER
+  JP Z,operate_fighter
+  CP OBJECT_BALLOON
+  JP Z,operate_baloon
+  CP OBJECT_FUEL
+  JP Z,operate_fuel
+  CP OBJECT_TANK
+  JP Z,operate_tank
   CP $00
   JP Z,L71A2
   LD A,(state_metronome)
@@ -4486,7 +4490,7 @@ L708E_1:
 
 ; Routine at 7155
 ;
-; Used by the routine at L7158.
+; Used by the routine at operate_fighter.
 L7155:
   LD C,$E8
   RET
@@ -4494,7 +4498,7 @@ L7155:
 ; Routine at 7158
 ;
 ; Used by the routine at L708E.
-L7158:
+operate_fighter:
   LD (L8B0A),BC
   BIT 6,D
   JP Z,L7192
@@ -4506,7 +4510,7 @@ L7158:
   CP $00
   CALL Z,L7155
 ; This entry point is used by the routine at L7192.
-L7158_0:
+operate_fighter_0:
   LD HL,(viewport_1_ptr)
   DEC HL
   LD D,(HL)
@@ -4517,17 +4521,17 @@ L7158_0:
   LD (L8B0C),BC
   CALL ld_enemy_sprites
   LD BC,$0018             ; Sprite size (3×1 tiles × 8 bytes/tile)
-  CALL L72E6
+  CALL blenging_mode_xor_xor
   LD A,OTHER_MODE_XOR
   LD (state_other_mode),A
   LD DE,$0800
   CALL L8B1E
-  CALL L72EF
+  CALL blenging_mode_or_or
   JP L708E
 
 ; Routine at 7192
 ;
-; Used by the routine at L7158.
+; Used by the routine at operate_fighter.
 L7192:
   INC C
   INC C
@@ -4536,7 +4540,7 @@ L7192:
   LD A,C
   CP $E8
   CALL Z,L719F
-  JP L7158_0
+  JP operate_fighter_0
 
 ; Routine at 719F
 ;
@@ -4689,7 +4693,7 @@ animate_helicopter:
 
 ; Routine at 728B
 ;
-; Used by the routine at L7296.
+; Used by the routine at operate_tank.
 L728B:
   INC C
   INC C
@@ -4699,7 +4703,7 @@ L728B:
 
 ; Routine at 7290
 ;
-; Used by the routine at L7296.
+; Used by the routine at operate_tank.
 L7290:
   LD A,$01
   LD (L5EF2),A
@@ -4708,7 +4712,7 @@ L7290:
 ; Routine at 7296
 ;
 ; Used by the routine at L708E.
-L7296:
+operate_tank:
   LD A,(state_metronome)
   AND METRONOME_INTERVAL_1
   CP METRONOME_INTERVAL_1
@@ -4724,7 +4728,7 @@ L7296:
   CP $00
   JP NZ,L74EE
 ; This entry point is used by the routine at L7302.
-L7296_0:
+operate_tank_0:
   DEC C
   DEC C
   BIT 6,D
@@ -4742,17 +4746,17 @@ L7296_0:
   LD (L8B0C),BC
   CALL ld_enemy_sprites
   LD BC,$0018             ; Sprite size (3×1 tiles × 8 bytes/tile)
-  CALL L72E6
+  CALL blenging_mode_xor_xor
   LD A,$03
   LD DE,$0800
   CALL L8B1E
-  CALL L72EF
+  CALL blenging_mode_or_or
   JP L708E
 
 ; Routine at 72E6
 ;
-; Used by the routines at L7158 and L7296.
-L72E6:
+; Used by the routines at operate_fighter and operate_tank.
+blenging_mode_xor_xor:
   LD A,$A8
   LD (L8C1B),A            ; Put "XOR B" into L8C1B
   LD (L8C3C),A            ; Put "XOR B" into L8C3C
@@ -4760,8 +4764,9 @@ L72E6:
 
 ; Routine at 72EF
 ;
-; Used by the routines at L6794, render_enemy, L7158 and L7296.
-L72EF:
+; Used by the routines at L6794, render_enemy, operate_fighter and
+; operate_tank.
+blenging_mode_or_or:
   LD A,$B0
   LD (L8C1B),A            ; Put "OR B" into L8C1B
   LD (L8C3C),A            ; Put "OR B" into L8C3C
@@ -4787,7 +4792,7 @@ L72FD:
 
 ; Routine at 7302
 ;
-; Used by the routine at L7296.
+; Used by the routine at operate_tank.
 L7302:
   LD BC,(L8B0A)
   LD A,C
@@ -4800,7 +4805,7 @@ L7302:
   CP $FF
   POP BC
   POP DE
-  JP Z,L7296_0
+  JP Z,operate_tank_0
   LD A,(state_tank_shell)
   BIT 7,A
   JP NZ,L708E
@@ -5114,7 +5119,7 @@ L74E4:
 
 ; Routine at 74EE
 ;
-; Used by the routine at L7296.
+; Used by the routine at operate_tank.
 L74EE:
   LD HL,(viewport_1_ptr)
   DEC HL
@@ -5177,7 +5182,7 @@ L7546:
 ; Routine at 754C
 ;
 ; Used by the routine at L708E.
-L754C:
+operate_fuel:
   LD (L8B0A),BC
   LD (L8B0C),BC
   LD D,$19
@@ -5207,7 +5212,7 @@ L754C:
 
 ; Routine at 758A
 ;
-; Used by the routine at L754C.
+; Used by the routine at operate_fuel.
 L758A:
   LD H,$00
   LD L,B
@@ -5245,8 +5250,8 @@ L75A2:
 
 ; Load array of enemy sprites.
 ;
-; Used by the routines at render_enemy, L708E, L7158, animate_helicopter, L7296
-; and L75D0.
+; Used by the routines at render_enemy, L708E, operate_fighter,
+; animate_helicopter, operate_tank and L75D0.
 ;
 ; I:D OBJECT_DEFINITION
 ; I:HL Pointer to the array of sprites
@@ -5316,7 +5321,7 @@ L75D0_0:
 ; Point viewport_1_ptr to the head of viewport_1.
 ;
 ; Used by the routine at L708E.
-init_current_object_ptr:
+init_viewport_1_ptr:
   LD HL,viewport_1
   LD (viewport_1_ptr),HL
   RET
@@ -5341,7 +5346,7 @@ L762E:
 ; Routine at 7649
 ;
 ; Used by the routine at L708E.
-L7649:
+operate_baloon:
   BIT 7,B
   JP NZ,L76AC
   LD A,(state_metronome)
@@ -5375,7 +5380,7 @@ L7649:
   DEC C
   DEC C
 ; This entry point is used by the routine at L76AF.
-L7649_0:
+operate_baloon_0:
   LD HL,(viewport_1_ptr)
   DEC HL
   LD D,(HL)
@@ -5398,13 +5403,13 @@ L7649_0:
 
 ; Routine at 76AC
 ;
-; Used by the routines at L7224 and L7649.
+; Used by the routines at L7224 and operate_baloon.
 L76AC:
   JP L708E
 
 ; Routine at 76AF
 ;
-; Used by the routine at L7649.
+; Used by the routine at operate_baloon.
 L76AF:
   PUSH BC
   LD A,C
@@ -5430,11 +5435,11 @@ L76AF:
   LD (L8B0A),BC
   INC C
   INC C
-  JP L7649_0
+  JP operate_baloon_0
 
 ; Routine at 76DA
 ;
-; Used by the routines at L7649 and L76AF.
+; Used by the routines at operate_baloon and L76AF.
 L76DA:
   LD (L8B0A),BC
   LD A,B
@@ -6647,8 +6652,8 @@ init_udg_loop:
 
 ; Routine at 8A4E
 ;
-; Used by the routines at consume_fuel, add_fuel, L708E, L7302, L75A2, L7649,
-; L76AF and render_object.
+; Used by the routines at consume_fuel, add_fuel, L708E, L7302, L75A2,
+; operate_baloon, L76AF and render_object.
 L8A4E:
   LD DE,$0800
   LD HL,$3800
@@ -6775,7 +6780,8 @@ L8B1B:
 ; Routine at 8B1E
 ;
 ; Used by the routines at L673D, render_enemy, render_fuel, render_balloon,
-; L7158, L7296, L7393, render_tank_shell_frame, L754C and L7649.
+; operate_fighter, operate_tank, L7393, render_tank_shell_frame, operate_fuel
+; and operate_baloon.
 ;
 ; I:BC Sprite frame size
 L8B1E:

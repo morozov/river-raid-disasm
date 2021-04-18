@@ -54,6 +54,9 @@ OBJECT_FUEL           EQU $07
 SLOT_BIT_ROCK         EQU $03
 SLOT_BIT_TANK_ON_BANK EQU $05
 SLOT_BIT_ORIENTATION  EQU $06
+SLOT_MASK_OBJECT_TYPE EQU $07
+
+SIZE_LEVEL_SLOTS      EQU $0100
 
 VIEWPORT_MARKER_EMPTY_SLOT EQU $00
 VIEWPORT_MARKER_END_OF_SET EQU $FF
@@ -4023,8 +4026,10 @@ c$6EC8 LD HL,($5F62) ;
  $6ED0 INC HL        ;
  $6ED1 LD ($5F62),HL ;
  $6ED4 LD A,C        ;
+@isub=CP VIEWPORT_MARKER_EMPTY_SLOT
  $6ED5 CP $00        ;
  $6ED7 JP Z,$6EC8    ;
+@isub=CP VIEWPORT_MARKER_END_OF_SET
  $6EDA CP $FF        ;
  $6EDC JP Z,$6F73    ;
  $6EDF LD A,($5F64)  ;
@@ -4133,6 +4138,7 @@ c$6F6F LD DE,$82F5   ;
 ; Routine at 6F73
 ;
 ; Used by the routine at #R$6EC8.
+@label=init_viewport_2_ptr
 c$6F73 LD HL,$5F2E   ;
  $6F76 LD ($5F62),HL ;
  $6F79 RET           ;
@@ -4152,6 +4158,7 @@ c$6F7A DEC HL        ;
 c$6F80 LD A,$00      ;
  $6F82 LD ($5EF5),A  ;
  $6F85 LD HL,$C800   ;
+@isub=LD DE,SIZE_LEVEL_SLOTS
  $6F88 LD DE,$0100   ;
  $6F8B LD A,($5EF0)  ;
  $6F8E OR A          ;
@@ -4177,7 +4184,9 @@ c$6F80 LD A,$00      ;
  $6FAB BIT 3,D       ;
  $6FAD JP NZ,$6FBB   ;
  $6FB0 LD A,D        ;
+@isub=AND SLOT_MASK_OBJECT_TYPE
  $6FB1 AND $07       ;
+@isub=CP OBJECT_FUEL
  $6FB3 CP $07        ;
  $6FB5 JP Z,$7051    ;
  $6FB8 JP $6FF6      ;
@@ -4190,6 +4199,7 @@ c$6F80 LD A,$00      ;
 ; I:E Some info (probably, position)
 @label=render_rock
 c$6FBB LD A,D        ;
+@isub=AND SLOT_MASK_OBJECT_TYPE
  $6FBC AND $07       ;
  $6FBE OR A          ;
  $6FBF LD HL,$84A1   ;
@@ -4307,6 +4317,7 @@ c$703E LD E,$00      ;
 ; Routine at 7046
 ;
 ; Used by the routine at #R$6FF6.
+@label=blending_mode_xor_nop
 c$7046 LD A,$A8      ;
 @nowarn
  $7048 LD ($8C3C),A  ; Put "XOR B" into #R$8C3C
@@ -4413,13 +4424,18 @@ c$708E LD A,$00      ;
  $70E4 LD HL,$5C78   ;
  $70E7 INC (HL)      ;
 *$70E8 LD A,D        ;
+@isub=AND SLOT_MASK_OBJECT_TYPE
  $70E9 AND $07       ;
+@isub=CP OBJECT_FIGHTER
  $70EB CP $05        ;
  $70ED JP Z,$7158    ;
+@isub=CP OBJECT_BALLOON
  $70F0 CP $06        ;
  $70F2 JP Z,$7649    ;
+@isub=CP OBJECT_FUEL
  $70F5 CP $07        ;
  $70F7 JP Z,$754C    ;
+@isub=CP OBJECT_TANK
  $70FA CP $04        ;
  $70FC JP Z,$7296    ;
  $70FF CP $00        ;
@@ -4476,6 +4492,7 @@ c$7155 LD C,$E8      ;
 ; Routine at 7158
 ;
 ; Used by the routine at #R$708E.
+@label=operate_fighter
 c$7158 LD ($8B0A),BC ;
  $715C BIT 6,D       ;
  $715E JP Z,$7192    ;
@@ -4689,6 +4706,7 @@ c$7290 LD A,$01      ;
 ; Routine at 7296
 ;
 ; Used by the routine at #R$708E.
+@label=operate_tank
 c$7296 LD A,($5EEF)  ;
 @isub=AND METRONOME_INTERVAL_1
  $7299 AND $01       ;
@@ -4733,6 +4751,7 @@ c$7296 LD A,($5EEF)  ;
 ; Routine at 72E6
 ;
 ; Used by the routines at #R$7158 and #R$7296.
+@label=blenging_mode_xor_xor
 c$72E6 LD A,$A8      ;
 @nowarn
  $72E8 LD ($8C1B),A  ; Put "XOR B" into #R$8C1B
@@ -4743,6 +4762,7 @@ c$72E6 LD A,$A8      ;
 ; Routine at 72EF
 ;
 ; Used by the routines at #R$6794, #R$6FF6, #R$7158 and #R$7296.
+@label=blenging_mode_or_or
 c$72EF LD A,$B0      ;
 @nowarn
  $72F1 LD ($8C1B),A  ; Put "OR B" into #R$8C1B
@@ -5143,6 +5163,7 @@ c$7546 LD A,($5F6A)  ;
 ; Routine at 754C
 ;
 ; Used by the routine at #R$708E.
+@label=operate_fuel
 c$754C LD ($8B0A),BC ;
  $7550 LD ($8B0C),BC ;
  $7554 LD D,$19      ;
@@ -5278,7 +5299,7 @@ c$75D0 LD ($8B0A),BC ;
 ; Point #R$5F60 to the head of #R$5F00.
 ;
 ; Used by the routine at #R$708E.
-@label=init_current_object_ptr
+@label=init_viewport_1_ptr
 c$7627 LD HL,$5F00   ;
  $762A LD ($5F60),HL ;
  $762D RET           ;
@@ -5302,6 +5323,7 @@ c$762E DEC HL        ;
 ; Routine at 7649
 ;
 ; Used by the routine at #R$708E.
+@label=operate_baloon
 c$7649 BIT 7,B       ;
  $764B JP NZ,$76AC   ;
  $764E LD A,($5EEF)  ;
