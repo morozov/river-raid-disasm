@@ -58,8 +58,8 @@ SLOT_MASK_OBJECT_TYPE EQU $07
 
 SIZE_LEVEL_SLOTS      EQU $0100
 
-VIEWPORT_MARKER_EMPTY_SLOT EQU $00
-VIEWPORT_MARKER_END_OF_SET EQU $FF
+SET_MARKER_EMPTY_SLOT EQU $00
+SET_MARKER_END_OF_SET EQU $FF
 
 FUEL_CHECK_INTERVAL    EQU $03
 FUEL_INTAKE_AMOUNT     EQU $04
@@ -1138,7 +1138,7 @@ c$5D44 LD A,$78      ; {Initialize #R$5F72. Why isn't it $80?
  $5D49 CALL $6DEB    ;
  $5D4C LD HL,$5F00   ;
  $5D4F LD ($5F60),HL ;
-@isub=LD (HL),VIEWPORT_MARKER_END_OF_SET
+@isub=LD (HL),SET_MARKER_END_OF_SET
  $5D52 LD (HL),$FF   ;
  $5D54 LD A,$1F      ;
  $5D56 LD ($5F5F),A  ;
@@ -1215,7 +1215,7 @@ c$5D9F LD HL,$923C   ;
  $5E02 LD ($5F72),A  ;
  $5E05 LD HL,$5F00   ;
  $5E08 LD ($5F60),HL ;
-@isub=LD (HL),VIEWPORT_MARKER_END_OF_SET
+@isub=LD (HL),SET_MARKER_END_OF_SET
  $5E0B LD (HL),$FF   ;
  $5E0D LD HL,$5F2E   ;
  $5E10 LD ($5F62),HL ;
@@ -1400,7 +1400,7 @@ b$5F00 DEFB $20,$20,$20
  $5F2D DEFB $20
 
 ; Data block at 5F2E
-@label=viewport_2
+@label=exploding_fragments
 b$5F2E DEFB $20,$20,$20
  $5F31 DEFB $20,$20,$20
  $5F34 DEFB $20,$20,$20
@@ -1423,12 +1423,12 @@ b$5F2E DEFB $20,$20,$20
 @label=L5F5F
 b$5F5F DEFB $04
 
-; Pointer to a slot from viewport #1
+; Pointer to a slot from #R$5F00
 @label=viewport_1_ptr
 w$5F60 DEFW $0000
 
-; Pointer to a slot from viewport #2
-@label=viewport_2_ptr
+; Pointer to a slot from #R$5F2E
+@label=exploding_fragments_ptr
 w$5F62 DEFW $0000
 
 ; Current speed
@@ -1840,7 +1840,7 @@ c$615E LD BC,($5EF3) ;
  $61A0 LD B,(HL)     ;
  $61A1 DEC HL        ;
  $61A2 LD C,(HL)     ;
-@isub=LD (HL),VIEWPORT_MARKER_EMPTY_SLOT
+@isub=LD (HL),SET_MARKER_EMPTY_SLOT
  $61A3 LD (HL),$00   ;
  $61A5 LD D,$00      ;
  $61A7 CALL $6E9C    ;
@@ -3625,7 +3625,7 @@ g$6C7A DEFB $18
 ; Render explosion
 ;
 ; Used by the routine at #R$6BED.
-@label=explosion_render
+@label=beep_explosion
 c$6C7B LD A,($6C7A)  ;
  $6C7E DEC A         ;
  $6C7F LD ($6C7A),A  ;
@@ -3970,7 +3970,7 @@ c$6E9C LD HL,$6BB0   ;
  $6EA5 LD ($6C7A),A  ;
  $6EA8 LD HL,$5F2E   ;
 
-; Adds object bytes to the viewport list in thefollowing order: C, B, D.
+; Adds object bytes to the set in thefollowing order: C, B, D.
 ;
 ; Used by the routines at #R$6FF6, #R$7051, #R$706C and #R$74C6.
 ;
@@ -3978,12 +3978,12 @@ c$6E9C LD HL,$6BB0   ;
 ; I:C Object X-position
 ; I:D Object definition
 ; I:HL Pointer to #R$5F00
-@label=add_object_to_viewport
+@label=add_object_to_set
 c$6EAB LD A,(HL)     ;
-@isub=CP VIEWPORT_MARKER_EMPTY_SLOT
+@isub=CP SET_MARKER_EMPTY_SLOT
  $6EAC CP $00        ;
  $6EAE JP Z,$6EBC    ;
-@isub=CP VIEWPORT_MARKER_END_OF_SET
+@isub=CP SET_MARKER_END_OF_SET
  $6EB1 CP $FF        ;
  $6EB3 JP Z,$6EBC    ;
  $6EB6 INC HL        ;
@@ -4000,23 +4000,24 @@ c$6EAB LD A,(HL)     ;
 ; I:C Object X-position
 ; I:D Object definition
 ; I:HL Pointer to the element of #R$5F00
-@label=write_object_to_viewport
+@label=write_object_to_set
 c$6EBC LD (HL),C     ;
  $6EBD INC HL        ;
  $6EBE LD (HL),B     ;
  $6EBF INC HL        ;
  $6EC0 LD (HL),D     ;
-@isub=CP VIEWPORT_MARKER_END_OF_SET
+@isub=CP SET_MARKER_END_OF_SET
  $6EC1 CP $FF        ;
  $6EC3 RET NZ        ;
  $6EC4 INC HL        ;
-@isub=LD (HL),VIEWPORT_MARKER_END_OF_SET
+@isub=LD (HL),SET_MARKER_END_OF_SET
  $6EC5 LD (HL),$FF   ;
  $6EC7 RET           ;
 
 ; Routine at 6EC8
 ;
 ; Used by the routines at #R$5F91, #R$650A and #R$6F7A.
+@label=render_explosions
 c$6EC8 LD HL,($5F62) ;
  $6ECB LD C,(HL)     ;
  $6ECC INC HL        ;
@@ -4026,10 +4027,10 @@ c$6EC8 LD HL,($5F62) ;
  $6ED0 INC HL        ;
  $6ED1 LD ($5F62),HL ;
  $6ED4 LD A,C        ;
-@isub=CP VIEWPORT_MARKER_EMPTY_SLOT
+@isub=CP SET_MARKER_EMPTY_SLOT
  $6ED5 CP $00        ;
  $6ED7 JP Z,$6EC8    ;
-@isub=CP VIEWPORT_MARKER_END_OF_SET
+@isub=CP SET_MARKER_END_OF_SET
  $6EDA CP $FF        ;
  $6EDC JP Z,$6F73    ;
  $6EDF LD A,($5F64)  ;
@@ -4138,7 +4139,7 @@ c$6F6F LD DE,$82F5   ;
 ; Routine at 6F73
 ;
 ; Used by the routine at #R$6EC8.
-@label=init_viewport_2_ptr
+@label=init_exploding_fragments_ptr
 c$6F73 LD HL,$5F2E   ;
  $6F76 LD ($5F62),HL ;
  $6F79 RET           ;
@@ -5299,7 +5300,7 @@ c$75D0 LD ($8B0A),BC ;
 ; Point #R$5F60 to the head of #R$5F00.
 ;
 ; Used by the routine at #R$708E.
-@label=init_viewport_1_ptr
+@label=init_set_1_ptr
 c$7627 LD HL,$5F00   ;
  $762A LD ($5F60),HL ;
  $762D RET           ;

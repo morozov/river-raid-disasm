@@ -58,8 +58,8 @@
 > $4000
 > $4000 SIZE_LEVEL_SLOTS      EQU $0100
 > $4000
-> $4000 VIEWPORT_MARKER_EMPTY_SLOT EQU $00
-> $4000 VIEWPORT_MARKER_END_OF_SET EQU $FF
+> $4000 SET_MARKER_EMPTY_SLOT EQU $00
+> $4000 SET_MARKER_END_OF_SET EQU $FF
 > $4000
 > $4000 FUEL_CHECK_INTERVAL    EQU $03
 > $4000 FUEL_INTAKE_AMOUNT     EQU $04
@@ -142,7 +142,7 @@ B $5D43,1
 @ $5D44 label=init_state
 c $5D44
   $5D44,5 Initialize #R$5F72. Why isn't it $80?
-@ $5D52 isub=LD (HL),VIEWPORT_MARKER_END_OF_SET
+@ $5D52 isub=LD (HL),SET_MARKER_END_OF_SET
 @ $5D9F label=decrease_lives_player_2
 c $5D9F Decrease player 2 lives
 @ $5DA6 label=play
@@ -150,7 +150,7 @@ C $5DB4,2 PAPER 1; INK 4
 @ $5DBF isub=LD BC,status_line_2 - status_line_1
 @ $5DD0 isub=LD BC,status_line_3 - status_line_2
 @ $5DF1 isub=LD A,FUEL_LEVEL_FULL
-@ $5E0B isub=LD (HL),VIEWPORT_MARKER_END_OF_SET
+@ $5E0B isub=LD (HL),SET_MARKER_END_OF_SET
 @ $5E32 isub=LD BC,state_score_player_2 - state_score_player_1
 @ $5E40 isub=LD BC,end_status_line_4 - status_line_4
 @ $5E76 isub=LD A,SPEED_FAST
@@ -190,15 +190,15 @@ u $5EFE
 @ $5F00 label=viewport_1
 b $5F00
   $5F00,46,3
-@ $5F2E label=viewport_2
+@ $5F2E label=exploding_fragments
 b $5F2E
   $5F2E,49,3
 @ $5F5F label=L5F5F
 b $5F5F
 @ $5F60 label=viewport_1_ptr
-w $5F60 Pointer to a slot from viewport #1
-@ $5F62 label=viewport_2_ptr
-w $5F62 Pointer to a slot from viewport #2
+w $5F60 Pointer to a slot from #R$5F00
+@ $5F62 label=exploding_fragments_ptr
+w $5F62 Pointer to a slot from #R$5F2E
 @ $5F64 label=state_speed
 g $5F64 Current speed
 @ $5F65 label=L5F65
@@ -293,7 +293,7 @@ c $6136
 @ $6159 isub=CP OTHER_MODE_HELICOPTER_ADV
 @ $615E label=handle_other_mode_xor
 c $615E
-@ $61A3 isub=LD (HL),VIEWPORT_MARKER_EMPTY_SLOT
+@ $61A3 isub=LD (HL),SET_MARKER_EMPTY_SLOT
 @ $61B3 isub=LD A,POINTS_FIGHTER
 @ $61BB label=interact_with_something
 c $61BB
@@ -565,7 +565,7 @@ c $6C52 Finish doing something about bit4
 c $6C5D
 @ $6C7A label=explosion_counter
 g $6C7A Explosion frame counter
-@ $6C7B label=explosion_render
+@ $6C7B label=beep_explosion
 c $6C7B Render explosion
 @ $6CAD label=explosion_render_finish
 c $6CAD Finish rendering explosion
@@ -613,16 +613,15 @@ c $6E9C Explode a single fragment
 R $6E9C I:BC Pointer to the fragment to explode.
   $6E9F,2 Set CONTROLS_BIT_EXPLODING
   $6EA1,2 Reset CONTROLS_BIT_FIRE
-@ $6EAB label=add_object_to_viewport
-c $6EAB
-c $6EAB Adds object bytes to the viewport list in thefollowing order: C, B, D.
+@ $6EAB label=add_object_to_set
+c $6EAB Adds object bytes to the set in thefollowing order: C, B, D.
 R $6EAB I:B Mostly $00
 R $6EAB I:C Object X-position
 R $6EAB I:D Object definition
 R $6EAB I:HL Pointer to #R$5F00
-@ $6EAC isub=CP VIEWPORT_MARKER_EMPTY_SLOT
-@ $6EB1 isub=CP VIEWPORT_MARKER_END_OF_SET
-@ $6EBC label=write_object_to_viewport
+@ $6EAC isub=CP SET_MARKER_EMPTY_SLOT
+@ $6EB1 isub=CP SET_MARKER_END_OF_SET
+@ $6EBC label=write_object_to_set
 c $6EBC
 c $6EBC
 R $6EBC I:A Current value at the address
@@ -630,11 +629,12 @@ R $6EBC I:B Mostly $00
 R $6EBC I:C Object X-position
 R $6EBC I:D Object definition
 R $6EBC I:HL Pointer to the element of #R$5F00
-@ $6EC1 isub=CP VIEWPORT_MARKER_END_OF_SET
-@ $6EC5 isub=LD (HL),VIEWPORT_MARKER_END_OF_SET
+@ $6EC1 isub=CP SET_MARKER_END_OF_SET
+@ $6EC5 isub=LD (HL),SET_MARKER_END_OF_SET
+@ $6EC8 label=render_explosions
 c $6EC8
-@ $6ED5 isub=CP VIEWPORT_MARKER_EMPTY_SLOT
-@ $6EDA isub=CP VIEWPORT_MARKER_END_OF_SET
+@ $6ED5 isub=CP SET_MARKER_EMPTY_SLOT
+@ $6EDA isub=CP SET_MARKER_END_OF_SET
 @ $6F30 isub=LD A,OTHER_MODE_00
 @ $6F63 label=ld_sprite_explosion_f1
 c $6F63 Load frame 1 of the explosion sprite.
@@ -648,7 +648,7 @@ R $6F6B O:DE Pointer to the sprite.
 @ $6F6F label=ld_sprite_explosion_erasure
 c $6F6F Load explosion erasure sprite.
 R $6F6F O:DE Pointer to the sprite.
-@ $6F73 label=init_viewport_2_ptr
+@ $6F73 label=init_exploding_fragments_ptr
 c $6F73
 c $6F7A
 @ $6F80 isub=LD A,OTHER_MODE_00
@@ -814,7 +814,7 @@ R $75BA I:HL Pointer to the array of sprites
 @ $75C0 isub=BIT SLOT_BIT_ORIENTATION,D
 @ $75CB label=ld_enemy_sprites_loop
 c $75D0
-@ $7627 label=init_viewport_1_ptr
+@ $7627 label=init_set_1_ptr
 c $7627 Point #R$5F60 to the head of #R$5F00.
 c $762E
 @ $7649 label=operate_baloon

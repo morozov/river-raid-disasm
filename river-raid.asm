@@ -56,8 +56,8 @@ SLOT_MASK_OBJECT_TYPE EQU $07
 
 SIZE_LEVEL_SLOTS      EQU $0100
 
-VIEWPORT_MARKER_EMPTY_SLOT EQU $00
-VIEWPORT_MARKER_END_OF_SET EQU $FF
+SET_MARKER_EMPTY_SLOT EQU $00
+SET_MARKER_END_OF_SET EQU $FF
 
 FUEL_CHECK_INTERVAL    EQU $03
 FUEL_INTAKE_AMOUNT     EQU $04
@@ -1135,7 +1135,7 @@ init_state:
   CALL init_starting_bridge
   LD HL,viewport_1
   LD (viewport_1_ptr),HL
-  LD (HL),VIEWPORT_MARKER_END_OF_SET
+  LD (HL),SET_MARKER_END_OF_SET
   LD A,$1F
   LD (L5F5F),A
   LD A,$00
@@ -1208,9 +1208,9 @@ play:
   LD (state_x),A
   LD HL,viewport_1
   LD (viewport_1_ptr),HL
-  LD (HL),VIEWPORT_MARKER_END_OF_SET
-  LD HL,viewport_2
-  LD (viewport_2_ptr),HL
+  LD (HL),SET_MARKER_END_OF_SET
+  LD HL,exploding_fragments
+  LD (exploding_fragments_ptr),HL
   LD (HL),$FF
   LD BC,$0000
   CALL print_lives
@@ -1392,7 +1392,7 @@ viewport_1:
   DEFB $20
 
 ; Data block at 5F2E
-viewport_2:
+exploding_fragments:
   DEFB $20,$20,$20
   DEFB $20,$20,$20
   DEFB $20,$20,$20
@@ -1415,12 +1415,12 @@ viewport_2:
 L5F5F:
   DEFB $04
 
-; Pointer to a slot from viewport #1
+; Pointer to a slot from viewport_1
 viewport_1_ptr:
   DEFW $0000
 
-; Pointer to a slot from viewport #2
-viewport_2_ptr:
+; Pointer to a slot from exploding_fragments
+exploding_fragments_ptr:
   DEFW $0000
 
 ; Current speed
@@ -1567,7 +1567,7 @@ main_loop:
   CALL Z,handle_enter     ;
   LD HL,state_metronome
   INC (HL)
-  CALL L6EC8
+  CALL render_explosions
   CALL L60A5
   CALL L708E
   LD A,$01
@@ -1832,7 +1832,7 @@ handle_other_mode_xor:
   LD B,(HL)
   DEC HL
   LD C,(HL)
-  LD (HL),VIEWPORT_MARKER_EMPTY_SLOT
+  LD (HL),SET_MARKER_EMPTY_SLOT
   LD D,$00
   CALL explode_fragment
   DEC C
@@ -1943,13 +1943,13 @@ fuel:
 ;
 ; Used by the routine at interact_with_something2.
 hit_terrain:
-  LD HL,(viewport_2_ptr)
+  LD HL,(exploding_fragments_ptr)
   LD C,(HL)
   INC HL
   LD B,(HL)
   INC HL
   INC HL
-  LD (viewport_2_ptr),HL
+  LD (exploding_fragments_ptr),HL
   LD A,C
   CP $00
   JP Z,hit_terrain
@@ -2153,8 +2153,8 @@ interact_with_something2_0:
   CALL hit_terrain
   LD HL,viewport_1
   LD (viewport_1_ptr),HL
-  LD HL,viewport_2
-  LD (viewport_2_ptr),HL
+  LD HL,exploding_fragments
+  LD (exploding_fragments_ptr),HL
   LD A,(L5F8B)
   CP $02
   JP Z,L63FC
@@ -2172,8 +2172,8 @@ interact_with_something2_1:
   POP BC
   LD A,D
   LD (L5EF6),A
-  LD HL,viewport_2
-  LD (viewport_2_ptr),HL
+  LD HL,exploding_fragments
+  LD (exploding_fragments_ptr),HL
   LD HL,viewport_1
   LD (viewport_1_ptr),HL
   LD BC,(L5F8D)
@@ -2293,8 +2293,8 @@ L64A1:
   LD (HL),C
   LD HL,viewport_1
   LD (viewport_1_ptr),HL
-  LD HL,viewport_2
-  LD (viewport_2_ptr),HL
+  LD HL,exploding_fragments
+  LD (exploding_fragments_ptr),HL
   CALL add_fuel
   JP L63FC
 
@@ -2388,7 +2388,7 @@ handle_no_fuel_2:
   DEC D
   JR NZ,handle_no_fuel_2
   DJNZ handle_no_fuel_1
-  CALL L6EC8
+  CALL render_explosions
   POP AF
   DEC A
   JP NZ,handle_no_fuel_0
@@ -3546,7 +3546,7 @@ handle_controls:
   CALL NZ,do_bonus_life
   LD HL,state_controls
   BIT CONTROLS_BIT_EXPLODING,(HL)
-  CALL NZ,explosion_render
+  CALL NZ,beep_explosion
   LD HL,state_controls
   BIT CONTROLS_BIT_LOW_FUEL,(HL)
   JP NZ,do_low_fuel
@@ -3644,7 +3644,7 @@ explosion_counter:
 ; Render explosion
 ;
 ; Used by the routine at handle_controls.
-explosion_render:
+beep_explosion:
   LD A,(explosion_counter)
   DEC A
   LD (explosion_counter),A
@@ -3658,27 +3658,27 @@ explosion_render:
   ADD A,$10
   LD E,A
   LD C,$04
-explosion_render_0:
+beep_explosion_0:
   LD A,$10
   OUT ($FE),A
   LD D,E
-explosion_render_1:
+beep_explosion_1:
   DEC D
-  JR NZ,explosion_render_1
+  JR NZ,beep_explosion_1
   LD A,$00
   OUT ($FE),A
   LD A,(explosion_counter)
   LD D,A
-explosion_render_2:
+beep_explosion_2:
   DEC D
-  JR NZ,explosion_render_2
+  JR NZ,beep_explosion_2
   DEC C
-  JP NZ,explosion_render_0
+  JP NZ,beep_explosion_0
   RET
 
 ; Finish rendering explosion
 ;
-; Used by the routine at explosion_render.
+; Used by the routine at beep_explosion.
 explosion_render_finish:
   LD A,$18
   LD (explosion_counter),A
@@ -3996,9 +3996,9 @@ explode_fragment:
   RES 0,(HL)              ; Reset CONTROLS_BIT_FIRE
   LD A,$18
   LD (explosion_counter),A
-  LD HL,viewport_2
+  LD HL,exploding_fragments
 
-; Adds object bytes to the viewport list in thefollowing order: C, B, D.
+; Adds object bytes to the set in thefollowing order: C, B, D.
 ;
 ; Used by the routines at render_enemy, render_fuel, render_balloon and
 ; render_tank_shell_explosion.
@@ -4007,55 +4007,55 @@ explode_fragment:
 ; I:C Object X-position
 ; I:D Object definition
 ; I:HL Pointer to viewport_1
-add_object_to_viewport:
+add_object_to_set:
   LD A,(HL)
-  CP VIEWPORT_MARKER_EMPTY_SLOT
-  JP Z,write_object_to_viewport
-  CP VIEWPORT_MARKER_END_OF_SET
-  JP Z,write_object_to_viewport
+  CP SET_MARKER_EMPTY_SLOT
+  JP Z,write_object_to_set
+  CP SET_MARKER_END_OF_SET
+  JP Z,write_object_to_set
   INC HL
   INC HL
   INC HL
-  JP add_object_to_viewport
+  JP add_object_to_set
 
 ; Routine at 6EBC
 ;
-; Used by the routine at add_object_to_viewport.
+; Used by the routine at add_object_to_set.
 ;
 ; I:A Current value at the address
 ; I:B Mostly $00
 ; I:C Object X-position
 ; I:D Object definition
 ; I:HL Pointer to the element of viewport_1
-write_object_to_viewport:
+write_object_to_set:
   LD (HL),C
   INC HL
   LD (HL),B
   INC HL
   LD (HL),D
-  CP VIEWPORT_MARKER_END_OF_SET
+  CP SET_MARKER_END_OF_SET
   RET NZ
   INC HL
-  LD (HL),VIEWPORT_MARKER_END_OF_SET
+  LD (HL),SET_MARKER_END_OF_SET
   RET
 
 ; Routine at 6EC8
 ;
 ; Used by the routines at main_loop, handle_no_fuel and L6F7A.
-L6EC8:
-  LD HL,(viewport_2_ptr)
+render_explosions:
+  LD HL,(exploding_fragments_ptr)
   LD C,(HL)
   INC HL
   LD B,(HL)
   INC HL
   LD D,(HL)
   INC HL
-  LD (viewport_2_ptr),HL
+  LD (exploding_fragments_ptr),HL
   LD A,C
-  CP VIEWPORT_MARKER_EMPTY_SLOT
-  JP Z,L6EC8
-  CP VIEWPORT_MARKER_END_OF_SET
-  JP Z,init_viewport_2_ptr
+  CP SET_MARKER_EMPTY_SLOT
+  JP Z,render_explosions
+  CP SET_MARKER_END_OF_SET
+  JP Z,init_exploding_fragments_ptr
   LD A,(state_speed)
   ADD A,B
   DEC HL
@@ -4073,11 +4073,11 @@ L6EC8:
   LD A,B
   AND $88
   CP $88
-  JP Z,L6EC8
+  JP Z,render_explosions
   LD A,B
   AND $90
   CP $90
-  JP Z,L6EC8
+  JP Z,render_explosions
   LD A,(HL)
   AND $7F
   CP $01
@@ -4107,7 +4107,7 @@ L6EC8:
   LD (L8B0C),BC
   LD BC,$0000
   BIT 7,A
-  JP NZ,L6EC8_0
+  JP NZ,render_explosions_0
   PUSH DE
   PUSH BC
   PUSH AF
@@ -4118,14 +4118,14 @@ L6EC8:
   POP AF
   POP BC
   POP DE
-L6EC8_0:
+render_explosions_0:
   LD A,$02
   CALL render_object_1
-  JP L6EC8
+  JP render_explosions
 
 ; Load frame 1 of the explosion sprite.
 ;
-; Used by the routine at L6EC8.
+; Used by the routine at render_explosions.
 ;
 ; O:DE Pointer to the sprite.
 ld_sprite_explosion_f1:
@@ -4134,7 +4134,7 @@ ld_sprite_explosion_f1:
 
 ; Load frame 2 of the explosion sprite.
 ;
-; Used by the routine at L6EC8.
+; Used by the routine at render_explosions.
 ;
 ; O:DE Pointer to the sprite.
 ld_sprite_explosion_f2:
@@ -4143,7 +4143,7 @@ ld_sprite_explosion_f2:
 
 ; Load frame 3 of the explosion sprite.
 ;
-; Used by the routine at L6EC8.
+; Used by the routine at render_explosions.
 ;
 ; O:DE Pointer to the sprite.
 ld_sprite_explosion_f3:
@@ -4152,7 +4152,7 @@ ld_sprite_explosion_f3:
 
 ; Load explosion erasure sprite.
 ;
-; Used by the routine at L6EC8.
+; Used by the routine at render_explosions.
 ;
 ; O:DE Pointer to the sprite.
 ld_sprite_explosion_erasure:
@@ -4161,19 +4161,19 @@ ld_sprite_explosion_erasure:
 
 ; Routine at 6F73
 ;
-; Used by the routine at L6EC8.
-init_viewport_2_ptr:
-  LD HL,viewport_2
-  LD (viewport_2_ptr),HL
+; Used by the routine at render_explosions.
+init_exploding_fragments_ptr:
+  LD HL,exploding_fragments
+  LD (exploding_fragments_ptr),HL
   RET
 
 ; Routine at 6F7A
 ;
-; Used by the routine at L6EC8.
+; Used by the routine at render_explosions.
 L6F7A:
   DEC HL
   LD (HL),$00
-  JP L6EC8
+  JP render_explosions
 
 ; This routine gets called when the screen scrolls by another fragment
 ;
@@ -4277,7 +4277,7 @@ render_enemy:
   LD C,E
   PUSH HL
   LD HL,viewport_1
-  CALL add_object_to_viewport
+  CALL add_object_to_set
   POP HL
   CALL L6FEA
   LD BC,$0018             ; Sprite size (3×1 tiles × 8 bytes/tile)
@@ -4346,7 +4346,7 @@ render_fuel:
   LD B,$00
   LD C,E
   LD HL,viewport_1
-  CALL add_object_to_viewport
+  CALL add_object_to_set
   LD HL,sprite_fuel
   CALL L6FEA
   LD BC,$0000
@@ -4368,7 +4368,7 @@ render_balloon:
   LD (state_other_mode),A
   PUSH HL
   LD HL,viewport_1
-  CALL add_object_to_viewport
+  CALL add_object_to_set
   POP HL
   CALL L6FEA
   LD BC,$0020             ; Sprite size (2×2 tiles × 8 bytes/tile)
@@ -4398,7 +4398,7 @@ L708E:
   CP $00
   JP Z,L708E
   CP $FF
-  JP Z,init_viewport_1_ptr
+  JP Z,init_set_1_ptr
   CALL L62DA
   DEC HL
   DEC HL
@@ -5103,7 +5103,7 @@ render_tank_shell_explosion:
   SET 5,A
   LD (state_tank_shell),A
   LD HL,viewport_1
-  CALL add_object_to_viewport
+  CALL add_object_to_set
   LD A,$00
   LD (L7384),A
   RET
@@ -5321,7 +5321,7 @@ L75D0_0:
 ; Point viewport_1_ptr to the head of viewport_1.
 ;
 ; Used by the routine at L708E.
-init_viewport_1_ptr:
+init_set_1_ptr:
   LD HL,viewport_1
   LD (viewport_1_ptr),HL
   RET
@@ -6832,7 +6832,7 @@ render_object_0:
   LD (L8B10),HL
   LD (L8B16),HL
   POP DE
-; This entry point is used by the routine at L6EC8.
+; This entry point is used by the routine at render_explosions.
 render_object_1:
   PUSH DE
   LD BC,(L8B0C)
@@ -7623,7 +7623,7 @@ L928B:
 
 ; Routine at 928D
 ;
-; Used by the routines at L6EC8 and render_object.
+; Used by the routines at render_explosions and render_object.
 ;
 ; I:A Sprite width in tiles
 ; I:E Screen attributes
