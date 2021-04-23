@@ -187,7 +187,7 @@ b $5EFC
 @ $5EFD label=state_island_line_idx
 b $5EFD
 u $5EFE
-@ $5F00 label=viewport_1
+@ $5F00 label=viewport_objects
 b $5F00
   $5F00,46,3
 @ $5F2E label=exploding_fragments
@@ -195,7 +195,7 @@ b $5F2E
   $5F2E,49,3
 @ $5F5F label=L5F5F
 b $5F5F
-@ $5F60 label=viewport_1_ptr
+@ $5F60 label=viewport_ptr
 w $5F60 Pointer to a slot from #R$5F00
 @ $5F62 label=exploding_fragments_ptr
 w $5F62 Pointer to a slot from #R$5F2E
@@ -709,8 +709,11 @@ c $706C Render balloon
 R $706C I:E X position
 @ $7072 isub=LD A,OTHER_MODE_00
   $7082,3 Sprite size (2×2 tiles × 8 bytes/tile)
+@ $708E label=operate_viewport_objects
 @ $708E isub=LD A,OTHER_MODE_00
 c $708E
+@ $70A0 isub=CP SET_MARKER_EMPTY_SLOT
+@ $70A5 isub=CP SET_MARKER_END_OF_SET
 @ $70C9 isub=CP INTERACTION_MODE_01
 @ $70E9 isub=AND SLOT_MASK_OBJECT_TYPE
 @ $70EB isub=CP OBJECT_FIGHTER
@@ -814,7 +817,7 @@ R $75BA I:HL Pointer to the array of sprites
 @ $75C0 isub=BIT SLOT_BIT_ORIENTATION,D
 @ $75CB label=ld_enemy_sprites_loop
 c $75D0
-@ $7627 label=init_set_1_ptr
+@ $7627 label=init_viewport_ptr
 c $7627 Point #R$5F60 to the head of #R$5F00.
 c $762E
 @ $7649 label=operate_baloon

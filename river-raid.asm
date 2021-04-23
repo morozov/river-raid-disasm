@@ -1133,8 +1133,8 @@ init_state:
   LD A,$78                ; Initialize state_x. Why isn't it $80?
   LD (state_x),A          ;
   CALL init_starting_bridge
-  LD HL,viewport_1
-  LD (viewport_1_ptr),HL
+  LD HL,viewport_objects
+  LD (viewport_ptr),HL
   LD (HL),SET_MARKER_END_OF_SET
   LD A,$1F
   LD (L5F5F),A
@@ -1206,8 +1206,8 @@ play:
   CALL init_current_bridge
   LD A,$78
   LD (state_x),A
-  LD HL,viewport_1
-  LD (viewport_1_ptr),HL
+  LD HL,viewport_objects
+  LD (viewport_ptr),HL
   LD (HL),SET_MARKER_END_OF_SET
   LD HL,exploding_fragments
   LD (exploding_fragments_ptr),HL
@@ -1265,7 +1265,7 @@ decrease_lives_player_2_0:
   LD HL,state_metronome
   INC (HL)
   CALL L60A5
-  CALL L708E
+  CALL operate_viewport_objects
   CALL advance
   LD A,SPEED_FAST
   LD (state_speed),A
@@ -1373,7 +1373,7 @@ L5EFE:
   DEFB $FF,$FF
 
 ; Data block at 5F00
-viewport_1:
+viewport_objects:
   DEFB $20,$20,$20
   DEFB $20,$20,$20
   DEFB $20,$20,$20
@@ -1415,8 +1415,8 @@ exploding_fragments:
 L5F5F:
   DEFB $04
 
-; Pointer to a slot from viewport_1
-viewport_1_ptr:
+; Pointer to a slot from viewport_objects
+viewport_ptr:
   DEFW $0000
 
 ; Pointer to a slot from exploding_fragments
@@ -1569,7 +1569,7 @@ main_loop:
   INC (HL)
   CALL render_explosions
   CALL L60A5
-  CALL L708E
+  CALL operate_viewport_objects
   LD A,$01
   LD (L673C),A
   CALL L673D
@@ -1826,7 +1826,7 @@ handle_other_mode_xor:
   POP DE
   LD A,D
   LD (L5EF6),A
-  LD HL,(viewport_1_ptr)
+  LD HL,(viewport_ptr)
   DEC HL
   DEC HL
   LD B,(HL)
@@ -2023,7 +2023,8 @@ L62D7:
 ; Increase B by the value of state_speed
 ;
 ; Used by the routines at hit_terrain, interact_with_something2, L6682, L66EE,
-; L673D, L6794, L6FEA, L708E, L7393 and render_tank_shell_frame.
+; L673D, L6794, L6FEA, operate_viewport_objects, L7393 and
+; render_tank_shell_frame.
 L62DA:
   LD A,(state_speed)
   ADD A,B
@@ -2045,13 +2046,13 @@ L62E0:
 ;
 ; Used by the routine at interact_with_something.
 interact_with_something2:
-  LD HL,(viewport_1_ptr)
+  LD HL,(viewport_ptr)
   LD C,(HL)
   INC HL
   LD B,(HL)
   INC HL
   INC HL
-  LD (viewport_1_ptr),HL
+  LD (viewport_ptr),HL
   LD A,C
   CP $00
   JP Z,interact_with_something2
@@ -2074,7 +2075,7 @@ interact_with_something2:
   ADD A,$08
   LD D,A
   LD E,$00
-  LD HL,(viewport_1_ptr)
+  LD HL,(viewport_ptr)
   DEC HL
   LD A,(HL)
   AND $07
@@ -2107,7 +2108,7 @@ interact_with_something2:
   ADD A,$0A
   LD D,A
   LD E,$00
-  LD HL,(viewport_1_ptr)
+  LD HL,(viewport_ptr)
   DEC HL
   LD A,(HL)
   AND $07
@@ -2127,7 +2128,7 @@ interact_with_something2:
   CP INTERACTION_MODE_FUEL
   CALL Z,L62E0
   LD (L5F8B),BC
-  LD HL,(viewport_1_ptr)
+  LD HL,(viewport_ptr)
   DEC HL
   LD A,(HL)
   AND $07
@@ -2151,8 +2152,8 @@ interact_with_something2:
   JP Z,interact_with_fuel
 interact_with_something2_0:
   CALL hit_terrain
-  LD HL,viewport_1
-  LD (viewport_1_ptr),HL
+  LD HL,viewport_objects
+  LD (viewport_ptr),HL
   LD HL,exploding_fragments
   LD (exploding_fragments_ptr),HL
   LD A,(L5F8B)
@@ -2174,8 +2175,8 @@ interact_with_something2_1:
   LD (L5EF6),A
   LD HL,exploding_fragments
   LD (exploding_fragments_ptr),HL
-  LD HL,viewport_1
-  LD (viewport_1_ptr),HL
+  LD HL,viewport_objects
+  LD (viewport_ptr),HL
   LD BC,(L5F8D)
   LD (L5EF3),BC
   JP L6794
@@ -2291,8 +2292,8 @@ L649E:
 ; Used by the routine at interact_with_fuel.
 L64A1:
   LD (HL),C
-  LD HL,viewport_1
-  LD (viewport_1_ptr),HL
+  LD HL,viewport_objects
+  LD (viewport_ptr),HL
   LD HL,exploding_fragments
   LD (exploding_fragments_ptr),HL
   CALL add_fuel
@@ -3811,7 +3812,7 @@ demo_0:
   CALL L60A5
   LD HL,state_metronome
   INC (HL)
-  CALL L708E
+  CALL operate_viewport_objects
   CALL render_tank_shell_frame
   CALL L7393
   CALL advance
@@ -4006,7 +4007,7 @@ explode_fragment:
 ; I:B Mostly $00
 ; I:C Object X-position
 ; I:D Object definition
-; I:HL Pointer to viewport_1
+; I:HL Pointer to viewport_objects
 add_object_to_set:
   LD A,(HL)
   CP SET_MARKER_EMPTY_SLOT
@@ -4026,7 +4027,7 @@ add_object_to_set:
 ; I:B Mostly $00
 ; I:C Object X-position
 ; I:D Object definition
-; I:HL Pointer to the element of viewport_1
+; I:HL Pointer to the element of viewport_objects
 write_object_to_set:
   LD (HL),C
   INC HL
@@ -4276,7 +4277,7 @@ render_enemy:
   LD B,$00
   LD C,E
   PUSH HL
-  LD HL,viewport_1
+  LD HL,viewport_objects
   CALL add_object_to_set
   POP HL
   CALL L6FEA
@@ -4298,8 +4299,8 @@ render_enemy:
 
 ; Load ship screen attributes.
 ;
-; Used by the routines at handle_right, handle_left, L6682, render_enemy, L708E
-; and L75D0.
+; Used by the routines at handle_right, handle_left, L6682, render_enemy,
+; operate_viewport_objects and L75D0.
 ;
 ; O:E Attributes
 ld_attributes_ship:
@@ -4345,7 +4346,7 @@ blending_mode_xor_nop:
 render_fuel:
   LD B,$00
   LD C,E
-  LD HL,viewport_1
+  LD HL,viewport_objects
   CALL add_object_to_set
   LD HL,sprite_fuel
   CALL L6FEA
@@ -4367,7 +4368,7 @@ render_balloon:
   LD A,OTHER_MODE_00
   LD (state_other_mode),A
   PUSH HL
-  LD HL,viewport_1
+  LD HL,viewport_objects
   CALL add_object_to_set
   POP HL
   CALL L6FEA
@@ -4383,22 +4384,22 @@ render_balloon:
 ; operate_fighter, L71A2, L7224, animate_object, animate_helicopter,
 ; operate_tank, L7302, L7358, L74EE, operate_fuel, L75D0, L762E,
 ; operate_baloon, L76AC and L76DA.
-L708E:
+operate_viewport_objects:
   LD A,OTHER_MODE_00
   LD (state_other_mode),A
-  LD HL,(viewport_1_ptr)
+  LD HL,(viewport_ptr)
   LD C,(HL)
   INC HL
   LD B,(HL)
   INC HL
   LD D,(HL)
   INC HL
-  LD (viewport_1_ptr),HL
+  LD (viewport_ptr),HL
   LD A,C
-  CP $00
-  JP Z,L708E
-  CP $FF
-  JP Z,init_set_1_ptr
+  CP SET_MARKER_EMPTY_SLOT
+  JP Z,operate_viewport_objects
+  CP SET_MARKER_END_OF_SET
+  JP Z,init_viewport_ptr
   CALL L62DA
   DEC HL
   DEC HL
@@ -4419,9 +4420,9 @@ L708E:
   POP DE
   LD A,(state_interaction_mode_5F68)
   CP INTERACTION_MODE_01
-  JP Z,L708E
+  JP Z,operate_viewport_objects
   BIT 7,D
-  JP NZ,L708E_0
+  JP NZ,operate_viewport_objects_0
   LD A,(L5F5F)
   LD E,A
   LD A,(int_counter)
@@ -4433,7 +4434,7 @@ L708E:
   LD (HL),D
   LD HL,int_counter
   INC (HL)
-L708E_0:
+operate_viewport_objects_0:
   LD A,D
   AND SLOT_MASK_OBJECT_TYPE
   CP OBJECT_FIGHTER
@@ -4465,8 +4466,8 @@ L708E_0:
   DEC C
   DEC C
 ; This entry point is used by the routines at L7224 and L75A2.
-L708E_1:
-  LD HL,(viewport_1_ptr)
+operate_viewport_objects_1:
+  LD HL,(viewport_ptr)
   DEC HL
   LD D,(HL)
   DEC HL
@@ -4486,7 +4487,7 @@ L708E_1:
   LD A,$03
   LD D,$08
   CALL render_object
-  JP L708E
+  JP operate_viewport_objects
 
 ; Routine at 7155
 ;
@@ -4497,7 +4498,7 @@ L7155:
 
 ; Routine at 7158
 ;
-; Used by the routine at L708E.
+; Used by the routine at operate_viewport_objects.
 operate_fighter:
   LD (L8B0A),BC
   BIT 6,D
@@ -4511,7 +4512,7 @@ operate_fighter:
   CALL Z,L7155
 ; This entry point is used by the routine at L7192.
 operate_fighter_0:
-  LD HL,(viewport_1_ptr)
+  LD HL,(viewport_ptr)
   DEC HL
   LD D,(HL)
   DEC HL
@@ -4527,7 +4528,7 @@ operate_fighter_0:
   LD DE,$0800
   CALL L8B1E
   CALL blenging_mode_or_or
-  JP L708E
+  JP operate_viewport_objects
 
 ; Routine at 7192
 ;
@@ -4551,12 +4552,12 @@ L719F:
 
 ; Routine at 71A2
 ;
-; Used by the routine at L708E.
+; Used by the routine at operate_viewport_objects.
 L71A2:
   LD A,(state_metronome)
   AND METRONOME_INTERVAL_1
   CP METRONOME_INTERVAL_1
-  JP NZ,L708E
+  JP NZ,operate_viewport_objects
   LD (L8B0A),BC
   LD (L8B0C),BC
   LD A,B
@@ -4578,7 +4579,7 @@ L71A2:
   LD A,D
   AND $C7
   OR E
-  LD HL,(viewport_1_ptr)
+  LD HL,(viewport_ptr)
   DEC HL
   LD (HL),A
   LD HL,sprite_tank_shell_explosion
@@ -4606,13 +4607,13 @@ L71A2_1:
   LD D,$10
   LD A,$02
   CALL render_object
-  JP L708E
+  JP operate_viewport_objects
 
 ; Routine at 720E
 ;
 ; Used by the routine at L71A2.
 L720E:
-  LD HL,(viewport_1_ptr)
+  LD HL,(viewport_ptr)
   DEC HL
   DEC HL
   DEC HL
@@ -4625,7 +4626,7 @@ L720E:
 
 ; Routine at 7224
 ;
-; Used by the routine at L708E.
+; Used by the routine at operate_viewport_objects.
 L7224:
   LD A,D
   CP OBJECT_BALLOON
@@ -4639,10 +4640,10 @@ L7224:
   CP OBJECT_HELICOPTER_REG
   JP Z,L7224_0
   CP OBJECT_HELICOPTER_ADV
-  JP NZ,L708E
+  JP NZ,operate_viewport_objects
 L7224_0:
   LD (L8B0A),BC
-  JP L708E_1
+  JP operate_viewport_objects_1
 
 ; Routine at 7248
 ;
@@ -4655,20 +4656,20 @@ ld_sprite_helicopter_rotor_right:
 
 ; Routine at 724C
 ;
-; Used by the routines at L708E and L7224.
+; Used by the routines at operate_viewport_objects and L7224.
 animate_object:
   LD A,D
   AND $07
   CP OBJECT_HELICOPTER_REG
   JP Z,animate_helicopter
   CP OBJECT_HELICOPTER_ADV
-  JP NZ,L708E
+  JP NZ,operate_viewport_objects
 
 ; Routine at 7259
 ;
 ; Used by the routine at animate_object.
 animate_helicopter:
-  LD HL,(viewport_1_ptr)
+  LD HL,(viewport_ptr)
   DEC HL
   LD D,(HL)
   DEC HL
@@ -4689,7 +4690,7 @@ animate_helicopter:
   LD BC,$0004
   LD A,$02
   CALL render_object
-  JP L708E
+  JP operate_viewport_objects
 
 ; Routine at 728B
 ;
@@ -4711,12 +4712,12 @@ L7290:
 
 ; Routine at 7296
 ;
-; Used by the routine at L708E.
+; Used by the routine at operate_viewport_objects.
 operate_tank:
   LD A,(state_metronome)
   AND METRONOME_INTERVAL_1
   CP METRONOME_INTERVAL_1
-  JP Z,L708E
+  JP Z,operate_viewport_objects
   LD (L8B0A),BC
   PUSH DE
   PUSH BC
@@ -4736,7 +4737,7 @@ operate_tank_0:
   LD A,C
   CP $80
   CALL Z,L7290
-  LD HL,(viewport_1_ptr)
+  LD HL,(viewport_ptr)
   DEC HL
   LD D,(HL)
   DEC HL
@@ -4751,7 +4752,7 @@ operate_tank_0:
   LD DE,$0800
   CALL L8B1E
   CALL blenging_mode_or_or
-  JP L708E
+  JP operate_viewport_objects
 
 ; Routine at 72E6
 ;
@@ -4808,9 +4809,9 @@ L7302:
   JP Z,operate_tank_0
   LD A,(state_tank_shell)
   BIT 7,A
-  JP NZ,L708E
+  JP NZ,operate_viewport_objects
   BIT 5,A
-  JP NZ,L708E
+  JP NZ,operate_viewport_objects
   CP $00
   JP Z,L7343
   RES 5,A
@@ -4824,7 +4825,7 @@ L7302_0:
   BIT 6,D
   CALL Z,L72FD
   LD (L7385),BC
-  JP L708E
+  JP operate_viewport_objects
 
 ; Routine at 7343
 ;
@@ -4848,7 +4849,7 @@ L7343:
 ; Used by the routine at L735E.
 L7358:
   CALL L74E4
-  JP L708E
+  JP operate_viewport_objects
 
 ; Routine at 735E
 ;
@@ -4963,7 +4964,7 @@ L73D8:
 
 ; Routine at 73DD
 ;
-; Used by the routine at L708E.
+; Used by the routine at operate_viewport_objects.
 L73DD:
   LD A,(state_interaction_mode_5F68)
   CP INTERACTION_MODE_01
@@ -4975,7 +4976,7 @@ L73DD:
   LD DE,$0001
   LD HL,$2800
   CALL BEEPER
-  LD HL,(viewport_1_ptr)
+  LD HL,(viewport_ptr)
   DEC HL
   LD D,(HL)
   DEC HL
@@ -5102,7 +5103,7 @@ render_tank_shell_explosion:
   RES 7,A
   SET 5,A
   LD (state_tank_shell),A
-  LD HL,viewport_1
+  LD HL,viewport_objects
   CALL add_object_to_set
   LD A,$00
   LD (L7384),A
@@ -5121,7 +5122,7 @@ L74E4:
 ;
 ; Used by the routine at operate_tank.
 L74EE:
-  LD HL,(viewport_1_ptr)
+  LD HL,(viewport_ptr)
   DEC HL
   DEC HL
   DEC HL
@@ -5142,7 +5143,7 @@ L74EE:
   OR A
   SBC HL,DE
   JP M,L74EE_0
-  LD HL,(viewport_1_ptr)
+  LD HL,(viewport_ptr)
   DEC HL
   DEC HL
   LD B,(HL)
@@ -5153,7 +5154,7 @@ L74EE:
   LD A,POINTS_TANK
   CALL add_points
 L74EE_0:
-  LD HL,(viewport_1_ptr)
+  LD HL,(viewport_ptr)
   DEC HL
   SET 4,(HL)              ; Set CONTROLS_BIT_BONUS_LIFE
   SET 5,(HL)              ; Set CONTROLS_BIT_EXPLODING
@@ -5168,9 +5169,9 @@ L74EE_1:
   LD B,A
   LD A,$07
   SUB B
-  JP M,L708E
+  JP M,operate_viewport_objects
   LD (HL),$00
-  JP L708E
+  JP operate_viewport_objects
 
 ; Routine at 7546
 ;
@@ -5181,7 +5182,7 @@ L7546:
 
 ; Routine at 754C
 ;
-; Used by the routine at L708E.
+; Used by the routine at operate_viewport_objects.
 operate_fuel:
   LD (L8B0A),BC
   LD (L8B0C),BC
@@ -5195,11 +5196,11 @@ operate_fuel:
   LD A,B
   AND $88
   CP $88
-  JP Z,L708E
+  JP Z,operate_viewport_objects
   LD A,B
   AND $87
   CP $87
-  JP Z,L708E
+  JP Z,operate_viewport_objects
   LD HL,sprite_fuel
   LD BC,$0000
   LD A,(state_metronome)
@@ -5208,7 +5209,7 @@ operate_fuel:
   LD E,A
   LD A,$02
   CALL L8B1E
-  JP L708E
+  JP operate_viewport_objects
 
 ; Routine at 758A
 ;
@@ -5232,7 +5233,7 @@ L758A:
 
 ; Routine at 75A2
 ;
-; Used by the routine at L708E.
+; Used by the routine at operate_viewport_objects.
 L75A2:
   PUSH BC
   LD A,C
@@ -5246,12 +5247,12 @@ L75A2:
   LD (L8B0A),BC
   INC C
   INC C
-  JP L708E_1
+  JP operate_viewport_objects_1
 
 ; Load array of enemy sprites.
 ;
-; Used by the routines at render_enemy, L708E, operate_fighter,
-; animate_helicopter, operate_tank and L75D0.
+; Used by the routines at render_enemy, operate_viewport_objects,
+; operate_fighter, animate_helicopter, operate_tank and L75D0.
 ;
 ; I:D OBJECT_DEFINITION
 ; I:HL Pointer to the array of sprites
@@ -5273,7 +5274,7 @@ ld_enemy_sprites_loop:
 
 ; Routine at 75D0
 ;
-; Used by the routines at L708E and L75A2.
+; Used by the routines at operate_viewport_objects and L75A2.
 L75D0:
   LD (L8B0A),BC
   LD A,B
@@ -5281,7 +5282,7 @@ L75D0:
   RET P
   LD BC,(L8B0A)
   POP HL
-  LD HL,(viewport_1_ptr)
+  LD HL,(viewport_ptr)
   DEC HL
   LD D,(HL)
   CALL ld_enemy_sprites
@@ -5303,7 +5304,7 @@ L75D0_0:
   LD A,D
   XOR $40
   LD D,A
-  LD HL,(viewport_1_ptr)
+  LD HL,(viewport_ptr)
   DEC HL
   LD (HL),A
   CALL ld_enemy_sprites
@@ -5316,36 +5317,36 @@ L75D0_0:
   LD A,$03
   LD BC,$0018
   CALL render_object
-  JP L708E
+  JP operate_viewport_objects
 
-; Point viewport_1_ptr to the head of viewport_1.
+; Point viewport_ptr to the head of viewport_objects.
 ;
-; Used by the routine at L708E.
-init_set_1_ptr:
-  LD HL,viewport_1
-  LD (viewport_1_ptr),HL
+; Used by the routine at operate_viewport_objects.
+init_viewport_ptr:
+  LD HL,viewport_objects
+  LD (viewport_ptr),HL
   RET
 
 ; Routine at 762E
 ;
-; Used by the routine at L708E.
+; Used by the routine at operate_viewport_objects.
 L762E:
   DEC HL
   LD (HL),$00
   LD A,D
   AND $07
   CP $04
-  JP NZ,L708E
+  JP NZ,operate_viewport_objects
   LD A,$00
   LD (L5EF2),A
   BIT 5,D
-  JP Z,L708E
+  JP Z,operate_viewport_objects
   CALL L74E4
-  JP L708E
+  JP operate_viewport_objects
 
 ; Routine at 7649
 ;
-; Used by the routine at L708E.
+; Used by the routine at operate_viewport_objects.
 operate_baloon:
   BIT 7,B
   JP NZ,L76AC
@@ -5381,7 +5382,7 @@ operate_baloon:
   DEC C
 ; This entry point is used by the routine at L76AF.
 operate_baloon_0:
-  LD HL,(viewport_1_ptr)
+  LD HL,(viewport_ptr)
   DEC HL
   LD D,(HL)
   DEC HL
@@ -5399,13 +5400,13 @@ operate_baloon_0:
   LD E,$0E
   LD D,$10
   CALL L8B1E
-  JP L708E
+  JP operate_viewport_objects
 
 ; Routine at 76AC
 ;
 ; Used by the routines at L7224 and operate_baloon.
 L76AC:
-  JP L708E
+  JP operate_viewport_objects
 
 ; Routine at 76AF
 ;
@@ -5447,7 +5448,7 @@ L76DA:
   RET P
   LD BC,(L8B0A)
   POP HL
-  LD HL,(viewport_1_ptr)
+  LD HL,(viewport_ptr)
   DEC HL
   LD D,(HL)
   LD HL,sprite_balloon
@@ -5468,7 +5469,7 @@ L76DA_0:
   LD (L8B0C),BC
   LD A,D
   XOR $40
-  LD HL,(viewport_1_ptr)
+  LD HL,(viewport_ptr)
   DEC HL
   LD (HL),A
   LD HL,sprite_balloon
@@ -5476,7 +5477,7 @@ L76DA_0:
   LD A,$02
   LD BC,$0020
   CALL render_object
-  JP L708E
+  JP operate_viewport_objects
 
 ; Data block at 7727
 L7727:
@@ -6652,8 +6653,8 @@ init_udg_loop:
 
 ; Routine at 8A4E
 ;
-; Used by the routines at consume_fuel, add_fuel, L708E, L7302, L75A2,
-; operate_baloon, L76AF and render_object.
+; Used by the routines at consume_fuel, add_fuel, operate_viewport_objects,
+; L7302, L75A2, operate_baloon, L76AF and render_object.
 L8A4E:
   LD DE,$0800
   LD HL,$3800
@@ -6807,7 +6808,8 @@ L8B1E_0:
 ; Routine at 8B3C
 ;
 ; Used by the routines at L60A5, handle_right, handle_left, L6682, L6794,
-; render_rock, L708E, L71A2, animate_helicopter, L74A0, L75D0 and L76DA.
+; render_rock, operate_viewport_objects, L71A2, animate_helicopter, L74A0,
+; L75D0 and L76DA.
 ;
 ; I:A Sprite width in tiles
 ; I:BC Sprite size in bytes
