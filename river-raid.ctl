@@ -329,6 +329,11 @@ c $62E8 Interact with something
 @ $62F4 isub=CP SET_MARKER_EMPTY_SLOT
 @ $62F9 isub=CP SET_MARKER_END_OF_SET
 @ $6301 isub=CP INTERACTION_MODE_FUEL
+@ $6324 isub=AND SLOT_MASK_OBJECT_TYPE
+@ $6326 isub=CP OBJECT_BALLOON
+@ $632B isub=CP OBJECT_FUEL
+@ $6361 isub=AND SLOT_MASK_OBJECT_TYPE
+@ $6363 isub=CP OBJECT_SHIP
 @ $6380 isub=CP INTERACTION_MODE_FUEL
 @ $639B isub=CP OBJECT_HELICOPTER_REG
 @ $63A0 isub=CP OBJECT_SHIP
@@ -697,6 +702,7 @@ R $6FF6 I:E Object X-position
 @ $6FFB isub=CP OBJECT_FIGHTER
 @ $7000 isub=CP OBJECT_TANK
   $7016,3 Sprite size (3×1 tiles × 8 bytes/tile)
+@ $701C isub=AND SLOT_MASK_OBJECT_TYPE
 @ $701E isub=CP OBJECT_SHIP
 @ $7023 isub=CP OBJECT_FIGHTER
 @ $7028 isub=CP OBJECT_TANK
@@ -731,6 +737,8 @@ c $708E
 @ $70A5 isub=CP SET_MARKER_END_OF_SET
 @ $70B1 isub=AND VIEWPORT_HEIGHT
 @ $70B3 isub=CP VIEWPORT_HEIGHT
+@ $70B9 isub=AND SLOT_MASK_OBJECT_TYPE
+@ $70BB isub=CP OBJECT_HELICOPTER_ADV
 @ $70C9 isub=CP INTERACTION_MODE_01
 @ $70E9 isub=AND SLOT_MASK_OBJECT_TYPE
 @ $70EB isub=CP OBJECT_FIGHTER
@@ -740,6 +748,7 @@ c $708E
 @ $7107 isub=AND METRONOME_INTERVAL_1
   $713E,3 Sprite frame size (3×1 tiles × 8 bytes/tile)
   $7141,2 COLOR_YELLOW_ON_BLUE
+@ $7144 isub=AND SLOT_MASK_OBJECT_TYPE
 @ $7146 isub=CP OBJECT_SHIP
 c $7155
 @ $7158 label=operate_fighter
@@ -756,6 +765,7 @@ c $7224
 @ $7225 isub=CP OBJECT_BALLOON
 @ $722D isub=AND METRONOME_INTERVAL_1
 @ $722F isub=CP METRONOME_INTERVAL_1
+@ $7235 isub=AND SLOT_MASK_OBJECT_TYPE
 @ $7237 isub=CP OBJECT_HELICOPTER_REG
 @ $723C isub=CP OBJECT_HELICOPTER_ADV
 @ $7248 label=ld_sprite_helicopter_rotor_right
@@ -763,6 +773,7 @@ c $7248
 R $7248 O:HL Pointer to the sprite
 @ $724C label=animate_object
 c $724C
+@ $724D isub=AND SLOT_MASK_OBJECT_TYPE
 @ $724F isub=CP OBJECT_HELICOPTER_REG
 @ $7254 isub=CP OBJECT_HELICOPTER_ADV
 @ $7259 label=animate_helicopter
@@ -845,6 +856,8 @@ R $75BA I:HL Pointer to the array of sprites
 @ $75C0 isub=BIT SLOT_BIT_ORIENTATION,D
 @ $75CB label=ld_enemy_sprites_loop
 c $75D0
+@ $7613 isub=AND SLOT_MASK_OBJECT_TYPE
+@ $7615 isub=CP OBJECT_SHIP
 @ $7627 label=init_viewport_ptr
 c $7627 Point #R$5F60 to the head of #R$5F00.
 @ $762E label=remove_object_from_viewport

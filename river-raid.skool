@@ -2099,9 +2099,12 @@ c$62E8 LD HL,($5F60) ;
  $631F LD HL,($5F60) ;
  $6322 DEC HL        ;
  $6323 LD A,(HL)     ;
+@isub=AND SLOT_MASK_OBJECT_TYPE
  $6324 AND $07       ;
+@isub=CP OBJECT_BALLOON
  $6326 CP $06        ;
  $6328 CALL Z,$62D4  ;
+@isub=CP OBJECT_FUEL
  $632B CP $07        ;
  $632D CALL Z,$62D7  ;
  $6330 LD A,D        ;
@@ -2132,7 +2135,9 @@ c$62E8 LD HL,($5F60) ;
  $635C LD HL,($5F60) ;
  $635F DEC HL        ;
  $6360 LD A,(HL)     ;
+@isub=AND SLOT_MASK_OBJECT_TYPE
  $6361 AND $07       ;
+@isub=CP OBJECT_SHIP
  $6363 CP $02        ;
  $6365 CALL Z,$62D4  ;
  $6368 LD A,D        ;
@@ -4283,6 +4288,7 @@ c$6FF6 CP $06        ;
  $7016 LD BC,$0018   ; Sprite size (3×1 tiles × 8 bytes/tile)
  $7019 LD E,$0E      ;
  $701B LD A,D        ;
+@isub=AND SLOT_MASK_OBJECT_TYPE
  $701C AND $07       ;
 @isub=CP OBJECT_SHIP
  $701E CP $02        ;
@@ -4419,7 +4425,9 @@ c$708E LD A,$00      ;
  $70B3 CP $88        ;
  $70B5 JP Z,$762E    ;
  $70B8 LD A,D        ;
+@isub=AND SLOT_MASK_OBJECT_TYPE
  $70B9 AND $07       ;
+@isub=CP OBJECT_HELICOPTER_ADV
  $70BB CP $03        ;
  $70BD PUSH DE       ;
  $70BE PUSH HL       ;
@@ -4496,6 +4504,7 @@ c$708E LD A,$00      ;
  $713E LD BC,$0018   ; Sprite frame size (3×1 tiles × 8 bytes/tile)
  $7141 LD E,$0E      ; COLOR_YELLOW_ON_BLUE
  $7143 LD A,D        ;
+@isub=AND SLOT_MASK_OBJECT_TYPE
  $7144 AND $07       ;
 @isub=CP OBJECT_SHIP
  $7146 CP $02        ;
@@ -4649,6 +4658,7 @@ c$7224 LD A,D        ;
  $722F CP $01        ;
  $7231 JP Z,$724C    ;
  $7234 LD A,D        ;
+@isub=AND SLOT_MASK_OBJECT_TYPE
  $7235 AND $07       ;
 @isub=CP OBJECT_HELICOPTER_REG
  $7237 CP $01        ;
@@ -4673,6 +4683,7 @@ c$7248 LD HL,$8AC8   ;
 ; Used by the routines at #R$708E and #R$7224.
 @label=animate_object
 c$724C LD A,D        ;
+@isub=AND SLOT_MASK_OBJECT_TYPE
  $724D AND $07       ;
 @isub=CP OBJECT_HELICOPTER_REG
  $724F CP $01        ;
@@ -5320,7 +5331,9 @@ c$75D0 LD ($8B0A),BC ;
  $760D CALL $75BA    ;
  $7610 LD E,$0E      ;
  $7612 LD A,D        ;
+@isub=AND SLOT_MASK_OBJECT_TYPE
  $7613 AND $07       ;
+@isub=CP OBJECT_SHIP
  $7615 CP $02        ;
  $7617 CALL Z,$7038  ;
  $761A LD D,$08      ;

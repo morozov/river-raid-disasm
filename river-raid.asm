@@ -2087,10 +2087,10 @@ interact_with_something2:
   LD HL,(viewport_ptr)
   DEC HL
   LD A,(HL)
-  AND $07
-  CP $06
+  AND SLOT_MASK_OBJECT_TYPE
+  CP OBJECT_BALLOON
   CALL Z,L62D4
-  CP $07
+  CP OBJECT_FUEL
   CALL Z,L62D7
   LD A,D
   ADD A,E
@@ -2120,8 +2120,8 @@ interact_with_something2:
   LD HL,(viewport_ptr)
   DEC HL
   LD A,(HL)
-  AND $07
-  CP $02
+  AND SLOT_MASK_OBJECT_TYPE
+  CP OBJECT_SHIP
   CALL Z,L62D4
   LD A,D
   ADD A,E
@@ -4293,7 +4293,7 @@ render_enemy:
   LD BC,$0018             ; Sprite size (3×1 tiles × 8 bytes/tile)
   LD E,$0E
   LD A,D
-  AND $07
+  AND SLOT_MASK_OBJECT_TYPE
   CP OBJECT_SHIP
   CALL Z,ld_attributes_ship
   CP OBJECT_FIGHTER
@@ -4418,8 +4418,8 @@ operate_viewport_objects:
   CP VIEWPORT_HEIGHT
   JP Z,remove_object_from_viewport
   LD A,D
-  AND $07
-  CP $03
+  AND SLOT_MASK_OBJECT_TYPE
+  CP OBJECT_HELICOPTER_ADV
   PUSH DE
   PUSH HL
   PUSH BC
@@ -4490,7 +4490,7 @@ operate_viewport_objects_1:
   LD BC,$0018             ; Sprite frame size (3×1 tiles × 8 bytes/tile)
   LD E,$0E                ; COLOR_YELLOW_ON_BLUE
   LD A,D
-  AND $07
+  AND SLOT_MASK_OBJECT_TYPE
   CP OBJECT_SHIP
   CALL Z,ld_attributes_ship
   LD A,$03
@@ -4645,7 +4645,7 @@ L7224:
   CP METRONOME_INTERVAL_1
   JP Z,animate_object
   LD A,D
-  AND $07
+  AND SLOT_MASK_OBJECT_TYPE
   CP OBJECT_HELICOPTER_REG
   JP Z,L7224_0
   CP OBJECT_HELICOPTER_ADV
@@ -4668,7 +4668,7 @@ ld_sprite_helicopter_rotor_right:
 ; Used by the routines at operate_viewport_objects and L7224.
 animate_object:
   LD A,D
-  AND $07
+  AND SLOT_MASK_OBJECT_TYPE
   CP OBJECT_HELICOPTER_REG
   JP Z,animate_helicopter
   CP OBJECT_HELICOPTER_ADV
@@ -5320,8 +5320,8 @@ L75D0_0:
   CALL ld_enemy_sprites
   LD E,$0E
   LD A,D
-  AND $07
-  CP $02
+  AND SLOT_MASK_OBJECT_TYPE
+  CP OBJECT_SHIP
   CALL Z,ld_attributes_ship
   LD D,$08
   LD A,$03
