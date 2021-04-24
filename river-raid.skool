@@ -4977,6 +4977,7 @@ c$73D8 LD A,C        ;
 ; Routine at 73DD
 ;
 ; Used by the routine at #R$708E.
+@label=render_helicopter_missile
 c$73DD LD A,($5F68)  ;
 @isub=CP INTERACTION_MODE_01
  $73E0 CP $01        ;

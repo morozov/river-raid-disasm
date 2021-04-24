@@ -811,6 +811,7 @@ c $7393
 @ $73BE isub=LD A,OTHER_MODE_HELICOPTER_ADV
 c $73D0
 c $73D8
+@ $73DD label=render_helicopter_missile
 c $73DD
 @ $73E0 isub=CP INTERACTION_MODE_01
 @ $7415 label=handle_other_mode_helicopter_missile

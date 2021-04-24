@@ -4423,7 +4423,7 @@ operate_viewport_objects:
   PUSH DE
   PUSH HL
   PUSH BC
-  CALL Z,L73DD
+  CALL Z,render_helicopter_missile
   POP BC
   POP HL
   POP DE
@@ -4964,7 +4964,7 @@ L73D0:
 
 ; Routine at 73D8
 ;
-; Used by the routine at L73DD.
+; Used by the routine at render_helicopter_missile.
 L73D8:
   LD A,C
   ADD A,$08
@@ -4974,7 +4974,7 @@ L73D8:
 ; Routine at 73DD
 ;
 ; Used by the routine at operate_viewport_objects.
-L73DD:
+render_helicopter_missile:
   LD A,(state_interaction_mode_5F68)
   CP INTERACTION_MODE_01
   RET Z
