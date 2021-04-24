@@ -82,6 +82,9 @@
 > $4000 OTHER_MODE_XOR            EQU $03
 > $4000 OTHER_MODE_HELICOPTER_ADV EQU $04
 > $4000
+> $4000 TODO_L5EF2_00 EQU $00
+> $4000 TODO_L5EF2_01 EQU $01
+> $4000
 > $4000 ; STRUCTURES
 > $4000 ; ----------
 > $4000 ;
@@ -758,6 +761,8 @@ c $724C
 c $7259
 @ $7265 isub=BIT SLOT_BIT_ORIENTATION,D
 c $728B
+@ $7290 isub=LD A,TODO_L5EF2_01
+@ $7290 label=ld_L5EF2_1
 c $7290
 @ $7296 label=operate_tank
 c $7296
@@ -782,6 +787,7 @@ c $7302
 c $7343
 c $7358
 c $735E
+@ $7361 isub=CP TODO_L5EF2_01
 c $7380
 @ $7383 label=state_tank_shell
 b $7383
@@ -831,6 +837,7 @@ c $762E
 @ $762F isub=LD (HL),SET_MARKER_EMPTY_SLOT
 @ $7632 isub=AND SLOT_MASK_OBJECT_TYPE
 @ $7634 isub=CP OBJECT_TANK
+@ $7639 isub=LD A,TODO_L5EF2_00
 @ $763E isub=BIT SLOT_BIT_TANK_ON_BANK,D
 @ $7649 label=operate_baloon
 c $7649

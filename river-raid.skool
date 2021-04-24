@@ -82,6 +82,9 @@ OTHER_MODE_HIT            EQU $02
 OTHER_MODE_XOR            EQU $03
 OTHER_MODE_HELICOPTER_ADV EQU $04
 
+TODO_L5EF2_00 EQU $00
+TODO_L5EF2_01 EQU $01
+
 ; STRUCTURES
 ; ----------
 ;
@@ -4710,6 +4713,8 @@ c$728B INC C         ;
 ; Routine at 7290
 ;
 ; Used by the routine at #R$7296.
+@isub=LD A,TODO_L5EF2_01
+@label=ld_L5EF2_1
 c$7290 LD A,$01      ;
  $7292 LD ($5EF2),A  ;
  $7295 RET           ;
@@ -4857,6 +4862,7 @@ c$7358 CALL $74E4    ;
 ;
 ; Used by the routine at #R$7343.
 c$735E LD A,($5EF2)  ;
+@isub=CP TODO_L5EF2_01
  $7361 CP $01        ;
  $7363 JP Z,$7358    ;
  $7366 PUSH BC       ;
@@ -5329,6 +5335,7 @@ c$762E DEC HL        ;
 @isub=CP OBJECT_TANK
  $7634 CP $04        ;
  $7636 JP NZ,$708E   ;
+@isub=LD A,TODO_L5EF2_00
  $7639 LD A,$00      ;
  $763B LD ($5EF2),A  ;
 @isub=BIT SLOT_BIT_TANK_ON_BANK,D

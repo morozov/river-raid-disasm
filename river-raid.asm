@@ -80,6 +80,9 @@ OTHER_MODE_HIT            EQU $02
 OTHER_MODE_XOR            EQU $03
 OTHER_MODE_HELICOPTER_ADV EQU $04
 
+TODO_L5EF2_00 EQU $00
+TODO_L5EF2_01 EQU $01
+
 ; STRUCTURES
 ; ----------
 ;
@@ -4709,8 +4712,8 @@ L728B:
 ; Routine at 7290
 ;
 ; Used by the routine at operate_tank.
-L7290:
-  LD A,$01
+ld_L5EF2_1:
+  LD A,TODO_L5EF2_01
   LD (L5EF2),A
   RET
 
@@ -4740,7 +4743,7 @@ operate_tank_0:
   CALL Z,L728B
   LD A,C
   CP $80
-  CALL Z,L7290
+  CALL Z,ld_L5EF2_1
   LD HL,(viewport_ptr)
   DEC HL
   LD D,(HL)
@@ -4860,7 +4863,7 @@ L7358:
 ; Used by the routine at L7343.
 L735E:
   LD A,(L5EF2)
-  CP $01
+  CP TODO_L5EF2_01
   JP Z,L7358
   PUSH BC
   LD A,C
@@ -5342,7 +5345,7 @@ remove_object_from_viewport:
   AND SLOT_MASK_OBJECT_TYPE
   CP OBJECT_TANK
   JP NZ,operate_viewport_objects
-  LD A,$00
+  LD A,TODO_L5EF2_00
   LD (L5EF2),A
   BIT SLOT_BIT_TANK_ON_BANK,D
   JP Z,operate_viewport_objects
