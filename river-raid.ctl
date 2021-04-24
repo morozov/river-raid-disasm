@@ -85,6 +85,8 @@
 > $4000 TODO_L5EF2_00 EQU $00
 > $4000 TODO_L5EF2_01 EQU $01
 > $4000
+> $4000 VIEWPORT_HEIGHT EQU $88
+> $4000
 > $4000 ; STRUCTURES
 > $4000 ; ----------
 > $4000 ;
@@ -411,6 +413,8 @@ c $66CC
 c $66D0 Increase #R$5F70 by the value of #R$5F64, set #R$5F64 to the default value and do something with the #R$6BB0 bits.
 @ $66E1 isub=LD A,SPEED_NORMAL
 c $66EE
+@ $66F8 isub=AND VIEWPORT_HEIGHT
+@ $66FA isub=CP VIEWPORT_HEIGHT
 c $6704
 @ $670A isub=LD A,SPEED_FAST
 @ $670A label=handle_up
@@ -644,6 +648,8 @@ R $6EBC I:HL Pointer to the element of #R$5F00
 c $6EC8
 @ $6ED5 isub=CP SET_MARKER_EMPTY_SLOT
 @ $6EDA isub=CP SET_MARKER_END_OF_SET
+@ $6EF4 isub=AND VIEWPORT_HEIGHT
+@ $6EF6 isub=CP VIEWPORT_HEIGHT
 @ $6F30 isub=LD A,OTHER_MODE_00
 @ $6F63 label=ld_sprite_explosion_f1
 c $6F63 Load frame 1 of the explosion sprite.
@@ -723,6 +729,8 @@ R $706C I:E X position
 c $708E
 @ $70A0 isub=CP SET_MARKER_EMPTY_SLOT
 @ $70A5 isub=CP SET_MARKER_END_OF_SET
+@ $70B1 isub=AND VIEWPORT_HEIGHT
+@ $70B3 isub=CP VIEWPORT_HEIGHT
 @ $70C9 isub=CP INTERACTION_MODE_01
 @ $70E9 isub=AND SLOT_MASK_OBJECT_TYPE
 @ $70EB isub=CP OBJECT_FIGHTER
@@ -798,6 +806,8 @@ w $7385
 c $7387
 c $738E
 c $7393
+@ $73A7 isub=AND VIEWPORT_HEIGHT
+@ $73A9 isub=CP VIEWPORT_HEIGHT
 @ $73BE isub=LD A,OTHER_MODE_HELICOPTER_ADV
 c $73D0
 c $73D8
@@ -808,6 +818,8 @@ c $7415
 @ $7441 label=render_tank_shell_frame
 c $7441
 @ $7484 isub=LD A,OTHER_MODE_00
+@ $748A isub=AND VIEWPORT_HEIGHT
+@ $748C isub=CP VIEWPORT_HEIGHT
 c $74A0
 @ $74C6 label=render_tank_shell_explosion
 c $74C6
@@ -820,6 +832,8 @@ c $74EE
 c $7546
 @ $754C label=operate_fuel
 c $754C
+@ $7565 isub=AND VIEWPORT_HEIGHT
+@ $7567 isub=CP VIEWPORT_HEIGHT
 c $758A
 c $75A2
 @ $75BA label=ld_enemy_sprites

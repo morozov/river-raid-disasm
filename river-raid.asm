@@ -83,6 +83,8 @@ OTHER_MODE_HELICOPTER_ADV EQU $04
 TODO_L5EF2_00 EQU $00
 TODO_L5EF2_01 EQU $01
 
+VIEWPORT_HEIGHT EQU $88
+
 ; STRUCTURES
 ; ----------
 ;
@@ -2655,8 +2657,8 @@ L66EE:
   RET Z
   LD B,A
   CALL advance_object
-  AND $88
-  CP $88
+  AND VIEWPORT_HEIGHT
+  CP VIEWPORT_HEIGHT
   LD A,B
   CALL Z,L6704
   LD (L5F6E),A
@@ -4079,8 +4081,8 @@ render_explosions:
   INC HL
   LD (HL),A
   LD A,B
-  AND $88
-  CP $88
+  AND VIEWPORT_HEIGHT
+  CP VIEWPORT_HEIGHT
   JP Z,render_explosions
   LD A,B
   AND $90
@@ -4412,8 +4414,8 @@ operate_viewport_objects:
   DEC HL
   LD (HL),B
   LD A,B
-  AND $88
-  CP $88
+  AND VIEWPORT_HEIGHT
+  CP VIEWPORT_HEIGHT
   JP Z,remove_object_from_viewport
   LD A,D
   AND $07
@@ -4935,8 +4937,8 @@ L7393:
   SUB $08
   LD C,A
   LD A,B
-  AND $88
-  CP $88
+  AND VIEWPORT_HEIGHT
+  CP VIEWPORT_HEIGHT
   JP Z,L73D0
   LD A,(L5F75)
   BIT 6,A
@@ -5068,8 +5070,8 @@ render_tank_shell_frame:
   LD A,OTHER_MODE_00
   LD (state_other_mode),A
   LD A,B
-  AND $88
-  CP $88
+  AND VIEWPORT_HEIGHT
+  CP VIEWPORT_HEIGHT
   JP Z,L74A0
   LD HL,sprite_missile
   LD DE,$0100
@@ -5202,8 +5204,8 @@ operate_fuel:
   CALL Z,L758A
   LD BC,(L8B0A)
   LD A,B
-  AND $88
-  CP $88
+  AND VIEWPORT_HEIGHT
+  CP VIEWPORT_HEIGHT
   JP Z,operate_viewport_objects
   LD A,B
   AND $87

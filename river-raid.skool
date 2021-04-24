@@ -85,6 +85,8 @@ OTHER_MODE_HELICOPTER_ADV EQU $04
 TODO_L5EF2_00 EQU $00
 TODO_L5EF2_01 EQU $01
 
+VIEWPORT_HEIGHT EQU $88
+
 ; STRUCTURES
 ; ----------
 ;
@@ -2674,7 +2676,9 @@ c$66EE LD A,($5F6E)  ;
  $66F3 RET Z         ;
  $66F4 LD B,A        ;
  $66F5 CALL $62DA    ;
+@isub=AND VIEWPORT_HEIGHT
  $66F8 AND $88       ;
+@isub=CP VIEWPORT_HEIGHT
  $66FA CP $88        ;
  $66FC LD A,B        ;
  $66FD CALL Z,$6704  ;
@@ -4058,7 +4062,9 @@ c$6EC8 LD HL,($5F62) ;
  $6EF1 INC HL        ;
  $6EF2 LD (HL),A     ;
  $6EF3 LD A,B        ;
+@isub=AND VIEWPORT_HEIGHT
  $6EF4 AND $88       ;
+@isub=CP VIEWPORT_HEIGHT
  $6EF6 CP $88        ;
  $6EF8 JP Z,$6EC8    ;
  $6EFB LD A,B        ;
@@ -4407,7 +4413,9 @@ c$708E LD A,$00      ;
  $70AE DEC HL        ;
  $70AF LD (HL),B     ;
  $70B0 LD A,B        ;
+@isub=AND VIEWPORT_HEIGHT
  $70B1 AND $88       ;
+@isub=CP VIEWPORT_HEIGHT
  $70B3 CP $88        ;
  $70B5 JP Z,$762E    ;
  $70B8 LD A,D        ;
@@ -4931,7 +4939,9 @@ c$7393 LD BC,($5F73) ;
  $73A3 SUB $08       ;
  $73A5 LD C,A        ;
  $73A6 LD A,B        ;
+@isub=AND VIEWPORT_HEIGHT
  $73A7 AND $88       ;
+@isub=CP VIEWPORT_HEIGHT
  $73A9 CP $88        ;
  $73AB JP Z,$73D0    ;
  $73AE LD A,($5F75)  ;
@@ -5063,7 +5073,9 @@ c$7441 LD A,($7383)  ;
  $7484 LD A,$00      ;
  $7486 LD ($5EF5),A  ;
  $7489 LD A,B        ;
+@isub=AND VIEWPORT_HEIGHT
  $748A AND $88       ;
+@isub=CP VIEWPORT_HEIGHT
  $748C CP $88        ;
  $748E JP Z,$74A0    ;
  $7491 LD HL,$8431   ;
@@ -5192,7 +5204,9 @@ c$754C LD ($8B0A),BC ;
  $755D CALL Z,$758A  ;
  $7560 LD BC,($8B0A) ;
  $7564 LD A,B        ;
+@isub=AND VIEWPORT_HEIGHT
  $7565 AND $88       ;
+@isub=CP VIEWPORT_HEIGHT
  $7567 CP $88        ;
  $7569 JP Z,$708E    ;
  $756C LD A,B        ;
