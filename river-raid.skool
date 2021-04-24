@@ -2488,7 +2488,9 @@ c$6587 LD A,($923A)  ;
  $659D RST $10       ;
  $659E LD A,$14      ;
  $65A0 RST $10       ;
+@ofix=LD DE,$8052
  $65A1 LD DE,$8051   ;
+@ofix=LD BC,$0008
  $65A4 LD BC,$0009   ;
  $65A7 CALL $64F1    ;
  $65AA RET           ;
@@ -5780,6 +5782,7 @@ s$7B64 DEFS $049C
  $8045 DEFM "HI 0000000"
 @label=status_line_3
  $804F DEFM $16,$13,$12                     ; AT 19,18
+@label=status_line_3_text
  $8052 DEFM "BRIDGE  "
 @label=status_line_4
  $805A DEFM $16,$14,$04                     ; AT 20,4

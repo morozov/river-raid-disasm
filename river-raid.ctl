@@ -387,6 +387,8 @@ c $656F
 c $6577 Game Over
 c $6587
 @ $658A isub=BIT GAME_MODE_BIT_TWO_PLAYERS,A
+@ $65A1 ofix=LD DE,$8052
+@ $65A4 ofix=LD BC,$0008
 c $65AB
 c $65BB
 c $65CB
@@ -995,6 +997,7 @@ T $8042 AT 1,18
 T $8045
 @ $804F label=status_line_3
 T $804F AT 19,18
+@ $8052 label=status_line_3_text
 T $8052
 @ $805A label=status_line_4
 T $805A AT 20,4

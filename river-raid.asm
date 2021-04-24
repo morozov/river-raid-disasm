@@ -2463,8 +2463,8 @@ L6587:
   RST $10
   LD A,$14
   RST $10
-  LD DE,$8051
-  LD BC,$0009
+  LD DE,status_line_3_text
+  LD BC,$0008
   CALL print_bridge_no_player_2
   RET
 
@@ -5781,6 +5781,7 @@ status_line_2:
   DEFM "HI 0000000"
 status_line_3:
   DEFM $16,$13,$12        ; AT 19,18
+status_line_3_text:
   DEFM "BRIDGE  "
 status_line_4:
   DEFM $16,$14,$04        ; AT 20,4
