@@ -1964,8 +1964,10 @@ c$6268 LD HL,($5F62) ;
  $626F INC HL        ;
  $6270 LD ($5F62),HL ;
  $6273 LD A,C        ;
+@isub=CP SET_MARKER_EMPTY_SLOT
  $6274 CP $00        ;
  $6276 JP Z,$6268    ;
+@isub=CP SET_MARKER_END_OF_SET
  $6279 CP $FF        ;
  $627B JP Z,$62CE    ;
  $627E CALL $62DA    ;
@@ -2065,8 +2067,10 @@ c$62E8 LD HL,($5F60) ;
  $62EF INC HL        ;
  $62F0 LD ($5F60),HL ;
  $62F3 LD A,C        ;
+@isub=CP SET_MARKER_EMPTY_SLOT
  $62F4 CP $00        ;
  $62F6 JP Z,$62E8    ;
+@isub=CP SET_MARKER_END_OF_SET
  $62F9 CP $FF        ;
  $62FB JP Z,$63B9    ;
  $62FE LD A,($5F68)  ;

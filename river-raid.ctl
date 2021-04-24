@@ -309,6 +309,8 @@ b $6253
 c $6256
 @ $6268 label=hit_terrain
 c $6268 Fighter hits terrain
+@ $6274 isub=CP SET_MARKER_EMPTY_SLOT
+@ $6279 isub=CP SET_MARKER_END_OF_SET
 c $62CE
 c $62D4
 c $62D7
@@ -319,6 +321,8 @@ R $62DA O:B New position
 c $62E0
 @ $62E8 label=interact_with_something2
 c $62E8 Interact with something
+@ $62F4 isub=CP SET_MARKER_EMPTY_SLOT
+@ $62F9 isub=CP SET_MARKER_END_OF_SET
 @ $6301 isub=CP INTERACTION_MODE_FUEL
 @ $6380 isub=CP INTERACTION_MODE_FUEL
 @ $639B isub=CP OBJECT_HELICOPTER_REG

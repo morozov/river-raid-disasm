@@ -1951,9 +1951,9 @@ hit_terrain:
   INC HL
   LD (exploding_fragments_ptr),HL
   LD A,C
-  CP $00
+  CP SET_MARKER_EMPTY_SLOT
   JP Z,hit_terrain
-  CP $FF
+  CP SET_MARKER_END_OF_SET
   JP Z,L62CE
   CALL advance_object
   LD DE,(L5EF3)
@@ -2058,9 +2058,9 @@ interact_with_something2:
   INC HL
   LD (viewport_ptr),HL
   LD A,C
-  CP $00
+  CP SET_MARKER_EMPTY_SLOT
   JP Z,interact_with_something2
-  CP $FF
+  CP SET_MARKER_END_OF_SET
   JP Z,interact_with_something2_0
   LD A,(state_interaction_mode_5F68)
   CP INTERACTION_MODE_FUEL
