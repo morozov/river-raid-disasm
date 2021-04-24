@@ -2030,11 +2030,14 @@ c$62D4 LD E,$09      ;
 c$62D7 LD E,$11      ;
  $62D9 RET           ;
 
-; Increase #REGb by the value of #R$5F64
+; Advance horizontal position of an object in the set by the value of #R$5F64.
 ;
 ; Used by the routines at #R$6268, #R$62E8, #R$6682, #R$66EE, #R$673D, #R$6794,
 ; #R$6FEA, #R$708E, #R$7393 and #R$7441.
-@label=L62DA
+;
+; I:B Current position
+; O:B New position
+@label=advance_object
 c$62DA LD A,($5F64)  ;
  $62DD ADD A,B       ;
  $62DE LD B,A        ;
@@ -5100,6 +5103,7 @@ c$74C6 LD D,$80      ;
 ; Routine at 74E4
 ;
 ; Used by the routines at #R$68E9, #R$7358, #R$74A0 and #R$762E.
+@label=remove_tank_shell
 c$74E4 LD HL,$0000   ;
  $74E7 LD ($7383),HL ;
  $74EA LD ($7385),HL ;
@@ -5311,14 +5315,19 @@ c$7627 LD HL,$5F00   ;
 ; Routine at 762E
 ;
 ; Used by the routine at #R$708E.
+@label=remove_object_from_viewport
 c$762E DEC HL        ;
+@isub=LD (HL),SET_MARKER_EMPTY_SLOT
  $762F LD (HL),$00   ;
  $7631 LD A,D        ;
+@isub=AND SLOT_MASK_OBJECT_TYPE
  $7632 AND $07       ;
+@isub=CP OBJECT_TANK
  $7634 CP $04        ;
  $7636 JP NZ,$708E   ;
  $7639 LD A,$00      ;
  $763B LD ($5EF2),A  ;
+@isub=BIT SLOT_BIT_TANK_ON_BANK,D
  $763E BIT 5,D       ;
  $7640 JP Z,$708E    ;
  $7643 CALL $74E4    ;

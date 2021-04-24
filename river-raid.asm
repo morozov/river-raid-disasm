@@ -1955,7 +1955,7 @@ hit_terrain:
   JP Z,hit_terrain
   CP $FF
   JP Z,L62CE
-  CALL L62DA
+  CALL advance_object
   LD DE,(L5EF3)
   LD A,D
   ADD A,$08
@@ -2020,12 +2020,16 @@ L62D7:
   LD E,$11
   RET
 
-; Increase B by the value of state_speed
+; Advance horizontal position of an object in the set by the value of
+; state_speed.
 ;
 ; Used by the routines at hit_terrain, interact_with_something2, L6682, L66EE,
 ; L673D, L6794, L6FEA, operate_viewport_objects, L7393 and
 ; render_tank_shell_frame.
-L62DA:
+;
+; I:B Current position
+; O:B New position
+advance_object:
   LD A,(state_speed)
   ADD A,B
   LD B,A
@@ -2060,7 +2064,7 @@ interact_with_something2:
   JP Z,interact_with_something2_0
   LD A,(state_interaction_mode_5F68)
   CP INTERACTION_MODE_FUEL
-  CALL Z,L62DA
+  CALL Z,advance_object
   LD DE,(L5EF3)
   LD A,D
   ADD A,$09
@@ -2595,7 +2599,7 @@ L6682:
   LD A,OTHER_MODE_FUEL
   LD (state_other_mode),A
   LD (L8B0C),BC
-  CALL L62DA
+  CALL advance_object
   LD (L8B0A),BC
   LD BC,$0010             ; Sprite size (2×1 tiles × 8 bytes/tile)
   LD HL,(L5EF7)
@@ -2647,7 +2651,7 @@ L66EE:
   CP $00
   RET Z
   LD B,A
-  CALL L62DA
+  CALL advance_object
   AND $88
   CP $88
   LD A,B
@@ -2719,7 +2723,7 @@ L673D:
   LD (L5F8D),BC
   LD A,(L673C)
   CP $01
-  CALL Z,L62DA
+  CALL Z,advance_object
   LD (L8B0A),BC
   LD BC,(L5EF3)
   LD A,(state_x)
@@ -2780,7 +2784,7 @@ L6794_0:
   JR NZ,L6794_0
   LD A,(L673C)
   CP $01
-  CALL Z,L62DA
+  CALL Z,advance_object
   LD (render_sprite_ptr),HL
   LD (L8B0C),BC
   LD (L8B0A),BC
@@ -2965,7 +2969,7 @@ init_current_bridge_loop:
   LD (HL),$00
   INC HL
   DJNZ init_current_bridge_loop
-  CALL L74E4
+  CALL remove_tank_shell
   LD (L5F73),HL
   LD A,(state_bridge_player_1)
   LD B,A
@@ -4254,7 +4258,7 @@ ld_enemy_sprites_right:
 ;
 ; Used by the routines at render_enemy, render_fuel and render_balloon.
 L6FEA:
-  CALL L62DA
+  CALL advance_object
   LD (L8B0C),BC
   LD (L8B0A),BC
   RET
@@ -4382,8 +4386,8 @@ render_balloon:
 ;
 ; Used by the routines at decrease_lives_player_2, main_loop, demo,
 ; operate_fighter, L71A2, L7224, animate_object, animate_helicopter,
-; operate_tank, L7302, L7358, L74EE, operate_fuel, L75D0, L762E,
-; operate_baloon, L76AC and L76DA.
+; operate_tank, L7302, L7358, L74EE, operate_fuel, L75D0,
+; remove_object_from_viewport, operate_baloon, L76AC and L76DA.
 operate_viewport_objects:
   LD A,OTHER_MODE_00
   LD (state_other_mode),A
@@ -4400,14 +4404,14 @@ operate_viewport_objects:
   JP Z,operate_viewport_objects
   CP SET_MARKER_END_OF_SET
   JP Z,init_viewport_ptr
-  CALL L62DA
+  CALL advance_object
   DEC HL
   DEC HL
   LD (HL),B
   LD A,B
   AND $88
   CP $88
-  JP Z,L762E
+  JP Z,remove_object_from_viewport
   LD A,D
   AND $07
   CP $03
@@ -4848,7 +4852,7 @@ L7343:
 ;
 ; Used by the routine at L735E.
 L7358:
-  CALL L74E4
+  CALL remove_tank_shell
   JP operate_viewport_objects
 
 ; Routine at 735E
@@ -4922,7 +4926,7 @@ L7393:
   LD A,B
   CP $00
   RET Z
-  CALL L62DA
+  CALL advance_object
   LD (L8B0A),BC
   LD A,C
   SUB $08
@@ -5043,7 +5047,7 @@ render_tank_shell_frame:
   LD L,$00
   CALL BEEPER
   LD BC,(L7385)
-  CALL L62DA
+  CALL advance_object
   LD (L8B0A),BC
   LD A,(state_tank_shell)
   LD D,A
@@ -5090,7 +5094,7 @@ L74A0:
   LD A,$01
   LD BC,$0008
   CALL render_object
-  JP L74E4
+  JP remove_tank_shell
 
 ; Routine at 74C6
 ;
@@ -5111,8 +5115,9 @@ render_tank_shell_explosion:
 
 ; Routine at 74E4
 ;
-; Used by the routines at init_current_bridge, L7358, L74A0 and L762E.
-L74E4:
+; Used by the routines at init_current_bridge, L7358, L74A0 and
+; remove_object_from_viewport.
+remove_tank_shell:
   LD HL,$0000
   LD (state_tank_shell),HL
   LD (L7385),HL
@@ -5330,18 +5335,18 @@ init_viewport_ptr:
 ; Routine at 762E
 ;
 ; Used by the routine at operate_viewport_objects.
-L762E:
+remove_object_from_viewport:
   DEC HL
-  LD (HL),$00
+  LD (HL),SET_MARKER_EMPTY_SLOT
   LD A,D
-  AND $07
-  CP $04
+  AND SLOT_MASK_OBJECT_TYPE
+  CP OBJECT_TANK
   JP NZ,operate_viewport_objects
   LD A,$00
   LD (L5EF2),A
-  BIT 5,D
+  BIT SLOT_BIT_TANK_ON_BANK,D
   JP Z,operate_viewport_objects
-  CALL L74E4
+  CALL remove_tank_shell
   JP operate_viewport_objects
 
 ; Routine at 7649

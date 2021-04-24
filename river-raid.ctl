@@ -312,8 +312,10 @@ c $6268 Fighter hits terrain
 c $62CE
 c $62D4
 c $62D7
-@ $62DA label=L62DA
-c $62DA Increase #REGb by the value of #R$5F64
+@ $62DA label=advance_object
+c $62DA Advance horizontal position of an object in the set by the value of #R$5F64.
+R $62DA I:B Current position
+R $62DA O:B New position
 c $62E0
 @ $62E8 label=interact_with_something2
 c $62E8 Interact with something
@@ -799,6 +801,7 @@ c $7441
 c $74A0
 @ $74C6 label=render_tank_shell_explosion
 c $74C6
+@ $74E4 label=remove_tank_shell
 c $74E4
 c $74EE
 @ $7520 isub=LD A,POINTS_TANK
@@ -819,7 +822,12 @@ R $75BA I:HL Pointer to the array of sprites
 c $75D0
 @ $7627 label=init_viewport_ptr
 c $7627 Point #R$5F60 to the head of #R$5F00.
+@ $762E label=remove_object_from_viewport
 c $762E
+@ $762F isub=LD (HL),SET_MARKER_EMPTY_SLOT
+@ $7632 isub=AND SLOT_MASK_OBJECT_TYPE
+@ $7634 isub=CP OBJECT_TANK
+@ $763E isub=BIT SLOT_BIT_TANK_ON_BANK,D
 @ $7649 label=operate_baloon
 c $7649
 c $76AC
