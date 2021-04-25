@@ -4750,6 +4750,8 @@ c$7290 LD A,$01      ;
 ; Routine at 7296
 ;
 ; Used by the routine at #R$708E.
+;
+; I:D OBJECT_DEFINITION
 @label=operate_tank
 c$7296 LD A,($5EEF)  ;
 @isub=AND METRONOME_INTERVAL_1
@@ -4815,9 +4817,15 @@ c$72EF LD A,$B0      ;
  $72F4 LD ($8C3C),A  ; Put "OR B" into #R$8C3C
  $72F7 RET           ;
 
-; Routine at 72F8
+; Decreases the value of XYZ stored in #REGc by $20. Called if the tank is
+; oriented left in order to compensate for the previous operation of adding
+; $10.
 ;
 ; Used by the routine at #R$7302.
+;
+; I:C Previous value of XYZ.
+; O:C New value of XYZ.
+@label=invert_tank_on_bank_offset
 c$72F8 LD A,C        ;
  $72F9 SUB $20       ;
  $72FB LD C,A        ;
@@ -4834,11 +4842,14 @@ c$72FD LD A,C        ;
 ; Routine at 7302
 ;
 ; Used by the routine at #R$7296.
+;
+; I:D OBJECT_DEFINITION
 @label=operate_tank_on_bank
 c$7302 LD BC,($8B0A) ;
  $7306 LD A,C        ;
  $7307 ADD A,$10     ;
  $7309 LD C,A        ;
+@isub=BIT SLOT_BIT_ORIENTATION,D
  $730A BIT 6,D       ;
  $730C CALL NZ,$72F8 ;
  $730F CALL $8A4E    ;
@@ -6850,31 +6861,39 @@ c$8A33 LD A,$00      ;
 ;
 ; Used by the routines at #R$6DFF, #R$6E40, #R$708E, #R$7302, #R$75A2, #R$7649,
 ; #R$76AF and #R$8B3C.
+;
+; I:B Vertical coordinate of the object in pixels.
+; I:C Horizontal coordinate of the object in pixels.
+; O:B Horizontal coordinate of the object in pixels relative to its tile.
+; O:HL Screen address corresponding to the coordinates.
+@label=calculate_pixel_address
 c$8A4E LD DE,$0800   ;
  $8A51 LD HL,$3800   ;
- $8A54 LD A,B        ;
- $8A55 RLCA          ;
- $8A56 RLCA          ;
+ $8A54 LD A,B        ; {Load the number of the third of the screen
+ $8A55 RLCA          ; corresponding to the vertical coordinate of the object
+ $8A56 RLCA          ; into #REGa.
  $8A57 AND $03       ;
- $8A59 INC A         ;
-*$8A5A ADD HL,DE     ;
- $8A5B DEC A         ;
- $8A5C JP NZ,$8A5A   ;
- $8A5F LD A,B        ;
- $8A60 AND $3F       ;
- $8A62 LD B,A        ;
- $8A63 AND $38       ;
+ $8A59 INC A         ; }
+*$8A5A ADD HL,DE     ; {Load the starting address of the third of the screen
+ $8A5B DEC A         ; into #REGhl.
+ $8A5C JP NZ,$8A5A   ; }
+ $8A5F LD A,B        ; {Leave only the 6 lowest bits in #REGb which define the
+ $8A60 AND $3F       ; coordinate of the object relative to its third of the
+ $8A62 LD B,A        ; screen.}
+ $8A63 AND $38       ; Unset the 3 lowest bits, so now #REGa contains the
+                     ; coordinate of starting tile relative to its third of the
+                     ; screen.
  $8A65 PUSH HL       ;
- $8A66 LD H,$00      ;
- $8A68 LD L,A        ;
- $8A69 ADD HL,HL     ;
+ $8A66 LD H,$00      ; {Multiply the value of #REGa by 4 and put into #REGde
+ $8A68 LD L,A        ; which makes the offset of the starting tile address from
+ $8A69 ADD HL,HL     ; its third of the screen.
  $8A6A ADD HL,HL     ;
- $8A6B EX DE,HL      ;
- $8A6C POP HL        ;
- $8A6D ADD HL,DE     ;
- $8A6E LD A,B        ;
- $8A6F AND $07       ;
- $8A71 LD B,A        ;
+ $8A6B EX DE,HL      ; }
+ $8A6C POP HL        ; {Now #REGhl contains the screen address of the tile.
+ $8A6D ADD HL,DE     ; }
+ $8A6E LD A,B        ; {Leave only the 3 lowest bits in #REGb which define the
+ $8A6F AND $07       ; coordinate of the object relative to it tile.
+ $8A71 LD B,A        ; }
  $8A72 INC B         ;
  $8A73 DEC H         ;
 *$8A74 INC H         ;

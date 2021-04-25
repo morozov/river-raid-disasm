@@ -792,6 +792,7 @@ c $728B
 c $7290
 @ $7296 label=operate_tank
 c $7296
+R $7296 I:D OBJECT_DEFINITION
 @ $7299 isub=AND METRONOME_INTERVAL_1
 @ $729B isub=CP METRONOME_INTERVAL_1
 @ $72A6 isub=BIT SLOT_BIT_TANK_ON_BANK,D
@@ -808,10 +809,15 @@ c $72EF
   $72F1,3 Put "OR B" into #R$8C1B
 @ $72F4 nowarn
   $72F4,3 Put "OR B" into #R$8C3C
-c $72F8
+@ $72F8 label=invert_tank_on_bank_offset
+c $72F8 Decreases the value of XYZ stored in #REGc by $20. Called if the tank is oriented left in order to compensate for the previous operation of adding $10.
+R $72F8 I:C Previous value of XYZ.
+R $72F8 O:C New value of XYZ.
 c $72FD
 @ $7302 label=operate_tank_on_bank
 c $7302
+R $7302 I:D OBJECT_DEFINITION
+@ $730A isub=BIT SLOT_BIT_ORIENTATION,D
 @ $731D isub=BIT TANK_SHELL_BIT_FLYING,A
 @ $7322 isub=BIT TANK_SHELL_BIT_EXPLODING,A
 @ $732C isub=RES TANK_SHELL_BIT_EXPLODING,A
@@ -1211,7 +1217,19 @@ c $8A33
 R $8A33 Sets BORDER to BLACK, sets screen attributes to WHITE-on-BLACK and copies #R$825D to the UDG area.
 @ $8A39 nowarn
 @ $8A3C label=init_udg_loop
+@ $8A4E label=calculate_pixel_address
 c $8A4E
+R $8A4E I:B Vertical coordinate of the object in pixels.
+R $8A4E I:C Horizontal coordinate of the object in pixels.
+R $8A4E O:B Horizontal coordinate of the object in pixels relative to its tile.
+R $8A4E O:HL Screen address corresponding to the coordinates.
+C $8A54,6 Load the number of the third of the screen corresponding to the vertical coordinate of the object into #REGa.
+C $8A5A,5 Load the starting address of the third of the screen into #REGhl.
+C $8A5F,4 Leave only the 6 lowest bits in #REGb which define the coordinate of the object relative to its third of the screen.
+C $8A63,2 Unset the 3 lowest bits, so now #REGa contains the coordinate of starting tile relative to its third of the screen.
+C $8A66,6 Multiply the value of #REGa by 4 and put into #REGde which makes the offset of the starting tile address from its third of the screen.
+C $8A6C,2 Now #REGhl contains the screen address of the tile.
+C $8A6E,4 Leave only the 3 lowest bits in #REGb which define the coordinate of the object relative to it tile.
 @ $8A86 label=sprite_fuel
 b $8A86 Fuel sprite
 N $8A86 #UDGTABLE { #UDGARRAY2,11,4,2;$8A86-$8AB8-1-16{0,0,64,100}(sprite-fuel) } TABLE#

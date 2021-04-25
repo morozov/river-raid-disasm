@@ -3920,7 +3920,7 @@ consume_fuel:
   SRL A
   ADD A,$40
   LD C,A
-  CALL L8A4E
+  CALL calculate_pixel_address
   LD A,$08
   LD D,$86
 consume_fuel_0:
@@ -3958,7 +3958,7 @@ add_fuel:
   SRL A
   ADD A,$3F
   LD C,A
-  CALL L8A4E
+  CALL calculate_pixel_address
   LD A,$08
   LD D,$C6
 add_fuel_0:
@@ -4468,7 +4468,7 @@ operate_viewport_objects_0:
   LD A,C
   SUB $10
   LD C,A
-  CALL L8A4E
+  CALL calculate_pixel_address
   LD A,(HL)
   POP BC
   CP $00
@@ -4724,6 +4724,8 @@ ld_L5EF2_1:
 ; Routine at 7296
 ;
 ; Used by the routine at operate_viewport_objects.
+;
+; I:D OBJECT_DEFINITION
 operate_tank:
   LD A,(state_metronome)
   AND METRONOME_INTERVAL_1
@@ -4784,10 +4786,14 @@ blenging_mode_or_or:
   LD (L8C3C),A            ; Put "OR B" into L8C3C
   RET
 
-; Routine at 72F8
+; Decreases the value of XYZ stored in C by $20. Called if the tank is oriented
+; left in order to compensate for the previous operation of adding $10.
 ;
 ; Used by the routine at operate_tank_on_bank.
-L72F8:
+;
+; I:C Previous value of XYZ.
+; O:C New value of XYZ.
+invert_tank_on_bank_offset:
   LD A,C
   SUB $20
   LD C,A
@@ -4805,14 +4811,16 @@ L72FD:
 ; Routine at 7302
 ;
 ; Used by the routine at operate_tank.
+;
+; I:D OBJECT_DEFINITION
 operate_tank_on_bank:
   LD BC,(L8B0A)
   LD A,C
   ADD A,$10
   LD C,A
-  BIT 6,D
-  CALL NZ,L72F8
-  CALL L8A4E
+  BIT SLOT_BIT_ORIENTATION,D
+  CALL NZ,invert_tank_on_bank_offset
+  CALL calculate_pixel_address
   LD A,(HL)
   CP $FF
   POP BC
@@ -5251,7 +5259,7 @@ L75A2:
   LD A,C
   ADD A,$20
   LD C,A
-  CALL L8A4E
+  CALL calculate_pixel_address
   LD A,(HL)
   POP BC
   CP $00
@@ -5372,7 +5380,7 @@ operate_baloon:
   LD A,C
   SUB $10
   LD C,A
-  CALL L8A4E
+  CALL calculate_pixel_address
   LD A,(HL)
   POP BC
   CP $00
@@ -5384,7 +5392,7 @@ operate_baloon:
   LD A,B
   ADD A,$08
   LD B,A
-  CALL L8A4E
+  CALL calculate_pixel_address
   LD A,(HL)
   POP BC
   CP $00
@@ -5428,7 +5436,7 @@ L76AF:
   LD A,C
   ADD A,$20
   LD C,A
-  CALL L8A4E
+  CALL calculate_pixel_address
   LD A,(HL)
   POP BC
   CP $00
@@ -5440,7 +5448,7 @@ L76AF:
   LD A,B
   ADD A,$08
   LD B,A
-  CALL L8A4E
+  CALL calculate_pixel_address
   LD A,(HL)
   POP BC
   CP $00
@@ -6668,38 +6676,45 @@ init_udg_loop:
 ;
 ; Used by the routines at consume_fuel, add_fuel, operate_viewport_objects,
 ; operate_tank_on_bank, L75A2, operate_baloon, L76AF and render_object.
-L8A4E:
+;
+; I:B Vertical coordinate of the object in pixels.
+; I:C Horizontal coordinate of the object in pixels.
+; O:B Horizontal coordinate of the object in pixels relative to its tile.
+; O:HL Screen address corresponding to the coordinates.
+calculate_pixel_address:
   LD DE,$0800
   LD HL,$3800
-  LD A,B
-  RLCA
-  RLCA
-  AND $03
-  INC A
-L8A4E_0:
-  ADD HL,DE
-  DEC A
-  JP NZ,L8A4E_0
-  LD A,B
-  AND $3F
-  LD B,A
-  AND $38
+  LD A,B                  ; Load the number of the third of the screen
+  RLCA                    ; corresponding to the vertical coordinate of the
+  RLCA                    ; object into A.
+  AND $03                 ;
+  INC A                   ;
+calculate_pixel_address_0:
+  ADD HL,DE                       ; Load the starting address of the third of
+  DEC A                           ; the screen into HL.
+  JP NZ,calculate_pixel_address_0 ;
+  LD A,B                  ; Leave only the 6 lowest bits in B which define the
+  AND $3F                 ; coordinate of the object relative to its third of
+  LD B,A                  ; the screen.
+  AND $38                 ; Unset the 3 lowest bits, so now A contains the
+                          ; coordinate of starting tile relative to its third
+                          ; of the screen.
   PUSH HL
-  LD H,$00
-  LD L,A
-  ADD HL,HL
-  ADD HL,HL
-  EX DE,HL
-  POP HL
-  ADD HL,DE
-  LD A,B
-  AND $07
-  LD B,A
+  LD H,$00                ; Multiply the value of A by 4 and put into DE which
+  LD L,A                  ; makes the offset of the starting tile address from
+  ADD HL,HL               ; its third of the screen.
+  ADD HL,HL               ;
+  EX DE,HL                ;
+  POP HL                  ; Now HL contains the screen address of the tile.
+  ADD HL,DE               ;
+  LD A,B                  ; Leave only the 3 lowest bits in B which define the
+  AND $07                 ; coordinate of the object relative to it tile.
+  LD B,A                  ;
   INC B
   DEC H
-L8A4E_1:
+calculate_pixel_address_1:
   INC H
-  DJNZ L8A4E_1
+  DJNZ calculate_pixel_address_1
   LD A,C
   SRL A
   SRL A
@@ -6851,10 +6866,10 @@ render_object_0:
 render_object_1:
   PUSH DE
   LD BC,(L8B0C)
-  CALL L8A4E
+  CALL calculate_pixel_address
   LD (L8B12),HL
   LD BC,(L8B0A)
-  CALL L8A4E
+  CALL calculate_pixel_address
   LD (L8B14),HL
   JP L8BC6_0
 
