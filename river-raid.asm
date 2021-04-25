@@ -32,6 +32,9 @@ CONTROLS_BIT_LOW_FUEL        EQU 3
 CONTROLS_BIT_BONUS_LIFE      EQU 4
 CONTROLS_BIT_EXPLODING       EQU 5
 
+TANK_SHELL_BIT_EXPLODING EQU 5
+TANK_SHELL_BIT_FLYING    EQU 7
+
 POINTS_SHIP           EQU $03
 POINTS_HELICOPTER_REG EQU $06
 POINTS_BALLOON        EQU $06
@@ -1581,7 +1584,7 @@ main_loop:
   LD A,$00
   LD (L673C),A
   CALL L673D
-  CALL render_tank_shell_frame
+  CALL operate_tank_shell
   CALL L7393
   CALL advance
   CALL consume_fuel
@@ -2029,8 +2032,7 @@ L62D7:
 ; state_speed.
 ;
 ; Used by the routines at hit_terrain, interact_with_something2, L6682, L66EE,
-; L673D, L6794, L6FEA, operate_viewport_objects, L7393 and
-; render_tank_shell_frame.
+; L673D, L6794, L6FEA, operate_viewport_objects, L7393 and operate_tank_shell.
 ;
 ; I:B Current position
 ; O:B New position
@@ -3693,7 +3695,7 @@ explosion_render_finish:
   LD A,$18
   LD (explosion_counter),A
   LD HL,state_controls
-  RES 5,(HL)              ; Reset CONTROLS_BIT_EXPLODING
+  RES CONTROLS_BIT_EXPLODING,(HL)
   RET
 
 ; Routine at 6CB8
@@ -3822,7 +3824,7 @@ demo_0:
   LD HL,state_metronome
   INC (HL)
   CALL operate_viewport_objects
-  CALL render_tank_shell_frame
+  CALL operate_tank_shell
   CALL L7393
   CALL advance
   CALL L8A1B
@@ -4002,7 +4004,7 @@ signal_fuel_level_excessive:
 ; I:BC Pointer to the fragment to explode.
 explode_fragment:
   LD HL,state_controls
-  SET 5,(HL)              ; Set CONTROLS_BIT_EXPLODING
+  SET CONTROLS_BIT_EXPLODING,(HL)
   RES 0,(HL)              ; Reset CONTROLS_BIT_FIRE
   LD A,$18
   LD (explosion_counter),A
@@ -4391,7 +4393,7 @@ render_balloon:
 ;
 ; Used by the routines at decrease_lives_player_2, main_loop, demo,
 ; operate_fighter, L71A2, L7224, animate_object, animate_helicopter,
-; operate_tank, L7302, L7358, L74EE, operate_fuel, L75D0,
+; operate_tank, operate_tank_on_bank, L7358, L74EE, operate_fuel, L75D0,
 ; remove_object_from_viewport, operate_baloon, L76AC and L76DA.
 operate_viewport_objects:
   LD A,OTHER_MODE_00
@@ -4572,7 +4574,7 @@ L71A2:
   LD A,B
   AND $80
   CP $80
-  JP Z,L720E
+  JP Z,finish_tank_shell_explosion
   LD A,D
   SRL A
   SRL A
@@ -4580,7 +4582,7 @@ L71A2:
   AND $07
   INC A
   CP $07
-  JP Z,L720E
+  JP Z,finish_tank_shell_explosion
   SLA A
   SLA A
   SLA A
@@ -4603,7 +4605,7 @@ L71A2_0:
   ADD HL,BC
   DEC A
   JR NZ,L71A2_0
-; This entry point is used by the routine at L720E.
+; This entry point is used by the routine at finish_tank_shell_explosion.
 L71A2_1:
   LD BC,all_ff
   LD (render_sprite_ptr),BC
@@ -4621,7 +4623,7 @@ L71A2_1:
 ; Routine at 720E
 ;
 ; Used by the routine at L71A2.
-L720E:
+finish_tank_shell_explosion:
   LD HL,(viewport_ptr)
   DEC HL
   DEC HL
@@ -4629,7 +4631,7 @@ L720E:
   LD (HL),$00
   LD HL,sprite_erasure
   LD A,(state_tank_shell)
-  RES 5,A
+  RES TANK_SHELL_BIT_EXPLODING,A
   LD (state_tank_shell),A
   JP L71A2_1
 
@@ -4730,14 +4732,14 @@ operate_tank:
   LD (L8B0A),BC
   PUSH DE
   PUSH BC
-  BIT 5,D
-  JP NZ,L7302
+  BIT SLOT_BIT_TANK_ON_BANK,D
+  JP NZ,operate_tank_on_bank
   POP BC
   POP DE
   LD A,(L5F6D)
   CP $00
   JP NZ,L74EE
-; This entry point is used by the routine at L7302.
+; This entry point is used by the routine at operate_tank_on_bank.
 operate_tank_0:
   DEC C
   DEC C
@@ -4784,7 +4786,7 @@ blenging_mode_or_or:
 
 ; Routine at 72F8
 ;
-; Used by the routine at L7302.
+; Used by the routine at operate_tank_on_bank.
 L72F8:
   LD A,C
   SUB $20
@@ -4793,7 +4795,7 @@ L72F8:
 
 ; Routine at 72FD
 ;
-; Used by the routine at L7302.
+; Used by the routine at operate_tank_on_bank.
 L72FD:
   LD A,C
   ADD A,$28
@@ -4803,7 +4805,7 @@ L72FD:
 ; Routine at 7302
 ;
 ; Used by the routine at operate_tank.
-L7302:
+operate_tank_on_bank:
   LD BC,(L8B0A)
   LD A,C
   ADD A,$10
@@ -4817,16 +4819,16 @@ L7302:
   POP DE
   JP Z,operate_tank_0
   LD A,(state_tank_shell)
-  BIT 7,A
+  BIT TANK_SHELL_BIT_FLYING,A
   JP NZ,operate_viewport_objects
-  BIT 5,A
+  BIT TANK_SHELL_BIT_EXPLODING,A
   JP NZ,operate_viewport_objects
   CP $00
   JP Z,L7343
-  RES 5,A
+  RES TANK_SHELL_BIT_EXPLODING,A
 ; This entry point is used by the routines at L7343 and L735E.
-L7302_0:
-  SET 7,A
+operate_tank_on_bank_0:
+  SET TANK_SHELL_BIT_FLYING,A
   LD (state_tank_shell),A
   LD A,C
   SUB $10
@@ -4838,7 +4840,7 @@ L7302_0:
 
 ; Routine at 7343
 ;
-; Used by the routine at L7302.
+; Used by the routine at operate_tank_on_bank.
 L7343:
   BIT 4,D
   JP NZ,L735E
@@ -4851,7 +4853,7 @@ L7343:
   LD A,D
   INC E
   ADD A,E
-  JP L7302_0
+  JP operate_tank_on_bank_0
 
 ; Routine at 7358
 ;
@@ -4881,7 +4883,7 @@ L735E:
   AND $40
   ADD A,B
   POP BC
-  JP L7302_0
+  JP operate_tank_on_bank_0
 
 ; Routine at 7380
 ;
@@ -4904,7 +4906,7 @@ L7385:
 
 ; Routine at 7387
 ;
-; Used by the routine at render_tank_shell_frame.
+; Used by the routine at operate_tank_shell.
 L7387:
   LD A,C
   SUB E
@@ -5037,9 +5039,9 @@ handle_other_mode_helicopter_missile_0:
 ; Routine at 7441
 ;
 ; Used by the routines at main_loop and demo.
-render_tank_shell_frame:
+operate_tank_shell:
   LD A,(state_tank_shell)
-  BIT 7,A
+  BIT TANK_SHELL_BIT_FLYING,A
   RET Z
   LD BC,(L7385)
   LD A,(L7384)
@@ -5082,7 +5084,7 @@ render_tank_shell_frame:
 
 ; Routine at 74A0
 ;
-; Used by the routine at render_tank_shell_frame.
+; Used by the routine at operate_tank_shell.
 L74A0:
   LD BC,(L8B0A)
   LD HL,sprite_missile
@@ -5103,14 +5105,14 @@ L74A0:
 
 ; Routine at 74C6
 ;
-; Used by the routine at render_tank_shell_frame.
+; Used by the routine at operate_tank_shell.
 render_tank_shell_explosion:
   LD D,$80
   LD HL,$0000
   LD (L7385),HL
   LD A,(state_tank_shell)
-  RES 7,A
-  SET 5,A
+  RES TANK_SHELL_BIT_FLYING,A
+  SET TANK_SHELL_BIT_EXPLODING,A
   LD (state_tank_shell),A
   LD HL,viewport_objects
   CALL add_object_to_set
@@ -5167,7 +5169,7 @@ L74EE_0:
   LD HL,(viewport_ptr)
   DEC HL
   SET 4,(HL)              ; Set CONTROLS_BIT_BONUS_LIFE
-  SET 5,(HL)              ; Set CONTROLS_BIT_EXPLODING
+  SET CONTROLS_BIT_EXPLODING,(HL)
   DEC HL
   DEC HL
   LD A,(state_player)
@@ -6665,7 +6667,7 @@ init_udg_loop:
 ; Routine at 8A4E
 ;
 ; Used by the routines at consume_fuel, add_fuel, operate_viewport_objects,
-; L7302, L75A2, operate_baloon, L76AF and render_object.
+; operate_tank_on_bank, L75A2, operate_baloon, L76AF and render_object.
 L8A4E:
   LD DE,$0800
   LD HL,$3800
@@ -6792,8 +6794,8 @@ L8B1B:
 ; Routine at 8B1E
 ;
 ; Used by the routines at L673D, render_enemy, render_fuel, render_balloon,
-; operate_fighter, operate_tank, L7393, render_tank_shell_frame, operate_fuel
-; and operate_baloon.
+; operate_fighter, operate_tank, L7393, operate_tank_shell, operate_fuel and
+; operate_baloon.
 ;
 ; I:BC Sprite frame size
 L8B1E:

@@ -34,6 +34,9 @@
 > $4000 CONTROLS_BIT_BONUS_LIFE      EQU 4
 > $4000 CONTROLS_BIT_EXPLODING       EQU 5
 > $4000
+> $4000 TANK_SHELL_BIT_EXPLODING EQU 5
+> $4000 TANK_SHELL_BIT_FLYING    EQU 7
+> $4000
 > $4000 POINTS_SHIP           EQU $03
 > $4000 POINTS_HELICOPTER_REG EQU $06
 > $4000 POINTS_BALLOON        EQU $06
@@ -589,7 +592,7 @@ g $6C7A Explosion frame counter
 c $6C7B Render explosion
 @ $6CAD label=explosion_render_finish
 c $6CAD Finish rendering explosion
-  $6CB5,2 Reset CONTROLS_BIT_EXPLODING
+@ $6CB5 isub=RES CONTROLS_BIT_EXPLODING,(HL)
 c $6CB8
 c $6CD6
 @ $6CF4 label=do_low_fuel
@@ -631,7 +634,7 @@ c $6E92
 @ $6E9C label=explode_fragment
 c $6E9C Explode a single fragment
 R $6E9C I:BC Pointer to the fragment to explode.
-  $6E9F,2 Set CONTROLS_BIT_EXPLODING
+@ $6E9F isub=SET CONTROLS_BIT_EXPLODING,(HL)
   $6EA1,2 Reset CONTROLS_BIT_FIRE
 @ $6EAB label=add_object_to_set
 c $6EAB Adds object bytes to the set in thefollowing order: C, B, D.
@@ -762,7 +765,9 @@ c $719F
 c $71A2
 @ $71A5 isub=AND METRONOME_INTERVAL_1
 @ $71A7 isub=CP METRONOME_INTERVAL_1
+@ $720E label=finish_tank_shell_explosion
 c $720E
+@ $721C isub=RES TANK_SHELL_BIT_EXPLODING,A
 c $7224
 @ $7225 isub=CP OBJECT_BALLOON
 @ $722D isub=AND METRONOME_INTERVAL_1
@@ -789,6 +794,7 @@ c $7290
 c $7296
 @ $7299 isub=AND METRONOME_INTERVAL_1
 @ $729B isub=CP METRONOME_INTERVAL_1
+@ $72A6 isub=BIT SLOT_BIT_TANK_ON_BANK,D
   $72D2,3 Sprite size (3×1 tiles × 8 bytes/tile)
 @ $72E6 label=blenging_mode_xor_xor
 c $72E6
@@ -804,7 +810,12 @@ c $72EF
   $72F4,3 Put "OR B" into #R$8C3C
 c $72F8
 c $72FD
+@ $7302 label=operate_tank_on_bank
 c $7302
+@ $731D isub=BIT TANK_SHELL_BIT_FLYING,A
+@ $7322 isub=BIT TANK_SHELL_BIT_EXPLODING,A
+@ $732C isub=RES TANK_SHELL_BIT_EXPLODING,A
+@ $732E isub=SET TANK_SHELL_BIT_FLYING,A
 c $7343
 c $7358
 c $735E
@@ -829,20 +840,23 @@ c $73DD
 @ $73E0 isub=CP INTERACTION_MODE_01
 @ $7415 label=handle_other_mode_helicopter_missile
 c $7415
-@ $7441 label=render_tank_shell_frame
+@ $7441 label=operate_tank_shell
 c $7441
+@ $7444 isub=BIT TANK_SHELL_BIT_FLYING,A
 @ $7484 isub=LD A,OTHER_MODE_00
 @ $748A isub=AND VIEWPORT_HEIGHT
 @ $748C isub=CP VIEWPORT_HEIGHT
 c $74A0
 @ $74C6 label=render_tank_shell_explosion
 c $74C6
+@ $74D1 isub=RES TANK_SHELL_BIT_FLYING,A
+@ $74D3 isub=SET TANK_SHELL_BIT_EXPLODING,A
 @ $74E4 label=remove_tank_shell
 c $74E4
 c $74EE
 @ $7520 isub=LD A,POINTS_TANK
   $7529,2 Set CONTROLS_BIT_BONUS_LIFE
-  $752B,2 Set CONTROLS_BIT_EXPLODING
+@ $752B isub=SET CONTROLS_BIT_EXPLODING,(HL)
 c $7546
 @ $754C label=operate_fuel
 c $754C

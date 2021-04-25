@@ -34,6 +34,9 @@ CONTROLS_BIT_LOW_FUEL        EQU 3
 CONTROLS_BIT_BONUS_LIFE      EQU 4
 CONTROLS_BIT_EXPLODING       EQU 5
 
+TANK_SHELL_BIT_EXPLODING EQU 5
+TANK_SHELL_BIT_FLYING    EQU 7
+
 POINTS_SHIP           EQU $03
 POINTS_HELICOPTER_REG EQU $06
 POINTS_BALLOON        EQU $06
@@ -3682,7 +3685,8 @@ c$6C7B LD A,($6C7A)  ;
 c$6CAD LD A,$18      ;
  $6CAF LD ($6C7A),A  ;
  $6CB2 LD HL,$6BB0   ;
- $6CB5 RES 5,(HL)    ; Reset CONTROLS_BIT_EXPLODING
+@isub=RES CONTROLS_BIT_EXPLODING,(HL)
+ $6CB5 RES 5,(HL)    ;
  $6CB7 RET           ;
 
 ; Routine at 6CB8
@@ -3985,7 +3989,8 @@ c$6E92 LD DE,$0008   ;
 ; I:BC Pointer to the fragment to explode.
 @label=explode_fragment
 c$6E9C LD HL,$6BB0   ;
- $6E9F SET 5,(HL)    ; Set CONTROLS_BIT_EXPLODING
+@isub=SET CONTROLS_BIT_EXPLODING,(HL)
+ $6E9F SET 5,(HL)    ;
  $6EA1 RES 0,(HL)    ; Reset CONTROLS_BIT_FIRE
  $6EA3 LD A,$18      ;
  $6EA5 LD ($6C7A),A  ;
@@ -4635,6 +4640,7 @@ c$71A2 LD A,($5EEF)  ;
 ; Routine at 720E
 ;
 ; Used by the routine at #R$71A2.
+@label=finish_tank_shell_explosion
 c$720E LD HL,($5F60) ;
  $7211 DEC HL        ;
  $7212 DEC HL        ;
@@ -4642,6 +4648,7 @@ c$720E LD HL,($5F60) ;
  $7214 LD (HL),$00   ;
  $7216 LD HL,$82F5   ;
  $7219 LD A,($7383)  ;
+@isub=RES TANK_SHELL_BIT_EXPLODING,A
  $721C RES 5,A       ;
  $721E LD ($7383),A  ;
  $7221 JP $71F0      ;
@@ -4753,6 +4760,7 @@ c$7296 LD A,($5EEF)  ;
  $72A0 LD ($8B0A),BC ;
  $72A4 PUSH DE       ;
  $72A5 PUSH BC       ;
+@isub=BIT SLOT_BIT_TANK_ON_BANK,D
  $72A6 BIT 5,D       ;
  $72A8 JP NZ,$7302   ;
  $72AB POP BC        ;
@@ -4826,6 +4834,7 @@ c$72FD LD A,C        ;
 ; Routine at 7302
 ;
 ; Used by the routine at #R$7296.
+@label=operate_tank_on_bank
 c$7302 LD BC,($8B0A) ;
  $7306 LD A,C        ;
  $7307 ADD A,$10     ;
@@ -4839,14 +4848,18 @@ c$7302 LD BC,($8B0A) ;
  $7316 POP DE        ;
  $7317 JP Z,$72B5    ;
  $731A LD A,($7383)  ;
+@isub=BIT TANK_SHELL_BIT_FLYING,A
  $731D BIT 7,A       ;
  $731F JP NZ,$708E   ;
+@isub=BIT TANK_SHELL_BIT_EXPLODING,A
  $7322 BIT 5,A       ;
  $7324 JP NZ,$708E   ;
  $7327 CP $00        ;
  $7329 JP Z,$7343    ;
+@isub=RES TANK_SHELL_BIT_EXPLODING,A
  $732C RES 5,A       ;
 ; This entry point is used by the routines at #R$7343 and #R$735E.
+@isub=SET TANK_SHELL_BIT_FLYING,A
 *$732E SET 7,A       ;
  $7330 LD ($7383),A  ;
  $7333 LD A,C        ;
@@ -5053,8 +5066,9 @@ c$7415 LD BC,($5F73) ;
 ; Routine at 7441
 ;
 ; Used by the routines at #R$5F91 and #R$6D17.
-@label=render_tank_shell_frame
+@label=operate_tank_shell
 c$7441 LD A,($7383)  ;
+@isub=BIT TANK_SHELL_BIT_FLYING,A
  $7444 BIT 7,A       ;
  $7446 RET Z         ;
  $7447 LD BC,($7385) ;
@@ -5127,7 +5141,9 @@ c$74C6 LD D,$80      ;
  $74C8 LD HL,$0000   ;
  $74CB LD ($7385),HL ;
  $74CE LD A,($7383)  ;
+@isub=RES TANK_SHELL_BIT_FLYING,A
  $74D1 RES 7,A       ;
+@isub=SET TANK_SHELL_BIT_EXPLODING,A
  $74D3 SET 5,A       ;
  $74D5 LD ($7383),A  ;
  $74D8 LD HL,$5F00   ;
@@ -5183,7 +5199,8 @@ c$74EE LD HL,($5F60) ;
 *$7525 LD HL,($5F60) ;
  $7528 DEC HL        ;
  $7529 SET 4,(HL)    ; Set CONTROLS_BIT_BONUS_LIFE
- $752B SET 5,(HL)    ; Set CONTROLS_BIT_EXPLODING
+@isub=SET CONTROLS_BIT_EXPLODING,(HL)
+ $752B SET 5,(HL)    ;
  $752D DEC HL        ;
  $752E DEC HL        ;
  $752F LD A,($923D)  ;
