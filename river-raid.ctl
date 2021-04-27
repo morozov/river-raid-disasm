@@ -130,8 +130,8 @@ D $4000 #UDGTABLE { #SCR(loading) } TABLE#
 b $5800 Screen attributes.
 b $5B00
 @ $5C78 label=int_counter
-b $5C78 Interrupt counter
-b $5C79
+g $5C78 Interrupt counter
+u $5C79
 @ $5CD2 label=start
 c $5CD2 The entry point invoked from the BASIC loader
 @ $5CD8 nowarn
@@ -146,7 +146,7 @@ b $5D3F Array of possible starting bridge values.
 R $5D3F Index of list element is specified by the second and third bits of the #R$923A.
 R $5D3F The values correspond to the dialog rendered as #R$792A.
 @ $5D43 label=L5D43
-B $5D43,1
+g $5D43
 @ $5D44 label=init_state
 c $5D44
   $5D44,5 Initialize #R$5F72. Why isn't it $80?
@@ -154,19 +154,20 @@ c $5D44
 @ $5D9F label=decrease_lives_player_2
 c $5D9F Decrease player 2 lives
 @ $5DA6 label=play
+c $5DA6
 C $5DB4,2 PAPER 1; INK 4
 @ $5DBF isub=LD BC,status_line_2 - status_line_1
 @ $5DD0 isub=LD BC,status_line_3 - status_line_2
 @ $5DF1 isub=LD A,FUEL_LEVEL_FULL
 @ $5E0B isub=LD (HL),SET_MARKER_END_OF_SET
 @ $5E32 isub=LD BC,state_score_player_2 - state_score_player_1
-@ $5E40 isub=LD BC,end_status_line_4 - status_line_4
+@ $5E40 isub=LD BC,L805F - status_line_4
 @ $5E76 isub=LD A,SPEED_FAST
 @ $5E98 isub=LD A,SPEED_FAST
 @ $5EB3 isub=CP PLAYER_2
 @ $5ECD isub=CP INPUT_INTERFACE_KEMPSTON
 @ $5EEE label=L5EEE
-b $5EEE
+g $5EEE
 @ $5EEF label=state_metronome
 g $5EEF
 @ $5EF0 label=state_bridge_index
@@ -174,43 +175,46 @@ g $5EF0 Current player's current bridge modulo 48 (the total number of bridges).
 @ $5EF1 label=state_input_readings
 g $5EF1 Contains the current readings of the input port (Sinclair, Kempston, Cursor, etc.).
 @ $5EF2 label=L5EF2
-b $5EF2
+g $5EF2
 @ $5EF3 label=L5EF3
 g $5EF3
 g $5EF4
 @ $5EF5 label=state_other_mode
 g $5EF5
 @ $5EF6 label=L5EF6
-b $5EF6
+g $5EF6
 @ $5EF7 label=L5EF7
-w $5EF7
+g $5EF7
+W $5EF7
 @ $5EF9 label=L5EF9
-b $5EF9
+g $5EF9
 @ $5EFA label=state_island_profile_idx
-b $5EFA The value sourced from the first byte of an island definition in #R$C600 and used as a #R$8063 array index.
+g $5EFA The value sourced from the first byte of an island definition in #R$C600 and used as a #R$8063 array index.
 @ $5EFB label=state_island_byte_2
-b $5EFB
+g $5EFB
 @ $5EFC label=state_island_byte_3
-b $5EFC
+g $5EFC
 @ $5EFD label=state_island_line_idx
-b $5EFD
+g $5EFD
 u $5EFE
 @ $5F00 label=viewport_objects
-b $5F00
-  $5F00,46,3
+g $5F00
+B $5F00,46,3
 @ $5F2E label=exploding_fragments
-b $5F2E
-  $5F2E,49,3
+g $5F2E
+B $5F2E,49,3
 @ $5F5F label=L5F5F
-b $5F5F
+g $5F5F
 @ $5F60 label=viewport_ptr
-w $5F60 Pointer to a slot from #R$5F00
+g $5F60 Pointer to a slot from #R$5F00
+W $5F60
 @ $5F62 label=exploding_fragments_ptr
-w $5F62 Pointer to a slot from #R$5F2E
+g $5F62 Pointer to a slot from #R$5F2E
+W $5F62
 @ $5F64 label=state_speed
 g $5F64 Current speed
 @ $5F65 label=L5F65
-b $5F65
+g $5F65
 @ $5F66 label=state_fuel
 g $5F66 Fuel level
 @ $5F67 label=state_input_interface
@@ -218,15 +222,15 @@ g $5F67 Control type ($00 - Keyboard, $01 - Sinclair, $02 - Kempston, Other - Cu
 @ $5F68 label=state_interaction_mode_5F68
 g $5F68
 @ $5F69 label=L5F69
-b $5F69
+g $5F69
 @ $5F6A label=state_bridge_player_1
-b $5F6A Current bridge of player 1
+g $5F6A Current bridge of player 1
 @ $5F6B label=state_bridge_player_2
-b $5F6B Current bridge of player 2
+g $5F6B Current bridge of player 2
 @ $5F6C label=L5F6C
-b $5F6C
+g $5F6C
 @ $5F6D label=L5F6D
-b $5F6D
+g $5F6D
 g $5F6E
 g $5F6F
 @ $5F70 label=state_y
@@ -236,39 +240,48 @@ g $5F72 Current X coordinate
 @ $5F73 label=L5F73
 g $5F73
 @ $5F75 label=L5F75
-b $5F75
+g $5F75
 @ $5F76 label=state_level_fragment_number
-b $5F76 Index of the current element of current level terrain array
+g $5F76 Index of the current element of current level terrain array
 @ $5F77 label=state_terrain_profile_number
 b $5F77 The first byte of the current #R$9500 element, defines the index of the terrain sprite (see #R$8063).
 @ $5F78 label=state_terrain_element_23
-w $5F78
+g $5F78
 @ $5F7A label=state_terrain_extras
-b $5F7A
+g $5F7A
 @ $5F7B label=screen_ptr
-w $5F7B
+g $5F7B
+W $5F7B
 @ $5F7D label=state_terrain_position
-b $5F7D Inner array index in the terrain definition.
+g $5F7D Inner array index in the terrain definition.
 @ $5F7E label=ptr_scroller
-w $5F7E Pointer to the text to be displayed in the scroller.
+g $5F7E Pointer to the text to be displayed in the scroller.
+W $5F7E
 u $5F80
 @ $5F81 label=L5F81
-b $5F81
+g $5F81
 u $5F82
 @ $5F83 label=sp_5F83
-w $5F83
+g $5F83
+W $5F83
 @ $5F85 label=tmp_HL
-w $5F85
+g $5F85
+W $5F85
 @ $5F87 label=tmp_DE
-w $5F87
+g $5F87
+W $5F87
 @ $5F89 label=tmp_BC
-w $5F89
+g $5F89
+W $5F89
 @ $5F8B label=L5F8B
-w $5F8B
+g $5F8B
+W $5F8B
 @ $5F8D label=L5F8D
-w $5F8D
+g $5F8D
+W $5F8D
 @ $5F8F label=L5F8F
-w $5F8F
+g $5F8F
+W $5F8F
 @ $5F91 label=main_loop
 c $5F91 Main loop
 C $5F91,9 Scan Enter
@@ -311,7 +324,7 @@ c $61BB
 @ $623F label=next_bridge_player_1
 @ $6249 label=next_bridge_player_2
 c $6249
-b $6253
+u $6253
 @ $6256 label=fuel
 @ $6256 isub=LD A,INTERACTION_MODE_FUEL
 c $6256
@@ -368,7 +381,7 @@ c $6478
 @ $6480 isub=LD A,POINTS_FUEL
 c $649E
 c $64A1
-b $64B4
+u $64B4
 @ $64BC label=print_bridge
 c $64BC
 @ $64BF isub=CP PLAYER_2
@@ -577,7 +590,7 @@ c $6BED
   $6C1F,5 Check if both bits are set.
 @ $6C24 label=int_return
 c $6C24 Return from the non-maskable interrupt handler
-b $6C2B
+u $6C2B
 @ $6C30 label=state_bit4_counter
 g $6C30 Bit4 frame counter
 @ $6C31 label=do_bonus_life
@@ -601,7 +614,7 @@ c $6CF4 Render the low fuel signal
 c $6D17
 C $6D23,2 PAPER 1; INK 4
 @ $6D2E isub=LD BC,status_line_2 - status_line_1
-@ $6D48 isub=LD BC,end_status_line_4 - status_line_4
+@ $6D48 isub=LD BC,L805F - status_line_4
 c $6DDD
 @ $6DEB label=init_starting_bridge
 c $6DEB
@@ -828,11 +841,12 @@ c $735E
 @ $7361 isub=CP TODO_L5EF2_01
 c $7380
 @ $7383 label=state_tank_shell
-b $7383
+g $7383
 @ $7384 label=L7384
-b $7384
+g $7384
 @ $7385 label=L7385
-w $7385
+g $7385
+W $7385
 c $7387
 c $738E
 c $7393
@@ -894,15 +908,7 @@ c $7649
 c $76AC
 c $76AF
 c $76DA
-b $7727
-t $7742
-b $7747
-t $7753
-b $775F
-t $7770
-b $7773
-t $7784
-b $7787
+u $7727
 @ $7800 label=tmp_control_type
 b $7800 Control type chosen from the dialog before the validation
 @ $7801 label=state_demo_mode
@@ -993,9 +999,9 @@ c $7B07 Wait until the user chooses a valid game mode.
   $7B4D,5 Switch to the non-demo mode
 @ $7B57 label=switch_to_demo_mode
 c $7B57
-b $7B61
-s $7B64
+u $7B61
 @ $8000 label=status_line_1
+t $8000
 T $8000 PAPER 0
 T $8002 INK 7
 T $8004 AT 19,2
@@ -1009,6 +1015,7 @@ T $8025 INK 3
 B $8027 Fuel gauge reading UDG
 T $802F INK 6
 @ $8031 label=status_line_2
+t $8031
 T $8031 AT 1,2
 T $8034 INK 6
 T $8036
@@ -1016,14 +1023,16 @@ T $8040 INK 7
 T $8042 AT 1,18
 T $8045
 @ $804F label=status_line_3
+t $804F
 T $804F AT 19,18
 @ $8052 label=status_line_3_text
+t $8052
 T $8052
 @ $805A label=status_line_4
+t $805A
 T $805A AT 20,4
 T $805D INK 7
-@ $805F label=end_status_line_4
-b $805F
+u $805F
 @ $8063 label=data_terrain_profiles
 b $8063 Array [15] of terrain element definitions (16 bytes each).
 N $8063 Each byte of the element defines the relative terrain width
@@ -1045,13 +1054,13 @@ N $8063 Each byte of the element defines the relative terrain width
 @ $8153 label=msg_game_over
 t $8153 Game Over message.
 @ $8182 label=msg_credits
-t $8182 L839F message.
+t $8182
   $818D,1 Trademark UDG symbol
   $81A8,1 Copyright symbol
   $81AF,7 Activision logo UDG symbols
-b $81E4
-t $81E8
-b $825C
+B $81E4
+T $81E8
+B $825C
 @ $825D label=udg_data
 b $825D
 D $825D #UDGTABLE { #FONT$825D,13 } TABLE#
@@ -1065,7 +1074,7 @@ b $8331
 b $8351
 @ $8371 label=sprite_road_attributes
 b $8371
-b $8391
+u $8391
 @ $83B1 label=sprite_plane
 b $83B1
 N $83B1 #UDGTABLE { #UDGARRAY2,14,4,2;$83B1-$83B2-1-16(*plane-f1) | #UDGARRAY2,14,4,2;$83C1-$83C2-1-16(*plane-f2) | #UDGARRAY2,14,4,2;$83D1-$83D2-1-16(*plane-f3) | #UDGARRAY2,14,4,2;$83E1-$83E2-1-16(*plane-f4) } TABLE#
@@ -1112,14 +1121,17 @@ N $8501 #UDGTABLE { #UDGARRAY3,34,4,3;$8501-$8530-1-24(rock-3) } TABLE#
 N $8531 #UDGTABLE { #UDGARRAY3,34,4,3;$8531-$8560-1-24(rock-4) } TABLE#
   $8531,48,3 Rock 4
 t $8561
-b $8579
-t $857C
-b $858C
-t $858F
-b $8599
-t $859C
-b $85A6
-t $85A9
+B $8563
+B $8565
+T $8568
+B $8579
+T $857C
+B $858C
+T $858F
+B $8599
+T $859C
+B $85A6
+T $85A9
 @ $85B3 label=sprite_enemies_left
 b $85B3 Array [5] arrays of enemy headed left sprites (each element is 3×1 tiles × 4 frames = 96 bytes).
 N $85B3 #UDGTABLE { #UDGARRAY3,14,4,3;$85B3-$85B6-1-16(*helicopter-reg-left-f1) | #UDGARRAY3,14,4,3;$85CB-$85CF-1-16(*helicopter-reg-left-f2) | #UDGARRAY3,14,4,3;$85E3-$85E6-1-16(*helicopter-reg-left-f3) | #UDGARRAY3,14,4,3;$85FB-$85FE-1-16(*helicopter-reg-left-f4) } TABLE#
@@ -1237,27 +1249,34 @@ N $8A86 #UDGTABLE { #UDGARRAY2,11,4,2;$8A86-$8AB8-1-16{0,0,64,100}(sprite-fuel) 
 b $8AB8
 @ $8AC8 label=sprite_helicopter_rotor_right
 b $8AC8
-t $8AEA
-b $8AED
+u $8AD8
 @ $8B08 label=L6136_ptr
-w $8B08 Pointer to #R$6136
+g $8B08 Pointer to #R$6136
+W $8B08
 @ $8B0A label=L8B0A
-w $8B0A
+g $8B0A
+W $8B0A
 @ $8B0C label=L8B0C
-w $8B0C
+g $8B0C
+W $8B0C
 @ $8B0E label=render_sprite_ptr
-w $8B0E
+g $8B0E
+W $8B0E
 @ $8B10 label=L8B10
-w $8B10
+g $8B10
+W $8B10
 @ $8B12 label=L8B12
-w $8B12
+g $8B12
+W $8B12
 @ $8B14 label=L8B14
-w $8B14
+g $8B14
+W $8B14
 @ $8B16 label=L8B16
-w $8B16
-t $8B18
+g $8B16
+W $8B16
+u $8B18
 @ $8B1A label=render_object_width
-b $8B1A
+g $8B1A
 s $8B1B
 c $8B1E
 R $8B1E I:BC Sprite frame size
@@ -1280,7 +1299,7 @@ c $8C1B
 c $8C3C
 @ $8C45 label=jp_L6136
 c $8C45
-b $8C4A
+u $8C4A
 @ $8FFC label=sprite_tank_shell_explosion
 b $8FFC
   $8FFC,32,2 Frame 1
@@ -1374,11 +1393,16 @@ c $9277 The player 2 branch of the #R$923E routine.
 R $9277 O:A Number of lives.
   $9277,6 INK CYAN
 @ $9283 label=ptr_state_controls
-w $9283 Pointer to #R$6BB0
-w $9285
-w $9287
-w $9289
-w $928B
+g $9283 Pointer to #R$6BB0
+W $9283 Pointer to #R$6BB0
+g $9285
+W $9285
+g $9287
+W $9287
+g $9289
+W $9289
+g $928B
+W $928B
 c $928D
 R $928D I:A Sprite width in tiles
 R $928D I:E Screen attributes
@@ -1414,7 +1438,7 @@ C $9420,2 Process next block
 c $9423 Load current player lives
 R $9423 O:HL Pointer to the current player lives
 @ $9429 isub=CP PLAYER_2
-b $9430
+u $9430
 @ $9500 label=level_terrains
 b $9500 Array [48] of level terrain data (256 bytes each).
 N $9500 Array [64] of terrain rows (4 bytes each):

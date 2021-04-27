@@ -1047,7 +1047,7 @@ L5B00:
 int_counter:
   DEFB $00
 
-; Data block at 5C79
+; Unused
 L5C79:
   DEFB $00,$00,$58,$FF,$00,$00,$21,$00
   DEFB $5B,$05,$17,$00,$40,$FC,$50,$21
@@ -1131,6 +1131,8 @@ restart:
 ; The values correspond to the dialog rendered as msg_game_mode.
 starting_bridges:
   DEFB $01,$05,$14,$1E
+
+; Game status buffer entry at 5D43
 L5D43:
   DEFB $00
 
@@ -1173,12 +1175,16 @@ init_state:
   RET
 
 ; Decrease player 2 lives
+;
+; Used by the routine at play.
 decrease_lives_player_2:
   LD HL,state_lives_player_2
   DEC (HL)
-  JP decrease_lives_player_2_1
-; This entry point is used by the routines at L5D10, restart, handle_no_fuel
-; and demo.
+  JP play_1
+
+; Routine at 5DA6
+;
+; Used by the routines at L5D10, restart, handle_no_fuel and demo.
 play:
   LD A,$10
   LD (state_island_line_idx),A
@@ -1240,7 +1246,7 @@ play:
   LD A,$02
   CALL CHAN_OPEN
   LD DE,status_line_4
-  LD BC,end_status_line_4 - status_line_4
+  LD BC,L805F - status_line_4
   CALL PR_STRING
   LD A,(state_game_mode)
   ADD A,$31
@@ -1268,7 +1274,7 @@ play:
   CALL L91E8
   CALL init_current_bridge
   LD B,$28
-decrease_lives_player_2_0:
+play_0:
   PUSH BC
   LD HL,state_metronome
   INC (HL)
@@ -1278,7 +1284,7 @@ decrease_lives_player_2_0:
   LD A,SPEED_FAST
   LD (state_speed),A
   POP BC
-  DJNZ decrease_lives_player_2_0
+  DJNZ play_0
   LD A,$00
   LD (state_controls),A
   LD (state_interaction_mode_5F68),A
@@ -1290,22 +1296,23 @@ decrease_lives_player_2_0:
   JP Z,decrease_lives_player_2
   LD HL,state_lives_player_1
   DEC (HL)
-decrease_lives_player_2_1:
+; This entry point is used by the routine at decrease_lives_player_2.
+play_1:
   CALL print_lives
-decrease_lives_player_2_2:
+play_2:
   CALL KEYBOARD
   EI
   LD A,(LAST_K)
   CP $0D
-  JR NZ,decrease_lives_player_2_3
+  JR NZ,play_3
   LD A,(state_input_interface)
   CP INPUT_INTERFACE_KEMPSTON
-  JP NZ,decrease_lives_player_2_2
+  JP NZ,play_2
   LD A,$FE
   IN A,($1F)
   CP $00
-  JP Z,decrease_lives_player_2_2
-decrease_lives_player_2_3:
+  JP Z,play_2
+play_3:
   LD A,$00
   LD (L5F6D),A
   LD (L5F6E),A
@@ -1314,7 +1321,7 @@ decrease_lives_player_2_3:
   LD (state_metronome),A
   JP main_loop
 
-; Data block at 5EEE
+; Game status buffer entry at 5EEE
 L5EEE:
   DEFB $00
 
@@ -1331,7 +1338,7 @@ state_bridge_index:
 state_input_readings:
   DEFB $00
 
-; Data block at 5EF2
+; Game status buffer entry at 5EF2
 L5EF2:
   DEFB $00
 
@@ -1347,15 +1354,15 @@ L5EF4:
 state_other_mode:
   DEFB $00
 
-; Data block at 5EF6
+; Game status buffer entry at 5EF6
 L5EF6:
   DEFB $00
 
-; Data block at 5EF7
+; Game status buffer entry at 5EF7
 L5EF7:
   DEFW $0000
 
-; Data block at 5EF9
+; Game status buffer entry at 5EF9
 L5EF9:
   DEFB $00
 
@@ -1364,15 +1371,15 @@ L5EF9:
 state_island_profile_idx:
   DEFB $00
 
-; Data block at 5EFB
+; Game status buffer entry at 5EFB
 state_island_byte_2:
   DEFB $00
 
-; Data block at 5EFC
+; Game status buffer entry at 5EFC
 state_island_byte_3:
   DEFB $00
 
-; Data block at 5EFD
+; Game status buffer entry at 5EFD
 state_island_line_idx:
   DEFB $10
 
@@ -1380,7 +1387,7 @@ state_island_line_idx:
 L5EFE:
   DEFB $FF,$FF
 
-; Data block at 5F00
+; Game status buffer entry at 5F00
 viewport_objects:
   DEFB $20,$20,$20
   DEFB $20,$20,$20
@@ -1399,7 +1406,7 @@ viewport_objects:
   DEFB $20,$20,$20
   DEFB $20
 
-; Data block at 5F2E
+; Game status buffer entry at 5F2E
 exploding_fragments:
   DEFB $20,$20,$20
   DEFB $20,$20,$20
@@ -1419,7 +1426,7 @@ exploding_fragments:
   DEFB $20,$20,$20
   DEFB $20
 
-; Data block at 5F5F
+; Game status buffer entry at 5F5F
 L5F5F:
   DEFB $04
 
@@ -1435,7 +1442,7 @@ exploding_fragments_ptr:
 state_speed:
   DEFB $02
 
-; Data block at 5F65
+; Game status buffer entry at 5F65
 L5F65:
   DEFB $00
 
@@ -1451,7 +1458,7 @@ state_input_interface:
 state_interaction_mode_5F68:
   DEFB $00
 
-; Data block at 5F69
+; Game status buffer entry at 5F69
 L5F69:
   DEFB $00
 
@@ -1463,11 +1470,11 @@ state_bridge_player_1:
 state_bridge_player_2:
   DEFB $01
 
-; Data block at 5F6C
+; Game status buffer entry at 5F6C
 L5F6C:
   DEFB $00
 
-; Data block at 5F6D
+; Game status buffer entry at 5F6D
 L5F6D:
   DEFB $00
 
@@ -1491,7 +1498,7 @@ state_x:
 L5F73:
   DEFB $00,$00
 
-; Data block at 5F75
+; Game status buffer entry at 5F75
 L5F75:
   DEFB $00
 
@@ -1504,15 +1511,15 @@ state_level_fragment_number:
 state_terrain_profile_number:
   DEFB $00
 
-; Data block at 5F78
+; Game status buffer entry at 5F78
 state_terrain_element_23:
-  DEFW $0000
+  DEFB $00,$00
 
-; Data block at 5F7A
+; Game status buffer entry at 5F7A
 state_terrain_extras:
   DEFB $00
 
-; Data block at 5F7B
+; Game status buffer entry at 5F7B
 screen_ptr:
   DEFW $0000
 
@@ -1528,7 +1535,7 @@ ptr_scroller:
 L5F80:
   DEFB $00
 
-; Data block at 5F81
+; Game status buffer entry at 5F81
 L5F81:
   DEFB $00
 
@@ -1536,38 +1543,37 @@ L5F81:
 L5F82:
   DEFB $00
 
-; Data block at 5F83
+; Game status buffer entry at 5F83
 sp_5F83:
   DEFW $0000
 
-; Data block at 5F85
+; Game status buffer entry at 5F85
 tmp_HL:
   DEFW $0000
 
-; Data block at 5F87
+; Game status buffer entry at 5F87
 tmp_DE:
   DEFW $0000
 
-; Data block at 5F89
+; Game status buffer entry at 5F89
 tmp_BC:
   DEFW $0000
 
-; Data block at 5F8B
+; Game status buffer entry at 5F8B
 L5F8B:
   DEFW $0000
 
-; Data block at 5F8D
+; Game status buffer entry at 5F8D
 L5F8D:
   DEFW $0000
 
-; Data block at 5F8F
+; Game status buffer entry at 5F8F
 L5F8F:
   DEFW $0000
 
 ; Main loop
 ;
-; Used by the routines at decrease_lives_player_2, scan_kempston, scan_sinclair
-; and scan_keyboard.
+; Used by the routines at play, scan_kempston, scan_sinclair and scan_keyboard.
 main_loop:
   LD A,$BF                ; Scan Enter
   IN A,($FE)              ;
@@ -1698,7 +1704,7 @@ scan_keyboard:
 
 ; Routine at 60A5
 ;
-; Used by the routines at decrease_lives_player_2, main_loop and demo.
+; Used by the routines at play, main_loop and demo.
 L60A5:
   LD A,(state_interaction_mode_5F68)
   CP INTERACTION_MODE_00
@@ -1931,7 +1937,7 @@ next_bridge_player_2:
   CALL print_bridge
   JP L6794
 
-; Data block at 6253
+; Unused
 L6253:
   DEFB $3E,$00,$C9
 
@@ -2310,14 +2316,14 @@ L64A1:
   CALL add_fuel
   JP L63FC
 
-; Data block at 64B4
+; Unused
 L64B4:
   DEFB $D1,$D1,$D1,$D1,$D1,$C3,$0A,$65
 
 ; Routine at 64BC
 ;
-; Used by the routines at decrease_lives_player_2, interact_with_something,
-; next_bridge_player_2, L6587 and demo.
+; Used by the routines at play, interact_with_something, next_bridge_player_2,
+; L6587 and demo.
 print_bridge:
   LD A,(state_player)
   CP PLAYER_2
@@ -2593,7 +2599,7 @@ handle_left:
 
 ; Routine at 6682
 ;
-; Used by the routines at decrease_lives_player_2 and L683B.
+; Used by the routines at play and L683B.
 L6682:
   LD A,(state_interaction_mode_5F68)
   CP INTERACTION_MODE_00
@@ -2634,7 +2640,7 @@ ld_sprite_plane_banked:
 ; Increase state_y by the value of state_speed, set state_speed to the default
 ; value and do something with the state_controls bits.
 ;
-; Used by the routines at decrease_lives_player_2, main_loop and demo.
+; Used by the routines at play, main_loop and demo.
 advance:
   LD BC,(state_y)
   LD H,$00
@@ -2968,7 +2974,7 @@ L68C5_1:
 
 ; Routine at 68E9
 ;
-; Used by the routines at decrease_lives_player_2 and demo.
+; Used by the routines at play and demo.
 init_current_bridge:
   LD HL,screen_attributes
   LD B,$20
@@ -3584,7 +3590,7 @@ int_return:
   EI
   RETN
 
-; Data block at 6C2B
+; Unused
 L6C2B:
   DEFB $ED,$56,$C3,$08,$00
 
@@ -3796,7 +3802,7 @@ demo:
   LD A,$04
   LD (L5EEE),A
   LD DE,status_line_4
-  LD BC,end_status_line_4 - status_line_4
+  LD BC,L805F - status_line_4
   CALL PR_STRING
   LD A,(state_game_mode)
   ADD A,$31
@@ -4391,10 +4397,10 @@ render_balloon:
 
 ; Routine at 708E
 ;
-; Used by the routines at decrease_lives_player_2, main_loop, demo,
-; operate_fighter, L71A2, L7224, animate_object, animate_helicopter,
-; operate_tank, operate_tank_on_bank, L7358, L74EE, operate_fuel, L75D0,
-; remove_object_from_viewport, operate_baloon, L76AC and L76DA.
+; Used by the routines at play, main_loop, demo, operate_fighter, L71A2, L7224,
+; animate_object, animate_helicopter, operate_tank, operate_tank_on_bank,
+; L7358, L74EE, operate_fuel, L75D0, remove_object_from_viewport,
+; operate_baloon, L76AC and L76DA.
 operate_viewport_objects:
   LD A,OTHER_MODE_00
   LD (state_other_mode),A
@@ -4900,15 +4906,15 @@ L7380:
   XOR $7F
   RET
 
-; Data block at 7383
+; Game status buffer entry at 7383
 state_tank_shell:
   DEFB $00
 
-; Data block at 7384
+; Game status buffer entry at 7384
 L7384:
   DEFB $00
 
-; Data block at 7385
+; Game status buffer entry at 7385
 L7385:
   DEFW $0000
 
@@ -5499,48 +5505,20 @@ L76DA_0:
   CALL render_object
   JP operate_viewport_objects
 
-; Data block at 7727
+; Unused
 L7727:
   DEFB $C3,$90,$EA,$0D,$00,$05,$1F,$00
   DEFB $F5,$AC,$30,$0E,$00,$00,$00,$00
   DEFB $00,$2C,$30,$0E,$00,$00,$00,$00
-  DEFB $00,$3B,$C0
-
-; Message at 7742
-L7742:
-  DEFM "23762"
-
-; Data block at 7747
-L7747:
+  DEFB $00,$3B,$C0,$32,$33,$37,$36,$32
   DEFB $0E,$00,$00,$D2,$5C,$00,$0D,$9A
-  DEFB $05,$2C,$00,$F8
-
-; Message at 7753
-L7753:
-  DEFM "\"River raid\""
-
-; Data block at 775F
-L775F:
+  DEFB $05,$2C,$00,$F8,$22,$52,$69,$76
+  DEFB $65,$72,$20,$72,$61,$69,$64,$22
   DEFB $CA,$36,$0E,$00,$00,$06,$00,$00
   DEFB $3A,$D7,$35,$0E,$00,$00,$05,$00
-  DEFB $00
-
-; Message at 7770
-L7770:
-  DEFM ",10"
-
-; Data block at 7773
-L7773:
-  DEFB $0E,$00,$00,$0A,$00,$00,$3A,$D6
-  DEFB $22,$22,$0D,$00,$06,$0C,$00,$F9
-  DEFB $C0
-
-; Message at 7784
-L7784:
-  DEFM "6e4"
-
-; Data block at 7787
-L7787:
+  DEFB $00,$2C,$31,$30,$0E,$00,$00,$0A
+  DEFB $00,$00,$3A,$D6,$22,$22,$0D,$00
+  DEFB $06,$0C,$00,$F9,$C0,$36,$65,$34
   DEFB $0E,$00,$00,$60,$EA,$00,$0D,$00
   DEFB $00,$00,$00,$00,$00,$00,$00,$00
   DEFB $00,$00,$00,$00,$00,$00,$00,$00
@@ -5761,13 +5739,158 @@ switch_to_demo_mode:
   LD SP,(setup_sp)
   RET
 
-; Data block at 7B61
-L7B61:
-  DEFB $C3,$90,$EA
-
 ; Unused
-L7B64:
-  DEFS $049C
+L7B61:
+  DEFB $C3,$90,$EA,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+  DEFB $00,$00,$00,$00,$00,$00,$00
+
+; Message at 8000
 status_line_1:
   DEFM $11,$00            ; PAPER 0
   DEFM $10,$07            ; INK 7
@@ -5782,6 +5905,8 @@ status_line_1:
   DEFM $10,$03            ; INK 3
   DEFB $8F,$8F,$8F,$8F,$8F,$8F,$8F,$8F ; Fuel gauge reading UDG
   DEFM $10,$06            ; INK 6
+
+; Message at 8031
 status_line_2:
   DEFM $16,$01,$02        ; AT 1,2
   DEFM $10,$06            ; INK 6
@@ -5789,16 +5914,22 @@ status_line_2:
   DEFM $10,$07            ; INK 7
   DEFM $16,$01,$12        ; AT 1,18
   DEFM "HI 0000000"
+
+; Message at 804F
 status_line_3:
   DEFM $16,$13,$12        ; AT 19,18
+
+; Message at 8052
 status_line_3_text:
   DEFM "BRIDGE  "
+
+; Message at 805A
 status_line_4:
   DEFM $16,$14,$04        ; AT 20,4
   DEFM $10,$07            ; INK 7
 
-; Data block at 805F
-end_status_line_4:
+; Unused
+L805F:
   DEFB $01,$05,$0A,$0F
 
 ; Array [15] of terrain element definitions (16 bytes each).
@@ -5840,7 +5971,7 @@ data_terrain_profiles:
 msg_game_over:
   DEFM " .....GAME OVER.....                           "
 
-; L839F message.
+; Message at 8182
 msg_credits:
   DEFM " RIVER RAID"
   DEFM $94                ; Trademark UDG symbol
@@ -5849,18 +5980,9 @@ msg_credits:
   DEFM " 1983 "
   DEFM $95,$96,$97,$98,$99,$9A,$9B ; Activision logo UDG symbols
   DEFM " Inc. All rights reserved                     "
-
-; Data block at 81E4
-L81E4:
   DEFB $FF,$C3,$90,$EA
-
-; Message at 81E8
-L81E8:
   DEFM " rights reserved        Press ENTER to play or C to change contro"
   DEFM "l or S to select game                              "
-
-; Data block at 825C
-L825C:
   DEFB $FF
 
 ; Data block at 825D
@@ -5920,7 +6042,7 @@ sprite_road_attributes:
   DEFB $0E,$0E,$3C,$3C,$3C,$3C,$3C,$3C
   DEFB $3C,$3C,$3C,$3C,$3C,$3C,$3C,$3C
 
-; Data block at 8391
+; Unused
 L8391:
   DEFB $3F,$3F,$3F,$3F,$3F,$3F,$3F,$3F
   DEFB $3F,$3F,$3F,$3F,$3F,$3F,$C0,$C0
@@ -6147,38 +6269,17 @@ sprite_rock:
 
 ; Message at 8561
 L8561:
-  DEFM $11,$00,$10,$07,$16,$05,$05,"0 CURSOR KEYS & 0"
-
-; Data block at 8579
-L8579:
+  DEFM $11,$00
+  DEFB $10,$07
+  DEFB $16,$05,$05
+  DEFM "0 CURSOR KEYS & 0"
   DEFB $16,$06,$07
-
-; Message at 857C
-L857C:
   DEFM "(PROTEK AGF etc)"
-
-; Data block at 858C
-L858C:
   DEFB $16,$08,$05
-
-; Message at 858F
-L858F:
   DEFM "1 KEMPSTON"
-
-; Data block at 8599
-L8599:
   DEFB $16,$0A,$05
-
-; Message at 859C
-L859C:
   DEFM "2 SINCLAIR"
-
-; Data block at 85A6
-L85A6:
   DEFB $16,$0C,$05
-
-; Message at 85A9
-L85A9:
   DEFM "3 KEYBOARD"
 
 ; Array [5] arrays of enemy headed left sprites (each element is 3×1 tiles × 4
@@ -6653,7 +6754,7 @@ L8A1B_1:
 
 ; Routine at 8A33
 ;
-; Used by the routines at decrease_lives_player_2 and demo.
+; Used by the routines at play and demo.
 ;
 ; Sets BORDER to BLACK, sets screen attributes to WHITE-on-BLACK and copies
 ;      udg_data to the UDG area.
@@ -6747,58 +6848,53 @@ sprite_helicopter_rotor_left:
 sprite_helicopter_rotor_right:
   DEFB $1E,$00,$03,$C0,$07,$80,$00,$F0
   DEFB $01,$E0,$00,$3C,$00,$78,$00,$0F
+
+; Unused
+L8AD8:
   DEFB $00,$00,$00,$10,$00,$00,$00,$00
   DEFB $00,$00,$00,$18,$18,$00,$00,$00
-  DEFB $00,$00
-
-; Message at 8AEA
-L8AEA:
-  DEFM "888"
-
-; Data block at 8AED
-L8AED:
-  DEFB $00,$00,$00,$00,$10,$38,$7C,$38
-  DEFB $10,$00,$00,$10,$38,$7C,$FE,$7C
-  DEFB $38,$10,$00,$18,$3C,$7E,$FF,$FF
-  DEFB $7E,$3C,$18
+  DEFB $00,$00,$38,$38,$38,$00,$00,$00
+  DEFB $00,$10,$38,$7C,$38,$10,$00,$00
+  DEFB $10,$38,$7C,$FE,$7C,$38,$10,$00
+  DEFB $18,$3C,$7E,$FF,$FF,$7E,$3C,$18
 
 ; Pointer to L6136
 L6136_ptr:
   DEFW $0000
 
-; Data block at 8B0A
+; Game status buffer entry at 8B0A
 L8B0A:
   DEFW $0000
 
-; Data block at 8B0C
+; Game status buffer entry at 8B0C
 L8B0C:
   DEFW $0000
 
-; Data block at 8B0E
+; Game status buffer entry at 8B0E
 render_sprite_ptr:
   DEFW $0000
 
-; Data block at 8B10
+; Game status buffer entry at 8B10
 L8B10:
   DEFW $0000
 
-; Data block at 8B12
+; Game status buffer entry at 8B12
 L8B12:
   DEFW $2020
 
-; Data block at 8B14
+; Game status buffer entry at 8B14
 L8B14:
   DEFW $2020
 
-; Data block at 8B16
+; Game status buffer entry at 8B16
 L8B16:
   DEFW $2020
 
-; Message at 8B18
+; Unused
 L8B18:
-  DEFM "  "
+  DEFB $20,$20
 
-; Data block at 8B1A
+; Game status buffer entry at 8B1A
 render_object_width:
   DEFB $00
 
@@ -7026,7 +7122,7 @@ jp_L6136:
   LD HL,(L6136_ptr)
   JP (HL)
 
-; Data block at 8C4A
+; Unused
 L8C4A:
   DEFB $C3,$90,$EA,$0E,$8B,$E9,$C3,$90
   DEFB $EA,$00,$00,$00,$00,$00,$00,$00
@@ -7501,7 +7597,7 @@ print_score_player_2:
 
 ; Routine at 91E8
 ;
-; Used by the routine at decrease_lives_player_2.
+; Used by the routine at play.
 L91E8:
   LD A,$01
   CALL CHAN_OPEN
@@ -7568,7 +7664,7 @@ state_player:
 
 ; Print lives.
 ;
-; Used by the routines at decrease_lives_player_2 and add_life.
+; Used by the routines at play and add_life.
 print_lives:
   LD A,(state_player)
   CP PLAYER_2
@@ -7633,21 +7729,21 @@ print_lives_player_2:
 
 ; Pointer to state_controls
 ptr_state_controls:
-  DEFW $0000
+  DEFW $0000              ; Pointer to state_controls
 
-; Data block at 9285
+; Game status buffer entry at 9285
 L9285:
   DEFW $0000
 
-; Data block at 9287
+; Game status buffer entry at 9287
 L9287:
   DEFW $0000
 
-; Data block at 9289
+; Game status buffer entry at 9289
 L9289:
   DEFW $0000
 
-; Data block at 928B
+; Game status buffer entry at 928B
 L928B:
   DEFW $0000
 
@@ -7934,8 +8030,8 @@ L93F2:
 ; Clear the screen by setting all pixel bytes to $00 and all attributes to the
 ; value set in D.
 ;
-; Used by the routines at decrease_lives_player_2, demo, clear_and_setup,
-; controls_input and game_mode_input.
+; Used by the routines at play, demo, clear_and_setup, controls_input and
+; game_mode_input.
 ;
 ; I:D Attribute value.
 clear_screen:
@@ -7973,7 +8069,7 @@ ld_lives:
   LD HL,state_lives_player_2
   RET
 
-; Data block at 9430
+; Unused
 L9430:
   DEFB $C3,$90,$EA,$30,$06,$79,$CD,$6E
   DEFB $F7,$18,$C9,$22,$95,$FA,$7E,$FE
