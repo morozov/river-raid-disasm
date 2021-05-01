@@ -1,3 +1,4 @@
+COLOR_INHERIT EQU $00
 COLOR_BLACK   EQU $00
 COLOR_BLUE    EQU $01
 COLOR_RED     EQU $02
@@ -32,8 +33,9 @@ CONTROLS_BIT_LOW_FUEL        EQU 3
 CONTROLS_BIT_BONUS_LIFE      EQU 4
 CONTROLS_BIT_EXPLODING       EQU 5
 
-TANK_SHELL_BIT_EXPLODING EQU 5
-TANK_SHELL_BIT_FLYING    EQU 7
+TANK_SHELL_BIT_EXPLODING         EQU 5
+TANK_SHELL_BIT_FLYING            EQU 7
+TANK_SHELL_TRAJECTORY_NUM_FRAMES EQU 8
 
 POINTS_SHIP           EQU $03
 POINTS_HELICOPTER_REG EQU $06
@@ -62,6 +64,59 @@ SIZE_LEVEL_SLOTS      EQU $0100
 SET_MARKER_EMPTY_SLOT EQU $00
 SET_MARKER_END_OF_SET EQU $FF
 
+SPRITE_PLANE_WIDTH_TILES   EQU $02
+SPRITE_PLANE_HEIGHT_PIXELS EQU $08
+SPRITE_PLANE_FRAME_SIZE    EQU SPRITE_PLANE_WIDTH_TILES * SPRITE_PLANE_HEIGHT_PIXELS
+SPRITE_PLANE_ATTRIBUTES    EQU COLOR_BLUE<<3|COLOR_YELLOW
+
+SPRITE_3BY1_ENEMY_WIDTH_TILES   EQU $03
+SPRITE_3BY1_ENEMY_HEIGHT_PIXELS EQU $08
+SPRITE_3BY1_ENEMY_FRAME_SIZE    EQU SPRITE_3BY1_ENEMY_WIDTH_TILES * SPRITE_3BY1_ENEMY_HEIGHT_PIXELS
+SPRITE_3BY1_ENEMY_ATTRIBUTES    EQU COLOR_BLUE<<3|COLOR_YELLOW
+
+SPRITE_SHIP_ATTRIBUTES         EQU COLOR_BLUE<<3|COLOR_CYAN
+SPRITE_TANK_ATTRIBUTES         EQU COLOR_INHERIT
+SPRITE_TANK_ON_BANK_ATTRIBUTES EQU COLOR_GREEN
+SPRITE_FIGHTER_ATTRIBUTES      EQU COLOR_INHERIT
+
+SPRITE_ROTOR_WIDTH_TILES   EQU $02
+SPRITE_ROTOR_HEIGHT_PIXELS EQU $02
+SPRITE_ROTOR_FRAME_SIZE    EQU SPRITE_ROTOR_WIDTH_TILES * SPRITE_ROTOR_HEIGHT_PIXELS
+SPRITE_ROTOR_ATTRIBUTES    EQU COLOR_BLUE<<3|COLOR_YELLOW
+
+SPRITE_BALLOON_WIDTH_TILES   EQU $02
+SPRITE_BALLOON_HEIGHT_PIXELS EQU $10
+SPRITE_BALLOON_FRAME_SIZE    EQU SPRITE_BALLOON_WIDTH_TILES * SPRITE_BALLOON_HEIGHT_PIXELS
+SPRITE_BALLOON_ATTRIBUTES    EQU COLOR_BLUE<<3|COLOR_YELLOW
+
+; There is only one frame, so it's size is irrelevant.
+SPRITE_FUEL_STATION_WIDTH_TILES   EQU $02
+SPRITE_FUEL_STATION_HEIGHT_PIXELS EQU $19
+SPRITE_FUEL_STATION_FRAME_SIZE    EQU $0000
+SPRITE_FUEL_STATION_ATTRIBUTES    EQU COLOR_BLUE<<3|COLOR_MAGENTA
+
+SPRITE_ROCK_WIDTH_TILES   EQU $03
+SPRITE_ROCK_HEIGHT_PIXELS EQU $10
+SPRITE_ROCK_FRAME_SIZE    EQU SPRITE_ROCK_WIDTH_TILES * SPRITE_ROCK_HEIGHT_PIXELS
+SPRITE_ROCK_ATTRIBUTES    EQU COLOR_RED<<3|COLOR_GREEN
+
+SPRITE_MISSILE_WIDTH_TILES      EQU $01
+SPRITE_MISSILE_HEIGHT_PIXELS    EQU $08
+SPRITE_MISSILE_FRAME_SIZE_BYTES EQU SPRITE_MISSILE_WIDTH_TILES * SPRITE_MISSILE_HEIGHT_PIXELS
+SPRITE_MISSILE_ATTRIBUTES       EQU COLOR_BLUE<<3|COLOR_GREEN
+
+; Shell sprite is a truncated missile sprite, so the frame size should be calculated
+; based on the original height.
+SPRITE_SHELL_WIDTH_TILES      EQU $01
+SPRITE_SHELL_HEIGHT_PIXELS    EQU $01
+SPRITE_SHELL_FRAME_SIZE_BYTES EQU SPRITE_SHELL_WIDTH_TILES * SPRITE_MISSILE_HEIGHT_PIXELS
+SPRITE_SHELL_ATTRIBUTES       EQU $00
+
+SPRITE_SHELL_EXPLOSION_WIDTH_TILES      EQU $02
+SPRITE_SHELL_EXPLOSION_HEIGHT_PIXELS    EQU $10
+SPRITE_SHELL_EXPLOSION_FRAME_SIZE_BYTES EQU $0000
+SPRITE_SHELL_EXPLOSION_ATTRIBUTES       EQU $0C
+
 FUEL_CHECK_INTERVAL    EQU $03
 FUEL_INTAKE_AMOUNT     EQU $04
 FUEL_LEVEL_EMPTY       EQU $00
@@ -70,6 +125,7 @@ FUEL_LEVEL_ALMOST_FULL EQU $FC
 FUEL_LEVEL_FULL        EQU $FF
 
 METRONOME_INTERVAL_CONSUME_FUEL EQU $01
+METRONOME_INTERVAL_ANIMATE_FUEL EQU $04
 METRONOME_INTERVAL_1            EQU $01
 
 INTERACTION_MODE_00   EQU $00
@@ -1586,10 +1642,10 @@ main_loop:
   CALL operate_viewport_objects
   LD A,$01
   LD (L673C),A
-  CALL L673D
+  CALL animate_plane_missile
   LD A,$00
   LD (L673C),A
-  CALL L673D
+  CALL animate_plane_missile
   CALL operate_tank_shell
   CALL L7393
   CALL advance
@@ -2038,7 +2094,8 @@ L62D7:
 ; state_speed.
 ;
 ; Used by the routines at hit_terrain, interact_with_something2, L6682, L66EE,
-; L673D, L6794, L6FEA, operate_viewport_objects, L7393 and operate_tank_shell.
+; animate_plane_missile, L6794, L6FEA, operate_viewport_objects, L7393 and
+; operate_tank_shell.
 ;
 ; I:B Current position
 ; O:B New position
@@ -2544,15 +2601,15 @@ handle_right:
   DEC C
   DEC C
   LD (L8B0A),BC
-  LD BC,$0010             ; Sprite size (2×1 tiles × 8 bytes/tile)
+  LD BC,SPRITE_PLANE_FRAME_SIZE
   LD HL,(L5EF7)
   LD (render_sprite_ptr),HL
-  LD E,COLOR_BLUE<<3|COLOR_YELLOW
+  LD E,SPRITE_PLANE_ATTRIBUTES
   LD A,(state_player)
-  CP PLAYER_2               ; Load player 2 color
+  CP PLAYER_2               ; Player 2 and ship use the same attributes
   CALL Z,ld_attributes_ship ;
-  LD D,$08
-  LD A,$02
+  LD D,SPRITE_PLANE_HEIGHT_PIXELS
+  LD A,SPRITE_PLANE_WIDTH_TILES
   LD HL,sprite_plane_banked
   CALL render_object
 ; This entry point is used by the routines at handle_left and L6682.
@@ -2584,15 +2641,15 @@ handle_left:
   INC C
   INC C
   LD (L8B0A),BC
-  LD BC,$0010             ; Sprite size (2×1 tiles × 8 bytes/tile)
+  LD BC,SPRITE_PLANE_FRAME_SIZE
   LD HL,(L5EF7)
   LD (render_sprite_ptr),HL
-  LD E,$0E                ; COLOR_YELLOW_ON_BLUE
+  LD E,SPRITE_PLANE_ATTRIBUTES
   LD A,(state_player)
-  CP PLAYER_2               ; Load player 2 color
+  CP PLAYER_2               ; Player 2 and ship use the same attributes
   CALL Z,ld_attributes_ship ;
-  LD D,$08
-  LD A,$02
+  LD D,SPRITE_PLANE_HEIGHT_PIXELS
+  LD A,SPRITE_PLANE_WIDTH_TILES
   LD HL,sprite_plane_banked
   CALL render_object
   JP handle_right_0
@@ -2614,19 +2671,19 @@ L6682:
   LD (L8B0C),BC
   CALL advance_object
   LD (L8B0A),BC
-  LD BC,$0010             ; Sprite size (2×1 tiles × 8 bytes/tile)
+  LD BC,SPRITE_PLANE_FRAME_SIZE
   LD HL,(L5EF7)
   LD (render_sprite_ptr),HL
-  LD E,$0E                ; COLOR_YELLOW_ON_BLUE
+  LD E,SPRITE_PLANE_ATTRIBUTES
   LD A,(state_player)
-  CP PLAYER_2               ; Load player 2 color
+  CP PLAYER_2               ; Player 2 and ship use the same attributes
   CALL Z,ld_attributes_ship ;
-  LD D,$08
+  LD D,SPRITE_PLANE_HEIGHT_PIXELS
   LD HL,sprite_plane
   LD A,(L5F69)
   CP $04
   CALL Z,ld_sprite_plane_banked
-  LD A,$02
+  LD A,SPRITE_PLANE_WIDTH_TILES
   CALL render_object
   JP handle_right_0
 
@@ -2728,7 +2785,7 @@ L673C:
 ; Routine at 673D
 ;
 ; Used by the routine at main_loop.
-L673D:
+animate_plane_missile:
   LD A,(L5EF3)
   CP $00
   RET Z
@@ -2755,16 +2812,16 @@ L673D:
   LD (L8B0C),BC
   LD A,OTHER_MODE_HIT
   LD (state_other_mode),A
-  LD DE,$080C
+  LD DE,SPRITE_MISSILE_HEIGHT_PIXELS<<8|SPRITE_MISSILE_ATTRIBUTES
   LD HL,sprite_missile
-  LD BC,$0008
-  LD A,$01
-  CALL L8B1E
+  LD BC,SPRITE_MISSILE_FRAME_SIZE_BYTES
+  LD A,SPRITE_MISSILE_WIDTH_TILES
+  CALL render_sprite
   RET
 
 ; Routine at 678E
 ;
-; Used by the routine at L673D.
+; Used by the routine at animate_plane_missile.
 L678E:
   LD HL,state_controls
   RES 0,(HL)              ; Reset CONTROLS_BIT_FIRE
@@ -2773,7 +2830,7 @@ L678E:
 ; Routine at 6794
 ;
 ; Used by the routines at handle_other_mode_xor, interact_with_something,
-; next_bridge_player_2, interact_with_something2 and L673D.
+; next_bridge_player_2, interact_with_something2 and animate_plane_missile.
 L6794:
   LD BC,(L5EF3)
   CALL blenging_mode_or_or
@@ -4240,7 +4297,7 @@ render_rock:
   AND SLOT_MASK_OBJECT_TYPE
   OR A
   LD HL,sprite_rock
-  LD BC,$0030             ; Sprite size (3×2 tiles × 8 bytes/tile)
+  LD BC,SPRITE_ROCK_FRAME_SIZE
   INC A
   SBC HL,BC
 locate_rock_element:
@@ -4253,8 +4310,8 @@ locate_rock_element:
   LD HL,sprite_erasure
   LD (L8B0C),BC
   LD (L8B0A),BC
-  LD A,$03                ; Set width to 3 tiles
-  LD DE,$1014             ; COLOR_GREEN_ON_RED
+  LD A,SPRITE_ROCK_WIDTH_TILES
+  LD DE,SPRITE_ROCK_HEIGHT_PIXELS<<8|SPRITE_ROCK_ATTRIBUTES
   CALL render_object
   RET
 
@@ -4298,8 +4355,8 @@ render_enemy:
   CALL add_object_to_set
   POP HL
   CALL L6FEA
-  LD BC,$0018             ; Sprite size (3×1 tiles × 8 bytes/tile)
-  LD E,$0E
+  LD BC,SPRITE_3BY1_ENEMY_FRAME_SIZE
+  LD E,SPRITE_3BY1_ENEMY_ATTRIBUTES
   LD A,D
   AND SLOT_MASK_OBJECT_TYPE
   CP OBJECT_SHIP
@@ -4308,9 +4365,9 @@ render_enemy:
   CALL Z,ld_attributes_fighter
   CP OBJECT_TANK
   CALL Z,ld_attributes_tank
-  LD A,$03
-  LD D,$08
-  CALL L8B1E
+  LD A,SPRITE_3BY1_ENEMY_WIDTH_TILES
+  LD D,SPRITE_3BY1_ENEMY_HEIGHT_PIXELS
+  CALL render_sprite
   CALL blenging_mode_or_or
   RET
 
@@ -4321,7 +4378,7 @@ render_enemy:
 ;
 ; O:E Attributes
 ld_attributes_ship:
-  LD E,$0D
+  LD E,SPRITE_SHIP_ATTRIBUTES
   RET
 
 ; Load fighter screen attributes.
@@ -4330,7 +4387,7 @@ ld_attributes_ship:
 ;
 ; O:E Attributes
 ld_attributes_fighter:
-  LD E,$00
+  LD E,SPRITE_FIGHTER_ATTRIBUTES
   RET
 
 ; Load tank screen attributes.
@@ -4339,10 +4396,10 @@ ld_attributes_fighter:
 ;
 ; O:E Attributes
 ld_attributes_tank:
-  LD E,$00
+  LD E,SPRITE_TANK_ATTRIBUTES
   BIT SLOT_BIT_TANK_ON_BANK,D
   RET Z
-  LD E,$04
+  LD E,SPRITE_TANK_ON_BANK_ATTRIBUTES
   RET
 
 ; Routine at 7046
@@ -4367,10 +4424,10 @@ render_fuel:
   CALL add_object_to_set
   LD HL,sprite_fuel
   CALL L6FEA
-  LD BC,$0000
-  LD A,$02
-  LD DE,$190B
-  CALL L8B1E
+  LD BC,SPRITE_FUEL_STATION_FRAME_SIZE
+  LD A,SPRITE_FUEL_STATION_WIDTH_TILES
+  LD DE,SPRITE_FUEL_STATION_HEIGHT_PIXELS<<8|SPRITE_FUEL_STATION_ATTRIBUTES
+  CALL render_sprite
   RET
 
 ; Render balloon
@@ -4389,10 +4446,10 @@ render_balloon:
   CALL add_object_to_set
   POP HL
   CALL L6FEA
-  LD BC,$0020             ; Sprite size (2×2 tiles × 8 bytes/tile)
-  LD A,$02
-  LD DE,$100E
-  CALL L8B1E
+  LD BC,SPRITE_BALLOON_FRAME_SIZE
+  LD A,SPRITE_BALLOON_WIDTH_TILES
+  LD DE,SPRITE_BALLOON_HEIGHT_PIXELS<<8|SPRITE_BALLOON_ATTRIBUTES
+  CALL render_sprite
   RET
 
 ; Routine at 708E
@@ -4495,14 +4552,14 @@ operate_viewport_objects_1:
   LD HL,all_ff
   LD (render_sprite_ptr),HL
   CALL ld_enemy_sprites
-  LD BC,$0018             ; Sprite frame size (3×1 tiles × 8 bytes/tile)
-  LD E,$0E                ; COLOR_YELLOW_ON_BLUE
+  LD BC,SPRITE_3BY1_ENEMY_FRAME_SIZE
+  LD E,SPRITE_3BY1_ENEMY_ATTRIBUTES
   LD A,D
   AND SLOT_MASK_OBJECT_TYPE
   CP OBJECT_SHIP
   CALL Z,ld_attributes_ship
-  LD A,$03
-  LD D,$08
+  LD A,SPRITE_3BY1_ENEMY_WIDTH_TILES
+  LD D,SPRITE_3BY1_ENEMY_HEIGHT_PIXELS
   CALL render_object
   JP operate_viewport_objects
 
@@ -4538,12 +4595,12 @@ operate_fighter_0:
   LD (HL),C
   LD (L8B0C),BC
   CALL ld_enemy_sprites
-  LD BC,$0018             ; Sprite size (3×1 tiles × 8 bytes/tile)
+  LD BC,SPRITE_3BY1_ENEMY_FRAME_SIZE
   CALL blenging_mode_xor_xor
   LD A,OTHER_MODE_XOR
   LD (state_other_mode),A
-  LD DE,$0800
-  CALL L8B1E
+  LD DE,SPRITE_3BY1_ENEMY_HEIGHT_PIXELS<<8|SPRITE_FIGHTER_ATTRIBUTES
+  CALL render_sprite
   CALL blenging_mode_or_or
   JP operate_viewport_objects
 
@@ -4618,11 +4675,11 @@ L71A2_1:
   LD A,(state_metronome)
   AND $06
   SRL A
-  ADD A,$0C
+  ADD A,SPRITE_SHELL_EXPLOSION_ATTRIBUTES
   LD E,A
-  LD BC,$0000
-  LD D,$10
-  LD A,$02
+  LD BC,SPRITE_SHELL_EXPLOSION_FRAME_SIZE_BYTES
+  LD D,SPRITE_SHELL_EXPLOSION_HEIGHT_PIXELS
+  LD A,SPRITE_SHELL_EXPLOSION_WIDTH_TILES
   CALL render_object
   JP operate_viewport_objects
 
@@ -4703,9 +4760,9 @@ animate_helicopter:
   LD HL,all_ff
   LD (render_sprite_ptr),HL
   POP HL
-  LD DE,$020E
-  LD BC,$0004
-  LD A,$02
+  LD DE,SPRITE_ROTOR_HEIGHT_PIXELS<<8|SPRITE_ROTOR_ATTRIBUTES
+  LD BC,SPRITE_ROTOR_FRAME_SIZE
+  LD A,SPRITE_ROTOR_WIDTH_TILES
   CALL render_object
   JP operate_viewport_objects
 
@@ -4765,11 +4822,11 @@ operate_tank_0:
   LD (HL),C
   LD (L8B0C),BC
   CALL ld_enemy_sprites
-  LD BC,$0018             ; Sprite size (3×1 tiles × 8 bytes/tile)
+  LD BC,SPRITE_3BY1_ENEMY_FRAME_SIZE
   CALL blenging_mode_xor_xor
-  LD A,$03
-  LD DE,$0800
-  CALL L8B1E
+  LD A,SPRITE_3BY1_ENEMY_WIDTH_TILES
+  LD DE,SPRITE_3BY1_ENEMY_HEIGHT_PIXELS<<8|SPRITE_TANK_ATTRIBUTES
+  CALL render_sprite
   CALL blenging_mode_or_or
   JP operate_viewport_objects
 
@@ -4911,7 +4968,7 @@ state_tank_shell:
   DEFB $00
 
 ; Game status buffer entry at 7384
-L7384:
+tank_shell_trajectory_frame:
   DEFB $00
 
 ; Game status buffer entry at 7385
@@ -4967,7 +5024,7 @@ L7393:
   LD E,$00
   LD D,$01
   LD HL,all_ff
-  CALL L8B1E
+  CALL render_sprite
   RET
 
 ; Routine at 73D0
@@ -5058,10 +5115,10 @@ operate_tank_shell:
   BIT TANK_SHELL_BIT_FLYING,A
   RET Z
   LD BC,(L7385)
-  LD A,(L7384)
+  LD A,(tank_shell_trajectory_frame)
   INC A
-  LD (L7384),A
-  CP $08
+  LD (tank_shell_trajectory_frame),A
+  CP TANK_SHELL_TRAJECTORY_NUM_FRAMES
   JP Z,render_tank_shell_explosion
   LD DE,$0002
   LD H,A
@@ -5090,10 +5147,10 @@ operate_tank_shell:
   CP VIEWPORT_HEIGHT
   JP Z,L74A0
   LD HL,sprite_missile
-  LD DE,$0100
-  LD A,$01
-  LD BC,$0008
-  CALL L8B1E
+  LD DE,SPRITE_SHELL_HEIGHT_PIXELS<<8|SPRITE_SHELL_ATTRIBUTES
+  LD A,SPRITE_SHELL_WIDTH_TILES
+  LD BC,SPRITE_SHELL_FRAME_SIZE_BYTES
+  CALL render_sprite
   RET
 
 ; Routine at 74A0
@@ -5131,7 +5188,7 @@ render_tank_shell_explosion:
   LD HL,viewport_objects
   CALL add_object_to_set
   LD A,$00
-  LD (L7384),A
+  LD (tank_shell_trajectory_frame),A
   RET
 
 ; Routine at 74E4
@@ -5228,13 +5285,13 @@ operate_fuel:
   CP $87
   JP Z,operate_viewport_objects
   LD HL,sprite_fuel
-  LD BC,$0000
+  LD BC,SPRITE_FUEL_STATION_FRAME_SIZE
   LD A,(state_metronome)
-  AND $04
-  ADD A,$0B
+  AND METRONOME_INTERVAL_ANIMATE_FUEL
+  ADD A,SPRITE_FUEL_STATION_ATTRIBUTES
   LD E,A
-  LD A,$02
-  CALL L8B1E
+  LD A,SPRITE_FUEL_STATION_WIDTH_TILES
+  CALL render_sprite
   JP operate_viewport_objects
 
 ; Routine at 758A
@@ -5339,9 +5396,9 @@ L75D0_0:
   AND SLOT_MASK_OBJECT_TYPE
   CP OBJECT_SHIP
   CALL Z,ld_attributes_ship
-  LD D,$08
-  LD A,$03
-  LD BC,$0018
+  LD D,SPRITE_3BY1_ENEMY_HEIGHT_PIXELS
+  LD A,SPRITE_3BY1_ENEMY_WIDTH_TILES
+  LD BC,SPRITE_3BY1_ENEMY_FRAME_SIZE
   CALL render_object
   JP operate_viewport_objects
 
@@ -5421,11 +5478,11 @@ operate_baloon_0:
   AND $03
   ADD A,$0C
   LD E,A
-  LD A,$02
-  LD BC,$0020
-  LD E,$0E
-  LD D,$10
-  CALL L8B1E
+  LD A,SPRITE_BALLOON_WIDTH_TILES
+  LD BC,SPRITE_BALLOON_FRAME_SIZE
+  LD E,SPRITE_BALLOON_ATTRIBUTES
+  LD D,SPRITE_BALLOON_HEIGHT_PIXELS
+  CALL render_sprite
   JP operate_viewport_objects
 
 ; Routine at 76AC
@@ -6904,12 +6961,16 @@ L8B1B:
 
 ; Routine at 8B1E
 ;
-; Used by the routines at L673D, render_enemy, render_fuel, render_balloon,
-; operate_fighter, operate_tank, L7393, operate_tank_shell, operate_fuel and
-; operate_baloon.
+; Used by the routines at animate_plane_missile, render_enemy, render_fuel,
+; render_balloon, operate_fighter, operate_tank, L7393, operate_tank_shell,
+; operate_fuel and operate_baloon.
 ;
+; I:A Sprite width in tiles
 ; I:BC Sprite frame size
-L8B1E:
+; I:D Frame number
+; I:E Screen attributes
+; I:HL Pointer to the sprite array
+render_sprite:
   PUSH DE
   LD (render_object_width),A
   LD DE,(L8B0A)
@@ -6920,10 +6981,10 @@ L8B1E:
   PUSH HL
   OR A
   SBC HL,BC
-L8B1E_0:
+render_sprite_0:
   ADD HL,BC
   DEC A
-  JR NZ,L8B1E_0
+  JR NZ,render_sprite_0
   LD (render_sprite_ptr),HL
   POP HL
   LD A,(render_object_width)
