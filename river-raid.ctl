@@ -395,10 +395,13 @@ c $62CE
 c $62D4
 c $62D7
 @ $62DA label=advance_object
-c $62DA Advance horizontal position of an object in the set by the value of #R$5F64.
-R $62DA I:B Current position
-R $62DA O:B New position
-c $62E0
+c $62DA Increase vertical coordinate of the object by the value of #R$5F64.
+R $62DA I:B Current coordinate
+R $62DA O:B New coordinate
+@ $62E0 label=retract_object
+c $62E0 Decrease vertical coordinate of the object by the value of #R$5F64.
+R $62E0 I:B Current coordinate
+R $62E0 O:B New coordinate
 @ $62E8 label=interact_with_something2
 c $62E8 Interact with something
 @ $62F4 isub=CP SET_MARKER_EMPTY_SLOT

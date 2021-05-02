@@ -2093,25 +2093,27 @@ L62D7:
   LD E,$11
   RET
 
-; Advance horizontal position of an object in the set by the value of
-; state_speed.
+; Increase vertical coordinate of the object by the value of state_speed.
 ;
 ; Used by the routines at hit_terrain, interact_with_something2, L6682, L66EE,
 ; animate_plane_missile, L6794, L6FEA, operate_viewport_objects, L7393 and
 ; operate_tank_shell.
 ;
-; I:B Current position
-; O:B New position
+; I:B Current coordinate
+; O:B New coordinate
 advance_object:
   LD A,(state_speed)
   ADD A,B
   LD B,A
   RET
 
-; Routine at 62E0
+; Decrease vertical coordinate of the object by the value of state_speed.
 ;
 ; Used by the routine at interact_with_something2.
-L62E0:
+;
+; I:B Current coordinate
+; O:B New coordinate
+retract_object:
   LD A,(state_speed)
   LD H,A
   LD A,B
@@ -2203,7 +2205,7 @@ interact_with_something2:
   JP M,interact_with_something2
   LD A,(state_interaction_mode_5F68)
   CP INTERACTION_MODE_FUEL
-  CALL Z,L62E0
+  CALL Z,retract_object
   LD (L5F8B),BC
   LD HL,(viewport_ptr)
   DEC HL

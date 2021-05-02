@@ -2106,22 +2106,26 @@ c$62D4 LD E,$09      ;
 c$62D7 LD E,$11      ;
  $62D9 RET           ;
 
-; Advance horizontal position of an object in the set by the value of #R$5F64.
+; Increase vertical coordinate of the object by the value of #R$5F64.
 ;
 ; Used by the routines at #R$6268, #R$62E8, #R$6682, #R$66EE, #R$673D, #R$6794,
 ; #R$6FEA, #R$708E, #R$7393 and #R$7441.
 ;
-; I:B Current position
-; O:B New position
+; I:B Current coordinate
+; O:B New coordinate
 @label=advance_object
 c$62DA LD A,($5F64)  ;
  $62DD ADD A,B       ;
  $62DE LD B,A        ;
  $62DF RET           ;
 
-; Routine at 62E0
+; Decrease vertical coordinate of the object by the value of #R$5F64.
 ;
 ; Used by the routine at #R$62E8.
+;
+; I:B Current coordinate
+; O:B New coordinate
+@label=retract_object
 c$62E0 LD A,($5F64)  ;
  $62E3 LD H,A        ;
  $62E4 LD A,B        ;
