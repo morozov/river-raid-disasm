@@ -35,9 +35,10 @@ CONTROLS_BIT_LOW_FUEL        EQU 3
 CONTROLS_BIT_BONUS_LIFE      EQU 4
 CONTROLS_BIT_EXPLODING       EQU 5
 
-TANK_SHELL_BIT_EXPLODING         EQU 5
-TANK_SHELL_BIT_FLYING            EQU 7
-TANK_SHELL_TRAJECTORY_NUM_FRAMES EQU 8
+TANK_SHELL_MASK_SPEED          EQU $07
+TANK_SHELL_BIT_EXPLODING       EQU 5
+TANK_SHELL_BIT_FLYING          EQU 7
+TANK_SHELL_TRAJECTORY_MAX_STEP EQU $08
 
 POINTS_SHIP           EQU $03
 POINTS_HELICOPTER_REG EQU $06
@@ -118,6 +119,8 @@ SPRITE_SHELL_EXPLOSION_WIDTH_TILES      EQU $02
 SPRITE_SHELL_EXPLOSION_HEIGHT_PIXELS    EQU $10
 SPRITE_SHELL_EXPLOSION_FRAME_SIZE_BYTES EQU $0000
 SPRITE_SHELL_EXPLOSION_ATTRIBUTES       EQU $0C
+
+PLANE_COORDINATE_Y     EQU $80
 
 FUEL_CHECK_INTERVAL    EQU $03
 FUEL_INTAKE_AMOUNT     EQU $04
@@ -2616,6 +2619,7 @@ c$65F3 LD A,($5F72)  ;
  $65FD INC A         ;
  $65FE LD ($5F72),A  ;
  $6601 LD C,A        ;
+@isub=LD B,PLANE_COORDINATE_Y
  $6602 LD B,$80      ;
 @isub=LD A,OTHER_MODE_FUEL
  $6604 LD A,$01      ;
@@ -2660,6 +2664,7 @@ c$6642 LD A,($5F72)  ;
  $664C DEC A         ;
  $664D LD ($5F72),A  ;
  $6650 LD C,A        ;
+@isub=LD B,PLANE_COORDINATE_Y
  $6651 LD B,$80      ;
 @isub=LD A,OTHER_MODE_FUEL
  $6653 LD A,$01      ;
@@ -4936,7 +4941,7 @@ c$72EF LD A,$B0      ;
 ;
 ; I:C Previous value of XYZ.
 ; O:C New value of XYZ.
-@label=invert_tank_on_bank_offset
+@label=invert_tank_offset_delta
 c$72F8 LD A,C        ;
  $72F9 SUB $20       ;
  $72FB LD C,A        ;
@@ -5044,20 +5049,21 @@ c$7380 XOR $7F       ;
  $7382 RET           ;
 
 ; Game status buffer entry at 7383
-@label=state_tank_shell
+@label=tank_shell_state
 g$7383 DEFB $00
 
 ; Game status buffer entry at 7384
-@label=tank_shell_trajectory_frame
+@label=tank_shell_trajectory_step
 g$7384 DEFB $00
 
 ; Game status buffer entry at 7385
-@label=L7385
+@label=tank_shell_coordinates
 g$7385 DEFW $0000
 
 ; Routine at 7387
 ;
 ; Used by the routine at #R$7441.
+@label=invert_shell_coordinate_delta
 c$7387 LD A,C        ;
  $7388 SUB E         ;
  $7389 SUB E         ;
@@ -5197,7 +5203,7 @@ c$7441 LD A,($7383)  ;
  $744B LD A,($7384)  ;
  $744E INC A         ;
  $744F LD ($7384),A  ;
-@isub=CP TANK_SHELL_TRAJECTORY_NUM_FRAMES
+@isub=CP TANK_SHELL_TRAJECTORY_MAX_STEP
  $7452 CP $08        ;
  $7454 JP Z,$74C6    ;
  $7457 LD DE,$0002   ;
@@ -5209,12 +5215,14 @@ c$7441 LD A,($7383)  ;
  $7467 LD ($8B0A),BC ;
  $746B LD A,($7383)  ;
  $746E LD D,A        ;
+@isub=AND TANK_SHELL_MASK_SPEED
  $746F AND $07       ;
  $7471 LD E,A        ;
  $7472 LD A,C        ;
  $7473 ADD A,E       ;
  $7474 ADD A,E       ;
  $7475 LD C,A        ;
+@isub=BIT SLOT_BIT_ORIENTATION,D
  $7476 BIT 6,D       ;
  $7478 CALL NZ,$7387 ;
  $747B INC B         ;
@@ -7193,11 +7201,11 @@ u$8AD8 DEFB $00,$00,$00,$10,$00,$00,$00,$00
 g$8B08 DEFW $0000
 
 ; Game status buffer entry at 8B0A
-@label=L8B0A
+@label=previous_object_coordinates
 g$8B0A DEFW $0000
 
-; Game status buffer entry at 8B0C
-@label=L8B0C
+; Highest byte is the vertical coordinate, lowest byte is the horizontal.
+@label=object_coordinates
 g$8B0C DEFW $0000
 
 ; Game status buffer entry at 8B0E

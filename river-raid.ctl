@@ -35,9 +35,10 @@
 > $4000 CONTROLS_BIT_BONUS_LIFE      EQU 4
 > $4000 CONTROLS_BIT_EXPLODING       EQU 5
 > $4000
-> $4000 TANK_SHELL_BIT_EXPLODING         EQU 5
-> $4000 TANK_SHELL_BIT_FLYING            EQU 7
-> $4000 TANK_SHELL_TRAJECTORY_NUM_FRAMES EQU 8
+> $4000 TANK_SHELL_MASK_SPEED          EQU $07
+> $4000 TANK_SHELL_BIT_EXPLODING       EQU 5
+> $4000 TANK_SHELL_BIT_FLYING          EQU 7
+> $4000 TANK_SHELL_TRAJECTORY_MAX_STEP EQU $08
 > $4000
 > $4000 POINTS_SHIP           EQU $03
 > $4000 POINTS_HELICOPTER_REG EQU $06
@@ -118,6 +119,8 @@
 > $4000 SPRITE_SHELL_EXPLOSION_HEIGHT_PIXELS    EQU $10
 > $4000 SPRITE_SHELL_EXPLOSION_FRAME_SIZE_BYTES EQU $0000
 > $4000 SPRITE_SHELL_EXPLOSION_ATTRIBUTES       EQU $0C
+> $4000
+> $4000 PLANE_COORDINATE_Y     EQU $80
 > $4000
 > $4000 FUEL_CHECK_INTERVAL    EQU $03
 > $4000 FUEL_INTAKE_AMOUNT     EQU $04
@@ -467,6 +470,7 @@ c $65CB
 c $65DE
 @ $65F3 label=handle_right
 c $65F3
+@ $6602 isub=LD B,PLANE_COORDINATE_Y
 @ $6604 isub=LD A,OTHER_MODE_FUEL
 @ $6613 isub=LD BC,SPRITE_PLANE_FRAME_SIZE
 @ $661C isub=LD E,SPRITE_PLANE_ATTRIBUTES
@@ -476,6 +480,7 @@ c $65F3
 @ $6628 isub=LD A,SPRITE_PLANE_WIDTH_TILES
 @ $6642 label=handle_left
 c $6642
+@ $6651 isub=LD B,PLANE_COORDINATE_Y
 @ $6653 isub=LD A,OTHER_MODE_FUEL
 @ $6662 isub=LD BC,SPRITE_PLANE_FRAME_SIZE
 @ $666B isub=LD E,SPRITE_PLANE_ATTRIBUTES
@@ -912,7 +917,7 @@ c $72EF
   $72F1,3 Put "OR B" into #R$8C1B
 @ $72F4 nowarn
   $72F4,3 Put "OR B" into #R$8C3C
-@ $72F8 label=invert_tank_on_bank_offset
+@ $72F8 label=invert_tank_offset_delta
 c $72F8 Decreases the value of XYZ stored in #REGc by $20. Called if the tank is oriented left in order to compensate for the previous operation of adding $10.
 R $72F8 I:C Previous value of XYZ.
 R $72F8 O:C New value of XYZ.
@@ -930,13 +935,14 @@ c $7358
 c $735E
 @ $7361 isub=CP TODO_L5EF2_01
 c $7380
-@ $7383 label=state_tank_shell
+@ $7383 label=tank_shell_state
 g $7383
-@ $7384 label=tank_shell_trajectory_frame
+@ $7384 label=tank_shell_trajectory_step
 g $7384
-@ $7385 label=L7385
+@ $7385 label=tank_shell_coordinates
 g $7385
 W $7385
+@ $7387 label=invert_shell_coordinate_delta
 c $7387
 c $738E
 c $7393
@@ -953,7 +959,9 @@ c $7415
 @ $7441 label=operate_tank_shell
 c $7441
 @ $7444 isub=BIT TANK_SHELL_BIT_FLYING,A
-@ $7452 isub=CP TANK_SHELL_TRAJECTORY_NUM_FRAMES
+@ $7452 isub=CP TANK_SHELL_TRAJECTORY_MAX_STEP
+@ $746F isub=AND TANK_SHELL_MASK_SPEED
+@ $7476 isub=BIT SLOT_BIT_ORIENTATION,D
 @ $7484 isub=LD A,OTHER_MODE_00
 @ $748A isub=AND VIEWPORT_HEIGHT
 @ $748C isub=CP VIEWPORT_HEIGHT
@@ -1358,11 +1366,11 @@ u $8AD8
 @ $8B08 label=L6136_ptr
 g $8B08 Pointer to #R$6136
 W $8B08
-@ $8B0A label=L8B0A
+@ $8B0A label=previous_object_coordinates
 g $8B0A
 W $8B0A
-@ $8B0C label=L8B0C
-g $8B0C
+@ $8B0C label=object_coordinates
+g $8B0C Highest byte is the vertical coordinate, lowest byte is the horizontal.
 W $8B0C
 @ $8B0E label=render_sprite_ptr
 g $8B0E

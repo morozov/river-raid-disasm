@@ -33,9 +33,10 @@ CONTROLS_BIT_LOW_FUEL        EQU 3
 CONTROLS_BIT_BONUS_LIFE      EQU 4
 CONTROLS_BIT_EXPLODING       EQU 5
 
-TANK_SHELL_BIT_EXPLODING         EQU 5
-TANK_SHELL_BIT_FLYING            EQU 7
-TANK_SHELL_TRAJECTORY_NUM_FRAMES EQU 8
+TANK_SHELL_MASK_SPEED          EQU $07
+TANK_SHELL_BIT_EXPLODING       EQU 5
+TANK_SHELL_BIT_FLYING          EQU 7
+TANK_SHELL_TRAJECTORY_MAX_STEP EQU $08
 
 POINTS_SHIP           EQU $03
 POINTS_HELICOPTER_REG EQU $06
@@ -116,6 +117,8 @@ SPRITE_SHELL_EXPLOSION_WIDTH_TILES      EQU $02
 SPRITE_SHELL_EXPLOSION_HEIGHT_PIXELS    EQU $10
 SPRITE_SHELL_EXPLOSION_FRAME_SIZE_BYTES EQU $0000
 SPRITE_SHELL_EXPLOSION_ATTRIBUTES       EQU $0C
+
+PLANE_COORDINATE_Y     EQU $80
 
 FUEL_CHECK_INTERVAL    EQU $03
 FUEL_INTAKE_AMOUNT     EQU $04
@@ -1783,8 +1786,8 @@ L60A5:
   LD B,A
   LD A,(state_speed)
   LD D,A
-  LD (L8B0A),BC
-  LD (L8B0C),BC
+  LD (previous_object_coordinates),BC
+  LD (object_coordinates),BC
   LD E,$00
   LD BC,$0010
   LD A,$02
@@ -1864,7 +1867,7 @@ L6136:
 ; Used by the routine at L6136.
 handle_other_mode_xor:
   LD BC,(L5EF3)
-  LD DE,(L8B0C)
+  LD DE,(object_coordinates)
   LD A,B
   ADD A,$06
   SUB D
@@ -2233,8 +2236,8 @@ interact_with_something2_0:
   LD A,(L5F8B)
   CP $02
   JP Z,L63FC
-  LD BC,(L7385)
-  LD DE,(L8B0C)
+  LD BC,(tank_shell_coordinates)
+  LD DE,(object_coordinates)
   LD A,B
   CP D
   JP Z,L63FC
@@ -2594,13 +2597,13 @@ handle_right:
   INC A
   LD (state_x),A
   LD C,A
-  LD B,$80
+  LD B,PLANE_COORDINATE_Y
   LD A,OTHER_MODE_FUEL
   LD (state_other_mode),A
-  LD (L8B0C),BC
+  LD (object_coordinates),BC
   DEC C
   DEC C
-  LD (L8B0A),BC
+  LD (previous_object_coordinates),BC
   LD BC,SPRITE_PLANE_FRAME_SIZE
   LD HL,(L5EF7)
   LD (render_sprite_ptr),HL
@@ -2634,13 +2637,13 @@ handle_left:
   DEC A
   LD (state_x),A
   LD C,A
-  LD B,$80
+  LD B,PLANE_COORDINATE_Y
   LD A,OTHER_MODE_FUEL
   LD (state_other_mode),A
-  LD (L8B0C),BC
+  LD (object_coordinates),BC
   INC C
   INC C
-  LD (L8B0A),BC
+  LD (previous_object_coordinates),BC
   LD BC,SPRITE_PLANE_FRAME_SIZE
   LD HL,(L5EF7)
   LD (render_sprite_ptr),HL
@@ -2668,9 +2671,9 @@ L6682:
   LD B,$80
   LD A,OTHER_MODE_FUEL
   LD (state_other_mode),A
-  LD (L8B0C),BC
+  LD (object_coordinates),BC
   CALL advance_object
-  LD (L8B0A),BC
+  LD (previous_object_coordinates),BC
   LD BC,SPRITE_PLANE_FRAME_SIZE
   LD HL,(L5EF7)
   LD (render_sprite_ptr),HL
@@ -2794,7 +2797,7 @@ animate_plane_missile:
   LD A,(L673C)
   CP $01
   CALL Z,advance_object
-  LD (L8B0A),BC
+  LD (previous_object_coordinates),BC
   LD BC,(L5EF3)
   LD A,(state_x)
   ADD A,$04
@@ -2809,7 +2812,7 @@ animate_plane_missile:
   LD A,$70
   SUB B
   CALL P,L678E
-  LD (L8B0C),BC
+  LD (object_coordinates),BC
   LD A,OTHER_MODE_HIT
   LD (state_other_mode),A
   LD DE,SPRITE_MISSILE_HEIGHT_PIXELS<<8|SPRITE_MISSILE_ATTRIBUTES
@@ -2856,8 +2859,8 @@ L6794_0:
   CP $01
   CALL Z,advance_object
   LD (render_sprite_ptr),HL
-  LD (L8B0C),BC
-  LD (L8B0A),BC
+  LD (object_coordinates),BC
+  LD (previous_object_coordinates),BC
   LD A,$01
   LD BC,$0008
   LD DE,$080C
@@ -2899,8 +2902,8 @@ L6794_1:
   LD A,$01
   LD (render_sprite_ptr),HL
   LD HL,sprite_erasure
-  LD (L8B0C),BC
-  LD (L8B0A),BC
+  LD (object_coordinates),BC
+  LD (previous_object_coordinates),BC
   LD BC,$0000
   CALL render_object
   RET
@@ -4178,8 +4181,8 @@ render_explosions:
   LD (render_object_width),A
   LD A,D
   LD DE,$080C
-  LD (L8B0A),BC
-  LD (L8B0C),BC
+  LD (previous_object_coordinates),BC
+  LD (object_coordinates),BC
   LD BC,$0000
   BIT 7,A
   JP NZ,render_explosions_0
@@ -4308,8 +4311,8 @@ locate_rock_element:
   LD C,E
   LD (render_sprite_ptr),HL
   LD HL,sprite_erasure
-  LD (L8B0C),BC
-  LD (L8B0A),BC
+  LD (object_coordinates),BC
+  LD (previous_object_coordinates),BC
   LD A,SPRITE_ROCK_WIDTH_TILES
   LD DE,SPRITE_ROCK_HEIGHT_PIXELS<<8|SPRITE_ROCK_ATTRIBUTES
   CALL render_object
@@ -4329,8 +4332,8 @@ ld_enemy_sprites_right:
 ; Used by the routines at render_enemy, render_fuel and render_balloon.
 L6FEA:
   CALL advance_object
-  LD (L8B0C),BC
-  LD (L8B0A),BC
+  LD (object_coordinates),BC
+  LD (previous_object_coordinates),BC
   RET
 
 ; Render enemy
@@ -4536,7 +4539,7 @@ operate_viewport_objects_0:
   POP BC
   CP $00
   CALL NZ,L75D0
-  LD (L8B0A),BC
+  LD (previous_object_coordinates),BC
   DEC C
   DEC C
 ; This entry point is used by the routines at L7224 and L75A2.
@@ -4548,7 +4551,7 @@ operate_viewport_objects_1:
   LD (HL),B
   DEC HL
   LD (HL),C
-  LD (L8B0C),BC
+  LD (object_coordinates),BC
   LD HL,all_ff
   LD (render_sprite_ptr),HL
   CALL ld_enemy_sprites
@@ -4574,7 +4577,7 @@ L7155:
 ;
 ; Used by the routine at operate_viewport_objects.
 operate_fighter:
-  LD (L8B0A),BC
+  LD (previous_object_coordinates),BC
   BIT 6,D
   JP Z,L7192
   DEC C
@@ -4593,7 +4596,7 @@ operate_fighter_0:
   LD (HL),B
   DEC HL
   LD (HL),C
-  LD (L8B0C),BC
+  LD (object_coordinates),BC
   CALL ld_enemy_sprites
   LD BC,SPRITE_3BY1_ENEMY_FRAME_SIZE
   CALL blenging_mode_xor_xor
@@ -4632,8 +4635,8 @@ L71A2:
   AND METRONOME_INTERVAL_1
   CP METRONOME_INTERVAL_1
   JP NZ,operate_viewport_objects
-  LD (L8B0A),BC
-  LD (L8B0C),BC
+  LD (previous_object_coordinates),BC
+  LD (object_coordinates),BC
   LD A,B
   AND $80
   CP $80
@@ -4693,9 +4696,9 @@ finish_tank_shell_explosion:
   DEC HL
   LD (HL),$00
   LD HL,sprite_erasure
-  LD A,(state_tank_shell)
+  LD A,(tank_shell_state)
   RES TANK_SHELL_BIT_EXPLODING,A
-  LD (state_tank_shell),A
+  LD (tank_shell_state),A
   JP L71A2_1
 
 ; Routine at 7224
@@ -4716,7 +4719,7 @@ L7224:
   CP OBJECT_HELICOPTER_ADV
   JP NZ,operate_viewport_objects
 L7224_0:
-  LD (L8B0A),BC
+  LD (previous_object_coordinates),BC
   JP operate_viewport_objects_1
 
 ; Routine at 7248
@@ -4753,8 +4756,8 @@ animate_helicopter:
   LD HL,sprite_helicopter_rotor_left
   BIT SLOT_BIT_ORIENTATION,D
   CALL Z,ld_sprite_helicopter_rotor_right
-  LD (L8B0C),BC
-  LD (L8B0A),BC
+  LD (object_coordinates),BC
+  LD (previous_object_coordinates),BC
   PUSH HL
   CALL ld_enemy_sprites
   LD HL,all_ff
@@ -4794,7 +4797,7 @@ operate_tank:
   AND METRONOME_INTERVAL_1
   CP METRONOME_INTERVAL_1
   JP Z,operate_viewport_objects
-  LD (L8B0A),BC
+  LD (previous_object_coordinates),BC
   PUSH DE
   PUSH BC
   BIT SLOT_BIT_TANK_ON_BANK,D
@@ -4820,7 +4823,7 @@ operate_tank_0:
   LD (HL),B
   DEC HL
   LD (HL),C
-  LD (L8B0C),BC
+  LD (object_coordinates),BC
   CALL ld_enemy_sprites
   LD BC,SPRITE_3BY1_ENEMY_FRAME_SIZE
   CALL blenging_mode_xor_xor
@@ -4856,7 +4859,7 @@ blenging_mode_or_or:
 ;
 ; I:C Previous value of XYZ.
 ; O:C New value of XYZ.
-invert_tank_on_bank_offset:
+invert_tank_offset_delta:
   LD A,C
   SUB $20
   LD C,A
@@ -4877,19 +4880,19 @@ L72FD:
 ;
 ; I:D OBJECT_DEFINITION
 operate_tank_on_bank:
-  LD BC,(L8B0A)
+  LD BC,(previous_object_coordinates)
   LD A,C
   ADD A,$10
   LD C,A
   BIT SLOT_BIT_ORIENTATION,D
-  CALL NZ,invert_tank_on_bank_offset
+  CALL NZ,invert_tank_offset_delta
   CALL calculate_pixel_address
   LD A,(HL)
   CP $FF
   POP BC
   POP DE
   JP Z,operate_tank_0
-  LD A,(state_tank_shell)
+  LD A,(tank_shell_state)
   BIT TANK_SHELL_BIT_FLYING,A
   JP NZ,operate_viewport_objects
   BIT TANK_SHELL_BIT_EXPLODING,A
@@ -4900,13 +4903,13 @@ operate_tank_on_bank:
 ; This entry point is used by the routines at L7343 and L735E.
 operate_tank_on_bank_0:
   SET TANK_SHELL_BIT_FLYING,A
-  LD (state_tank_shell),A
+  LD (tank_shell_state),A
   LD A,C
   SUB $10
   LD C,A
   BIT 6,D
   CALL Z,L72FD
-  LD (L7385),BC
+  LD (tank_shell_coordinates),BC
   JP operate_viewport_objects
 
 ; Routine at 7343
@@ -4964,21 +4967,21 @@ L7380:
   RET
 
 ; Game status buffer entry at 7383
-state_tank_shell:
+tank_shell_state:
   DEFB $00
 
 ; Game status buffer entry at 7384
-tank_shell_trajectory_frame:
+tank_shell_trajectory_step:
   DEFB $00
 
 ; Game status buffer entry at 7385
-L7385:
+tank_shell_coordinates:
   DEFW $0000
 
 ; Routine at 7387
 ;
 ; Used by the routine at operate_tank_shell.
-L7387:
+invert_shell_coordinate_delta:
   LD A,C
   SUB E
   SUB E
@@ -5005,7 +5008,7 @@ L7393:
   CP $00
   RET Z
   CALL advance_object
-  LD (L8B0A),BC
+  LD (previous_object_coordinates),BC
   LD A,C
   SUB $08
   LD C,A
@@ -5016,7 +5019,7 @@ L7393:
   LD A,(L5F75)
   BIT 6,A
   CALL Z,L738E
-  LD (L8B0C),BC
+  LD (object_coordinates),BC
   LD (L5F73),BC
   LD A,OTHER_MODE_HELICOPTER_ADV
   LD (state_other_mode),A
@@ -5111,35 +5114,35 @@ handle_other_mode_helicopter_missile_0:
 ;
 ; Used by the routines at main_loop and demo.
 operate_tank_shell:
-  LD A,(state_tank_shell)
+  LD A,(tank_shell_state)
   BIT TANK_SHELL_BIT_FLYING,A
   RET Z
-  LD BC,(L7385)
-  LD A,(tank_shell_trajectory_frame)
+  LD BC,(tank_shell_coordinates)
+  LD A,(tank_shell_trajectory_step)
   INC A
-  LD (tank_shell_trajectory_frame),A
-  CP TANK_SHELL_TRAJECTORY_NUM_FRAMES
+  LD (tank_shell_trajectory_step),A
+  CP TANK_SHELL_TRAJECTORY_MAX_STEP
   JP Z,render_tank_shell_explosion
   LD DE,$0002
   LD H,A
   LD L,$00
   CALL BEEPER
-  LD BC,(L7385)
+  LD BC,(tank_shell_coordinates)
   CALL advance_object
-  LD (L8B0A),BC
-  LD A,(state_tank_shell)
+  LD (previous_object_coordinates),BC
+  LD A,(tank_shell_state)
   LD D,A
-  AND $07
+  AND TANK_SHELL_MASK_SPEED
   LD E,A
   LD A,C
   ADD A,E
   ADD A,E
   LD C,A
-  BIT 6,D
-  CALL NZ,L7387
+  BIT SLOT_BIT_ORIENTATION,D
+  CALL NZ,invert_shell_coordinate_delta
   INC B
-  LD (L8B0C),BC
-  LD (L7385),BC
+  LD (object_coordinates),BC
+  LD (tank_shell_coordinates),BC
   LD A,OTHER_MODE_00
   LD (state_other_mode),A
   LD A,B
@@ -5157,7 +5160,7 @@ operate_tank_shell:
 ;
 ; Used by the routine at operate_tank_shell.
 L74A0:
-  LD BC,(L8B0A)
+  LD BC,(previous_object_coordinates)
   LD HL,sprite_missile
   LD A,C
   AND $06
@@ -5180,15 +5183,15 @@ L74A0:
 render_tank_shell_explosion:
   LD D,$80
   LD HL,$0000
-  LD (L7385),HL
-  LD A,(state_tank_shell)
+  LD (tank_shell_coordinates),HL
+  LD A,(tank_shell_state)
   RES TANK_SHELL_BIT_FLYING,A
   SET TANK_SHELL_BIT_EXPLODING,A
-  LD (state_tank_shell),A
+  LD (tank_shell_state),A
   LD HL,viewport_objects
   CALL add_object_to_set
   LD A,$00
-  LD (tank_shell_trajectory_frame),A
+  LD (tank_shell_trajectory_step),A
   RET
 
 ; Routine at 74E4
@@ -5197,8 +5200,8 @@ render_tank_shell_explosion:
 ; remove_object_from_viewport.
 remove_tank_shell:
   LD HL,$0000
-  LD (state_tank_shell),HL
-  LD (L7385),HL
+  LD (tank_shell_state),HL
+  LD (tank_shell_coordinates),HL
   RET
 
 ; Routine at 74EE
@@ -5267,15 +5270,15 @@ L7546:
 ;
 ; Used by the routine at operate_viewport_objects.
 operate_fuel:
-  LD (L8B0A),BC
-  LD (L8B0C),BC
+  LD (previous_object_coordinates),BC
+  LD (object_coordinates),BC
   LD D,$19
   LD A,B
   ADD A,$19
   AND $90
   CP $90
   CALL Z,L758A
-  LD BC,(L8B0A)
+  LD BC,(previous_object_coordinates)
   LD A,B
   AND VIEWPORT_HEIGHT
   CP VIEWPORT_HEIGHT
@@ -5327,7 +5330,7 @@ L75A2:
   POP BC
   CP $00
   CALL NZ,L75D0
-  LD (L8B0A),BC
+  LD (previous_object_coordinates),BC
   INC C
   INC C
   JP operate_viewport_objects_1
@@ -5359,17 +5362,17 @@ ld_enemy_sprites_loop:
 ;
 ; Used by the routines at operate_viewport_objects and L75A2.
 L75D0:
-  LD (L8B0A),BC
+  LD (previous_object_coordinates),BC
   LD A,B
   SUB $80
   RET P
-  LD BC,(L8B0A)
+  LD BC,(previous_object_coordinates)
   POP HL
   LD HL,(viewport_ptr)
   DEC HL
   LD D,(HL)
   CALL ld_enemy_sprites
-  LD BC,(L8B0A)
+  LD BC,(previous_object_coordinates)
   LD A,C
   AND $07
   LD BC,$0018
@@ -5382,8 +5385,8 @@ L75D0_0:
   DEC A
   JR NZ,L75D0_0
   LD (render_sprite_ptr),HL
-  LD BC,(L8B0A)
-  LD (L8B0C),BC
+  LD BC,(previous_object_coordinates)
+  LD (object_coordinates),BC
   LD A,D
   XOR $40
   LD D,A
@@ -5460,7 +5463,7 @@ operate_baloon:
   POP BC
   CP $00
   CALL NZ,L76DA
-  LD (L8B0A),BC
+  LD (previous_object_coordinates),BC
   DEC C
   DEC C
 ; This entry point is used by the routine at L76AF.
@@ -5472,7 +5475,7 @@ operate_baloon_0:
   LD (HL),B
   DEC HL
   LD (HL),C
-  LD (L8B0C),BC
+  LD (object_coordinates),BC
   LD HL,sprite_balloon
   LD A,(state_metronome)
   AND $03
@@ -5516,7 +5519,7 @@ L76AF:
   POP BC
   CP $00
   CALL NZ,L76DA
-  LD (L8B0A),BC
+  LD (previous_object_coordinates),BC
   INC C
   INC C
   JP operate_baloon_0
@@ -5525,17 +5528,17 @@ L76AF:
 ;
 ; Used by the routines at operate_baloon and L76AF.
 L76DA:
-  LD (L8B0A),BC
+  LD (previous_object_coordinates),BC
   LD A,B
   SUB $80
   RET P
-  LD BC,(L8B0A)
+  LD BC,(previous_object_coordinates)
   POP HL
   LD HL,(viewport_ptr)
   DEC HL
   LD D,(HL)
   LD HL,sprite_balloon
-  LD BC,(L8B0A)
+  LD BC,(previous_object_coordinates)
   LD A,C
   AND $06
   LD BC,$0020
@@ -5548,8 +5551,8 @@ L76DA_0:
   DEC A
   JR NZ,L76DA_0
   LD (render_sprite_ptr),HL
-  LD BC,(L8B0A)
-  LD (L8B0C),BC
+  LD BC,(previous_object_coordinates)
+  LD (object_coordinates),BC
   LD A,D
   XOR $40
   LD HL,(viewport_ptr)
@@ -6920,11 +6923,11 @@ L6136_ptr:
   DEFW $0000
 
 ; Game status buffer entry at 8B0A
-L8B0A:
+previous_object_coordinates:
   DEFW $0000
 
-; Game status buffer entry at 8B0C
-L8B0C:
+; Highest byte is the vertical coordinate, lowest byte is the horizontal.
+object_coordinates:
   DEFW $0000
 
 ; Game status buffer entry at 8B0E
@@ -6973,7 +6976,7 @@ L8B1B:
 render_sprite:
   PUSH DE
   LD (render_object_width),A
-  LD DE,(L8B0A)
+  LD DE,(previous_object_coordinates)
   LD A,E
   AND $07
   SRL A
@@ -7022,10 +7025,10 @@ render_object_0:
 ; This entry point is used by the routine at render_explosions.
 render_object_1:
   PUSH DE
-  LD BC,(L8B0C)
+  LD BC,(object_coordinates)
   CALL calculate_pixel_address
   LD (L8B12),HL
-  LD BC,(L8B0A)
+  LD BC,(previous_object_coordinates)
   CALL calculate_pixel_address
   LD (L8B14),HL
   JP L8BC6_0
@@ -7035,7 +7038,7 @@ render_object_1:
 ; Used by the routine at L8BC6.
 L8B70:
   PUSH DE
-  LD BC,(L8B0C)
+  LD BC,(object_coordinates)
   LD A,B
   AND $07
   CP $00
@@ -7066,7 +7069,7 @@ L8B94:
 ;
 ; Used by the routines at L8B70 and L8B94.
 L8BA3:
-  LD BC,(L8B0A)
+  LD BC,(previous_object_coordinates)
   LD A,B
   AND $07
   CP $00
@@ -7103,12 +7106,12 @@ L8BC6_0:
   LD HL,(L8B10)
   ADD HL,DE
   LD (L8B10),HL
-  LD HL,(L8B0A)
+  LD HL,(previous_object_coordinates)
   INC H
-  LD (L8B0A),HL
-  LD HL,(L8B0C)
+  LD (previous_object_coordinates),HL
+  LD HL,(object_coordinates)
   INC H
-  LD (L8B0C),HL
+  LD (object_coordinates),HL
   LD HL,(L8B12)
   INC H
   LD (L8B12),HL
@@ -7824,7 +7827,7 @@ L928D:
   LD (L9287),DE
   LD (L9285),BC
   LD (L9289),HL
-  LD BC,(L8B0A)
+  LD BC,(previous_object_coordinates)
   LD A,B
   AND $F8
   LD H,$00
@@ -7857,7 +7860,7 @@ L928D:
   OR A
   SBC HL,BC
   EX DE,HL
-  LD BC,(L8B0A)
+  LD BC,(previous_object_coordinates)
   LD A,B
   AND $F8
   CP $00
@@ -7883,7 +7886,7 @@ L928D_1:
   DJNZ L928D_0
 ; This entry point is used by the routine at L9367.
 L928D_2:
-  LD BC,(L8B0C)
+  LD BC,(object_coordinates)
   LD A,B
   AND $F8
   LD H,$00
@@ -7915,7 +7918,7 @@ L928D_2:
   OR A
   SBC HL,BC
   EX DE,HL
-  LD BC,(L8B0C)
+  LD BC,(object_coordinates)
   LD A,B
   AND $F8
   CP $00
@@ -7945,7 +7948,7 @@ handle_zero_attributes:
   LD A,(L928B)
   POP BC
   POP HL
-  LD DE,(L8B0C)
+  LD DE,(object_coordinates)
   RET
 
 ; Routine at 9367
