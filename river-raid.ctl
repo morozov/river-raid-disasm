@@ -35,6 +35,7 @@
 > $4000 CONTROLS_BIT_BONUS_LIFE      EQU 4
 > $4000 CONTROLS_BIT_EXPLODING       EQU 5
 > $4000
+> $4000 TANK_SHELL_STATE_UNITIALIZED   EQU $00
 > $4000 TANK_SHELL_MASK_SPEED          EQU $07
 > $4000 TANK_SHELL_BIT_EXPLODING       EQU 5
 > $4000 TANK_SHELL_BIT_FLYING          EQU 7
@@ -169,7 +170,7 @@
 > $4000 ; Bit 5 defines a tank location: bridge (unset) or river bank (set).
 > $4000 ; OBJECT_DEFINITION_BIT_TANK_LOCATION     = 5,
 > $4000 ;
-> $4000 ; Bit 6 defines object origntation: left (unset) or right (set).
+> $4000 ; Bit 6 defines object orientation: left (unset) or right (set).
 > $4000 ; OBJECT_DEFINITION_BIT_TANK_ORIENTATION  = 6,
 > $4000 ;
 > $4000 ; Bit 7 is unused.
@@ -931,9 +932,18 @@ R $7302 I:D OBJECT_DEFINITION
 @ $730A isub=BIT SLOT_BIT_ORIENTATION,D
 @ $731D isub=BIT TANK_SHELL_BIT_FLYING,A
 @ $7322 isub=BIT TANK_SHELL_BIT_EXPLODING,A
+@ $7327 isub=CP TANK_SHELL_STATE_UNITIALIZED
 @ $732C isub=RES TANK_SHELL_BIT_EXPLODING,A
 @ $732E isub=SET TANK_SHELL_BIT_FLYING,A
-c $7343
+@ $7337 isub=BIT SLOT_BIT_ORIENTATION,D
+@ $7343 label=init_tank_shell_state
+c $7343 Initialize tank shell state.
+R $7343 I:D OBJECT_DEFINITION
+R $7343 O:A Shell state with the speed and orientation bits initialized.
+  $7348,4 Copy the orientation bit from the object definition to the shell state.
+@ $7349 isub=AND 1<<SLOT_BIT_ORIENTATION
+  $734C,5 Derive the speed from the interrupt counter (sort of a PRNG).
+  $7353,1 Make sure the speed is never zero.
 c $7358
 c $735E
 @ $7361 isub=CP TODO_L5EF2_01

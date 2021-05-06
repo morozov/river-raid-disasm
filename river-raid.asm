@@ -33,6 +33,7 @@ CONTROLS_BIT_LOW_FUEL        EQU 3
 CONTROLS_BIT_BONUS_LIFE      EQU 4
 CONTROLS_BIT_EXPLODING       EQU 5
 
+TANK_SHELL_STATE_UNITIALIZED   EQU $00
 TANK_SHELL_MASK_SPEED          EQU $07
 TANK_SHELL_BIT_EXPLODING       EQU 5
 TANK_SHELL_BIT_FLYING          EQU 7
@@ -167,7 +168,7 @@ VIEWPORT_HEIGHT EQU $88
 ; Bit 5 defines a tank location: bridge (unset) or river bank (set).
 ; OBJECT_DEFINITION_BIT_TANK_LOCATION     = 5,
 ;
-; Bit 6 defines object origntation: left (unset) or right (set).
+; Bit 6 defines object orientation: left (unset) or right (set).
 ; OBJECT_DEFINITION_BIT_TANK_ORIENTATION  = 6,
 ;
 ; Bit 7 is unused.
@@ -4899,35 +4900,38 @@ operate_tank_on_bank:
   JP NZ,operate_viewport_objects
   BIT TANK_SHELL_BIT_EXPLODING,A
   JP NZ,operate_viewport_objects
-  CP $00
-  JP Z,L7343
+  CP TANK_SHELL_STATE_UNITIALIZED
+  JP Z,init_tank_shell_state
   RES TANK_SHELL_BIT_EXPLODING,A
-; This entry point is used by the routines at L7343 and L735E.
+; This entry point is used by the routines at init_tank_shell_state and L735E.
 operate_tank_on_bank_0:
   SET TANK_SHELL_BIT_FLYING,A
   LD (tank_shell_state),A
   LD A,C
   SUB $10
   LD C,A
-  BIT 6,D
+  BIT SLOT_BIT_ORIENTATION,D
   CALL Z,L72FD
   LD (tank_shell_coordinates),BC
   JP operate_viewport_objects
 
-; Routine at 7343
+; Initialize tank shell state.
 ;
 ; Used by the routine at operate_tank_on_bank.
-L7343:
+;
+; I:D OBJECT_DEFINITION
+; O:A Shell state with the speed and orientation bits initialized.
+init_tank_shell_state:
   BIT 4,D
   JP NZ,L735E
-  LD A,D
-  AND $40
-  LD D,A
-  LD A,(int_counter)
-  AND $03
+  LD A,D                      ; Copy the orientation bit from the object
+  AND 1<<SLOT_BIT_ORIENTATION ; definition to the shell state.
+  LD D,A                      ;
+  LD A,(int_counter)      ; Derive the speed from the interrupt counter (sort
+  AND $03                 ; of a PRNG).
   LD E,A
   LD A,D
-  INC E
+  INC E                   ; Make sure the speed is never zero.
   ADD A,E
   JP operate_tank_on_bank_0
 
@@ -4940,7 +4944,7 @@ L7358:
 
 ; Routine at 735E
 ;
-; Used by the routine at L7343.
+; Used by the routine at init_tank_shell_state.
 L735E:
   LD A,(L5EF2)
   CP TODO_L5EF2_01

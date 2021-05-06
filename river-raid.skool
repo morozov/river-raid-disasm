@@ -35,6 +35,7 @@ CONTROLS_BIT_LOW_FUEL        EQU 3
 CONTROLS_BIT_BONUS_LIFE      EQU 4
 CONTROLS_BIT_EXPLODING       EQU 5
 
+TANK_SHELL_STATE_UNITIALIZED   EQU $00
 TANK_SHELL_MASK_SPEED          EQU $07
 TANK_SHELL_BIT_EXPLODING       EQU 5
 TANK_SHELL_BIT_FLYING          EQU 7
@@ -169,7 +170,7 @@ VIEWPORT_HEIGHT EQU $88
 ; Bit 5 defines a tank location: bridge (unset) or river bank (set).
 ; OBJECT_DEFINITION_BIT_TANK_LOCATION     = 5,
 ;
-; Bit 6 defines object origntation: left (unset) or right (set).
+; Bit 6 defines object orientation: left (unset) or right (set).
 ; OBJECT_DEFINITION_BIT_TANK_ORIENTATION  = 6,
 ;
 ; Bit 7 is unused.
@@ -4985,6 +4986,7 @@ c$7302 LD BC,($8B0A) ;
 @isub=BIT TANK_SHELL_BIT_EXPLODING,A
  $7322 BIT 5,A       ;
  $7324 JP NZ,$708E   ;
+@isub=CP TANK_SHELL_STATE_UNITIALIZED
  $7327 CP $00        ;
  $7329 JP Z,$7343    ;
 @isub=RES TANK_SHELL_BIT_EXPLODING,A
@@ -4996,24 +4998,30 @@ c$7302 LD BC,($8B0A) ;
  $7333 LD A,C        ;
  $7334 SUB $10       ;
  $7336 LD C,A        ;
+@isub=BIT SLOT_BIT_ORIENTATION,D
  $7337 BIT 6,D       ;
  $7339 CALL Z,$72FD  ;
  $733C LD ($7385),BC ;
  $7340 JP $708E      ;
 
-; Routine at 7343
+; Initialize tank shell state.
 ;
 ; Used by the routine at #R$7302.
+;
+; I:D OBJECT_DEFINITION
+; O:A Shell state with the speed and orientation bits initialized.
+@label=init_tank_shell_state
 c$7343 BIT 4,D       ;
  $7345 JP NZ,$735E   ;
- $7348 LD A,D        ;
- $7349 AND $40       ;
- $734B LD D,A        ;
- $734C LD A,($5C78)  ;
- $734F AND $03       ;
+ $7348 LD A,D        ; {Copy the orientation bit from the object definition to
+@isub=AND 1<<SLOT_BIT_ORIENTATION
+ $7349 AND $40       ; the shell state.
+ $734B LD D,A        ; }
+ $734C LD A,($5C78)  ; {Derive the speed from the interrupt counter (sort of a
+ $734F AND $03       ; PRNG).}
  $7351 LD E,A        ;
  $7352 LD A,D        ;
- $7353 INC E         ;
+ $7353 INC E         ; Make sure the speed is never zero.
  $7354 ADD A,E       ;
  $7355 JP $732E      ;
 
