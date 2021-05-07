@@ -1031,7 +1031,8 @@ c $7649
 @ $769F isub=LD BC,SPRITE_BALLOON_FRAME_SIZE
 @ $76A2 isub=LD E,SPRITE_BALLOON_ATTRIBUTES
 @ $76A4 isub=LD D,SPRITE_BALLOON_HEIGHT_PIXELS
-c $76AC
+@ $76AC label=jp_operate_viewport_objects
+c $76AC A useless procedure that unconcditionally jumps to #R$708E.
 c $76AF
 c $76DA
 u $7727

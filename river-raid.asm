@@ -4463,7 +4463,7 @@ render_balloon:
 ; Used by the routines at play, main_loop, demo, operate_fighter, L71A2, L7224,
 ; animate_object, animate_helicopter, operate_tank, operate_tank_on_bank,
 ; L7358, L74EE, operate_fuel, L75D0, remove_object_from_viewport,
-; operate_baloon, L76AC and L76DA.
+; operate_baloon, jp_operate_viewport_objects and L76DA.
 operate_viewport_objects:
   LD A,OTHER_MODE_00
   LD (state_other_mode),A
@@ -4710,7 +4710,7 @@ finish_tank_shell_explosion:
 L7224:
   LD A,D
   CP OBJECT_BALLOON
-  JP Z,L76AC
+  JP Z,jp_operate_viewport_objects
   LD A,(state_metronome)
   AND METRONOME_INTERVAL_1
   CP METRONOME_INTERVAL_1
@@ -5441,11 +5441,11 @@ remove_object_from_viewport:
 ; Used by the routine at operate_viewport_objects.
 operate_baloon:
   BIT 7,B
-  JP NZ,L76AC
+  JP NZ,jp_operate_viewport_objects
   LD A,(state_metronome)
   AND $03
   CP $01
-  JP NZ,L76AC
+  JP NZ,jp_operate_viewport_objects
   BIT 6,D
   JP Z,L76AF
   PUSH BC
@@ -5494,10 +5494,10 @@ operate_baloon_0:
   CALL render_sprite
   JP operate_viewport_objects
 
-; Routine at 76AC
+; A useless procedure that unconcditionally jumps to operate_viewport_objects.
 ;
 ; Used by the routines at L7224 and operate_baloon.
-L76AC:
+jp_operate_viewport_objects:
   JP operate_viewport_objects
 
 ; Routine at 76AF

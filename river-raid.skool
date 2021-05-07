@@ -5605,9 +5605,10 @@ c$7649 BIT 7,B       ;
  $76A6 CALL $8B1E    ;
  $76A9 JP $708E      ;
 
-; Routine at 76AC
+; A useless procedure that unconcditionally jumps to #R$708E.
 ;
 ; Used by the routines at #R$7224 and #R$7649.
+@label=jp_operate_viewport_objects
 c$76AC JP $708E      ;
 
 ; Routine at 76AF
