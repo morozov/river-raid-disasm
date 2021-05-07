@@ -41,6 +41,11 @@
 > $4000 TANK_SHELL_BIT_FLYING          EQU 7
 > $4000 TANK_SHELL_TRAJECTORY_MAX_STEP EQU $08
 > $4000
+> $4000 FIGHTER_POSITION_LEFT_INIT   EQU $E8
+> $4000 FIGHTER_POSITION_LEFT_LIMIT  EQU $00
+> $4000 FIGHTER_POSITION_RIGHT_INIT  EQU $04
+> $4000 FIGHTER_POSITION_RIGHT_LIMIT EQU $E8
+> $4000
 > $4000 POINTS_SHIP           EQU $03
 > $4000 POINTS_HELICOPTER_REG EQU $06
 > $4000 POINTS_BALLOON        EQU $06
@@ -857,14 +862,25 @@ c $708E
 @ $7146 isub=CP OBJECT_SHIP
 @ $714B isub=LD A,SPRITE_3BY1_ENEMY_WIDTH_TILES
 @ $714D isub=LD D,SPRITE_3BY1_ENEMY_HEIGHT_PIXELS
+@ $7155 isub=LD C,FIGHTER_POSITION_LEFT_INIT
+@ $7155 label=fighter_left_reset
 c $7155
 @ $7158 label=operate_fighter
-c $7158
+c $7158 Fighter operation routine.
+N $7158 Advances the fighter by 4 pixels on each metronome tick and renders it using the XOR blending mode. When a fighter reaches the screen margin, resets its position.
+@ $715C isub=BIT SLOT_BIT_ORIENTATION,D
+@ $7161 label=fighter_left_advance
+@ $7166 isub=CP FIGHTER_POSITION_LEFT_LIMIT
+@ $716B label=operate_fighter_continue
 @ $717B isub=LD BC,SPRITE_3BY1_ENEMY_FRAME_SIZE
 @ $7181 isub=LD A,OTHER_MODE_XOR
 @ $7186 isub=LD DE,SPRITE_3BY1_ENEMY_HEIGHT_PIXELS<<8|SPRITE_FIGHTER_ATTRIBUTES
+@ $7192 label=fighter_right_advance
 c $7192
-c $719F
+@ $7197 isub=CP FIGHTER_POSITION_RIGHT_LIMIT
+@ $719F isub=LD C,FIGHTER_POSITION_RIGHT_INIT
+@ $719F label=fighter_right_reset
+c $719F 
 c $71A2
 @ $71A5 isub=AND METRONOME_INTERVAL_1
 @ $71A7 isub=CP METRONOME_INTERVAL_1

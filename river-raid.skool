@@ -41,6 +41,11 @@ TANK_SHELL_BIT_EXPLODING       EQU 5
 TANK_SHELL_BIT_FLYING          EQU 7
 TANK_SHELL_TRAJECTORY_MAX_STEP EQU $08
 
+FIGHTER_POSITION_LEFT_INIT   EQU $E8
+FIGHTER_POSITION_LEFT_LIMIT  EQU $00
+FIGHTER_POSITION_RIGHT_INIT  EQU $04
+FIGHTER_POSITION_RIGHT_LIMIT EQU $E8
+
 POINTS_SHIP           EQU $03
 POINTS_HELICOPTER_REG EQU $06
 POINTS_BALLOON        EQU $06
@@ -4633,24 +4638,36 @@ c$708E LD A,$00      ;
 ; Routine at 7155
 ;
 ; Used by the routine at #R$7158.
+@isub=LD C,FIGHTER_POSITION_LEFT_INIT
+@label=fighter_left_reset
 c$7155 LD C,$E8      ;
  $7157 RET           ;
 
-; Routine at 7158
+; Fighter operation routine.
 ;
 ; Used by the routine at #R$708E.
+;
+; .
+;
+; Advances the fighter by 4 pixels on each metronome tick and renders it using
+; the XOR blending mode. When a fighter reaches the screen margin, resets its
+; position.
 @label=operate_fighter
 c$7158 LD ($8B0A),BC ;
+@isub=BIT SLOT_BIT_ORIENTATION,D
  $715C BIT 6,D       ;
  $715E JP Z,$7192    ;
+@label=fighter_left_advance
  $7161 DEC C         ;
  $7162 DEC C         ;
  $7163 DEC C         ;
  $7164 DEC C         ;
  $7165 LD A,C        ;
+@isub=CP FIGHTER_POSITION_LEFT_LIMIT
  $7166 CP $00        ;
  $7168 CALL Z,$7155  ;
 ; This entry point is used by the routine at #R$7192.
+@label=operate_fighter_continue
 *$716B LD HL,($5F60) ;
  $716E DEC HL        ;
  $716F LD D,(HL)     ;
@@ -4675,11 +4692,13 @@ c$7158 LD ($8B0A),BC ;
 ; Routine at 7192
 ;
 ; Used by the routine at #R$7158.
+@label=fighter_right_advance
 c$7192 INC C         ;
  $7193 INC C         ;
  $7194 INC C         ;
  $7195 INC C         ;
  $7196 LD A,C        ;
+@isub=CP FIGHTER_POSITION_RIGHT_LIMIT
  $7197 CP $E8        ;
  $7199 CALL Z,$719F  ;
  $719C JP $716B      ;
@@ -4687,6 +4706,8 @@ c$7192 INC C         ;
 ; Routine at 719F
 ;
 ; Used by the routine at #R$7192.
+@isub=LD C,FIGHTER_POSITION_RIGHT_INIT
+@label=fighter_right_reset
 c$719F LD C,$04      ;
  $71A1 RET           ;
 
