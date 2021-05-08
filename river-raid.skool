@@ -41,6 +41,12 @@ TANK_SHELL_BIT_EXPLODING       EQU 5
 TANK_SHELL_BIT_FLYING          EQU 7
 TANK_SHELL_TRAJECTORY_MAX_STEP EQU $08
 
+HELICOPTER_ANIMATION_METRONOME_MASK  EQU $01
+HELICOPTER_ANIMATION_METRONOME_VALUE EQU $00
+
+BALLOON_ANIMATION_METRONOME_MASK  EQU $01
+BALLOON_ANIMATION_METRONOME_VALUE EQU $01
+
 FIGHTER_POSITION_LEFT_INIT   EQU $E8
 FIGHTER_POSITION_LEFT_LIMIT  EQU $00
 FIGHTER_POSITION_RIGHT_INIT  EQU $04
@@ -4414,7 +4420,7 @@ c$6FF6 CP $06        ;
 
 ; Load ship screen attributes.
 ;
-; Used by the routines at #R$65F3, #R$6642, #R$6682, #R$6FF6, #R$708E and
+; Used by the routines at #R$65F3, #R$6642, #R$6682, #R$6FF6, #R$7113 and
 ; #R$75D0.
 ;
 ; O:E Attributes
@@ -4509,9 +4515,9 @@ c$706C LD B,$00      ;
 
 ; Routine at 708E
 ;
-; Used by the routines at #R$5DA6, #R$5F91, #R$6D17, #R$7158, #R$71A2, #R$7224,
-; #R$724C, #R$7259, #R$7296, #R$7302, #R$7358, #R$74EE, #R$754C, #R$75D0,
-; #R$762E, #R$7649, #R$76AC and #R$76DA.
+; Used by the routines at #R$5DA6, #R$5F91, #R$6D17, #R$7113, #R$7158, #R$71A2,
+; #R$7224, #R$724C, #R$7259, #R$7296, #R$7302, #R$7358, #R$74EE, #R$754C,
+; #R$75D0, #R$762E, #R$7649, #R$76AC and #R$76DA.
 @label=operate_viewport_objects
 @isub=LD A,OTHER_MODE_00
 c$708E LD A,$00      ;
@@ -4587,14 +4593,30 @@ c$708E LD A,$00      ;
  $70FC JP Z,$7296    ;
  $70FF CP $00        ;
  $7101 JP Z,$71A2    ;
- $7104 LD A,($5EEF)  ;
-@isub=AND METRONOME_INTERVAL_1
+
+; Ship or helicopter operation routine.
+;
+; .
+;
+; .
+;
+; Animates the helicopter rotor on each other metronome tick. Advances the
+; object by 2 pixels on each metrinome tick until it approaches the bank closer
+; than 16 pixels, then inverts the object orientation.
+@label=operate_ship_or_helicopter
+c$7104 LD A,($5EEF)  ;
+@isub=AND HELICOPTER_ANIMATION_METRONOME_MASK
  $7107 AND $01       ;
+@isub=CP HELICOPTER_ANIMATION_METRONOME_VALUE
  $7109 CP $00        ;
  $710B JP Z,$724C    ;
+@isub=BIT SLOT_BIT_ORIENTATION,D
  $710E BIT 6,D       ;
  $7110 JP Z,$75A2    ;
- $7113 PUSH BC       ;
+
+; Routine at 7113
+@label=ship_or_helicopter_left_advance
+c$7113 PUSH BC       ;
  $7114 LD A,C        ;
  $7115 SUB $10       ;
  $7117 LD C,A        ;
@@ -4607,6 +4629,7 @@ c$708E LD A,$00      ;
  $7126 DEC C         ;
  $7127 DEC C         ;
 ; This entry point is used by the routines at #R$7224 and #R$75A2.
+@label=operate_ship_or_helicopter_continue
 *$7128 LD HL,($5F60) ;
  $712B DEC HL        ;
  $712C LD D,(HL)     ;
@@ -4797,9 +4820,9 @@ c$7224 LD A,D        ;
  $7225 CP $06        ;
  $7227 JP Z,$76AC    ;
  $722A LD A,($5EEF)  ;
-@isub=AND METRONOME_INTERVAL_1
+@isub=AND BALLOON_ANIMATION_METRONOME_MASK
  $722D AND $01       ;
-@isub=CP METRONOME_INTERVAL_1
+@isub=CP BALLOON_ANIMATION_METRONOME_VALUE
  $722F CP $01        ;
  $7231 JP Z,$724C    ;
  $7234 LD A,D        ;
@@ -4825,7 +4848,7 @@ c$7248 LD HL,$8AC8   ;
 
 ; Routine at 724C
 ;
-; Used by the routines at #R$708E and #R$7224.
+; Used by the routines at #R$7104 and #R$7224.
 @label=animate_object
 c$724C LD A,D        ;
 @isub=AND SLOT_MASK_OBJECT_TYPE
@@ -5446,7 +5469,8 @@ c$758A LD H,$00      ;
 
 ; Routine at 75A2
 ;
-; Used by the routine at #R$708E.
+; Used by the routine at #R$7104.
+@label=ship_or_helicopter_right_advance
 c$75A2 PUSH BC       ;
  $75A3 LD A,C        ;
  $75A4 ADD A,$20     ;
@@ -5463,7 +5487,7 @@ c$75A2 PUSH BC       ;
 
 ; Load array of enemy sprites.
 ;
-; Used by the routines at #R$6FF6, #R$708E, #R$7158, #R$7259, #R$7296 and
+; Used by the routines at #R$6FF6, #R$7113, #R$7158, #R$7259, #R$7296 and
 ; #R$75D0.
 ;
 ; I:D OBJECT_DEFINITION
@@ -5487,7 +5511,7 @@ c$75BA LD HL,$85B3   ;
 
 ; Routine at 75D0
 ;
-; Used by the routines at #R$708E and #R$75A2.
+; Used by the routines at #R$7113 and #R$75A2.
 c$75D0 LD ($8B0A),BC ;
  $75D4 LD A,B        ;
  $75D5 SUB $80       ;
@@ -7143,7 +7167,7 @@ c$8A33 LD A,$00      ;
 
 ; Routine at 8A4E
 ;
-; Used by the routines at #R$6DFF, #R$6E40, #R$708E, #R$7302, #R$75A2, #R$7649,
+; Used by the routines at #R$6DFF, #R$6E40, #R$7113, #R$7302, #R$75A2, #R$7649,
 ; #R$76AF and #R$8B3C.
 ;
 ; I:B Vertical coordinate of the object in pixels.
@@ -7304,7 +7328,7 @@ c$8B1E PUSH DE       ;
 ; Routine at 8B3C
 ;
 ; Used by the routines at #R$60A5, #R$65F3, #R$6642, #R$6682, #R$6794, #R$6FBB,
-; #R$708E, #R$71A2, #R$7259, #R$74A0, #R$75D0 and #R$76DA.
+; #R$7113, #R$71A2, #R$7259, #R$74A0, #R$75D0 and #R$76DA.
 ;
 ; I:A Sprite width in tiles
 ; I:BC Sprite size in bytes

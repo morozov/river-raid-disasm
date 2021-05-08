@@ -39,6 +39,12 @@ TANK_SHELL_BIT_EXPLODING       EQU 5
 TANK_SHELL_BIT_FLYING          EQU 7
 TANK_SHELL_TRAJECTORY_MAX_STEP EQU $08
 
+HELICOPTER_ANIMATION_METRONOME_MASK  EQU $01
+HELICOPTER_ANIMATION_METRONOME_VALUE EQU $00
+
+BALLOON_ANIMATION_METRONOME_MASK  EQU $01
+BALLOON_ANIMATION_METRONOME_VALUE EQU $01
+
 FIGHTER_POSITION_LEFT_INIT   EQU $E8
 FIGHTER_POSITION_LEFT_LIMIT  EQU $00
 FIGHTER_POSITION_RIGHT_INIT  EQU $04
@@ -4385,7 +4391,7 @@ render_enemy:
 ; Load ship screen attributes.
 ;
 ; Used by the routines at handle_right, handle_left, L6682, render_enemy,
-; operate_viewport_objects and L75D0.
+; ship_or_helicopter_left_advance and L75D0.
 ;
 ; O:E Attributes
 ld_attributes_ship:
@@ -4465,7 +4471,8 @@ render_balloon:
 
 ; Routine at 708E
 ;
-; Used by the routines at play, main_loop, demo, operate_fighter, L71A2, L7224,
+; Used by the routines at play, main_loop, demo,
+; ship_or_helicopter_left_advance, operate_fighter, L71A2, L7224,
 ; animate_object, animate_helicopter, operate_tank, operate_tank_on_bank,
 ; L7358, L74EE, operate_fuel, L75D0, remove_object_from_viewport,
 ; operate_baloon, jp_operate_viewport_objects and L76DA.
@@ -4532,12 +4539,22 @@ operate_viewport_objects_0:
   JP Z,operate_tank
   CP $00
   JP Z,L71A2
+
+; Ship or helicopter operation routine.
+;
+; Animates the helicopter rotor on each other metronome tick. Advances the
+; object by 2 pixels on each metrinome tick until it approaches the bank closer
+; than 16 pixels, then inverts the object orientation.
+operate_ship_or_helicopter:
   LD A,(state_metronome)
-  AND METRONOME_INTERVAL_1
-  CP $00
+  AND HELICOPTER_ANIMATION_METRONOME_MASK
+  CP HELICOPTER_ANIMATION_METRONOME_VALUE
   JP Z,animate_object
-  BIT 6,D
-  JP Z,L75A2
+  BIT SLOT_BIT_ORIENTATION,D
+  JP Z,ship_or_helicopter_right_advance
+
+; Routine at 7113
+ship_or_helicopter_left_advance:
   PUSH BC
   LD A,C
   SUB $10
@@ -4550,8 +4567,9 @@ operate_viewport_objects_0:
   LD (previous_object_coordinates),BC
   DEC C
   DEC C
-; This entry point is used by the routines at L7224 and L75A2.
-operate_viewport_objects_1:
+; This entry point is used by the routines at L7224 and
+; ship_or_helicopter_right_advance.
+operate_ship_or_helicopter_continue:
   LD HL,(viewport_ptr)
   DEC HL
   LD D,(HL)
@@ -4722,8 +4740,8 @@ L7224:
   CP OBJECT_BALLOON
   JP Z,jp_operate_viewport_objects
   LD A,(state_metronome)
-  AND METRONOME_INTERVAL_1
-  CP METRONOME_INTERVAL_1
+  AND BALLOON_ANIMATION_METRONOME_MASK
+  CP BALLOON_ANIMATION_METRONOME_VALUE
   JP Z,animate_object
   LD A,D
   AND SLOT_MASK_OBJECT_TYPE
@@ -4733,7 +4751,7 @@ L7224:
   JP NZ,operate_viewport_objects
 L7224_0:
   LD (previous_object_coordinates),BC
-  JP operate_viewport_objects_1
+  JP operate_ship_or_helicopter_continue
 
 ; Routine at 7248
 ;
@@ -4746,7 +4764,7 @@ ld_sprite_helicopter_rotor_right:
 
 ; Routine at 724C
 ;
-; Used by the routines at operate_viewport_objects and L7224.
+; Used by the routines at operate_ship_or_helicopter and L7224.
 animate_object:
   LD A,D
   AND SLOT_MASK_OBJECT_TYPE
@@ -5335,8 +5353,8 @@ L758A:
 
 ; Routine at 75A2
 ;
-; Used by the routine at operate_viewport_objects.
-L75A2:
+; Used by the routine at operate_ship_or_helicopter.
+ship_or_helicopter_right_advance:
   PUSH BC
   LD A,C
   ADD A,$20
@@ -5349,11 +5367,11 @@ L75A2:
   LD (previous_object_coordinates),BC
   INC C
   INC C
-  JP operate_viewport_objects_1
+  JP operate_ship_or_helicopter_continue
 
 ; Load array of enemy sprites.
 ;
-; Used by the routines at render_enemy, operate_viewport_objects,
+; Used by the routines at render_enemy, ship_or_helicopter_left_advance,
 ; operate_fighter, animate_helicopter, operate_tank and L75D0.
 ;
 ; I:D OBJECT_DEFINITION
@@ -5376,7 +5394,8 @@ ld_enemy_sprites_loop:
 
 ; Routine at 75D0
 ;
-; Used by the routines at operate_viewport_objects and L75A2.
+; Used by the routines at ship_or_helicopter_left_advance and
+; ship_or_helicopter_right_advance.
 L75D0:
   LD (previous_object_coordinates),BC
   LD A,B
@@ -6851,8 +6870,9 @@ init_udg_loop:
 
 ; Routine at 8A4E
 ;
-; Used by the routines at consume_fuel, add_fuel, operate_viewport_objects,
-; operate_tank_on_bank, L75A2, operate_baloon, L76AF and render_object.
+; Used by the routines at consume_fuel, add_fuel,
+; ship_or_helicopter_left_advance, operate_tank_on_bank,
+; ship_or_helicopter_right_advance, operate_baloon, L76AF and render_object.
 ;
 ; I:B Vertical coordinate of the object in pixels.
 ; I:C Horizontal coordinate of the object in pixels.
@@ -7012,8 +7032,8 @@ render_sprite_0:
 ; Routine at 8B3C
 ;
 ; Used by the routines at L60A5, handle_right, handle_left, L6682, L6794,
-; render_rock, operate_viewport_objects, L71A2, animate_helicopter, L74A0,
-; L75D0 and L76DA.
+; render_rock, ship_or_helicopter_left_advance, L71A2, animate_helicopter,
+; L74A0, L75D0 and L76DA.
 ;
 ; I:A Sprite width in tiles
 ; I:BC Sprite size in bytes
