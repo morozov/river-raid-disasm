@@ -41,6 +41,8 @@
 > $4000 TANK_SHELL_BIT_FLYING          EQU 7
 > $4000 TANK_SHELL_TRAJECTORY_MAX_STEP EQU $08
 > $4000
+> $4000 HELICOPTER_MISSILE_STEP EQU $08
+> $4000
 > $4000 HELICOPTER_ANIMATION_METRONOME_MASK  EQU $01
 > $4000 HELICOPTER_ANIMATION_METRONOME_VALUE EQU $00
 > $4000
@@ -119,6 +121,9 @@
 > $4000 SPRITE_MISSILE_HEIGHT_PIXELS    EQU $08
 > $4000 SPRITE_MISSILE_FRAME_SIZE_BYTES EQU SPRITE_MISSILE_WIDTH_TILES * SPRITE_MISSILE_HEIGHT_PIXELS
 > $4000 SPRITE_MISSILE_ATTRIBUTES       EQU COLOR_BLUE<<3|COLOR_GREEN
+> $4000
+> $4000 SPRITE_HELICOPTER_MISSILE_WIDTH_TILES EQU $01
+> $4000 SPRITE_HELICOPTER_MISSILE_ATTRIBUTES  EQU COLOR_INHERIT
 > $4000
 > $4000 ; Shell sprite is a truncated missile sprite, so the frame size should be calculated
 > $4000 ; based on the original height.
@@ -247,8 +252,9 @@ g $5EF0 Current player's current bridge modulo 48 (the total number of bridges).
 g $5EF1 Contains the current readings of the input port (Sinclair, Kempston, Cursor, etc.).
 @ $5EF2 label=L5EF2
 g $5EF2
-@ $5EF3 label=L5EF3
+@ $5EF3 label=state_plane_missile_coordinates
 g $5EF3
+@ $5EF4 label=state_plane_missile_x
 g $5EF4
 @ $5EF5 label=state_other_mode
 g $5EF5
@@ -308,10 +314,10 @@ g $5F6F
 g $5F70 Current Y coordinate
 @ $5F72 label=state_x
 g $5F72 Current X coordinate
-@ $5F73 label=L5F73
-g $5F73
-@ $5F75 label=L5F75
-g $5F75
+@ $5F73 label=helicopter_missile_coordinates_ptr
+g $5F73 Pointer to the helicopter missile coordinates.
+@ $5F75 label=helicopter_missile_state
+g $5F75 Helicopter missile state.
 @ $5F76 label=state_level_fragment_number
 g $5F76 Index of the current element of current level terrain array
 @ $5F77 label=state_terrain_profile_number
@@ -350,7 +356,7 @@ W $5F8B
 @ $5F8D label=L5F8D
 g $5F8D
 W $5F8D
-@ $5F8F label=L5F8F
+@ $5F8F label=state_plane_missile_coordinates_backup
 g $5F8F
 W $5F8F
 @ $5F91 label=main_loop
@@ -894,7 +900,7 @@ c $7192
 @ $7197 isub=CP FIGHTER_POSITION_RIGHT_LIMIT
 @ $719F isub=LD C,FIGHTER_POSITION_RIGHT_INIT
 @ $719F label=fighter_right_reset
-c $719F 
+c $719F
 c $71A2
 @ $71A5 isub=AND METRONOME_INTERVAL_1
 @ $71A7 isub=CP METRONOME_INTERVAL_1
@@ -987,12 +993,20 @@ g $7385
 W $7385
 @ $7387 label=invert_shell_coordinate_delta
 c $7387
-c $738E
-c $7393
+@ $738E label=invert_helicopter_missle_offset
+c $738E Invert the previously calculated helicopter missile offset for right-oriented objects.
+@ $738F isub=ADD A,HELICOPTER_MISSILE_STEP*2
+@ $7393 label=operate_helicopter_missile
+c $7393 Operates helicopter missile.
+@ $73A3 isub=SUB HELICOPTER_MISSILE_STEP
 @ $73A7 isub=AND VIEWPORT_HEIGHT
 @ $73A9 isub=CP VIEWPORT_HEIGHT
+@ $73B1 isub=BIT SLOT_BIT_ORIENTATION,A
 @ $73BE isub=LD A,OTHER_MODE_HELICOPTER_ADV
-c $73D0
+@ $73C3 isub=LD A,SPRITE_HELICOPTER_MISSILE_WIDTH_TILES
+@ $73C5 isub=LD E,SPRITE_HELICOPTER_MISSILE_ATTRIBUTES
+@ $73D0 label=remove_helicopter_missile
+c $73D0 Removes helicopter missile.
 c $73D8
 @ $73DD label=render_helicopter_missile
 c $73DD

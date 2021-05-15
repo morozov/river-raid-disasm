@@ -39,6 +39,8 @@ TANK_SHELL_BIT_EXPLODING       EQU 5
 TANK_SHELL_BIT_FLYING          EQU 7
 TANK_SHELL_TRAJECTORY_MAX_STEP EQU $08
 
+HELICOPTER_MISSILE_STEP EQU $08
+
 HELICOPTER_ANIMATION_METRONOME_MASK  EQU $01
 HELICOPTER_ANIMATION_METRONOME_VALUE EQU $00
 
@@ -117,6 +119,9 @@ SPRITE_MISSILE_WIDTH_TILES      EQU $01
 SPRITE_MISSILE_HEIGHT_PIXELS    EQU $08
 SPRITE_MISSILE_FRAME_SIZE_BYTES EQU SPRITE_MISSILE_WIDTH_TILES * SPRITE_MISSILE_HEIGHT_PIXELS
 SPRITE_MISSILE_ATTRIBUTES       EQU COLOR_BLUE<<3|COLOR_GREEN
+
+SPRITE_HELICOPTER_MISSILE_WIDTH_TILES EQU $01
+SPRITE_HELICOPTER_MISSILE_ATTRIBUTES  EQU COLOR_INHERIT
 
 ; Shell sprite is a truncated missile sprite, so the frame size should be calculated
 ; based on the original height.
@@ -1414,11 +1419,11 @@ L5EF2:
   DEFB $00
 
 ; Game status buffer entry at 5EF3
-L5EF3:
+state_plane_missile_coordinates:
   DEFB $00
 
 ; Game status buffer entry at 5EF4
-L5EF4:
+state_plane_missile_x:
   DEFB $00
 
 ; Game status buffer entry at 5EF5
@@ -1565,12 +1570,12 @@ state_y:
 state_x:
   DEFB $00
 
-; Game status buffer entry at 5F73
-L5F73:
+; Pointer to the helicopter missile coordinates.
+helicopter_missile_coordinates_ptr:
   DEFB $00,$00
 
-; Game status buffer entry at 5F75
-L5F75:
+; Helicopter missile state.
+helicopter_missile_state:
   DEFB $00
 
 ; Index of the current element of current level terrain array
@@ -1639,7 +1644,7 @@ L5F8D:
   DEFW $0000
 
 ; Game status buffer entry at 5F8F
-L5F8F:
+state_plane_missile_coordinates_backup:
   DEFW $0000
 
 ; Main loop
@@ -1662,7 +1667,7 @@ main_loop:
   LD (L673C),A
   CALL animate_plane_missile
   CALL operate_tank_shell
-  CALL L7393
+  CALL operate_helicopter_missile
   CALL advance
   CALL consume_fuel
   LD A,$00
@@ -1878,7 +1883,7 @@ L6136:
 ;
 ; Used by the routine at L6136.
 handle_other_mode_xor:
-  LD BC,(L5EF3)
+  LD BC,(state_plane_missile_coordinates)
   LD DE,(object_coordinates)
   LD A,B
   ADD A,$06
@@ -1897,7 +1902,7 @@ handle_other_mode_xor:
   SBC HL,BC
   JP M,L63FC_0
   LD H,$00
-  LD BC,(L5EF3)
+  LD BC,(state_plane_missile_coordinates)
   LD A,C
   INC A
   LD L,A
@@ -1935,7 +1940,7 @@ handle_other_mode_xor:
 ;
 ; Used by the routines at L6136 and fuel.
 interact_with_something:
-  LD BC,(L5EF3)
+  LD BC,(state_plane_missile_coordinates)
   LD A,(L5F6E)
   CP $00
   JP Z,interact_with_something2
@@ -1989,7 +1994,7 @@ interact_with_something:
   LD A,$01
   LD (L5F6D),A
   LD BC,(L5F8D)
-  LD (L5EF3),BC
+  LD (state_plane_missile_coordinates),BC
   LD A,(state_player)
   CP PLAYER_2
   JP Z,next_bridge_player_2
@@ -2021,7 +2026,7 @@ fuel:
   LD B,$80
   LD A,(state_x)
   LD C,A
-  LD (L5EF3),BC
+  LD (state_plane_missile_coordinates),BC
   JP interact_with_something
 
 ; Fighter hits terrain
@@ -2041,7 +2046,7 @@ hit_terrain:
   CP SET_MARKER_END_OF_SET
   JP Z,L62CE
   CALL advance_object
-  LD DE,(L5EF3)
+  LD DE,(state_plane_missile_coordinates)
   LD A,D
   ADD A,$08
   LD H,$00
@@ -2060,7 +2065,7 @@ hit_terrain:
   OR A
   SBC HL,DE
   JP M,hit_terrain
-  LD DE,(L5EF3)
+  LD DE,(state_plane_missile_coordinates)
   LD H,$00
   LD A,E
   ADD A,$08
@@ -2072,7 +2077,7 @@ hit_terrain:
   JP M,hit_terrain
   LD A,C
   ADD A,$10
-  LD DE,(L5EF3)
+  LD DE,(state_plane_missile_coordinates)
   LD H,$00
   LD L,A
   OR A
@@ -2108,8 +2113,8 @@ L62D7:
 ; Increase vertical coordinate of the object by the value of state_speed.
 ;
 ; Used by the routines at hit_terrain, interact_with_something2, L6682, L66EE,
-; animate_plane_missile, L6794, L6FEA, operate_viewport_objects, L7393 and
-; operate_tank_shell.
+; animate_plane_missile, L6794, L6FEA, operate_viewport_objects,
+; operate_helicopter_missile and operate_tank_shell.
 ;
 ; I:B Current coordinate
 ; O:B New coordinate
@@ -2152,7 +2157,7 @@ interact_with_something2:
   LD A,(state_interaction_mode_5F68)
   CP INTERACTION_MODE_FUEL
   CALL Z,advance_object
-  LD DE,(L5EF3)
+  LD DE,(state_plane_missile_coordinates)
   LD A,D
   ADD A,$09
   LD H,$00
@@ -2176,7 +2181,7 @@ interact_with_something2:
   CALL Z,L62D7
   LD A,D
   ADD A,E
-  LD DE,(L5EF3)
+  LD DE,(state_plane_missile_coordinates)
   LD H,$00
   LD L,A
   LD E,D
@@ -2184,7 +2189,7 @@ interact_with_something2:
   OR A
   SBC HL,DE
   JP M,interact_with_something2
-  LD DE,(L5EF3)
+  LD DE,(state_plane_missile_coordinates)
   LD A,E
   ADD A,$08
   LD E,A
@@ -2207,7 +2212,7 @@ interact_with_something2:
   CALL Z,L62D4
   LD A,D
   ADD A,E
-  LD DE,(L5EF3)
+  LD DE,(state_plane_missile_coordinates)
   LD (L5F8B),BC
   LD H,$00
   LD L,A
@@ -2269,7 +2274,7 @@ interact_with_something2_1:
   LD HL,viewport_objects
   LD (viewport_ptr),HL
   LD BC,(L5F8D)
-  LD (L5EF3),BC
+  LD (state_plane_missile_coordinates),BC
   JP L6794
 
 ; Routine at 63FC
@@ -2462,8 +2467,8 @@ handle_no_fuel:
   LD B,$7F
   LD A,$00
   LD (state_speed),A
-  LD (L5EF3),A
-  LD (L5EF4),A
+  LD (state_plane_missile_coordinates),A
+  LD (state_plane_missile_x),A
   LD D,$00
   CALL explode_fragment
   LD A,B
@@ -2605,8 +2610,8 @@ L65DE_0:
 ; scan_keyboard.
 handle_right:
   LD A,(state_x)
-  LD HL,(L5EF3)
-  LD (L5F8F),HL
+  LD HL,(state_plane_missile_coordinates)
+  LD (state_plane_missile_coordinates_backup),HL
   INC A
   INC A
   LD (state_x),A
@@ -2631,8 +2636,8 @@ handle_right:
   CALL render_object
 ; This entry point is used by the routines at handle_left and L6682.
 handle_right_0:
-  LD HL,(L5F8F)
-  LD (L5EF3),HL
+  LD HL,(state_plane_missile_coordinates_backup)
+  LD (state_plane_missile_coordinates),HL
   LD HL,(L8B16)
   LD (L5EF7),HL
   LD A,$04
@@ -2645,8 +2650,8 @@ handle_right_0:
 ; scan_keyboard.
 handle_left:
   LD A,(state_x)
-  LD HL,(L5EF3)
-  LD (L5F8F),HL
+  LD HL,(state_plane_missile_coordinates)
+  LD (state_plane_missile_coordinates_backup),HL
   DEC A
   DEC A
   LD (state_x),A
@@ -2679,8 +2684,8 @@ L6682:
   CP INTERACTION_MODE_00
   RET NZ
   LD A,(state_x)
-  LD HL,(L5EF3)
-  LD (L5F8F),HL
+  LD HL,(state_plane_missile_coordinates)
+  LD (state_plane_missile_coordinates_backup),HL
   LD C,A
   LD B,$80
   LD A,OTHER_MODE_FUEL
@@ -2783,14 +2788,14 @@ handle_down:
 ; Used by the routines at main_loop, scan_kempston, scan_sinclair and
 ; scan_keyboard.
 handle_fire:
-  LD A,(L5EF3)
+  LD A,(state_plane_missile_coordinates)
   CP $00
   RET NZ
   LD A,(state_x)
   ADD A,$04
   LD B,$7E
   LD C,A
-  LD (L5EF3),BC
+  LD (state_plane_missile_coordinates),BC
   LD HL,state_controls
   SET 0,(HL)              ; Set CONTROLS_BIT_FIRE
   RET
@@ -2803,16 +2808,16 @@ L673C:
 ;
 ; Used by the routine at main_loop.
 animate_plane_missile:
-  LD A,(L5EF3)
+  LD A,(state_plane_missile_coordinates)
   CP $00
   RET Z
-  LD BC,(L5EF3)
+  LD BC,(state_plane_missile_coordinates)
   LD (L5F8D),BC
   LD A,(L673C)
   CP $01
   CALL Z,advance_object
   LD (previous_object_coordinates),BC
-  LD BC,(L5EF3)
+  LD BC,(state_plane_missile_coordinates)
   LD A,(state_x)
   ADD A,$04
   LD C,A
@@ -2822,7 +2827,7 @@ animate_plane_missile:
   AND $F8
   CP $00
   JP Z,L6794
-  LD (L5EF3),BC
+  LD (state_plane_missile_coordinates),BC
   LD A,$70
   SUB B
   CALL P,L678E
@@ -2849,7 +2854,7 @@ L678E:
 ; Used by the routines at handle_other_mode_xor, interact_with_something,
 ; next_bridge_player_2, interact_with_something2 and animate_plane_missile.
 L6794:
-  LD BC,(L5EF3)
+  LD BC,(state_plane_missile_coordinates)
   CALL blenging_mode_or_or
   LD A,(state_interaction_mode_5F68)
   CP INTERACTION_MODE_FUEL
@@ -2882,9 +2887,9 @@ L6794_0:
   CALL render_object
   LD HL,state_controls
   RES 1,(HL)              ; Reset CONTROLS_BIT_SPEED_DECREASED
-  LD BC,(L5EF3)
+  LD BC,(state_plane_missile_coordinates)
   LD HL,$0000
-  LD (L5EF3),HL
+  LD (state_plane_missile_coordinates),HL
   LD A,B
   SUB $06
   LD B,A
@@ -3057,7 +3062,7 @@ init_current_bridge_loop:
   INC HL
   DJNZ init_current_bridge_loop
   CALL remove_tank_shell
-  LD (L5F73),HL
+  LD (helicopter_missile_coordinates_ptr),HL
   LD A,(state_bridge_player_1)
   LD B,A
   LD A,(state_player)
@@ -3905,7 +3910,7 @@ demo_0:
   INC (HL)
   CALL operate_viewport_objects
   CALL operate_tank_shell
-  CALL L7393
+  CALL operate_helicopter_missile
   CALL advance
   CALL L8A1B
   LD HL,L5F81
@@ -5024,52 +5029,53 @@ invert_shell_coordinate_delta:
   LD C,A
   RET
 
-; Routine at 738E
+; Invert the previously calculated helicopter missile offset for right-oriented
+; objects.
 ;
-; Used by the routine at L7393.
-L738E:
+; Used by the routine at operate_helicopter_missile.
+invert_helicopter_missle_offset:
   LD A,C
-  ADD A,$10
+  ADD A,HELICOPTER_MISSILE_STEP*2
   LD C,A
   RET
 
-; Routine at 7393
+; Operates helicopter missile.
 ;
 ; Used by the routines at main_loop and demo.
-L7393:
-  LD BC,(L5F73)
+operate_helicopter_missile:
+  LD BC,(helicopter_missile_coordinates_ptr)
   LD A,B
   CP $00
   RET Z
   CALL advance_object
   LD (previous_object_coordinates),BC
   LD A,C
-  SUB $08
+  SUB HELICOPTER_MISSILE_STEP
   LD C,A
   LD A,B
   AND VIEWPORT_HEIGHT
   CP VIEWPORT_HEIGHT
-  JP Z,L73D0
-  LD A,(L5F75)
-  BIT 6,A
-  CALL Z,L738E
+  JP Z,remove_helicopter_missile
+  LD A,(helicopter_missile_state)
+  BIT SLOT_BIT_ORIENTATION,A
+  CALL Z,invert_helicopter_missle_offset
   LD (object_coordinates),BC
-  LD (L5F73),BC
+  LD (helicopter_missile_coordinates_ptr),BC
   LD A,OTHER_MODE_HELICOPTER_ADV
   LD (state_other_mode),A
-  LD A,$01
-  LD E,$00
+  LD A,SPRITE_HELICOPTER_MISSILE_WIDTH_TILES
+  LD E,SPRITE_HELICOPTER_MISSILE_ATTRIBUTES
   LD D,$01
   LD HL,all_ff
   CALL render_sprite
   RET
 
-; Routine at 73D0
+; Removes helicopter missile.
 ;
-; Used by the routine at L7393.
-L73D0:
+; Used by the routine at operate_helicopter_missile.
+remove_helicopter_missile:
   LD BC,$0000
-  LD (L5F73),BC
+  LD (helicopter_missile_coordinates_ptr),BC
   RET
 
 ; Routine at 73D8
@@ -5088,7 +5094,7 @@ render_helicopter_missile:
   LD A,(state_interaction_mode_5F68)
   CP INTERACTION_MODE_01
   RET Z
-  LD BC,(L5F73)
+  LD BC,(helicopter_missile_coordinates_ptr)
   LD A,B
   CP $00
   RET NZ
@@ -5107,21 +5113,21 @@ render_helicopter_missile:
   LD C,A
   LD A,D
   AND $40
-  LD (L5F75),A
+  LD (helicopter_missile_state),A
   BIT 6,A
   CALL Z,L73D8
   INC B
   INC B
   INC B
   INC B
-  LD (L5F73),BC
+  LD (helicopter_missile_coordinates_ptr),BC
   RET
 
 ; Routine at 7415
 ;
 ; Used by the routine at L6136.
 handle_other_mode_helicopter_missile:
-  LD BC,(L5F73)
+  LD BC,(helicopter_missile_coordinates_ptr)
   BIT 7,B
   JP Z,handle_other_mode_helicopter_missile_0
   RES 7,B
@@ -5137,7 +5143,7 @@ handle_other_mode_helicopter_missile:
   JP Z,handle_no_fuel
 handle_other_mode_helicopter_missile_0:
   LD BC,$0000
-  LD (L5F73),BC
+  LD (helicopter_missile_coordinates_ptr),BC
   POP DE
   POP DE
   POP DE
@@ -7001,8 +7007,8 @@ L8B1B:
 ; Routine at 8B1E
 ;
 ; Used by the routines at animate_plane_missile, render_enemy, render_fuel,
-; render_balloon, operate_fighter, operate_tank, L7393, operate_tank_shell,
-; operate_fuel and operate_baloon.
+; render_balloon, operate_fighter, operate_tank, operate_helicopter_missile,
+; operate_tank_shell, operate_fuel and operate_baloon.
 ;
 ; I:A Sprite width in tiles
 ; I:BC Sprite frame size

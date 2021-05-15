@@ -41,6 +41,8 @@ TANK_SHELL_BIT_EXPLODING       EQU 5
 TANK_SHELL_BIT_FLYING          EQU 7
 TANK_SHELL_TRAJECTORY_MAX_STEP EQU $08
 
+HELICOPTER_MISSILE_STEP EQU $08
+
 HELICOPTER_ANIMATION_METRONOME_MASK  EQU $01
 HELICOPTER_ANIMATION_METRONOME_VALUE EQU $00
 
@@ -119,6 +121,9 @@ SPRITE_MISSILE_WIDTH_TILES      EQU $01
 SPRITE_MISSILE_HEIGHT_PIXELS    EQU $08
 SPRITE_MISSILE_FRAME_SIZE_BYTES EQU SPRITE_MISSILE_WIDTH_TILES * SPRITE_MISSILE_HEIGHT_PIXELS
 SPRITE_MISSILE_ATTRIBUTES       EQU COLOR_BLUE<<3|COLOR_GREEN
+
+SPRITE_HELICOPTER_MISSILE_WIDTH_TILES EQU $01
+SPRITE_HELICOPTER_MISSILE_ATTRIBUTES  EQU COLOR_INHERIT
 
 ; Shell sprite is a truncated missile sprite, so the frame size should be calculated
 ; based on the original height.
@@ -1424,10 +1429,11 @@ g$5EF1 DEFB $00
 g$5EF2 DEFB $00
 
 ; Game status buffer entry at 5EF3
-@label=L5EF3
+@label=state_plane_missile_coordinates
 g$5EF3 DEFB $00
 
 ; Game status buffer entry at 5EF4
+@label=state_plane_missile_x
 g$5EF4 DEFB $00
 
 ; Game status buffer entry at 5EF5
@@ -1571,12 +1577,12 @@ g$5F70 DEFB $00,$00
 @label=state_x
 g$5F72 DEFB $00
 
-; Game status buffer entry at 5F73
-@label=L5F73
+; Pointer to the helicopter missile coordinates.
+@label=helicopter_missile_coordinates_ptr
 g$5F73 DEFB $00,$00
 
-; Game status buffer entry at 5F75
-@label=L5F75
+; Helicopter missile state.
+@label=helicopter_missile_state
 g$5F75 DEFB $00
 
 ; Index of the current element of current level terrain array
@@ -1643,7 +1649,7 @@ g$5F8B DEFW $0000
 g$5F8D DEFW $0000
 
 ; Game status buffer entry at 5F8F
-@label=L5F8F
+@label=state_plane_missile_coordinates_backup
 g$5F8F DEFW $0000
 
 ; Main loop
@@ -5128,17 +5134,21 @@ c$7387 LD A,C        ;
  $738C LD C,A        ;
  $738D RET           ;
 
-; Routine at 738E
+; Invert the previously calculated helicopter missile offset for right-oriented
+; objects.
 ;
 ; Used by the routine at #R$7393.
+@label=invert_helicopter_missle_offset
 c$738E LD A,C        ;
+@isub=ADD A,HELICOPTER_MISSILE_STEP*2
  $738F ADD A,$10     ;
  $7391 LD C,A        ;
  $7392 RET           ;
 
-; Routine at 7393
+; Operates helicopter missile.
 ;
 ; Used by the routines at #R$5F91 and #R$6D17.
+@label=operate_helicopter_missile
 c$7393 LD BC,($5F73) ;
  $7397 LD A,B        ;
  $7398 CP $00        ;
@@ -5146,6 +5156,7 @@ c$7393 LD BC,($5F73) ;
  $739B CALL $62DA    ;
  $739E LD ($8B0A),BC ;
  $73A2 LD A,C        ;
+@isub=SUB HELICOPTER_MISSILE_STEP
  $73A3 SUB $08       ;
  $73A5 LD C,A        ;
  $73A6 LD A,B        ;
@@ -5155,6 +5166,7 @@ c$7393 LD BC,($5F73) ;
  $73A9 CP $88        ;
  $73AB JP Z,$73D0    ;
  $73AE LD A,($5F75)  ;
+@isub=BIT SLOT_BIT_ORIENTATION,A
  $73B1 BIT 6,A       ;
  $73B3 CALL Z,$738E  ;
  $73B6 LD ($8B0C),BC ;
@@ -5162,16 +5174,19 @@ c$7393 LD BC,($5F73) ;
 @isub=LD A,OTHER_MODE_HELICOPTER_ADV
  $73BE LD A,$04      ;
  $73C0 LD ($5EF5),A  ;
+@isub=LD A,SPRITE_HELICOPTER_MISSILE_WIDTH_TILES
  $73C3 LD A,$01      ;
+@isub=LD E,SPRITE_HELICOPTER_MISSILE_ATTRIBUTES
  $73C5 LD E,$00      ;
  $73C7 LD D,$01      ;
  $73C9 LD HL,$82C5   ;
  $73CC CALL $8B1E    ;
  $73CF RET           ;
 
-; Routine at 73D0
+; Removes helicopter missile.
 ;
 ; Used by the routine at #R$7393.
+@label=remove_helicopter_missile
 c$73D0 LD BC,$0000   ;
  $73D3 LD ($5F73),BC ;
  $73D7 RET           ;
