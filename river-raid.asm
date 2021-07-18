@@ -4396,7 +4396,7 @@ render_enemy:
 ; Load ship screen attributes.
 ;
 ; Used by the routines at handle_right, handle_left, L6682, render_enemy,
-; ship_or_helicopter_left_advance and L75D0.
+; ship_or_helicopter_left_advance and handle_object_proximity.
 ;
 ; O:E Attributes
 ld_attributes_ship:
@@ -4479,8 +4479,9 @@ render_balloon:
 ; Used by the routines at play, main_loop, demo,
 ; ship_or_helicopter_left_advance, operate_fighter, L71A2, L7224,
 ; animate_object, animate_helicopter, operate_tank, operate_tank_on_bank,
-; L7358, L74EE, operate_fuel, L75D0, remove_object_from_viewport,
-; operate_baloon, jp_operate_viewport_objects and L76DA.
+; L7358, L74EE, operate_fuel, handle_object_proximity,
+; remove_object_from_viewport, operate_baloon, jp_operate_viewport_objects and
+; L76DA.
 operate_viewport_objects:
   LD A,OTHER_MODE_00
   LD (state_other_mode),A
@@ -4568,7 +4569,7 @@ ship_or_helicopter_left_advance:
   LD A,(HL)
   POP BC
   CP $00
-  CALL NZ,L75D0
+  CALL NZ,handle_object_proximity
   LD (previous_object_coordinates),BC
   DEC C
   DEC C
@@ -5369,7 +5370,7 @@ ship_or_helicopter_right_advance:
   LD A,(HL)
   POP BC
   CP $00
-  CALL NZ,L75D0
+  CALL NZ,handle_object_proximity
   LD (previous_object_coordinates),BC
   INC C
   INC C
@@ -5378,7 +5379,8 @@ ship_or_helicopter_right_advance:
 ; Load array of enemy sprites.
 ;
 ; Used by the routines at render_enemy, ship_or_helicopter_left_advance,
-; operate_fighter, animate_helicopter, operate_tank and L75D0.
+; operate_fighter, animate_helicopter, operate_tank and
+; handle_object_proximity.
 ;
 ; I:D OBJECT_DEFINITION
 ; I:HL Pointer to the array of sprites
@@ -5398,15 +5400,18 @@ ld_enemy_sprites_loop:
   JR NZ,ld_enemy_sprites_loop
   RET
 
-; Routine at 75D0
+; Handles the situation when a ship or a helicopter is in close proximity to
+; another object.
 ;
-; Used by the routines at ship_or_helicopter_left_advance and
-; ship_or_helicopter_right_advance.
-L75D0:
+; If it approaches a river bank or a fuel station, it will invert its
+; orientation. But if it's the the player, it won't.
+;
+; I:BC Object coordinates
+handle_object_proximity:
   LD (previous_object_coordinates),BC
-  LD A,B
-  SUB $80
-  RET P
+  LD A,B                  ; Return if the object is located in the top half of
+  SUB $80                 ; the screen. Otherwise, the other object may be the
+  RET P                   ; player and should be ignored.
   LD BC,(previous_object_coordinates)
   POP HL
   LD HL,(viewport_ptr)
@@ -5416,21 +5421,21 @@ L75D0:
   LD BC,(previous_object_coordinates)
   LD A,C
   AND $07
-  LD BC,$0018
+  LD BC,SPRITE_3BY1_ENEMY_FRAME_SIZE
   SRL A
   OR A
   INC A
   SBC HL,BC
-L75D0_0:
+handle_object_proximity_0:
   ADD HL,BC
   DEC A
-  JR NZ,L75D0_0
+  JR NZ,handle_object_proximity_0
   LD (render_sprite_ptr),HL
   LD BC,(previous_object_coordinates)
   LD (object_coordinates),BC
-  LD A,D
-  XOR $40
-  LD D,A
+  LD A,D                      ; Invert object orientation
+  XOR 1<<SLOT_BIT_ORIENTATION ;
+  LD D,A                      ;
   LD HL,(viewport_ptr)
   DEC HL
   LD (HL),A
@@ -7039,7 +7044,7 @@ render_sprite_0:
 ;
 ; Used by the routines at L60A5, handle_right, handle_left, L6682, L6794,
 ; render_rock, ship_or_helicopter_left_advance, L71A2, animate_helicopter,
-; L74A0, L75D0 and L76DA.
+; L74A0, handle_object_proximity and L76DA.
 ;
 ; I:A Sprite width in tiles
 ; I:BC Sprite size in bytes

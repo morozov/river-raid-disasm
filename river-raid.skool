@@ -5524,13 +5524,18 @@ c$75BA LD HL,$85B3   ;
  $75CD JR NZ,$75CB   ;
  $75CF RET           ;
 
-; Routine at 75D0
+; Handles the situation when a ship or a helicopter is in close proximity to
+; another object.
 ;
-; Used by the routines at #R$7113 and #R$75A2.
+; If it approaches a river bank or a fuel station, it will invert its
+; orientation. But if it's the the player, it won't.
+;
+; I:BC Object coordinates
+@label=handle_object_proximity
 c$75D0 LD ($8B0A),BC ;
- $75D4 LD A,B        ;
- $75D5 SUB $80       ;
- $75D7 RET P         ;
+ $75D4 LD A,B        ; {Return if the object is located in the top half of the
+ $75D5 SUB $80       ; screen. Otherwise, the other object may be the player
+ $75D7 RET P         ; and should be ignored.}
  $75D8 LD BC,($8B0A) ;
  $75DC POP HL        ;
  $75DD LD HL,($5F60) ;
@@ -5540,6 +5545,7 @@ c$75D0 LD ($8B0A),BC ;
  $75E5 LD BC,($8B0A) ;
  $75E9 LD A,C        ;
  $75EA AND $07       ;
+@isub=LD BC,SPRITE_3BY1_ENEMY_FRAME_SIZE
  $75EC LD BC,$0018   ;
  $75EF SRL A         ;
  $75F1 OR A          ;
@@ -5551,9 +5557,10 @@ c$75D0 LD ($8B0A),BC ;
  $75F9 LD ($8B0E),HL ;
  $75FC LD BC,($8B0A) ;
  $7600 LD ($8B0C),BC ;
- $7604 LD A,D        ;
+ $7604 LD A,D        ; {Invert object orientation
+@isub=XOR 1<<SLOT_BIT_ORIENTATION
  $7605 XOR $40       ;
- $7607 LD D,A        ;
+ $7607 LD D,A        ; }
  $7608 LD HL,($5F60) ;
  $760B DEC HL        ;
  $760C LD (HL),A     ;

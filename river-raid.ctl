@@ -1055,7 +1055,14 @@ R $75BA I:HL Pointer to the array of sprites
   $75BD,3 Enemy sprite array size (3×1 tiles × 8 bytes/tile × 4 frames)
 @ $75C0 isub=BIT SLOT_BIT_ORIENTATION,D
 @ $75CB label=ld_enemy_sprites_loop
-c $75D0
+@ $75D0 label=handle_object_proximity
+c $75D0 Handles the situation when a ship or a helicopter is in close proximity to another object.
+D $75D0 If it approaches a river bank or a fuel station, it will invert its orientation. But if it's the the player, it won't.
+R $75D0 I:BC Object coordinates
+  $75D4,4 Return if the object is located in the top half of the screen. Otherwise, the other object may be the player and should be ignored.
+@ $75EC isub=LD BC,SPRITE_3BY1_ENEMY_FRAME_SIZE
+  $7604,4 Invert object orientation
+@ $7605 isub=XOR 1<<SLOT_BIT_ORIENTATION
 @ $7613 isub=AND SLOT_MASK_OBJECT_TYPE
 @ $7615 isub=CP OBJECT_SHIP
 @ $761A isub=LD D,SPRITE_3BY1_ENEMY_HEIGHT_PIXELS
