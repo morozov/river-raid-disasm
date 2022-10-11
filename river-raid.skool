@@ -6320,6 +6320,7 @@ b$83B1 DEFB $10,$00  ; {Frame 1
  $83B5 DEFB $38,$00  ;
  $83B7 DEFB $7C,$00  ;
  $83B9 DEFB $D6,$00  ;
+@ofix=DEFB $92,$00
  $83BB DEFB $82,$00  ;
  $83BD DEFB $38,$00  ;
  $83BF DEFB $54,$00  ; }
@@ -6328,6 +6329,7 @@ b$83B1 DEFB $10,$00  ; {Frame 1
  $83C5 DEFB $0E,$00  ;
  $83C7 DEFB $1F,$00  ;
  $83C9 DEFB $35,$80  ;
+@ofix=DEFB $24,$80
  $83CB DEFB $04,$80  ;
  $83CD DEFB $0E,$00  ;
  $83CF DEFB $15,$00  ; }

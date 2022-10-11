@@ -6163,7 +6163,7 @@ sprite_plane:
   DEFB $38,$00            ;
   DEFB $7C,$00            ;
   DEFB $D6,$00            ;
-  DEFB $82,$00            ;
+  DEFB $92,$00            ;
   DEFB $38,$00            ;
   DEFB $54,$00            ;
   DEFB $04,$00            ; Frame 2
@@ -6171,7 +6171,7 @@ sprite_plane:
   DEFB $0E,$00            ;
   DEFB $1F,$00            ;
   DEFB $35,$80            ;
-  DEFB $04,$80            ;
+  DEFB $24,$80            ;
   DEFB $0E,$00            ;
   DEFB $15,$00            ;
   DEFB $01,$00            ; Frame 3

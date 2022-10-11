@@ -1259,7 +1259,9 @@ b $83B1
 N $83B1 #UDGTABLE { #UDGARRAY2,14,4,2;$83B1-$83B2-1-16(*plane-f1) | #UDGARRAY2,14,4,2;$83C1-$83C2-1-16(*plane-f2) | #UDGARRAY2,14,4,2;$83D1-$83D2-1-16(*plane-f3) | #UDGARRAY2,14,4,2;$83E1-$83E2-1-16(*plane-f4) } TABLE#
 N $83B1 #UDGTABLE { #UDGARRAY2,14,4,2;$83B1-$83B2-1-16(*plane-f1) | #UDGARRAY2,14,4,2;$83C1-$83C2-1-16(*plane-f2) | #UDGARRAY2,14,4,2;$83D1-$83D2-1-16(*plane-f3) | #UDGARRAY2,14,4,2;$83E1-$83E2-1-16(*plane-f4) } TABLE#
   $83B1,16,2 Frame 1
+@ $83BB ofix=DEFB $92,$00
   $83C1,16,2 Frame 2
+@ $83CB ofix=DEFB $24,$80
   $83D1,16,2 Frame 3
   $83E1,16,2 Frame 4
 @ $83F1 label=sprite_plane_banked
