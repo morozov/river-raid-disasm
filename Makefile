@@ -40,7 +40,7 @@ $(SKOOL): $(PRISTINE_Z80) $(CTL)
 
 # Pristine snapshot built from the TZX image
 $(PRISTINE_Z80): $(T2S)
-	tap2sna.py -f @$(T2S) \
+	tap2sna.py @$(T2S) \
 		--reg pc=$(PC) \
 		--reg sp=$(SP) \
 		https://zxaaa.net/DENIED/River%20Raid%20%281984%29%28Activision%29.tzx \
